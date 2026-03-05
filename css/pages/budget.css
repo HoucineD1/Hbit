@@ -1296,16 +1296,14 @@ html[data-theme="light"] #budgetPage .bg-empty {
     margin-right: auto;
   }
 
-  /* Full-width rows */
+  /* Row 1: Full-width monthly overview (date + summary + breakdown) */
   #budgetPage .bg-top-row,
   #budgetPage .bg-summary,
+  #budgetPage .bg-breakdown-sec,
   #budgetPage .bg-page-footer { grid-column: 1 / -1; }
 
-  /* Left column: breakdown + chart */
-  #budgetPage .bg-breakdown-sec { grid-column: 1; }
+  /* Row 2: Left column = chart; Right column = accounts + transactions */
   #budgetPage #bgSecChart        { grid-column: 1; }
-
-  /* Right column: accounts + transactions */
   #budgetPage #bgSecAccounts     { grid-column: 2; }
   #budgetPage #bgSecTransactions { grid-column: 2; }
 

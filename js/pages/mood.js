@@ -124,23 +124,6 @@
   }
   function writeUI(ui) { writeJSON(KEY_UI, ui); }
 
-  function readForm() {
-    const mood   = num(qs("#rngMood7")?.value, 3);
-    const stress = num(qs("#rngStress7")?.value, 3);
-    const energy = num(qs("#rngEnergy7")?.value, 3);
-    const focus  = num(qs("#rngFocus7")?.value, 3);
-    const social = num(qs("#rngSocial7")?.value, 3);
-
-    const emoBtn = qs("#emotionChips .mood-chip.active");
-    const emotion = emoBtn ? emoBtn.getAttribute("data-value") : "";
-
-    const impBtn = qs("#impactChips .mood-chip.active");
-    const impact = impBtn ? impBtn.getAttribute("data-value") : "";
-
-    const note = (qs("#moodNote")?.value || "").trim();
-    return { mood, stress, energy, focus, social, emotion, impact, note };
-  }
-
   function normalizeFrom7(v) {
     const n = clamp(num(v, 3), 1, 7);
     return clamp(Math.round(((n - 1) * 4) / 6 + 1), 1, 5);
@@ -178,17 +161,6 @@
     return "other";
   }
 
-  function setRing(ov) {
-    const ring = qs("#moodRing");
-    const score = qs("#ringScore");
-    if (!ring) return;
-
-    const deg = (ov / 5) * 360;
-    ring.style.setProperty("--deg", `${deg}deg`);
-    ring.style.setProperty("--ringColor", moodColor(Math.round(ov)));
-    if (score) score.textContent = scaleLabel(Math.round(ov), getLang());
-  }
-
   function setOverallPill(st) {
     const lang = getLang();
     const ov = overallScore(st);
@@ -200,14 +172,6 @@
     pill.textContent = scaleLabel(v, lang);
   }
 
-  function renderAllSliders() {
-    renderOne("rngMood7", "pillMood7", "capMood7");
-    renderOne("rngStress7", "pillStress7", "capStress7");
-    renderOne("rngEnergy7", "pillEnergy7", "capEnergy7");
-    renderOne("rngFocus7", "pillFocus7", "capFocus7");
-    renderOne("rngSocial7", "pillSocial7", "capSocial7");
-  }
-
   function makeChip(label, value, onClick) {
     const b = document.createElement("button");
     b.type = "button";
@@ -216,118 +180,6 @@
     b.setAttribute("data-value", value);
     on(b, "click", onClick);
     return b;
-  }
-
-  function setActiveChip(containerSel, btnEl) {
-    qsa(containerSel + " .mood-chip").forEach(x => x.classList.remove("active"));
-    btnEl.classList.add("active");
-  }
-
-  function buildEmotionChips(st) {
-    const wrap = qs("#emotionChips");
-    if (!wrap) return;
-
-    const ui = readUI();
-    const lang = getLang();
-    const ov = overallScore(st);
-    const band = bandFromOverall(ov);
-    const sets = emotionSets(lang)[band];
-
-    const list = ui.emoMore ? [...sets.base, ...sets.more] : sets.base;
-    const current = st.emotion || "";
-
-    wrap.innerHTML = "";
-    list.forEach((name) => {
-      const b = makeChip(name, name, () => {
-        setActiveChip("#emotionChips", b);
-        const pill = qs("#pillEmotion");
-        if (pill) setPill(pill, clamp(Math.round(ov), 1, 5), name);
-        saveToday(readForm());
-      });
-
-      if (current && current === name) b.classList.add("active");
-      wrap.appendChild(b);
-    });
-
-    const active = qs("#emotionChips .mood-chip.active");
-    const pill = qs("#pillEmotion");
-    if (pill) {
-      if (active) setPill(pill, clamp(Math.round(ov), 1, 5), active.getAttribute("data-value"));
-      else { pill.className = "pill"; pill.textContent = "—"; }
-    }
-
-    const moreBtn = qs("#emotionMoreBtn");
-    if (moreBtn) {
-      moreBtn.textContent = ui.emoMore
-        ? (lang === "fr" ? "Afficher moins" : "Show less")
-        : (lang === "fr" ? "Afficher plus" : "Show more");
-    }
-  }
-
-  function buildImpactChips(st) {
-    const wrap = qs("#impactChips");
-    if (!wrap) return;
-
-    const ui = readUI();
-    const lang = getLang();
-    const sets = impactSets(lang);
-    const list = ui.impMore ? [...sets.base, ...sets.more] : sets.base;
-
-    const current = st.impact || "";
-    wrap.innerHTML = "";
-
-    list.forEach((name) => {
-      const b = makeChip(name, name, () => {
-        setActiveChip("#impactChips", b);
-        const ov = clamp(Math.round(overallScore(readForm())), 1, 5);
-        const pill = qs("#pillImpact");
-        if (pill) setPill(pill, ov, name);
-        saveToday(readForm());
-      });
-
-      if (current && current === name) b.classList.add("active");
-      wrap.appendChild(b);
-    });
-
-    const pill = qs("#pillImpact");
-    const active = qs("#impactChips .mood-chip.active");
-    const ov = clamp(Math.round(overallScore(st)), 1, 5);
-
-    if (pill) {
-      if (active) setPill(pill, ov, active.getAttribute("data-value"));
-      else { pill.className = "pill"; pill.textContent = "—"; }
-    }
-
-    const moreBtn = qs("#impactMoreBtn");
-    if (moreBtn) {
-      moreBtn.textContent = ui.impMore
-        ? (lang === "fr" ? "Afficher moins" : "Show less")
-        : (lang === "fr" ? "Afficher plus" : "Show more");
-    }
-  }
-
-  function applyToUI(st) {
-    if (!st) return;
-
-    const setRange = (id, v) => { const el = qs("#" + id); if (el) el.value = String(v); };
-
-    setRange("rngMood7", st.mood ?? 3);
-    setRange("rngStress7", st.stress ?? 3);
-    setRange("rngEnergy7", st.energy ?? 3);
-    setRange("rngFocus7", st.focus ?? 3);
-    setRange("rngSocial7", st.social ?? 3);
-
-    const note = qs("#moodNote");
-    if (note) note.value = st.note || "";
-
-    renderAllSliders();
-
-    const cur = readForm();
-    setOverallPill(cur);
-    setRing(overallScore(cur));
-
-    buildEmotionChips(cur);
-    buildImpactChips(cur);
   }
 
   function renderHistory() {
@@ -366,121 +218,367 @@
     });
   }
 
-  function refreshEverything() {
-    renderAllSliders();
-    const st = readForm();
-    setOverallPill(st);
-    setRing(overallScore(st));
-    buildEmotionChips(st);
-    buildImpactChips(st);
-    saveToday(st);
+  /* ════════════════════════════════════════════════════════════
+     WIZARD — step-by-step log popup
+     Steps: 0 sliders | 1 emotion | 2 impact | 3 impact-q |
+            4 trigger-q | 5 action-q | 6 notes
+     ════════════════════════════════════════════════════════════ */
+  const WZ_TOTAL = 7;
+  const wz = {
+    step: 0,
+    data: { mood:3, stress:3, energy:3, focus:3, social:3, emotion:"", impact:"", impactQ:"", triggerQ:"", actionQ:"", note:"" }
+  };
+
+  function wzTitle(step) {
+    const lang = getLang();
+    const en = [
+      "How do you feel today?",
+      "What emotion fits best?",
+      "What had the most impact?",
+      "What impacted your day?",
+      "What was the main trigger?",
+      "One action you can take now?",
+      "Any notes?"
+    ];
+    const fr = [
+      "Comment tu te sens aujourd'hui ?",
+      "Quelle émotion te correspond ?",
+      "Qu'est-ce qui a eu le plus d'impact ?",
+      "Qu'est-ce qui a impacté ta journée ?",
+      "Quel a été le déclencheur principal ?",
+      "Une action que tu peux faire maintenant ?",
+      "Des notes ?"
+    ];
+    return (lang === "fr" ? fr : en)[step] || "";
+  }
+
+  function wzSave() {
+    const s = wz.step;
+    const lang = getLang();
+    if (s === 0) {
+      const dims = ["Mood7","Stress7","Energy7","Focus7","Social7"];
+      const keys = ["mood","stress","energy","focus","social"];
+      dims.forEach((d, i) => {
+        const el = qs("#wzRng" + d);
+        if (el) wz.data[keys[i]] = num(el.value, 3);
+      });
+    } else if (s === 1) {
+      const a = qs("#wzEmotionChips .mood-chip.active");
+      if (a) wz.data.emotion = a.getAttribute("data-value");
+    } else if (s === 2) {
+      const a = qs("#wzImpactChips .mood-chip.active");
+      if (a) wz.data.impact = a.getAttribute("data-value");
+    } else if (s === 3) {
+      wz.data.impactQ = (qs("#wzImpactQ")?.value || "").trim();
+    } else if (s === 4) {
+      wz.data.triggerQ = (qs("#wzTriggerQ")?.value || "").trim();
+    } else if (s === 5) {
+      wz.data.actionQ = (qs("#wzActionQ")?.value || "").trim();
+    } else if (s === 6) {
+      wz.data.note = (qs("#wzNote")?.value || "").trim();
+    }
+  }
+
+  function wzRender(step) {
+    const content = qs("#mdLogContent");
+    if (!content) return;
+    const lang = getLang();
+    content.innerHTML = "";
+
+    if (step === 0) {
+      const dims = [
+        { id: "Mood7",   key: "mood",   label: lang === "fr" ? "Humeur" : "Mood" },
+        { id: "Stress7", key: "stress", label: "Stress" },
+        { id: "Energy7", key: "energy", label: lang === "fr" ? "Énergie" : "Energy" },
+        { id: "Focus7",  key: "focus",  label: "Focus" },
+        { id: "Social7", key: "social", label: "Social" },
+      ];
+      const grid = document.createElement("div");
+      grid.className = "md-sliders";
+      dims.forEach(d => {
+        const v = wz.data[d.key];
+        const card = document.createElement("div");
+        card.className = "md-slider-card";
+        card.innerHTML = `
+          <div class="md-slider-head">
+            <span class="md-slider-label">${d.label}</span>
+            <span class="pill mood7-pill" id="wzPill${d.id}">—</span>
+          </div>
+          <input id="wzRng${d.id}" type="range" min="1" max="5" value="${v}" class="md-range" />
+          <div class="md-cap" id="wzCap${d.id}">—</div>
+        `;
+        grid.appendChild(card);
+      });
+      content.appendChild(grid);
+
+      const ringWrap = document.createElement("div");
+      ringWrap.className = "md-ring-wrap";
+      ringWrap.innerHTML = `
+        <div class="md-ring" id="wzRing" style="--deg:0deg;">
+          <div class="md-ring-center">
+            <span class="md-ring-label">${lang === "fr" ? "Global" : "Overall"}</span>
+            <span class="md-ring-val" id="wzRingScore">—</span>
+          </div>
+        </div>
+      `;
+      content.appendChild(ringWrap);
+
+      function wzUpdateRing() {
+        const ov = overallScore(wz.data);
+        const deg = (ov / 5) * 360;
+        const ring = qs("#wzRing");
+        const score = qs("#wzRingScore");
+        if (ring) {
+          ring.style.setProperty("--deg", `${deg}deg`);
+          ring.style.setProperty("--ringColor", moodColor(Math.round(ov)));
+        }
+        if (score) score.textContent = scaleLabel(Math.round(ov), lang);
+      }
+
+      dims.forEach(d => {
+        renderOne("wzRng" + d.id, "wzPill" + d.id, "wzCap" + d.id);
+        const el = qs("#wzRng" + d.id);
+        if (el) {
+          updateRangeStyle(el, num(el.value, 3), 5);
+          el.addEventListener("input", () => {
+            wz.data[d.key] = num(el.value, 3);
+            renderOne("wzRng" + d.id, "wzPill" + d.id, "wzCap" + d.id);
+            wzUpdateRing();
+          });
+        }
+      });
+      wzUpdateRing();
+
+    } else if (step === 1) {
+      const ov = overallScore(wz.data);
+      const band = bandFromOverall(ov);
+      const ui = readUI();
+      const sets = emotionSets(lang)[band];
+      const list = ui.emoMore ? [...sets.base, ...sets.more] : sets.base;
+      const wrap = document.createElement("div");
+      wrap.id = "wzEmotionChips";
+      wrap.className = "chips";
+      list.forEach(name => {
+        const b = makeChip(name, name, () => {
+          qsa("#wzEmotionChips .mood-chip").forEach(x => x.classList.remove("active"));
+          b.classList.add("active");
+          wz.data.emotion = name;
+        });
+        if (wz.data.emotion === name) b.classList.add("active");
+        wrap.appendChild(b);
+      });
+      content.appendChild(wrap);
+      const moreBtn = document.createElement("button");
+      moreBtn.className = "md-btn small";
+      moreBtn.style.marginTop = "10px";
+      moreBtn.textContent = ui.emoMore ? (lang === "fr" ? "Afficher moins" : "Show less") : (lang === "fr" ? "Afficher plus" : "Show more");
+      moreBtn.addEventListener("click", () => {
+        const u = readUI(); u.emoMore = !u.emoMore; writeUI(u); wzRender(1);
+      });
+      content.appendChild(moreBtn);
+
+    } else if (step === 2) {
+      const ui = readUI();
+      const sets = impactSets(lang);
+      const list = ui.impMore ? [...sets.base, ...sets.more] : sets.base;
+      const wrap = document.createElement("div");
+      wrap.id = "wzImpactChips";
+      wrap.className = "chips";
+      list.forEach(name => {
+        const b = makeChip(name, name, () => {
+          qsa("#wzImpactChips .mood-chip").forEach(x => x.classList.remove("active"));
+          b.classList.add("active");
+          wz.data.impact = name;
+        });
+        if (wz.data.impact === name) b.classList.add("active");
+        wrap.appendChild(b);
+      });
+      content.appendChild(wrap);
+      const moreBtn = document.createElement("button");
+      moreBtn.className = "md-btn small";
+      moreBtn.style.marginTop = "10px";
+      moreBtn.textContent = ui.impMore ? (lang === "fr" ? "Afficher moins" : "Show less") : (lang === "fr" ? "Afficher plus" : "Show more");
+      moreBtn.addEventListener("click", () => {
+        const u = readUI(); u.impMore = !u.impMore; writeUI(u); wzRender(2);
+      });
+      content.appendChild(moreBtn);
+
+    } else if (step === 3) {
+      const inp = document.createElement("input");
+      inp.type = "text"; inp.id = "wzImpactQ"; inp.className = "md-input";
+      inp.placeholder = lang === "fr" ? "ex. Travail, sommeil, famille..." : "e.g. Work, sleep, family...";
+      inp.maxLength = 120; inp.value = wz.data.impactQ || "";
+      content.appendChild(inp);
+      setTimeout(() => inp.focus(), 60);
+
+    } else if (step === 4) {
+      const inp = document.createElement("input");
+      inp.type = "text"; inp.id = "wzTriggerQ"; inp.className = "md-input";
+      inp.placeholder = lang === "fr" ? "ex. Après ___ je me suis senti(e)..." : "e.g. After ___ I felt ___";
+      inp.maxLength = 120; inp.value = wz.data.triggerQ || "";
+      content.appendChild(inp);
+      setTimeout(() => inp.focus(), 60);
+
+    } else if (step === 5) {
+      const inp = document.createElement("input");
+      inp.type = "text"; inp.id = "wzActionQ"; inp.className = "md-input";
+      inp.placeholder = lang === "fr" ? "ex. 5 min de marche, appeler un ami..." : "e.g. 5 min walk, call a friend...";
+      inp.maxLength = 120; inp.value = wz.data.actionQ || "";
+      content.appendChild(inp);
+      setTimeout(() => inp.focus(), 60);
+
+    } else if (step === 6) {
+      const ta = document.createElement("textarea");
+      ta.id = "wzNote"; ta.className = "md-textarea"; ta.rows = 4;
+      ta.placeholder = lang === "fr" ? "Écris ce que tu veux..." : "Write anything...";
+      ta.value = wz.data.note || "";
+      content.appendChild(ta);
+      setTimeout(() => ta.focus(), 60);
+    }
+  }
+
+  function wzSync() {
+    const lang = getLang();
+    const label = qs("#mdLogStepLabel");
+    if (label) label.textContent = `${wz.step + 1} / ${WZ_TOTAL}`;
+
+    const fill = qs("#mdLogProgressFill");
+    if (fill) fill.style.width = `${(wz.step / (WZ_TOTAL - 1)) * 100}%`;
+
+    const title = qs("#mdLogStepTitle");
+    if (title) title.textContent = wzTitle(wz.step);
+
+    const back = qs("#mdLogBtnBack");
+    if (back) {
+      back.disabled = wz.step === 0;
+      back.textContent = lang === "fr" ? "Retour" : "Back";
+    }
+
+    const next = qs("#mdLogBtnNext");
+    if (next) {
+      if (wz.step === WZ_TOTAL - 1) {
+        next.textContent = lang === "fr" ? "Enregistrer ✓" : "Save ✓";
+      } else {
+        next.textContent = lang === "fr" ? "Suivant →" : "Next →";
+      }
+    }
+
+    wzRender(wz.step);
+  }
+
+  function wzPersistAndSave() {
+    wzSave();
+    const data = { ...wz.data };
+    const ov = overallScore(data);
+    const entry = { ...data, overall: ov, ts: Date.now() };
+    const arr = readHistory();
+    arr.unshift(entry);
+    writeHistory(arr);
+    saveToday(data);
+
+    setOverallPill(data);
+    const page = document.getElementById("moodPage");
+    if (page) {
+      const v = Math.round(ov);
+      page.setAttribute("data-mood-tone", v <= 2 ? "low" : v >= 4 ? "high" : "mid");
+    }
+
+    renderHistory();
+    closeMoodLogModal();
+
+    if (window.HBIT?.db) {
+      const today = new Date().toISOString().slice(0, 10);
+      const to10 = v => Math.round(clamp(num(v, 3), 1, 5) * 2);
+      HBIT.db.moodLogs.set(today, {
+        score:  to10(ov),
+        energy: to10(data.energy || 3),
+        stress: to10(data.stress || 3),
+        focus:  to10(data.focus || 3),
+        notes:  data.note || "",
+        tags:   [data.emotion, data.impact].filter(Boolean)
+      }).then(() => {
+        if (window.HBIT?.updateUserProfile) {
+          HBIT.updateUserProfile({
+            "stats.moodLogs": firebase.firestore.FieldValue.increment(1)
+          }).catch(() => {});
+        }
+      }).catch(e => console.warn("[Hbit] Mood Firestore sync:", e.message));
+    }
+  }
+
+  function openMoodLogModal() {
+    const prev = normalizeEntry(readToday());
+    const def = { mood:3, stress:3, energy:3, focus:3, social:3, emotion:"", impact:"", impactQ:"", triggerQ:"", actionQ:"", note:"" };
+    wz.data = { ...def, ...(prev || {}) };
+    wz.step = 0;
+    wzSync();
+    const modal = qs("#moodLogModal");
+    if (modal) { modal.setAttribute("aria-hidden", "false"); document.body.style.overflow = "hidden"; }
+  }
+
+  function closeMoodLogModal() {
+    const modal = qs("#moodLogModal");
+    if (modal) { modal.setAttribute("aria-hidden", "true"); document.body.style.overflow = ""; }
   }
 
   function bind() {
-    ["rngMood7","rngStress7","rngEnergy7","rngFocus7","rngSocial7"].forEach(id => {
-      const el = qs("#" + id);
-      on(el, "input", refreshEverything);
-      if (el) updateRangeStyle(el, num(el.value, 3), 5);
+    on(qs("#moodLogBtn"),   "click", openMoodLogModal);
+    on(qs("#moodLogClose"), "click", closeMoodLogModal);
+
+    qs("#moodLogModal")?.addEventListener("click", (e) => {
+      if (e.target.id === "moodLogModal") closeMoodLogModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && qs("#moodLogModal")?.getAttribute("aria-hidden") === "false") closeMoodLogModal();
     });
 
-    on(qs("#moodNote"), "input", () => saveToday(readForm()));
-
-    on(qs("#emotionMoreBtn"), "click", () => {
-      const ui = readUI();
-      ui.emoMore = !ui.emoMore;
-      writeUI(ui);
-      buildEmotionChips(readForm());
+    on(qs("#mdLogBtnBack"), "click", () => {
+      if (wz.step > 0) { wzSave(); wz.step--; wzSync(); }
     });
 
-    on(qs("#impactMoreBtn"), "click", () => {
-      const ui = readUI();
-      ui.impMore = !ui.impMore;
-      writeUI(ui);
-      buildImpactChips(readForm());
-    });
-
-    on(qs("#moodResetToday"), "click", () => {
-      const defaults = { mood:3, stress:3, energy:3, focus:3, social:3, emotion:"", impact:"", note:"" };
-      applyToUI(defaults);
-      saveToday(defaults);
-    });
-
-    on(qs("#moodClear"), "click", () => {
-      localStorage.removeItem(KEY_TODAY);
-      const defaults = { mood:3, stress:3, energy:3, focus:3, social:3, emotion:"", impact:"", note:"" };
-      applyToUI(defaults);
-    });
-
-    on(qs("#moodSave"), "click", () => {
-      const data = readForm();
-      const ov = overallScore(data);
-      const entry = { ...data, overall: ov, ts: Date.now() };
-
-      const arr = readHistory();
-      arr.unshift(entry);
-      writeHistory(arr);
-
-      const pill = qs("#moodOverallPill");
-      if (pill) {
-        const lang = getLang();
-        pill.className = `pill ${moodClassFrom5(4)}`;
-        pill.textContent = (lang === "fr") ? "Enregistré ✓" : "Saved ✓";
-        setTimeout(() => setOverallPill(readForm()), 900);
-      }
-
-      renderHistory();
-
-      /* ── Firestore sync (non-blocking) ─────────────── */
-      if (window.HBIT?.db) {
-        const today = new Date().toISOString().slice(0, 10);
-        /* Map 1-5 scale to 1-10 */
-        const to10 = v => Math.round(clamp(v, 1, 5) * 2);
-        HBIT.db.moodLogs.set(today, {
-          score:  to10(ov),
-          energy: to10(data.energy || 3),
-          stress: to10(data.stress || 3),
-          notes:  data.note || "",
-          tags:   [data.emotion, data.impact].filter(Boolean)
-        }).then(() => {
-          if (window.HBIT?.updateUserProfile) {
-            HBIT.updateUserProfile({
-              "stats.moodLogs": firebase.firestore.FieldValue.increment(1)
-            }).catch(() => {});
-          }
-        }).catch(e => console.warn("[Hbit] Mood Firestore sync:", e.message));
+    on(qs("#mdLogBtnNext"), "click", () => {
+      wzSave();
+      if (wz.step === WZ_TOTAL - 1) {
+        wzPersistAndSave();
+      } else {
+        wz.step++;
+        wzSync();
       }
     });
-
-    // Re-render when language label changes
-    const lab = document.getElementById("langLabel");
-    if (lab) {
-      const obs = new MutationObserver(() => {
-        renderAllSliders();
-        const st = readForm();
-        setOverallPill(st);
-        setRing(overallScore(st));
-        buildEmotionChips(st);
-        buildImpactChips(st);
-      });
-      obs.observe(lab, { childList: true });
-    }
   }
 
   function init() {
-    // ensure UI defaults exist
     const ui = readUI();
     writeUI(ui);
 
+    const def = { mood:3, stress:3, energy:3, focus:3, social:3, emotion:"", impact:"", impactQ:"", triggerQ:"", actionQ:"", note:"" };
     const st = normalizeEntry(readToday());
-    if (st) applyToUI(st);
-    else {
-      const defaults = { mood:3, stress:3, energy:3, focus:3, social:3, emotion:"", impact:"", note:"" };
-      applyToUI(defaults);
-      saveToday(defaults);
+    const active = st || def;
+    if (!st) saveToday(def);
+    setOverallPill(active);
+
+    const page = document.getElementById("moodPage");
+    if (page && st) {
+      const v = Math.round(overallScore(st));
+      page.setAttribute("data-mood-tone", v <= 2 ? "low" : v >= 4 ? "high" : "mid");
     }
+
+    const dateEl = document.getElementById("moodDate");
+    if (dateEl) dateEl.textContent = new Date().toLocaleDateString(getLang() === "fr" ? "fr-FR" : "en-US", { weekday: "short", day: "numeric", month: "short" });
 
     bind();
     renderHistory();
+
+    qs("#logoutBtn")?.addEventListener("click", async () => {
+      try {
+        if (typeof firebase !== "undefined" && firebase.auth) {
+          await firebase.auth().signOut();
+          window.location.replace("index.html");
+        }
+      } catch (e) {
+        console.warn("[mood] Sign out:", e?.message);
+      }
+    });
   }
 
   HBIT.pages = HBIT.pages || {};

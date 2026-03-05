@@ -23,7 +23,7 @@
   display: flex;
   flex-direction: column;
   background: var(--fc-bg);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter",
+  font-family: var(--font-sans),
                Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   color: var(--fc-text);
@@ -378,3 +378,27 @@
   .fc-timer-wrap { width: 300px; height: 300px; }
   .fc-time-display { font-size: 68px; }
 }
+
+/* ── Light theme ─────────────────────────────────────────── */
+html[data-theme="light"] #focusPage {
+  --fc-bg:      #f1f3f7;
+  --fc-surface: rgba(0, 0, 0, 0.04);
+  --fc-border:  rgba(0, 0, 0, 0.08);
+  --fc-text:    rgba(0, 0, 0, 0.88);
+  --fc-muted:   rgba(0, 0, 0, 0.45);
+}
+html[data-theme="light"] #focusPage .fc-header {
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+html[data-theme="light"] #focusPage .fc-back,
+html[data-theme="light"] #focusPage .fc-hdr-btn {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: rgba(0, 0, 0, 0.8);
+}
+html[data-theme="light"] #focusPage .fc-card {
+  background: #fff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+html[data-theme="light"] #focusPage .fc-ring-track { stroke: rgba(0, 0, 0, 0.08); }

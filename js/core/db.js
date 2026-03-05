@@ -612,14 +612,15 @@
   const moodLogs = {
     _col() { return userSubcollectionRef(getUidOrThrow(), "moodLogs"); },
 
-    /** Save or overwrite a mood log for a date. */
+    /** Save or overwrite a mood log for a date. score/energy/stress/focus 1–10. */
     async set(date, log) {
       try {
         await this._col().doc(date).set({
           date,
-          score:    log.score  || 5,
-          energy:   log.energy || 5,
-          stress:   log.stress || 5,
+          score:    log.score  != null ? Number(log.score)  : 5,
+          energy:   log.energy != null ? Number(log.energy) : 5,
+          stress:   log.stress != null ? Number(log.stress) : 5,
+          focus:    log.focus  != null ? Number(log.focus)  : 5,
           notes:    log.notes  || "",
           tags:     log.tags   || [],
           createdAt: now()

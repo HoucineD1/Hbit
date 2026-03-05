@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Life — Mind</title>
+  <title>Hbit — State of Mind</title>
+  <meta name="description" content="Track your mood, stress, energy and focus." />
+  <meta name="robots" content="noindex, nofollow" />
 
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="css/pages/mood.css" />
 
-  <!-- Firebase compat SDK (sync) -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 
-  <!-- Core -->
   <script defer src="js/core/utils.js"></script>
   <script defer src="js/core/storage.js"></script>
   <script defer src="js/core/theme.js"></script>
@@ -23,166 +23,119 @@
   <script defer src="js/core/db.js"></script>
   <script defer src="js/core/nav.js"></script>
   <script defer src="js/core/core.js"></script>
-
-  <!-- Page -->
   <script defer src="js/pages/mood.js"></script>
-
-  <!-- Bootstrap -->
   <script defer src="js/app.js"></script>
 </head>
 
 <body id="moodPage" data-accent="mood">
-<header class="topbar">
-  <div class="topbar-inner">
-    <a class="brand" href="home.html" aria-label="Overview">
-      <div class="mark">H</div>
-      <div>
-        <div class="t" data-i18n="brand.title">Hbit</div>
-        <div class="s" data-i18n="brand.sub">Everyday dashboard</div>
-      </div>
-    </a>
 
-    <div class="title" data-i18n="mood.title">State of mind</div>
-
-    <div class="actions">
-      <a class="back-btn" href="home.html"><span class="arr">←</span> <span data-i18n="btn.back">Overview</span></a>
-
-      <button class="btn" id="langToggle" type="button">
+  <header class="md-header">
+    <div class="md-hdr-left">
+      <span class="md-hdr-date" id="moodDate">—</span>
+      <h1 class="md-hdr-title" data-i18n="mood.title">State of Mind</h1>
+    </div>
+    <div class="md-hdr-right">
+      <button class="md-hdr-btn" id="langToggle" type="button" aria-label="Switch language">
         <span id="langLabel">FR</span>
       </button>
-
-      <button class="btn" id="themeToggle" type="button">
-        <span data-i18n="btn.theme">Theme</span>
-        <span id="themeHint" class="hint-mini"></span>
+      <button class="md-hdr-btn" id="themeToggle" type="button" aria-label="Toggle theme">
+        <svg class="hm-theme-dark" width="18" height="18" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <svg class="hm-theme-light" width="18" height="18" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
       </button>
-
-      <a class="avatar" href="profile.html" aria-label="Profile">D</a>
+      <a class="md-avatar" id="moodProfileBtn" href="profile.html" aria-label="Profile">H</a>
     </div>
-  </div>
-</header>
+  </header>
 
-<main class="container">
-  <div class="grid">
+  <main class="md-main">
+    <p class="md-leadin" data-i18n="mood.leadin">
+      Track your state of mind with simple levels. Log your day in one tap.
+    </p>
 
-    <!-- Today -->
-    <section class="card span-12" id="moodTodayCard">
-      <div class="mood-top">
-        <div class="mood-top-left">
-          <div class="tag"><span class="dot"></span><span data-i18n="mood.today">Today</span></div>
-          <div class="sub mood-leadin" data-i18n="mood.leadin">
-            Track your state of mind with simple levels. Auto-saves while you edit.
-          </div>
-        </div>
-
-        <div class="mood-top-right">
-          <button class="btn" id="moodSave" type="button" data-i18n="btn.save">Save</button>
-          <button class="btn danger" id="moodClear" type="button" data-i18n="btn.clear">Clear</button>
-          <button class="btn" id="moodResetToday" type="button" data-i18n="mood.reset">Reset</button>
-          <div class="pill" id="moodOverallPill">—</div>
-        </div>
+    <section class="md-card md-card--today" id="moodTodayCard">
+      <div class="md-card-head">
+        <span class="md-card-label" data-i18n="mood.today">Today</span>
+        <div class="pill md-pill" id="moodOverallPill">—</div>
       </div>
-
-      <div class="mood-layout">
-        <!-- LEFT: sliders -->
-        <div class="mood-sliders">
-          <div class="mood-card">
-            <div class="mood-head">
-              <div class="mood-label" data-i18n="mood.dim.mood">Mood</div>
-              <div class="pill mood7-pill" id="pillMood7">—</div>
-            </div>
-            <input id="rngMood7" type="range" min="1" max="5" value="3" />
-            <div class="sub" id="capMood7">—</div>
-          </div>
-
-          <div class="mood-card">
-            <div class="mood-head">
-              <div class="mood-label" data-i18n="mood.dim.stress">Stress</div>
-              <div class="pill mood7-pill" id="pillStress7">—</div>
-            </div>
-            <input id="rngStress7" type="range" min="1" max="5" value="3" />
-            <div class="sub" id="capStress7">—</div>
-          </div>
-
-          <div class="mood-card">
-            <div class="mood-head">
-              <div class="mood-label" data-i18n="mood.dim.energy">Energy</div>
-              <div class="pill mood7-pill" id="pillEnergy7">—</div>
-            </div>
-            <input id="rngEnergy7" type="range" min="1" max="5" value="3" />
-            <div class="sub" id="capEnergy7">—</div>
-          </div>
-
-          <div class="mood-card">
-            <div class="mood-head">
-              <div class="mood-label" data-i18n="mood.dim.focus">Focus</div>
-              <div class="pill mood7-pill" id="pillFocus7">—</div>
-            </div>
-            <input id="rngFocus7" type="range" min="1" max="5" value="3" />
-            <div class="sub" id="capFocus7">—</div>
-          </div>
-
-          <div class="mood-card">
-            <div class="mood-head">
-              <div class="mood-label" data-i18n="mood.dim.social">Social</div>
-              <div class="pill mood7-pill" id="pillSocial7">—</div>
-            </div>
-            <input id="rngSocial7" type="range" min="1" max="5" value="3" />
-            <div class="sub" id="capSocial7">—</div>
-          </div>
-        </div>
-
-        <!-- RIGHT: emotion/impact/note + ring -->
-        <div class="mood-side">
-          <div class="mood-side-head">
-            <div>
-              <div class="mood-label" data-i18n="mood.emotion.title">Emotion</div>
-              <div class="sub" id="emotionHint" data-i18n="mood.emotion.hint">
-                Pick the emotion that fits best (suggestions update with your mood).
-              </div>
-            </div>
-
-            <div class="mood-ring" id="moodRing" style="--deg:0deg;">
-              <div class="mood-ring-center">
-                <div class="mood-ring-top" data-i18n="mood.overall">Overall</div>
-                <div class="mood-ring-mid" id="ringScore">—</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="mood-row">
-            <div class="pill mood7-pill" id="pillEmotion">—</div>
-            <button class="btn small" id="emotionMoreBtn" type="button" data-i18n="btn.showMore">Show more</button>
-          </div>
-
-          <div class="chips" id="emotionChips"></div>
-
-          <div class="mood-row mood-row-imp">
-            <div class="tag"><span class="dot"></span><span data-i18n="mood.impact.title">Most impact</span></div>
-            <div class="pill" id="pillImpact">—</div>
-            <button class="btn small" id="impactMoreBtn" type="button" data-i18n="btn.showMore">Show more</button>
-          </div>
-
-          <div class="chips" id="impactChips"></div>
-
-          <div class="field">
-            <label for="moodNote" data-i18n="mood.note">Notes</label>
-            <textarea id="moodNote" class="ui-input" rows="4" placeholder="Write anything..."></textarea>
-          </div>
-        </div>
-      </div>
+      <button class="md-btn md-btn--log" id="moodLogBtn" type="button" data-i18n="mood.log">Log</button>
     </section>
 
-    <!-- History -->
-    <section class="card span-12" id="moodHistoryCard">
-      <div class="row">
-        <div class="tag"><span class="dot"></span><span data-i18n="mood.history">History</span></div>
-        <div class="pill" id="moodHistoryCount">0</div>
+    <!-- Log modal — step-by-step wizard -->
+    <div class="md-log-overlay" id="moodLogModal" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="md-log-panel">
+        <div class="md-log-header">
+          <button class="md-log-close" id="moodLogClose" type="button" aria-label="Close">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          <span class="md-log-step-label" id="mdLogStepLabel">1 / 7</span>
+          <div style="width:40px"></div>
+        </div>
+        <div class="md-log-progress-bar">
+          <div class="md-log-progress-fill" id="mdLogProgressFill"></div>
+        </div>
+        <h2 class="md-log-step-title" id="mdLogStepTitle"></h2>
+        <div class="md-log-content" id="mdLogContent"></div>
+        <div class="md-log-footer">
+          <button class="md-btn md-log-btn-back" id="mdLogBtnBack" type="button">Back</button>
+          <button class="md-btn md-btn--primary" id="mdLogBtnNext" type="button">Next</button>
+        </div>
       </div>
+    </div>
 
-      <div id="moodHistory" class="mood-history"></div>
+    <section class="md-card" id="moodHistoryCard">
+      <div class="md-card-head">
+        <span class="md-card-label" data-i18n="mood.history">History</span>
+        <span class="pill" id="moodHistoryCount">0</span>
+      </div>
+      <div id="moodHistory" class="md-history"></div>
     </section>
+  </main>
 
-  </div>
-</main>
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <div class="items">
+      <a class="nav-item" data-nav="overview" href="home.html" aria-label="Home">
+        <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+        <span class="label" data-i18n="nav.overview">Home</span>
+      </a>
+      <a class="nav-item" data-nav="habits" href="habits.html" aria-label="Habits">
+        <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+        <span class="label" data-i18n="nav.habits">Habits</span>
+      </a>
+      <a class="nav-item" data-nav="budget" href="budget.html" aria-label="Budget">
+        <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+        <span class="label" data-i18n="nav.budget">Budget</span>
+      </a>
+      <a class="nav-item" data-nav="sleep" href="sleep.html" aria-label="Sleep">
+        <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+        <span class="label" data-i18n="nav.sleep">Sleep</span>
+      </a>
+      <a class="nav-item active" data-nav="mood" href="mood.html" aria-label="State of Mind">
+        <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="2.5"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="2.5"/></svg></span>
+        <span class="label" data-i18n="nav.mood">State of Mind</span>
+      </a>
+      <a class="nav-item" data-nav="focus" href="focus.html" aria-label="Focus">
+        <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+        <span class="label">Focus</span>
+      </a>
+    </div>
+    <div class="nav-bottom">
+      <button class="nav-item nav-logout" id="logoutBtn" type="button" aria-label="Sign out">
+        <span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+        <span class="label" data-i18n="auth.signout">Sign out</span>
+      </button>
+      <div class="nav-copyright">&copy; 2025 Hbit</div>
+    </div>
+  </nav>
 </body>
 </html>

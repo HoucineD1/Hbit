@@ -22,7 +22,7 @@
   flex-direction: column;
   min-height: 100dvh;
   background: var(--sl-bg);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter",
+  font-family: var(--font-sans),
                Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 }

@@ -182,16 +182,104 @@
      DATA STUBS  (replace with real Firestore reads)
      ────────────────────────────────────────────────────────── */
 
-  /** Fetch aggregated home summary. Returns safe zeros when empty. */
-  async function fetchHomeSummary(uid) {
-    return {
-      habits:   { done: 0, total: 0, pct: 0 },
-      budget:   { spent: 0, goal: 0, pct: 0, left: 0 },
-      sleep:    { last: 0, pct: 0, avg: 0 },
-      mood:     { score: null, label: "—", avg: 0 },
-      schedule: { done: 0, total: 0, pct: 0 },
-      weekly:   { habitsPct: 0, budgetPct: 0, sleepAvg: 0, moodAvg: 0 },
+  /** Render HOME from dashboard data (single source of truth). */
+  async function renderFromDashboard(data) {
+    if (!data) return;
+    const fmtCur = (n) => {
+      const v = Number.isFinite(n) ? n : 0;
+      try {
+        return new Intl.NumberFormat(undefined, { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(v);
+      } catch { return v + " $"; }
     };
+
+    /* Habits */
+    const h = data.habits || {};
+    if ($("habitsMetric"))
+      $("habitsMetric").innerHTML = h.totalActive > 0
+        ? `${h.doneToday}<span class=\"hc-unit\">&thinsp;/&thinsp;${h.totalActive}</span>`
+        : `0<span class=\"hc-unit\">&thinsp;/&thinsp;0</span>`;
+    setDonut("habitsDonutFill", h.pct || 0);
+    setFooter("habitsFooter",
+      h.totalActive === 0
+        ? "No habits yet \u00B7 Create one"
+        : h.doneToday === h.totalActive
+          ? "All done today \u00B7 Great work!"
+          : `${h.totalActive - h.doneToday} remaining today`);
+
+    /* Budget */
+    const b = data.budget || {};
+    if ($("budgetMetric")) {
+      if (b.hasData) {
+        $("budgetMetric").innerHTML =
+          b.remaining >= 0
+            ? `${fmtCur(b.remaining)}<span class=\"hc-unit\">&thinsp;left</span>`
+            : `${fmtCur(Math.abs(b.remaining))}<span class=\"hc-unit\">&thinsp;over</span>`;
+      } else {
+        $("budgetMetric").innerHTML = "\u2014<span class=\"hc-unit\">&thinsp;left</span>";
+      }
+    }
+    const budgetPct = b.monthGoal > 0 ? Math.min(1, (b.expenseTotal || 0) / b.monthGoal)
+      : (b.incomeTotal > 0 ? Math.min(1, (b.expenseTotal || 0) / b.incomeTotal) : 0);
+    setDonut("budgetDonutFill", b.incomeTotal > 0 ? Math.max(0, 1 - budgetPct) : budgetPct);
+    setFooter("budgetFooter",
+      !b.hasData
+        ? "No entries yet \u00B7 Add an expense"
+        : `${fmtCur(b.expenseTotal)} spent \u00B7 Tap to see breakdown`);
+
+    /* Sleep */
+    const s = data.sleep || {};
+    const lastSleepH = s.lastLog?.duration || 0;
+    if ($("sleepMetric"))
+      $("sleepMetric").innerHTML = lastSleepH > 0
+        ? `${lastSleepH.toFixed(1)}<span class=\"hc-unit\">&thinsp;hrs</span>`
+        : "\u2014<span class=\"hc-unit\">&thinsp;hrs</span>";
+    setFooter("sleepFooter",
+      lastSleepH === 0
+        ? "No sleep logged \u00B7 Log last night"
+        : lastSleepH >= 7.5
+          ? "Great night! \u00B7 View history"
+          : "Below target \u00B7 View details");
+    const sleepVals = (s.recentHours || []).slice(-7);
+    while (sleepVals.length < 7) sleepVals.unshift(0);
+    renderSleepBars("sleepBarsChart", sleepVals, "#60A5FA");
+
+    /* Mood */
+    const m = data.mind || {};
+    let moodLabel = "\u2014";
+    if (m.score != null && m.score > 0) {
+      moodLabel = m.score >= 8 ? "Great" : m.score >= 6 ? "Good" : m.score >= 4 ? "Okay" : "Rough";
+      setFooter("moodFooter", `Score ${m.score}/10 today \u00B7 View trends`);
+    } else {
+      setFooter("moodFooter", "No check-in \u00B7 Quick mood log");
+    }
+    if ($("moodMetric")) $("moodMetric").textContent = moodLabel;
+    let moodWeekScores = [];
+    try {
+      if (HBIT.db && HBIT.db.moodLogs) {
+        const recent = await HBIT.db.moodLogs.recent(7);
+        moodWeekScores = (recent || []).map((x) => x.score).filter((v) => v != null && v > 0).reverse();
+      }
+    } catch (_) {}
+    renderMoodSparkline("moodSparkLine", moodWeekScores);
+    const showSuggestions = m.hasData && (m.stress >= 7 || (m.focus != null && m.focus <= 3));
+    const suggEl = $("moodSuggestions");
+    if (suggEl) suggEl.style.display = showSuggestions ? "flex" : "none";
+
+    /* Schedule (no data yet) */
+    renderSchedule(0, 0, 0);
+    setFooter("scheduleFooter", "No tasks \u00B7 Add your first task");
+
+    /* Weekly summary */
+    const wk = data.weekly || {};
+    setWeeklyRing("wkHabitsFill", wk.habitsPct != null ? wk.habitsPct : 0, WK_HABITS_CIRC);
+    setWeeklyRing("wkBudgetFill", wk.budgetPct != null ? wk.budgetPct : 0, WK_BUDGET_CIRC);
+    setWeeklyRing("wkSleepFill", wk.sleepPct != null ? wk.sleepPct : 0, WK_SLEEP_CIRC);
+    setWeeklySummaryStats({
+      habitsPct: wk.habitsPct,
+      budgetPct: wk.budgetPct,
+      sleepAvg: wk.sleepAvg,
+      moodAvg: wk.moodAvg,
+    });
   }
 
   /** Fetch last 7 days from a Firestore collection. Returns [0×7] when empty. */
@@ -419,6 +507,15 @@
       ? moodWeek.reduce((a, b) => a + b, 0) / moodWeek.filter(v => v > 0).length
       : 0;
 
+    const moodSuggestEl = $("moodSuggestions");
+    if (moodSuggestEl && moodToday) {
+      const stress = moodToday.stress != null ? moodToday.stress : 0;
+      const focus = moodToday.focus != null ? moodToday.focus : 10;
+      moodSuggestEl.style.display = (stress >= 7 || focus <= 3) ? "flex" : "none";
+    } else if (moodSuggestEl) {
+      moodSuggestEl.style.display = "none";
+    }
+
     /* ── Schedule ────────────────────────────────────────── */
     renderSchedule(0, 0, 0);
     setFooter("scheduleFooter", "No tasks \u00B7 Add your first task");
@@ -495,11 +592,27 @@
 
       renderHeader(profile);
 
-      if (HBIT.db) {
-        await renderWithData(user);
-      } else {
-        renderEmpty();
+      async function refreshDashboard() {
+        if (!HBIT.db || !user) return;
+        try {
+          if (HBIT.dashboardData) {
+            const data = await HBIT.dashboardData.fetch(user.uid);
+            await renderFromDashboard(data);
+            const hasAny = (data.budget?.hasData) || (data.habits?.hasData) || (data.sleep?.hasData) || (data.mind?.hasData);
+            if (!hasAny) await renderWithData(user);
+          } else {
+            await renderWithData(user);
+          }
+        } catch (err) {
+          console.warn("[Hbit] Home refresh:", err?.message);
+          if (HBIT.db) await renderWithData(user).catch(() => renderEmpty());
+        }
       }
+      await refreshDashboard();
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") refreshDashboard();
+      });
     });
   }
 

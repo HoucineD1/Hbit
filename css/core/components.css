@@ -8,9 +8,10 @@
   background: linear-gradient(180deg, var(--panel2), var(--panel));
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
-  padding: 18px;
+  padding: 20px;
   position: relative;
   overflow: hidden;
+  font-family: var(--font-sans);
 }
 
 /* ── Row / tag helpers ────────────────────────────── */

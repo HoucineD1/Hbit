@@ -34,10 +34,12 @@
     });
   }
 
-  /* ── Mobile drawer ───────────────────────────────────────── */
+  /* ── Mobile drawer : déployée uniquement au clic sur le bouton ☰ ── */
   function initMobileDrawer() {
     if (!document.querySelector(".bottom-nav")) return;
     if (document.getElementById("navMenuBtn")) return;
+
+    document.body.classList.remove("nav-open");
 
     const btn = document.createElement("button");
     btn.id = "navMenuBtn";
@@ -45,7 +47,7 @@
     btn.type = "button";
     btn.setAttribute("aria-label", "Open navigation");
     btn.setAttribute("aria-expanded", "false");
-    btn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"
         stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
         aria-hidden="true">
       <line x1="3" y1="6" x2="21" y2="6"/>
@@ -68,22 +70,17 @@
       document.body.classList.contains("nav-open") ? closeNav() : openNav();
     });
 
-    // Close when clicking on the overlay (outside the nav panel)
     document.addEventListener("click", (e) => {
       if (!document.body.classList.contains("nav-open")) return;
-      if (!e.target.closest(".bottom-nav") && !e.target.closest("#navMenuBtn")) {
-        closeNav();
-      }
+      if (!e.target.closest(".bottom-nav") && !e.target.closest("#navMenuBtn")) closeNav();
     }, true);
 
-    // Close when a nav link is tapped
     qsa(".bottom-nav .nav-item").forEach((item) => {
       item.addEventListener("click", () => closeNav());
     });
 
-    // ESC key closes the drawer
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeNav();
+      if (e.key === "Escape" && document.body.classList.contains("nav-open")) closeNav();
     });
   }
 

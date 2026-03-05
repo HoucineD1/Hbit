@@ -23,6 +23,7 @@
   <script defer src="js/core/i18n.js"></script>
   <script defer src="js/core/firebase-init.js"></script>
   <script defer src="js/core/db.js"></script>
+  <script defer src="js/core/dashboardData.js"></script>
   <script defer src="js/core/nav.js"></script>
   <script defer src="js/core/core.js"></script>
 
@@ -235,28 +236,35 @@
     </a>
 
     <!-- ── Card 4 · Mood / State of Mind ─────────────────── -->
-    <a class="hc-card" data-module="mood" href="mood.html" aria-label="State of Mind">
-      <div class="hc-top">
-        <span class="hc-label" data-i18n="nav.mood">State of Mind</span>
-        <span class="hc-dot" data-module="mood" aria-hidden="true"></span>
+    <div class="hc-card hc-card--mood-wrap" data-module="mood">
+      <a class="hc-card hc-card--link" href="mood.html" aria-label="State of Mind">
+        <div class="hc-top">
+          <span class="hc-label" data-i18n="nav.mood">State of Mind</span>
+          <span class="hc-dot" data-module="mood" aria-hidden="true"></span>
+        </div>
+        <div class="hc-value" id="moodMetric">—</div>
+        <div class="hc-chart">
+          <svg class="hc-spark-svg" id="moodSparkChart" viewBox="0 0 56 28"
+               preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <polyline id="moodSparkLine" points=""
+                      fill="none" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="hc-footer">
+          <span class="hc-footer-text" id="moodFooter">No check-in &middot; Quick mood log</span>
+          <svg class="hc-chevron" viewBox="0 0 8 14" fill="none" aria-hidden="true">
+            <polyline points="1 1 7 7 1 13" stroke="currentColor" stroke-width="1.5"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </a>
+      <div class="hc-mood-suggestions" id="moodSuggestions" aria-live="polite" style="display: none;">
+        <span class="hc-mood-sugg-lbl">Suggestions</span>
+        <a class="hc-mood-sugg-btn" href="focus.html" id="moodSuggestPomodoro">Pomodoro</a>
+        <a class="hc-mood-sugg-btn" href="focus.html" id="moodSuggestMeditation">Méditation</a>
       </div>
-      <div class="hc-value" id="moodMetric">—</div>
-      <div class="hc-chart">
-        <svg class="hc-spark-svg" id="moodSparkChart" viewBox="0 0 56 28"
-             preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-          <polyline id="moodSparkLine" points=""
-                    fill="none" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <div class="hc-footer">
-        <span class="hc-footer-text" id="moodFooter">No check-in &middot; Quick mood log</span>
-        <svg class="hc-chevron" viewBox="0 0 8 14" fill="none" aria-hidden="true">
-          <polyline points="1 1 7 7 1 13" stroke="currentColor" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-    </a>
+    </div>
 
     <!-- ── Card 5 · Schedule ──────────────────────────────── -->
     <a class="hc-card" data-module="schedule" href="schedule.html" aria-label="Schedule">

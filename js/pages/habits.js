@@ -258,16 +258,21 @@
 
     const statusClass = status === 'done' ? 'hb-status--done'
                       : status === 'skip' ? 'hb-status--skip'
+                      : status === 'start' ? 'hb-status--start'
                       : '';
     const statusText = status === 'done' ? 'Done'
                      : status === 'skip' ? 'Skipped'
+                     : status === 'start' ? 'Started'
                      : 'Not yet';
 
     const isDoneBtn = status === 'done';
     const isSkipBtn = status === 'skip';
+    const isStartBtn = status === 'start';
+    const showStartNow = !status;
     const footer = status === 'done' ? 'Completed today — Great work!'
                  : status === 'skip' ? 'Skipped today — Try again tomorrow'
-                 : 'Today — Tap to mark done';
+                 : status === 'start' ? 'Started — Tap to mark done'
+                 : 'Today — Start now or skip';
 
     const isPaused = !!h.paused;
     const freqLabel = h.frequency === 'daily' ? 'Daily'
@@ -344,14 +349,15 @@
           </div>
         </div>
         <div class="hb-card-actions">
-          <button class="hb-act-btn ${isDoneBtn ? 'hb-act-btn--done' : ''}"
-                  data-action="done" data-id="${h.id}" type="button">
-            ${isDoneBtn ? 'Undo' : 'Done'}
-          </button>
-          <button class="hb-act-btn ${isSkipBtn ? 'hb-act-btn--skip' : ''}"
-                  data-action="skip" data-id="${h.id}" type="button">
-            Skip
-          </button>
+          ${showStartNow
+            ? `<button class="hb-act-btn hb-act-btn--start" data-action="start" data-id="${h.id}" type="button">Start now</button>
+               <button class="hb-act-btn ${isSkipBtn ? 'hb-act-btn--skip' : ''}" data-action="skip" data-id="${h.id}" type="button">Skip</button>`
+            : isStartBtn
+              ? `<button class="hb-act-btn primary" data-action="done" data-id="${h.id}" type="button">Mark done</button>
+                 <button class="hb-act-btn ${isSkipBtn ? 'hb-act-btn--skip' : ''}" data-action="skip" data-id="${h.id}" type="button">Skip</button>`
+              : `<button class="hb-act-btn ${isDoneBtn ? 'hb-act-btn--done' : ''}" data-action="done" data-id="${h.id}" type="button">${isDoneBtn ? 'Undo' : 'Done'}</button>
+                 <button class="hb-act-btn ${isSkipBtn ? 'hb-act-btn--skip' : ''}" data-action="skip" data-id="${h.id}" type="button">Skip</button>`
+          }
         </div>
         <div class="hb-card-footer">
           <span class="hb-card-footer-text">${footer}</span>
@@ -400,7 +406,7 @@
       return;
     }
 
-    // Write or update log
+    // Write or update log (status: done | skip | start)
     try {
       let logId;
       if (existing) {
@@ -409,7 +415,6 @@
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
         });
         logId = existing.id;
-        // Adjust doneDays: existing was done ? now skip: decrement
         if (existing.status === "done" && newStatus === "skip") {
           await habitsCol().doc(habitId).update({
             doneDays: firebase.firestore.FieldValue.increment(-1),
@@ -418,8 +423,16 @@
           const h = state.habits.find((x) => x.id === habitId);
           if (h) h.doneDays = Math.max(0, (h.doneDays || 0) - 1);
         }
-        // existing was skip ? now done: increment
         if (existing.status === "skip" && newStatus === "done") {
+          await habitsCol().doc(habitId).update({
+            doneDays: firebase.firestore.FieldValue.increment(1),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          });
+          const h = state.habits.find((x) => x.id === habitId);
+          if (h) h.doneDays = (h.doneDays || 0) + 1;
+        }
+        // Start -> Done: increment doneDays
+        if (existing.status === "start" && newStatus === "done") {
           await habitsCol().doc(habitId).update({
             doneDays: firebase.firestore.FieldValue.increment(1),
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -443,6 +456,7 @@
           const h = state.habits.find((x) => x.id === habitId);
           if (h) h.doneDays = (h.doneDays || 0) + 1;
         }
+        // start: no doneDays increment
       }
       state.todayLogs[habitId] = { id: logId, habitId, dateKey: today, status: newStatus };
     } catch (err) { console.warn("[habits] logHabit:", err); }
@@ -513,9 +527,9 @@
       </div>
       ${h.paused ? `<div class="hb-det-paused-banner">This habit is paused. Resume it to keep tracking.</div>` : ""}
       <div class="hb-det-actions">
-        <button class="hb-det-action-btn ${status === "done" ? "done-state" : "primary"}"
+        <button class="hb-det-action-btn ${status === "done" ? "done-state" : status === "start" ? "primary" : "primary"}"
                 id="detActDone" type="button" ${h.paused ? "disabled" : ""}>
-          ${status === "done" ? t("habits.detail.undo","Undo done") : t("habits.spot.markDone","Mark done")}
+          ${status === "done" ? t("habits.detail.undo","Undo done") : status === "start" ? t("habits.spot.markDone","Mark done") : !status ? "Start now" : t("habits.spot.markDone","Mark done")}
         </button>
         <button class="hb-det-action-btn ${status === "skip" ? "skip-state" : ""}"
                 id="detActSkip" type="button" ${h.paused ? "disabled" : ""}>
@@ -525,7 +539,9 @@
     `;
 
     $("detActDone")?.addEventListener("click", () => {
-      logHabit(habitId, "done");
+      const log = state.todayLogs[habitId];
+      const action = log?.status === "done" ? "done" : (log?.status === "start" ? "done" : "start");
+      logHabit(habitId, action);
       closeDetail();
     });
     $("detActSkip")?.addEventListener("click", () => {
@@ -1052,8 +1068,10 @@
     if (btnNext) { btnNext.disabled = true; btnNext.textContent = "Saving�"; }
 
     try {
+      const trimmedName = d.name.trim();
       const payload = {
-        name:           d.name.trim(),
+        name:           trimmedName,
+        nameNormalized: trimmedName.toLowerCase(),
         category:       d.category,
         intent:         d.intent         || "start",
         frequency:      d.frequency      || "daily",

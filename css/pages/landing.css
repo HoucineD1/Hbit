@@ -20,7 +20,7 @@
   flex-direction: column;
   overflow-x: hidden;
   background: var(--ld-bg);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter",
+  font-family: var(--font-sans),
                Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   color: rgba(255, 255, 255, 0.92);
@@ -703,7 +703,7 @@
   min-height: 100dvh;
   background: #07090e;
   color: rgba(255,255,255,0.88);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
