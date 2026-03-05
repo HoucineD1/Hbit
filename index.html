@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- ── Primary Meta ──────────────────────────────────── -->
+  <title>Hbit — Build Better Habits Every Day</title>
+  <meta name="title"       content="Hbit — Build Better Habits Every Day" />
+  <meta name="description" content="Hbit is your all-in-one personal dashboard. Track habits, budget, sleep and mood — all in one beautiful dark app built for real life." />
+  <meta name="robots"      content="index, follow" />
+  <link rel="canonical"    href="https://hbit-d62a6.web.app/" />
+
+  <!-- ── Open Graph ────────────────────────────────────── -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://hbit-d62a6.web.app/" />
+  <meta property="og:title"       content="Hbit — Build Better Habits Every Day" />
+  <meta property="og:description" content="Track habits, budget, sleep and mood in one beautiful dashboard." />
+  <meta property="og:image"       content="https://hbit-d62a6.web.app/assets/og-cover.png" />
+
+  <!-- ── Twitter Card ──────────────────────────────────── -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:url"         content="https://hbit-d62a6.web.app/" />
+  <meta name="twitter:title"       content="Hbit — Build Better Habits Every Day" />
+  <meta name="twitter:description" content="Track habits, budget, sleep and mood in one beautiful dashboard." />
+  <meta name="twitter:image"       content="https://hbit-d62a6.web.app/assets/og-cover.png" />
+
+  <!-- ── Schema.org WebApplication ────────────────────── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Hbit",
+    "url": "https://hbit-d62a6.web.app/",
+    "description": "All-in-one personal dashboard for habits, budget, sleep and mood tracking.",
+    "applicationCategory": "LifestyleApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+
+  <!-- ── Styles ─────────────────────────────────────────── -->
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/pages/landing.css" />
+</head>
+
+<body id="landingPage">
+
+  <!-- ══════════════════════════════════════════════════════
+       HEADER
+       ══════════════════════════════════════════════════════ -->
+  <header class="ld-nav" role="banner">
+    <a class="ld-logo" href="index.html" aria-label="Hbit — go to home">
+      <div class="ld-logo-mark" aria-hidden="true">H</div>
+      <span class="ld-logo-name">Hbit</span>
+    </a>
+
+    <nav class="ld-header-links" aria-label="Site navigation">
+      <button class="ld-nav-lang" id="langToggle" type="button" aria-label="Toggle language">
+        <span id="langLabel">FR</span>
+      </button>
+      <a class="ld-nav-ghost" href="login.html" data-i18n="landing.nav.signin">Sign in</a>
+      <a class="ld-nav-solid" href="signup.html" data-i18n="landing.nav.signup">Create account</a>
+    </nav>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════
+       MAIN  —  two-column on desktop
+       ══════════════════════════════════════════════════════ -->
+  <main class="ld-main">
+
+    <!-- ── Hero (left on desktop, below carousel on mobile) ── -->
+    <section class="ld-hero" aria-label="Introduction">
+
+      <p class="ld-eyebrow" data-i18n="landing.eyebrow">Personal growth, simplified</p>
+
+      <h1 class="ld-h1">
+        <span data-i18n="landing.h1.line1">Track everything</span><br class="ld-h1-br" />
+        <span class="ld-h1-accent" data-i18n="landing.h1.line2">that matters</span>
+      </h1>
+
+      <p class="ld-sub" data-i18n="landing.sub">
+        Habits, budget, sleep and mood —&nbsp;all in one
+        beautiful dashboard built for real life.
+      </p>
+
+      <div class="ld-cta-row" role="group" aria-label="Get started">
+        <a class="ld-cta-primary"   href="signup.html" data-i18n="landing.cta.signup">Get started free</a>
+        <a class="ld-cta-secondary" href="login.html">
+          <span data-i18n="landing.cta.signin">Sign in</span>
+          <span class="ld-cta-arrow" aria-hidden="true">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <path d="M2.5 7.5h10M8.5 3.5l4 4-4 4"
+                stroke="currentColor" stroke-width="1.7"
+                stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+      </div>
+
+      <p class="ld-trust">
+        <span class="ld-trust-dot" aria-hidden="true"></span>
+        <span data-i18n="landing.trust">Free · No credit card required</span>
+      </p>
+
+    </section>
+
+    <!-- ── Carousel (right on desktop, above hero on mobile) ── -->
+    <div class="ld-carousel-panel" aria-label="Feature showcase">
+
+      <div class="ld-carousel-card">
+
+        <!-- Slides -->
+        <div class="ld-slides" id="ldSlides" role="region"
+             aria-label="Feature carousel" aria-live="polite">
+
+          <!-- ─────────────────────────────────────────────
+               Slide 1 · Habits
+               ───────────────────────────────────────────── -->
+          <div class="ld-slide ld-slide--active"
+               role="tabpanel" aria-label="Habits feature">
+            <span class="ld-chip" data-accent="habit" data-i18n="landing.habit.chip">Habits</span>
+
+            <div class="ld-mockup">
+              <svg viewBox="0 0 220 220" fill="none" aria-hidden="true">
+                <!-- Card -->
+                <rect x="12" y="8" width="196" height="204" rx="22"
+                  fill="rgba(255,255,255,0.025)"
+                  stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+                <!-- Header -->
+                <rect x="26" y="22" width="95" height="8" rx="4"
+                  fill="rgba(255,255,255,0.50)"/>
+                <rect x="26" y="35" width="60" height="5" rx="2.5"
+                  fill="rgba(255,255,255,0.17)"/>
+                <!-- Streak pill -->
+                <rect x="151" y="19" width="50" height="22" rx="11"
+                  fill="rgba(62,207,127,0.09)"
+                  stroke="rgba(62,207,127,0.26)" stroke-width="1"/>
+                <path d="M161 33 C161 28.5 164 26 165 24 C165 28 168 29.5 168 33.5 C168 35.5 166 37.5 165 37.5 C163 37.5 161 35.5 161 33Z"
+                  fill="#3ecf7f" fill-opacity="0.85"/>
+                <rect x="172" y="27" width="20" height="5" rx="2.5"
+                  fill="rgba(255,255,255,0.38)"/>
+
+                <!-- Row 1 — done -->
+                <circle cx="38" cy="70" r="13" fill="rgba(62,207,127,0.11)"
+                  stroke="#3ecf7f" stroke-width="1.8"/>
+                <path d="M32 70l5 6.5 9-13" stroke="#3ecf7f" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="62" y="65" width="94" height="6" rx="3"
+                  fill="rgba(255,255,255,0.54)"/>
+                <rect x="62" y="75" width="58" height="4" rx="2"
+                  fill="rgba(255,255,255,0.13)"/>
+
+                <!-- Row 2 — done -->
+                <circle cx="38" cy="106" r="13" fill="rgba(62,207,127,0.11)"
+                  stroke="#3ecf7f" stroke-width="1.8"/>
+                <path d="M32 106l5 6.5 9-13" stroke="#3ecf7f" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="62" y="101" width="108" height="6" rx="3"
+                  fill="rgba(255,255,255,0.54)"/>
+                <rect x="62" y="111" width="68" height="4" rx="2"
+                  fill="rgba(255,255,255,0.13)"/>
+
+                <!-- Row 3 — done -->
+                <circle cx="38" cy="142" r="13" fill="rgba(62,207,127,0.11)"
+                  stroke="#3ecf7f" stroke-width="1.8"/>
+                <path d="M32 142l5 6.5 9-13" stroke="#3ecf7f" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="62" y="137" width="78" height="6" rx="3"
+                  fill="rgba(255,255,255,0.54)"/>
+                <rect x="62" y="147" width="48" height="4" rx="2"
+                  fill="rgba(255,255,255,0.13)"/>
+
+                <!-- Row 4 — pending -->
+                <circle cx="38" cy="178" r="13"
+                  fill="rgba(255,255,255,0.02)"
+                  stroke="rgba(255,255,255,0.17)"
+                  stroke-width="1.8" stroke-dasharray="4 3"/>
+                <rect x="62" y="173" width="86" height="6" rx="3"
+                  fill="rgba(255,255,255,0.17)"/>
+                <rect x="62" y="183" width="52" height="4" rx="2"
+                  fill="rgba(255,255,255,0.07)"/>
+
+                <!-- Progress bar -->
+                <rect x="26" y="200" width="168" height="5" rx="2.5"
+                  fill="rgba(255,255,255,0.05)"/>
+                <rect x="26" y="200" width="126" height="5" rx="2.5"
+                  fill="#3ecf7f" fill-opacity="0.55"/>
+              </svg>
+            </div>
+
+            <div class="ld-slide-sep"></div>
+            <h3 class="ld-slide-title" data-i18n="landing.habit.title">Build Better Habits</h3>
+            <p class="ld-slide-desc"   data-i18n="landing.habit.desc">Make consistency your superpower.</p>
+            <ul class="ld-bullets">
+              <li data-i18n="landing.habit.b1">Daily habit checklist with streaks</li>
+              <li data-i18n="landing.habit.b2">Visual long-term progress</li>
+              <li data-i18n="landing.habit.b3">Automatic pattern tracking</li>
+            </ul>
+          </div>
+
+          <!-- ─────────────────────────────────────────────
+               Slide 2 · Budget
+               ───────────────────────────────────────────── -->
+          <div class="ld-slide" role="tabpanel" aria-label="Budget feature">
+            <span class="ld-chip" data-accent="budget" data-i18n="landing.budget.chip">Budget</span>
+
+            <div class="ld-mockup">
+              <svg viewBox="0 0 220 220" fill="none" aria-hidden="true">
+                <rect x="12" y="8" width="196" height="204" rx="22"
+                  fill="rgba(255,255,255,0.025)"
+                  stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+                <rect x="26" y="22" width="82" height="8" rx="4"
+                  fill="rgba(255,255,255,0.50)"/>
+                <rect x="26" y="35" width="52" height="5" rx="2.5"
+                  fill="rgba(255,255,255,0.17)"/>
+                <!-- Balance pill -->
+                <rect x="138" y="19" width="62" height="22" rx="11"
+                  fill="rgba(62,207,127,0.09)"
+                  stroke="rgba(62,207,127,0.26)" stroke-width="1"/>
+                <rect x="150" y="27" width="38" height="6" rx="3"
+                  fill="#3ecf7f" fill-opacity="0.58"/>
+
+                <!-- Donut chart -->
+                <circle cx="110" cy="112" r="46"
+                  stroke="rgba(255,255,255,0.045)"
+                  stroke-width="18" fill="none"/>
+                <!-- Expenses arc ~55% -->
+                <circle cx="110" cy="112" r="46" stroke="#9a1c1c"
+                  stroke-width="18" fill="none"
+                  stroke-linecap="round"
+                  stroke-dasharray="159 130"
+                  stroke-dashoffset="36"
+                  transform="rotate(-90 110 112)"/>
+                <!-- Savings arc ~25% -->
+                <circle cx="110" cy="112" r="46" stroke="#60a5fa"
+                  stroke-width="18" fill="none"
+                  stroke-linecap="round"
+                  stroke-dasharray="73 216"
+                  stroke-dashoffset="-123"
+                  transform="rotate(-90 110 112)"/>
+                <!-- Remaining arc ~20% -->
+                <circle cx="110" cy="112" r="46" stroke="#3ecf7f"
+                  stroke-width="18" fill="none"
+                  stroke-linecap="round"
+                  stroke-dasharray="58 231"
+                  stroke-dashoffset="-196"
+                  transform="rotate(-90 110 112)"/>
+
+                <!-- Center -->
+                <rect x="88" y="104" width="44" height="8" rx="4"
+                  fill="rgba(255,255,255,0.50)"/>
+                <rect x="96" y="116" width="28" height="5" rx="2.5"
+                  fill="rgba(255,255,255,0.20)"/>
+
+                <!-- Legend -->
+                <rect x="24" y="173" width="10" height="10" rx="3"
+                  fill="#9a1c1c" fill-opacity="0.82"/>
+                <rect x="40" y="175" width="52" height="5" rx="2.5"
+                  fill="rgba(255,255,255,0.40)"/>
+                <rect x="100" y="173" width="10" height="10" rx="3"
+                  fill="#60a5fa" fill-opacity="0.82"/>
+                <rect x="116" y="175" width="42" height="5" rx="2.5"
+                  fill="rgba(255,255,255,0.40)"/>
+                <rect x="24" y="191" width="10" height="10" rx="3"
+                  fill="#3ecf7f" fill-opacity="0.82"/>
+                <rect x="40" y="193" width="46" height="5" rx="2.5"
+                  fill="rgba(255,255,255,0.40)"/>
+              </svg>
+            </div>
+
+            <div class="ld-slide-sep"></div>
+            <h3 class="ld-slide-title" data-i18n="landing.budget.title">Master Your Budget</h3>
+            <p class="ld-slide-desc"   data-i18n="landing.budget.desc">Know exactly where your money goes.</p>
+            <ul class="ld-bullets">
+              <li data-i18n="landing.budget.b1">Income &amp; expense tracker</li>
+              <li data-i18n="landing.budget.b2">Visual spending breakdown</li>
+              <li data-i18n="landing.budget.b3">Monthly budget summaries</li>
+            </ul>
+          </div>
+
+          <!-- ─────────────────────────────────────────────
+               Slide 3 · Sleep
+               ───────────────────────────────────────────── -->
+          <div class="ld-slide" role="tabpanel" aria-label="Sleep feature">
+            <span class="ld-chip" data-accent="sleep" data-i18n="landing.sleep.chip">Sleep</span>
+
+            <div class="ld-mockup">
+              <svg viewBox="0 0 220 220" fill="none" aria-hidden="true">
+                <!-- Stars -->
+                <circle cx="38"  cy="28" r="2.5" fill="#60a5fa" fill-opacity="0.70"/>
+                <circle cx="174" cy="21" r="2"   fill="#60a5fa" fill-opacity="0.50"/>
+                <circle cx="190" cy="56" r="3"   fill="#60a5fa" fill-opacity="0.60"/>
+                <circle cx="22"  cy="64" r="2"   fill="#60a5fa" fill-opacity="0.40"/>
+                <circle cx="160" cy="47" r="1.5" fill="#60a5fa" fill-opacity="0.38"/>
+                <circle cx="58"  cy="44" r="1.5" fill="#60a5fa" fill-opacity="0.32"/>
+                <circle cx="200" cy="38" r="1.5" fill="#60a5fa" fill-opacity="0.28"/>
+                <circle cx="142" cy="16" r="1"   fill="#60a5fa" fill-opacity="0.30"/>
+
+                <!-- Moon crescent -->
+                <path d="M98 13 C81 13 68 26 68 43 C68 60 81 73 98 73
+                         C107 73 115 69 120 63
+                         C112 59 106 50 106 40
+                         C106 30 112 21 120 17
+                         C115 14 107 13 98 13Z"
+                  fill="rgba(96,165,250,0.14)" stroke="#60a5fa" stroke-width="1.5"/>
+
+                <!-- Arc track -->
+                <path d="M22 176 A88 88 0 0 1 198 176"
+                  stroke="rgba(96,165,250,0.09)" stroke-width="22"
+                  fill="none" stroke-linecap="round"/>
+                <!-- Arc fill 75% -->
+                <path d="M22 176 A88 88 0 0 1 198 176"
+                  stroke="#60a5fa" stroke-width="22"
+                  fill="none" stroke-linecap="round"
+                  stroke-dasharray="207 69"/>
+
+                <!-- Center pill -->
+                <rect x="77" y="134" width="66" height="30" rx="12"
+                  fill="rgba(96,165,250,0.09)"
+                  stroke="rgba(96,165,250,0.20)" stroke-width="1"/>
+                <rect x="87" y="142" width="46" height="7" rx="3.5"
+                  fill="#60a5fa" fill-opacity="0.68"/>
+                <rect x="95" y="153" width="30" height="5" rx="2.5"
+                  fill="rgba(255,255,255,0.18)"/>
+
+                <!-- Bedtime / wake labels -->
+                <rect x="16" y="186" width="38" height="6" rx="3"
+                  fill="rgba(255,255,255,0.18)"/>
+                <rect x="166" y="186" width="38" height="6" rx="3"
+                  fill="rgba(255,255,255,0.18)"/>
+              </svg>
+            </div>
+
+            <div class="ld-slide-sep"></div>
+            <h3 class="ld-slide-title" data-i18n="landing.sleep.title">Optimize Your Sleep</h3>
+            <p class="ld-slide-desc"   data-i18n="landing.sleep.desc">Wake up refreshed, every morning.</p>
+            <ul class="ld-bullets">
+              <li data-i18n="landing.sleep.b1">Sleep cycle calculator</li>
+              <li data-i18n="landing.sleep.b2">Smart bedtime recommendations</li>
+              <li data-i18n="landing.sleep.b3">Duration &amp; quality tracking</li>
+            </ul>
+          </div>
+
+          <!-- ─────────────────────────────────────────────
+               Slide 4 · Mood
+               ───────────────────────────────────────────── -->
+          <div class="ld-slide" role="tabpanel" aria-label="Mood feature">
+            <span class="ld-chip" data-accent="mood" data-i18n="landing.mood.chip">State of Mind</span>
+
+            <div class="ld-mockup">
+              <svg viewBox="0 0 220 220" fill="none" aria-hidden="true">
+                <rect x="12" y="8" width="196" height="204" rx="22"
+                  fill="rgba(255,255,255,0.025)"
+                  stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+                <rect x="26" y="22" width="86" height="8" rx="4"
+                  fill="rgba(255,255,255,0.50)"/>
+                <rect x="26" y="35" width="56" height="5" rx="2.5"
+                  fill="rgba(255,255,255,0.17)"/>
+
+                <!-- Mood circles — sad to great -->
+                <circle cx="36" cy="88" r="18" fill="rgba(248,113,113,0.09)"
+                  stroke="#f87171" stroke-width="1.5"/>
+                <circle cx="30" cy="82" r="2.5" fill="#f87171"/>
+                <circle cx="42" cy="82" r="2.5" fill="#f87171"/>
+                <path d="M30 95 Q36 91 42 95" stroke="#f87171"
+                  stroke-width="2" stroke-linecap="round" fill="none"/>
+
+                <circle cx="80" cy="88" r="18" fill="rgba(251,191,36,0.09)"
+                  stroke="#fbbf24" stroke-width="1.5"/>
+                <circle cx="74" cy="82" r="2.5" fill="#fbbf24"/>
+                <circle cx="86" cy="82" r="2.5" fill="#fbbf24"/>
+                <line x1="74" y1="93" x2="86" y2="93"
+                  stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+
+                <circle cx="124" cy="88" r="18" fill="rgba(167,139,250,0.09)"
+                  stroke="#a78bfa" stroke-width="1.5"/>
+                <circle cx="118" cy="82" r="2.5" fill="#a78bfa"/>
+                <circle cx="130" cy="82" r="2.5" fill="#a78bfa"/>
+                <path d="M118 91 Q124 97 130 91" stroke="#a78bfa"
+                  stroke-width="2" stroke-linecap="round" fill="none"/>
+
+                <!-- Selected: great (glow ring) -->
+                <circle cx="182" cy="88" r="24" fill="rgba(62,207,127,0.10)"
+                  stroke="#3ecf7f" stroke-width="2.5"/>
+                <circle cx="175" cy="81" r="3"  fill="#3ecf7f"/>
+                <circle cx="189" cy="81" r="3"  fill="#3ecf7f"/>
+                <path d="M174 91 Q182 100 190 91" stroke="#3ecf7f"
+                  stroke-width="2.8" stroke-linecap="round" fill="none"/>
+
+                <!-- Divider -->
+                <rect x="26" y="124" width="168" height="1"
+                  fill="rgba(255,255,255,0.07)"/>
+
+                <!-- 7-day trend -->
+                <polyline
+                  points="26,176 54,169 82,163 110,155 138,147 166,137 194,126"
+                  stroke="rgba(62,207,127,0.22)" stroke-width="1.5"
+                  fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="26"  cy="176" r="3.5" fill="#f87171"  fill-opacity="0.58"/>
+                <circle cx="54"  cy="169" r="3.5" fill="#fbbf24"  fill-opacity="0.58"/>
+                <circle cx="82"  cy="163" r="3.5" fill="#fbbf24"  fill-opacity="0.58"/>
+                <circle cx="110" cy="155" r="3.5" fill="#a78bfa"  fill-opacity="0.58"/>
+                <circle cx="138" cy="147" r="3.5" fill="#a78bfa"  fill-opacity="0.58"/>
+                <circle cx="166" cy="137" r="3.5" fill="#3ecf7f"  fill-opacity="0.68"/>
+                <circle cx="194" cy="126" r="5"   fill="#3ecf7f"/>
+
+                <!-- Day labels -->
+                <rect x="22"  y="186" width="10" height="4" rx="2"
+                  fill="rgba(255,255,255,0.10)"/>
+                <rect x="50"  y="186" width="10" height="4" rx="2"
+                  fill="rgba(255,255,255,0.10)"/>
+                <rect x="78"  y="186" width="10" height="4" rx="2"
+                  fill="rgba(255,255,255,0.10)"/>
+                <rect x="106" y="186" width="10" height="4" rx="2"
+                  fill="rgba(255,255,255,0.10)"/>
+                <rect x="134" y="186" width="10" height="4" rx="2"
+                  fill="rgba(255,255,255,0.10)"/>
+                <rect x="162" y="186" width="10" height="4" rx="2"
+                  fill="rgba(255,255,255,0.10)"/>
+                <rect x="190" y="186" width="10" height="4" rx="2"
+                  fill="rgba(62,207,127,0.40)"/>
+              </svg>
+            </div>
+
+            <div class="ld-slide-sep"></div>
+            <h3 class="ld-slide-title" data-i18n="landing.mood.title">Track Your State of Mind</h3>
+            <p class="ld-slide-desc"   data-i18n="landing.mood.desc">Understand your emotional patterns.</p>
+            <ul class="ld-bullets">
+              <li data-i18n="landing.mood.b1">Daily mood &amp; energy check-in</li>
+              <li data-i18n="landing.mood.b2">Stress level monitoring</li>
+              <li data-i18n="landing.mood.b3">Weekly trend visualization</li>
+            </ul>
+          </div>
+
+          <!-- ─────────────────────────────────────────────
+               Slide 5 · Planner
+               ───────────────────────────────────────────── -->
+          <div class="ld-slide" role="tabpanel" aria-label="Planner feature">
+            <span class="ld-chip" data-accent="plan" data-i18n="landing.plan.chip">Planner</span>
+
+            <div class="ld-mockup">
+              <svg viewBox="0 0 220 220" fill="none" aria-hidden="true">
+                <rect x="12" y="8" width="196" height="204" rx="22"
+                  fill="rgba(255,255,255,0.025)"
+                  stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+                <rect x="26" y="22" width="104" height="8" rx="4"
+                  fill="rgba(255,255,255,0.50)"/>
+                <rect x="26" y="35" width="66" height="5" rx="2.5"
+                  fill="rgba(255,255,255,0.17)"/>
+                <!-- Add button -->
+                <circle cx="188" cy="30" r="14"
+                  fill="rgba(248,113,113,0.10)"
+                  stroke="#f87171" stroke-width="1.2"/>
+                <line x1="181" y1="30" x2="195" y2="30"
+                  stroke="#f87171" stroke-width="2.2" stroke-linecap="round"/>
+                <line x1="188" y1="23" x2="188" y2="37"
+                  stroke="#f87171" stroke-width="2.2" stroke-linecap="round"/>
+
+                <!-- Task 1 — done -->
+                <rect x="24" y="53" width="172" height="32" rx="12"
+                  fill="rgba(255,255,255,0.035)"
+                  stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                <rect x="33" y="66" width="5" height="5" rx="1.5"
+                  fill="#f87171"/>
+                <circle cx="54" cy="69" r="9"
+                  fill="rgba(62,207,127,0.11)"
+                  stroke="#3ecf7f" stroke-width="1.5"/>
+                <path d="M49 69l4 5.5 8-11.5"
+                  stroke="#3ecf7f" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="70" y="64" width="86" height="6" rx="3"
+                  fill="rgba(255,255,255,0.35)"/>
+                <rect x="70" y="74" width="52" height="4" rx="2"
+                  fill="rgba(255,255,255,0.11)"/>
+
+                <!-- Task 2 — in progress -->
+                <rect x="24" y="94" width="172" height="32" rx="12"
+                  fill="rgba(255,255,255,0.035)"
+                  stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                <rect x="33" y="107" width="5" height="5" rx="1.5"
+                  fill="#fbbf24"/>
+                <circle cx="54" cy="110" r="9"
+                  fill="rgba(96,165,250,0.10)"
+                  stroke="#60a5fa" stroke-width="1.5"
+                  stroke-dasharray="3 2.5"/>
+                <rect x="70" y="105" width="100" height="6" rx="3"
+                  fill="rgba(255,255,255,0.55)"/>
+                <rect x="70" y="115" width="62" height="4" rx="2"
+                  fill="rgba(255,255,255,0.14)"/>
+
+                <!-- Task 3 — pending -->
+                <rect x="24" y="135" width="172" height="32" rx="12"
+                  fill="rgba(255,255,255,0.035)"
+                  stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                <rect x="33" y="148" width="5" height="5" rx="1.5"
+                  fill="#3ecf7f" fill-opacity="0.6"/>
+                <circle cx="54" cy="151" r="9"
+                  fill="transparent"
+                  stroke="rgba(255,255,255,0.16)" stroke-width="1.5"/>
+                <rect x="70" y="146" width="72" height="6" rx="3"
+                  fill="rgba(255,255,255,0.55)"/>
+                <rect x="70" y="156" width="44" height="4" rx="2"
+                  fill="rgba(255,255,255,0.14)"/>
+
+                <!-- Pomodoro timer pill -->
+                <rect x="24" y="178" width="172" height="22" rx="11"
+                  fill="rgba(248,113,113,0.06)"
+                  stroke="rgba(248,113,113,0.17)" stroke-width="1"/>
+                <circle cx="44" cy="189" r="8" fill="none"
+                  stroke="#f87171" stroke-width="2"
+                  stroke-dasharray="30 20"
+                  transform="rotate(-90 44 189)"/>
+                <rect x="58" y="185" width="52" height="5" rx="2.5"
+                  fill="rgba(255,255,255,0.40)"/>
+                <rect x="58" y="193" width="32" height="4" rx="2"
+                  fill="rgba(255,255,255,0.14)"/>
+                <rect x="138" y="182" width="46" height="12" rx="6"
+                  fill="rgba(248,113,113,0.16)"
+                  stroke="rgba(248,113,113,0.26)" stroke-width="1"/>
+              </svg>
+            </div>
+
+            <div class="ld-slide-sep"></div>
+            <h3 class="ld-slide-title" data-i18n="landing.plan.title">Plan Your Day</h3>
+            <p class="ld-slide-desc"   data-i18n="landing.plan.desc">Stay organized and relentlessly focused.</p>
+            <ul class="ld-bullets">
+              <li data-i18n="landing.plan.b1">Task management with priorities</li>
+              <li data-i18n="landing.plan.b2">Built-in Pomodoro timer</li>
+              <li data-i18n="landing.plan.b3">Daily schedule overview</li>
+            </ul>
+          </div>
+
+        </div><!-- /ld-slides -->
+
+        <!-- Prev / Next arrows (desktop only via CSS) -->
+        <button class="ld-arrow ld-arrow--prev" id="ldPrev"
+                type="button" aria-label="Previous slide">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="M12 3 L6 9 L12 15"
+              stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <button class="ld-arrow ld-arrow--next" id="ldNext"
+                type="button" aria-label="Next slide">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="M6 3 L12 9 L6 15"
+              stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <!-- Pagination dots -->
+        <div class="ld-dots" id="ldDots"
+             role="tablist" aria-label="Carousel navigation">
+          <button class="ld-dot ld-dot--on" data-idx="0"
+                  role="tab" aria-selected="true"
+                  aria-label="Habits slide"></button>
+          <button class="ld-dot" data-idx="1"
+                  role="tab" aria-selected="false"
+                  aria-label="Budget slide"></button>
+          <button class="ld-dot" data-idx="2"
+                  role="tab" aria-selected="false"
+                  aria-label="Sleep slide"></button>
+          <button class="ld-dot" data-idx="3"
+                  role="tab" aria-selected="false"
+                  aria-label="Mood slide"></button>
+          <button class="ld-dot" data-idx="4"
+                  role="tab" aria-selected="false"
+                  aria-label="Planner slide"></button>
+        </div>
+
+      </div><!-- /ld-carousel-card -->
+    </div><!-- /ld-carousel-panel -->
+
+  </main><!-- /ld-main -->
+
+  <!-- ══════════════════════════════════════════════════════
+       FOOTER
+       ══════════════════════════════════════════════════════ -->
+  <footer class="ld-footer" role="contentinfo">
+    <span class="ld-footer-copy">© 2025 Hbit</span>
+    <nav class="ld-footer-links" aria-label="Footer links">
+      <a href="privacy.html" data-i18n="landing.footer.privacy">Privacy Policy</a>
+      <a href="terms.html"   data-i18n="landing.footer.terms">Terms of Service</a>
+    </nav>
+  </footer>
+
+  <!-- ── Scripts ────────────────────────────────────────── -->
+  <script defer src="js/core/utils.js"></script>
+  <script defer src="js/core/storage.js"></script>
+  <script defer src="js/core/i18n.js"></script>
+  <script defer src="js/pages/landing.js"></script>
+
+</body>
+</html>

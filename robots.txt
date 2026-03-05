@@ -1,0 +1,25 @@
+# robots.txt — Hbit
+# https://hbit-d62a6.web.app/
+
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /signup.html
+Allow: /login.html
+Allow: /privacy.html
+Allow: /terms.html
+
+# Disallow authenticated app pages (no useful content for crawlers)
+Disallow: /home.html
+Disallow: /habits.html
+Disallow: /budget.html
+Disallow: /sleep.html
+Disallow: /mood.html
+Disallow: /profile.html
+
+# Disallow source files
+Disallow: /js/
+Disallow: /css/
+Disallow: /node_modules/
+
+Sitemap: https://hbit-d62a6.web.app/sitemap.xml

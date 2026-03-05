@@ -1,0 +1,421 @@
+/* =========================
+   Mood — premium redesign
+   Works with your global theme vars.
+   ========================= */
+
+body[data-accent="mood"] {
+  --accent: var(--mood, #7c4dff);
+  --accent-lo: rgba(124, 77, 255, 0.12);
+  --accent-glow: rgba(124, 77, 255, 0.28);
+}
+
+/* ── Page shell ─────────────────────────────────────────── */
+#moodPage {
+  min-height: 100dvh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter",
+               Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: var(--bg, #0b0b0d);
+  color: var(--text, #f2f2f5);
+}
+#moodPage::before {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  top: -8%; left: 50%;
+  transform: translateX(-50%);
+  width: min(900px, 130vw);
+  height: 480px;
+  background: radial-gradient(ellipse,
+    rgba(124, 77, 255, 0.065) 0%, transparent 65%);
+  z-index: 0;
+}
+
+/* ── Premium topbar override ────────────────────────────── */
+#moodPage .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: color-mix(in srgb, var(--bg, #0b0b0d) 92%, transparent);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border-bottom: 1px solid color-mix(in srgb, var(--border, #2a2a2f) 55%, transparent);
+}
+
+/* ── Container spacing ──────────────────────────────────── */
+#moodPage .container {
+  position: relative;
+  z-index: 1;
+  padding-top: 20px;
+  padding-bottom: 60px;
+}
+
+/* ── Section headers (tag + dot) ────────────────────────── */
+#moodPage .tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--accent, #7c4dff);
+}
+#moodPage .tag .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent, #7c4dff);
+  box-shadow: 0 0 8px var(--accent-glow, rgba(124,77,255,.35));
+  flex-shrink: 0;
+}
+
+/* Hero-style card for \"Today\" */
+#moodPage #moodTodayCard{
+  border-radius: 22px;
+  padding: 18px 18px 16px;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--accent) 18%, var(--panel2)) 0%,
+    color-mix(in srgb, var(--accent) 8%, var(--bg)) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border));
+  box-shadow:
+    0 10px 32px color-mix(in srgb, #000 26%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+#moodPage #moodTodayCard .mood-leadin{
+  color: color-mix(in srgb, #ffffff 72%, var(--muted));
+}
+
+#moodPage #moodTodayCard .mood-label{
+  color: #fff;
+}
+
+#moodPage #moodTodayCard .pill.mood7-pill{
+  background: rgba(0,0,0,0.15);
+  border-color: rgba(255,255,255,0.28);
+}
+
+#moodPage #moodHistoryCard{
+  border-radius: 18px;
+}
+
+/* layout */
+.mood-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 14px;
+  flex-wrap:wrap;
+}
+.mood-top-left{ min-width: 260px; }
+.mood-leadin{ margin-top: 8px; max-width: 68ch; }
+.mood-top-right{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+/* 2-column content (mobile stacks) */
+.mood-layout{
+  margin-top: 14px;
+  display:grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 14px;
+}
+@media (max-width: 980px){
+  .mood-layout{ grid-template-columns: 1fr; }
+}
+
+/* left side grid */
+.mood-sliders{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 640px){
+  .mood-sliders{ grid-template-columns: 1fr; }
+}
+
+/* right side */
+.mood-side{
+  border: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  border-radius: 18px;
+  padding: 12px;
+}
+.mood-side-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 12px;
+}
+@media (max-width: 420px){
+  .mood-side-head{ flex-direction:column; align-items:stretch; }
+}
+
+/* card */
+.mood-card{
+  border: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+  background: color-mix(in srgb, var(--panel2, #18181f) 85%, transparent);
+  border-radius: 18px;
+  padding: 14px;
+  color: var(--text);
+  transition: border-color .15s, box-shadow .15s;
+}
+.mood-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+  box-shadow: 0 6px 24px color-mix(in srgb, #000 20%, transparent);
+}
+.mood-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.mood-label{
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+/* range */
+.mood-card input[type="range"]{
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  height: 28px;
+  background: transparent;
+  --moodColor: var(--accent);
+  --pct: 50%;
+}
+.mood-card input[type="range"]::-webkit-slider-runnable-track{
+  height: 8px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, var(--moodColor) 0 var(--pct), color-mix(in srgb, var(--border) 55%, transparent) var(--pct) 100%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 60%, transparent);
+}
+.mood-card input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--moodColor) 70%, white);
+  border: 1px solid color-mix(in srgb, var(--moodColor) 60%, #000);
+  margin-top: -5px;
+  box-shadow: 0 6px 16px color-mix(in srgb, #000 25%, transparent);
+}
+.mood-card input[type="range"]::-moz-range-track{
+  height: 8px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, var(--moodColor) 0 var(--pct), color-mix(in srgb, var(--border) 55%, transparent) var(--pct) 100%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 60%, transparent);
+}
+.mood-card input[type="range"]::-moz-range-thumb{
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--moodColor) 70%, white);
+  border: 1px solid color-mix(in srgb, var(--moodColor) 60%, #000);
+  box-shadow: 0 6px 16px color-mix(in srgb, #000 25%, transparent);
+}
+
+/* rows */
+.mood-row{
+  margin-top: 12px;
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  flex-wrap:wrap;
+}
+.mood-row-imp{ margin-top: 14px; }
+
+/* note field */
+.mood-side .field{
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+}
+.mood-side .field label{
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 900;
+  letter-spacing: .2px;
+}
+.mood-side textarea.ui-input{
+  width: 100%;
+  min-height: 120px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  background: color-mix(in srgb, var(--panel2) 82%, transparent);
+  color: var(--text);
+  line-height: 1.4;
+  resize: vertical;
+  outline: none;
+  box-shadow: 0 10px 28px color-mix(in srgb, #000 20%, transparent);
+  transition: border-color .12s ease, box-shadow .12s ease;
+}
+.mood-side textarea.ui-input:focus{
+  border-color: color-mix(in srgb, var(--accent) 55%, white 0%);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent),
+    0 12px 30px color-mix(in srgb, #000 22%, transparent);
+}
+
+/* chips */
+.chips{
+  margin-top: 10px;
+  display:flex;
+  flex-wrap:wrap;
+  gap: 10px;
+}
+.mood-chip{
+  border-radius: 999px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  cursor:pointer;
+  font-weight: 900;
+  color: var(--text);
+  transition: transform .08s ease, background .15s ease, border-color .15s ease;
+}
+.mood-chip:hover{ transform: translateY(-1px); }
+.mood-chip.active{
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg));
+}
+
+/* 1..7 colors */
+.mood-1{ border-color: color-mix(in srgb, #9b2748 60%, var(--border)); background: color-mix(in srgb, #9b2748 14%, var(--bg)); color: var(--text); }
+.mood-2{ border-color: color-mix(in srgb, #c6513b 60%, var(--border)); background: color-mix(in srgb, #c6513b 14%, var(--bg)); color: var(--text); }
+.mood-3{ border-color: color-mix(in srgb, #d1a23a 55%, var(--border)); background: color-mix(in srgb, #d1a23a 12%, var(--bg)); color: var(--text); }
+.mood-4{ border-color: color-mix(in srgb, #42b883 55%, var(--border)); background: color-mix(in srgb, #42b883 12%, var(--bg)); color: var(--text); }
+.mood-5{ border-color: color-mix(in srgb, #5cc9b7 55%, var(--border)); background: color-mix(in srgb, #5cc9b7 12%, var(--bg)); color: var(--text); }
+
+/* ring */
+.mood-ring{
+  width: 112px;
+  height: 112px;
+  border-radius: 999px;
+  position: relative;
+  flex: 0 0 auto;
+
+  background: conic-gradient(
+    var(--ringColor, var(--accent)) 0deg,
+    color-mix(in srgb, var(--ringColor, var(--accent)) 85%, white) var(--deg),
+    color-mix(in srgb, var(--text) 10%, transparent) var(--deg) 360deg
+  );
+
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  box-shadow: 0 14px 34px color-mix(in srgb, #000 20%, transparent);
+}
+.mood-ring::after{
+  content:"";
+  position:absolute;
+  inset: 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--panel2) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+}
+.mood-ring-center{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  padding: 10px;
+}
+.mood-ring-top{
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 900;
+}
+.mood-ring-mid{
+  font-size: 22px;
+  font-weight: 1000;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+/* history spacing */
+.mood-history{ margin-top: 12px; }
+.mood-history .card{ margin-top: 10px; }
+
+/* small buttons */
+.btn.small{
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-weight: 900;
+}
+
+/* ══ PREMIUM SECTION SHELLS ═════════════════════════════════ */
+#moodPage .card.span-12 {
+  border-radius: 22px !important;
+  box-shadow: 0 4px 24px color-mix(in srgb, #000 22%, transparent);
+}
+
+/* ── History section improvements ───────────────────────── */
+#moodPage #moodHistoryCard {
+  border-radius: 22px !important;
+  background: color-mix(in srgb, var(--panel2, #18181f) 85%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+}
+
+#moodPage #moodHistoryCard .row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+/* ── Mood side panel improvements ───────────────────────── */
+.mood-side {
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border));
+  background: color-mix(in srgb, var(--panel2, #18181f) 82%, transparent);
+  box-shadow: 0 6px 28px color-mix(in srgb, #000 18%, transparent);
+}
+
+/* ── Top right action buttons ───────────────────────────── */
+#moodPage .mood-top-right .btn {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ── Overall pill styling ───────────────────────────────── */
+#moodPage #moodOverallPill {
+  font-size: 14px;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+
+/* ── Better leadin text ─────────────────────────────────── */
+.mood-leadin {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted, rgba(255,255,255,0.48));
+}
+
+/* ── Responsive gap improvements ───────────────────────── */
+@media (min-width: 640px) {
+  .mood-sliders { gap: 14px; }
+  .mood-layout  { gap: 18px; }
+}
+
+/* ── Mobile: show mood page content without heavy sidebar padding ── */
+@media (max-width: 639px) {
+  #moodPage .container { padding-left: 12px; padding-right: 12px; }
+}

@@ -1,0 +1,313 @@
+/* ==========================================================
+   Hbit — Navigation  ·  Always a left sidebar
+   Mobile  (<640px):  icon-only, 60 px wide
+   Desktop (≥640px):  labels + logo, 220 px wide
+   ========================================================== */
+
+/* ── Sidebar width token ────────────────────────────────── */
+:root {
+  --sidebar-w: 60px;
+}
+@media (min-width: 640px) {
+  :root { --sidebar-w: 220px; }
+}
+@media (min-width: 1280px) {
+  :root { --sidebar-w: 248px; }
+}
+
+/* ── Push ALL page content right to clear the sidebar ───── */
+body:has(.bottom-nav) {
+  padding-left: var(--sidebar-w);
+}
+
+/* ════════════════════════════════════════════════════════════
+   SIDEBAR SHELL
+   ════════════════════════════════════════════════════════════ */
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--sidebar-w);
+  height: 100%;
+  z-index: 60;
+
+  display: flex;
+  flex-direction: column;
+  padding: 0 8px 20px;
+
+  background: rgba(7, 9, 14, 0.97);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+
+  overflow-y: auto;
+  scrollbar-width: none;
+
+  /* Same font as welcome / landing page */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter",
+               Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.bottom-nav::-webkit-scrollbar { display: none; }
+
+/* ── Brand "H" logo at top ──────────────────────────────── */
+.bottom-nav::before {
+  content: "H";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #9a1c1c;
+  color: #fff;
+  font-weight: 800;
+  font-size: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter",
+               Helvetica, Arial, sans-serif;
+  letter-spacing: -0.5px;
+  box-shadow: 0 4px 20px rgba(154, 28, 28, 0.42);
+  margin: 20px auto 20px;
+  flex-shrink: 0;
+}
+
+/* ── Items list ─────────────────────────────────────────── */
+.bottom-nav .items {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Nav item base (mobile = icon-only column) ──────────── */
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 4px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.42);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  width: 100%;
+  font-family: inherit;
+}
+
+.nav-item .icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.65);
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.nav-item .label {
+  display: none; /* Hidden on mobile icon-only sidebar */
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.80);
+}
+.nav-item:hover .icon {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+.nav-item:active { opacity: 0.75; }
+
+/* Active state */
+.nav-item.active {
+  background: rgba(154, 28, 28, 0.14);
+  border-color: rgba(154, 28, 28, 0.28);
+  color: rgba(255, 255, 255, 0.94);
+}
+.nav-item.active .icon {
+  border-color: rgba(154, 28, 28, 0.48);
+  background: rgba(154, 28, 28, 0.20);
+  color: #e05555;
+}
+
+/* ════════════════════════════════════════════════════════════
+   SIDEBAR BOTTOM — logout + copyright
+   ════════════════════════════════════════════════════════════ */
+.nav-bottom {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  margin-top: 12px;
+}
+
+/* Logout nav item — red tint on hover */
+.nav-item.nav-logout {
+  color: rgba(255, 255, 255, 0.38);
+}
+.nav-item.nav-logout:hover {
+  background: rgba(255, 70, 70, 0.10);
+  border-color: rgba(255, 70, 70, 0.20);
+  color: #ff7070;
+}
+.nav-item.nav-logout:hover .icon {
+  background: rgba(255, 70, 70, 0.12);
+  border-color: rgba(255, 70, 70, 0.24);
+  color: #ff7070;
+}
+
+/* Copyright line — hidden on mobile (too narrow) */
+.nav-copyright {
+  display: none;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.20);
+  text-align: center;
+  padding: 12px 6px 4px;
+  letter-spacing: 0.1px;
+  line-height: 1.5;
+  font-family: inherit;
+}
+
+/* ════════════════════════════════════════════════════════════
+   DESKTOP (≥ 640px) — full sidebar with labels
+   ════════════════════════════════════════════════════════════ */
+@media (min-width: 640px) {
+  .bottom-nav {
+    padding: 0 12px 24px;
+  }
+
+  .nav-item {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 10px 14px;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .nav-item .icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+
+  .nav-item .label {
+    display: block;
+  }
+
+  .nav-copyright {
+    display: block;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   WIDE DESKTOP (≥ 1280px)
+   ════════════════════════════════════════════════════════════ */
+@media (min-width: 1280px) {
+  .nav-item .label { font-size: 14.5px; }
+  .bottom-nav::before { width: 44px; height: 44px; font-size: 22px; }
+}
+
+/* ════════════════════════════════════════════════════════════
+   MOBILE DRAWER (< 640px) — hamburger + slide-in panel
+   ════════════════════════════════════════════════════════════ */
+@media (max-width: 639px) {
+  /* No sidebar reservation — content takes full width */
+  :root { --sidebar-w: 0px; }
+
+  /* Sidebar becomes a hidden off-canvas drawer */
+  .bottom-nav {
+    width: 248px;
+    transform: translateX(-248px);
+    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    z-index: 300;
+    box-shadow: none;
+    padding: 0 12px 24px;
+  }
+
+  body.nav-open .bottom-nav {
+    transform: translateX(0);
+    box-shadow: 6px 0 48px rgba(0, 0, 0, 0.60);
+  }
+
+  /* Scrim behind open drawer */
+  body.nav-open::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 298;
+    background: rgba(0, 0, 0, 0.52);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+  }
+
+  /* Show labels inside the drawer */
+  .bottom-nav .nav-item {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 10px 14px;
+    gap: 12px;
+    align-items: center;
+  }
+  .bottom-nav .nav-item .label { display: block; }
+  .nav-copyright { display: block; }
+}
+
+/* ── Hamburger toggle button ─────────────────────────────── */
+.nav-menu-btn {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .nav-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 13px;
+    left: 13px;
+    z-index: 101;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    background: rgba(7, 9, 14, 0.88);
+    color: rgba(255, 255, 255, 0.82);
+    cursor: pointer;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition: background 0.12s, transform 0.08s;
+    flex-shrink: 0;
+  }
+  .nav-menu-btn:hover { background: rgba(255, 255, 255, 0.10); }
+  .nav-menu-btn:active { transform: scale(0.90); }
+
+  /* Ensure drawer sits above the scrim */
+  .bottom-nav { z-index: 300; }
+
+  /* Page header padding on mobile for the hamburger */
+  .hb-header,
+  .bg-header,
+  .sl-header {
+    padding-left: 58px;
+  }
+}

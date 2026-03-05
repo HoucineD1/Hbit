@@ -1,0 +1,12 @@
+/* =========================
+   Hbit — signup.css
+   Signup-specific tweaks
+   (All shared auth styles live in login.css)
+   ========================= */
+
+/* Proof pill doesn't need auto-margin on signup
+   since the form is already long */
+#signupPage .auth-proof {
+  margin-top: 12px;
+  padding-top: 0;
+}

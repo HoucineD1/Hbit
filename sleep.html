@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hbit — Sleep</title>
+  <meta name="description" content="Track sleep, plan your schedule and wake at the right moment in your cycle." />
+  <meta name="robots" content="noindex, nofollow" />
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+  <script defer src="js/core/utils.js"></script>
+  <script defer src="js/core/storage.js"></script>
+  <script defer src="js/core/theme.js"></script>
+  <script defer src="js/core/i18n.js"></script>
+  <script defer src="js/core/firebase-init.js"></script>
+  <script defer src="js/core/db.js"></script>
+  <script defer src="js/core/nav.js"></script>
+  <script defer src="js/core/core.js"></script>
+  <script defer src="js/pages/sleep.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body id="sleepPage">
+
+  <!-- ══ Header ════════════════════════════════════════════ -->
+  <header class="sl-header">
+    <div class="sl-hdr-left">
+      <span class="sl-hdr-date" id="slDate">—</span>
+      <h1 class="sl-hdr-title">Sleep</h1>
+    </div>
+    <div class="sl-hdr-right">
+      <button class="sl-hdr-btn" id="slHelpBtn" type="button" aria-label="How Sleep works">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 18h6" />
+          <path d="M10 22h4" />
+          <path d="M7 9a5 5 0 0 1 10 0c0 2.485-2 3.5-2 5h-6c0-1.5-2-2.515-2-5z" />
+        </svg>
+      </button>
+      <button class="sl-hdr-btn" id="langToggle" type="button" aria-label="Switch language">
+        <span id="langLabel">FR</span>
+      </button>
+      <button class="sl-hdr-btn" id="themeToggle" type="button" aria-label="Toggle theme">
+        <svg class="hm-theme-dark" width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <svg class="hm-theme-light" width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+      <a class="sl-avatar" id="slAvatar" href="profile.html" aria-label="Profile">H</a>
+    </div>
+  </header>
+
+  <main class="sl-main" id="slMain">
+
+    <!-- ══ Hero sleep card ════════════════════════════════ -->
+    <section class="sl-hero-card" aria-label="Last night summary">
+      <div class="sl-hero-inner">
+
+        <!-- Left: key metric -->
+        <div class="sl-hero-left">
+          <p class="sl-hero-label">Last night</p>
+          <div class="sl-hero-duration" id="slHeroDuration">
+            <span class="sl-dur-num" id="slHeroDurNum">—</span>
+            <span class="sl-dur-unit">hrs</span>
+          </div>
+          <!-- Quality dots -->
+          <div class="sl-hero-quality" id="slHeroQuality" aria-label="Sleep quality">
+            <span class="sl-q-dot"></span><span class="sl-q-dot"></span>
+            <span class="sl-q-dot"></span><span class="sl-q-dot"></span>
+            <span class="sl-q-dot"></span>
+          </div>
+          <!-- Times row -->
+          <div class="sl-hero-times" id="slHeroTimes">
+            <span class="sl-hero-time-pill">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+              <span id="slHeroBedtime">—</span>
+            </span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                 class="sl-hero-arrow" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+            <span class="sl-hero-time-pill wake">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="1" y1="12" x2="3" y2="12"/>
+              </svg>
+              <span id="slHeroWake">—</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Right: stats + action -->
+        <div class="sl-hero-right">
+          <div class="sl-hero-stat">
+            <span class="sl-hero-stat-val" id="slHeroAvg">—</span>
+            <span class="sl-hero-stat-lbl">7-day avg</span>
+          </div>
+          <div class="sl-hero-stat">
+            <span class="sl-hero-stat-val" id="slHeroCycles">—</span>
+            <span class="sl-hero-stat-lbl">cycles</span>
+          </div>
+          <button class="sl-hero-log-btn" id="btnOpenLog" type="button" aria-label="Log sleep">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Log night
+          </button>
+        </div>
+      </div>
+
+      <!-- This week mini bars -->
+      <div class="sl-hero-week">
+        <span class="sl-hero-week-lbl">This week</span>
+        <svg class="sl-week-bars" id="slWeekBars" viewBox="0 0 112 32" aria-hidden="true"></svg>
+        <span class="sl-hero-week-avg" id="slHeroWeekAvg">—</span>
+      </div>
+    </section>
+
+    <!-- ══ Mode tabs ════════════════════════════════════════ -->
+    <div class="sl-mode-tabs" role="tablist" aria-label="Sleep mode">
+      <button class="sl-mode-tab active" id="slTabPlan" data-slmode="plan"
+              type="button" role="tab" aria-selected="true">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        Plan
+      </button>
+      <button class="sl-mode-tab" id="slTabHistory" data-slmode="history"
+              type="button" role="tab" aria-selected="false">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        History
+      </button>
+      <button class="sl-mode-tab" id="slTabPast" data-slmode="past"
+              type="button" role="tab" aria-selected="false">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="9 11 12 14 22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+        Log past
+      </button>
+    </div>
+
+    <!-- ══ Two-column grid on desktop ═════════════════════ -->
+    <div class="sl-grid" id="slGrid" data-slmode="plan">
+
+      <!-- ── Left column ─────────────────────────────────── -->
+      <div class="sl-col-left">
+
+        <!-- Plan a Sleep (Plan tab) -->
+        <section class="sl-sec sl-sec--plan-form" id="slSecPlanForm">
+          <div class="sl-sec-head">
+            <div class="sl-sec-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+            </div>
+            <div class="sl-sec-title-wrap">
+              <span class="sl-sec-title">Plan your night</span>
+              <span class="sl-sec-sub">Set a bedtime and wake goal for tonight.</span>
+            </div>
+          </div>
+          <div class="sl-card">
+            <div class="sl-field-row">
+              <div class="sl-field">
+                <label for="planDate" class="sl-label">Date</label>
+                <input id="planDate" class="sl-input" type="date" />
+              </div>
+            </div>
+            <div class="sl-field-row">
+              <div class="sl-field">
+                <label for="planBedTime" class="sl-label">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                  </svg>
+                  Planned bedtime
+                </label>
+                <input id="planBedTime" class="sl-input" type="time" value="23:00" />
+              </div>
+              <div class="sl-field">
+                <label for="planWakeTime" class="sl-label">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="5"/>
+                    <line x1="12" y1="1" x2="12" y2="3"/>
+                  </svg>
+                  Wake goal
+                </label>
+                <input id="planWakeTime" class="sl-input" type="time" value="07:00" />
+              </div>
+            </div>
+            <div class="sl-plan-duration-preview" id="slPlanDurPreview">
+              <span class="sl-plan-dur-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+              </span>
+              <span id="slPlanDurText">— hrs planned</span>
+            </div>
+            <div class="sl-field">
+              <label for="planNote" class="sl-label">Notes <span class="sl-opt">(optional)</span></label>
+              <textarea id="planNote" class="sl-input sl-textarea" rows="2"
+                        placeholder="Anything special about tonight?"></textarea>
+            </div>
+            <button class="sl-plan-save-btn" id="slSavePlan" type="button">Save tonight's plan</button>
+          </div>
+          <!-- Saved plans list -->
+          <div class="sl-saved-plans" id="slSavedPlans"></div>
+        </section>
+
+        <!-- Sleep Cycle Planner -->
+        <section class="sl-sec sl-sec--planner">
+          <div class="sl-sec-head">
+            <div class="sl-sec-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div class="sl-sec-title-wrap">
+              <span class="sl-sec-title">Sleep planner</span>
+              <span class="sl-sec-sub">Wake at the end of a cycle for easier mornings.</span>
+            </div>
+          </div>
+
+          <div class="sl-card">
+            <div class="sl-field-row">
+              <div class="sl-field">
+                <label for="wakeTarget" class="sl-label">I want to wake at</label>
+                <input id="wakeTarget" class="sl-input" type="time" value="07:00" />
+              </div>
+            </div>
+            <p class="sl-card-sub">Suggested bedtimes — 90-min cycles</p>
+            <div class="sl-suggestions" id="cycleSuggestions"></div>
+          </div>
+        </section>
+
+        <!-- Weekly Schedule -->
+        <section class="sl-sec sl-sec--weekly-schedule">
+          <div class="sl-sec-head">
+            <div class="sl-sec-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <div class="sl-sec-title-wrap">
+              <span class="sl-sec-title">Weekly schedule</span>
+              <span class="sl-sec-sub">Generate a consistent sleep routine.</span>
+            </div>
+          </div>
+
+          <div class="sl-card">
+            <div class="sl-field-row">
+              <div class="sl-field">
+                <label for="planWake" class="sl-label">Wake time</label>
+                <input id="planWake" class="sl-input" type="time" value="07:00" />
+              </div>
+              <div class="sl-field">
+                <label for="planDuration" class="sl-label">Duration (h)</label>
+                <input id="planDuration" class="sl-input" type="number"
+                       min="4" max="12" step="0.5" value="7.5" />
+              </div>
+            </div>
+            <div class="sl-week-grid" id="weekSchedule"></div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- ── Right column ─────────────────────────────────── -->
+      <div class="sl-col-right">
+
+        <!-- Sleep History Calendar -->
+        <section class="sl-sec sl-sec--calendar">
+          <div class="sl-sec-head">
+            <div class="sl-sec-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            </div>
+            <div class="sl-sec-title-wrap">
+              <span class="sl-sec-title">Sleep history</span>
+              <span class="sl-sec-sub">Tap a day to log or edit.</span>
+            </div>
+            <div class="sl-month-nav">
+              <button class="sl-month-btn" id="calPrev" type="button" aria-label="Previous month">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="15 18 9 12 15 6"/>
+                </svg>
+              </button>
+              <span class="sl-month-label" id="calMonthLabel">—</span>
+              <button class="sl-month-btn" id="calNext" type="button" aria-label="Next month">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="sl-calendar" id="sleepCalendar"></div>
+        </section>
+
+        <!-- Wind Down -->
+        <section class="sl-sec">
+          <div class="sl-sec-head">
+            <div class="sl-sec-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+                <line x1="6" y1="1" x2="6" y2="4"/>
+                <line x1="10" y1="1" x2="10" y2="4"/>
+                <line x1="14" y1="1" x2="14" y2="4"/>
+              </svg>
+            </div>
+            <div class="sl-sec-title-wrap">
+              <span class="sl-sec-title">Wind down</span>
+              <span class="sl-sec-sub">Better sleep starts before bed.</span>
+            </div>
+          </div>
+
+          <div class="sl-alarm-wrap">
+            <div class="sl-alarm-card">
+              <div class="sl-alarm-icon-wrap">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="13" r="8"/>
+                  <path d="M12 9v4l2 2"/>
+                  <path d="M5 3l-2 2M21 3l-2 2"/>
+                </svg>
+              </div>
+              <div class="sl-alarm-body">
+                <p class="sl-alarm-title">Set your alarm</p>
+                <p class="sl-alarm-text">Schedule a wake-up alarm on your device for your chosen wake time.</p>
+              </div>
+            </div>
+
+            <div class="sl-alarm-card">
+              <div class="sl-alarm-icon-wrap">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+              </div>
+              <div class="sl-alarm-body">
+                <p class="sl-alarm-title">Reduce blue light</p>
+                <p class="sl-alarm-text">Enable Night Shift, Dark Mode, or a blue-light filter 1 hour before sleep.</p>
+                <button class="sl-mode-btn" id="btnSleepMode" type="button">Enable suggestion</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- State of Mind CTA -->
+        <section class="sl-cta-sec">
+          <div class="sl-cta-card">
+            <div class="sl-cta-inner">
+              <div class="sl-cta-copy">
+                <p class="sl-cta-title">How are you feeling?</p>
+                <p class="sl-cta-text">Start your day with a quick mood check-in.</p>
+              </div>
+              <a class="sl-cta-btn" href="mood.html" aria-label="Go to State of Mind">
+                State of Mind
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                  <polyline points="12 5 19 12 12 19"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div><!-- /sl-grid -->
+
+    <footer class="sl-footer">
+      <span>&copy; 2025 Hbit</span>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+    </footer>
+  </main>
+
+  <!-- ══ Sleep help overlay ════════════════════════════════ -->
+  <div class="sl-help-overlay" id="slHelpOverlay" aria-hidden="true">
+    <div class="sl-help-card" role="dialog" aria-modal="true" aria-labelledby="slHelpTitle">
+      <button class="sl-help-close" id="slHelpClose" type="button" aria-label="Close help">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <h3 class="sl-help-title" id="slHelpTitle">How Sleep works</h3>
+      <p class="sl-help-intro">
+        Hbit Sleep is designed to feel like Apple Health / Oura: simple entries, smart suggestions, and a calm overview.
+      </p>
+      <ol class="sl-help-steps">
+        <li>
+          <strong>Log last night</strong>
+          <span>Tap <em>Log night</em> or any day in the calendar to enter when you went to bed, woke up, quality and notes.</span>
+        </li>
+        <li>
+          <strong>Plan your sleep</strong>
+          <span>Choose your desired wake time. We suggest bedtimes in 90‑minute cycles and highlight the most gentle option.</span>
+        </li>
+        <li>
+          <strong>Stay consistent</strong>
+          <span>Use the weekly schedule to keep a stable routine on weekdays, with a softer variation on weekends.</span>
+        </li>
+      </ol>
+      <p class="sl-help-footer">
+        Your entries sync with the Home overview so your sleep ring and weekly stats stay up to date.
+      </p>
+    </div>
+  </div>
+
+  <!-- ══ Log sleep sheet ════════════════════════════════════ -->
+  <div class="sl-overlay" id="logOverlay" aria-hidden="true">
+    <div class="sl-sheet" id="logSheet" role="dialog" aria-modal="true" aria-labelledby="logSheetTitle">
+      <div class="sl-sheet-drag" aria-hidden="true"></div>
+      <div class="sl-sheet-head">
+        <button class="sl-sheet-close" id="logClose" type="button" aria-label="Close">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        <h3 class="sl-sheet-title" id="logSheetTitle">Log sleep</h3>
+        <button class="sl-sheet-action" id="logSave" type="button">Save</button>
+      </div>
+
+      <div class="sl-sheet-body">
+        <!-- Date -->
+        <div class="sl-field">
+          <label for="logDate" class="sl-label">Date</label>
+          <input id="logDate" class="sl-input" type="date" />
+        </div>
+
+        <!-- Times row -->
+        <div class="sl-field-row">
+          <div class="sl-field">
+            <label for="logSleepTime" class="sl-label">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+              Went to sleep
+            </label>
+            <input id="logSleepTime" class="sl-input" type="time" />
+          </div>
+          <div class="sl-field">
+            <label for="logWakeTime" class="sl-label">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+              </svg>
+              Woke up
+            </label>
+            <input id="logWakeTime" class="sl-input" type="time" />
+          </div>
+        </div>
+
+        <!-- Quality -->
+        <div class="sl-field">
+          <label for="logQuality" class="sl-label">Sleep quality (1–10)</label>
+          <div class="sl-quality-wrap">
+            <input id="logQuality" class="sl-quality-slider" type="range" min="1" max="10" value="7" />
+            <span class="sl-quality-val" id="logQualityVal">7</span>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="sl-field">
+          <label for="logNotes" class="sl-label">Notes <span class="sl-opt">(optional)</span></label>
+          <textarea id="logNotes" class="sl-input sl-textarea" rows="2"
+                    placeholder="How did you feel? Any disturbances?"></textarea>
+        </div>
+
+        <!-- Delete (only shown when editing) -->
+        <button class="sl-btn-danger" id="logDelete" type="button"
+                style="display:none" aria-label="Delete this sleep log">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+          </svg>
+          Delete this log
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Sidebar navigation ════════════════════════════════ -->
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <div class="items">
+      <a class="nav-item" data-nav="overview" href="home.html" aria-label="Home">
+        <span class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </span>
+        <span class="label" data-i18n="nav.overview">Home</span>
+      </a>
+      <a class="nav-item" data-nav="habits" href="habits.html" aria-label="Habits">
+        <span class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 11 12 14 22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+        </span>
+        <span class="label" data-i18n="nav.habits">Habits</span>
+      </a>
+      <a class="nav-item" data-nav="budget" href="budget.html" aria-label="Budget">
+        <span class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="12" y1="1" x2="12" y2="23"/>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </span>
+        <span class="label" data-i18n="nav.budget">Budget</span>
+      </a>
+      <a class="nav-item active" data-nav="sleep" href="sleep.html" aria-label="Sleep">
+        <span class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </span>
+        <span class="label" data-i18n="nav.sleep">Sleep</span>
+      </a>
+      <a class="nav-item" data-nav="mood" href="mood.html" aria-label="State of Mind">
+        <span class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+            <line x1="9" y1="9" x2="9.01" y2="9" stroke-width="2.5"/>
+            <line x1="15" y1="9" x2="15.01" y2="9" stroke-width="2.5"/>
+          </svg>
+        </span>
+        <span class="label" data-i18n="nav.mood">State of Mind</span>
+      </a>
+      <a class="nav-item" data-nav="focus" href="focus.html" aria-label="Focus">
+        <span class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </span>
+        <span class="label">Focus</span>
+      </a>
+    </div>
+    <div class="nav-bottom">
+      <button class="nav-item nav-logout" id="logoutBtn" type="button" aria-label="Sign out">
+        <span class="icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </span>
+        <span class="label" data-i18n="auth.signout">Sign out</span>
+      </button>
+      <div class="nav-copyright">&copy; 2025 Hbit</div>
+    </div>
+  </nav>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      if (window.HBIT && HBIT.core && typeof HBIT.core.boot === "function") {
+        HBIT.core.boot();
+      }
+    });
+  </script>
+</body>
+</html>

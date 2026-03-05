@@ -1,0 +1,204 @@
+/* =========================
+   Hbit — Global Animations & Motion
+   ========================= */
+
+/* ── Keyframes ────────────────────────────────────── */
+@keyframes hbitFadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes hbitFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes hbitSlideDown {
+  from { opacity: 0; transform: translateY(-14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes hbitScaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes hbitProgressFill {
+  from { width: 0 !important; }
+}
+
+/* ── Easing shorthand ─────────────────────────────── */
+/* cubic-bezier(0.22, 1, 0.36, 1) = spring-like ease-out */
+
+/* ── Topbar entrance ──────────────────────────────── */
+.topbar {
+  animation: hbitSlideDown 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Main content area entrance ───────────────────── */
+.container {
+  animation: hbitFadeUp 0.45s 0.06s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Grid cards — staggered entrance ──────────────── */
+.grid > *:nth-child(1)  { animation: hbitFadeUp 0.4s 0.07s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.grid > *:nth-child(2)  { animation: hbitFadeUp 0.4s 0.12s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.grid > *:nth-child(3)  { animation: hbitFadeUp 0.4s 0.17s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.grid > *:nth-child(4)  { animation: hbitFadeUp 0.4s 0.22s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.grid > *:nth-child(5)  { animation: hbitFadeUp 0.4s 0.27s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.grid > *:nth-child(6)  { animation: hbitFadeUp 0.4s 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.grid > *:nth-child(7)  { animation: hbitFadeUp 0.4s 0.37s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.grid > *:nth-child(8)  { animation: hbitFadeUp 0.4s 0.40s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.grid > *:nth-child(n+9){ animation: hbitFadeUp 0.4s 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* ── Card hover lift ──────────────────────────────── */
+.card {
+  transition:
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.18s ease,
+    background 0.18s ease;
+  will-change: transform;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 22px 52px color-mix(in srgb, #000 32%, transparent),
+    0 6px 18px color-mix(in srgb, #000 18%, transparent);
+}
+
+.card:active {
+  transform: translateY(-1px) scale(0.99);
+  transition-duration: 0.08s;
+}
+
+/* Stronger lift for module cards on home */
+.module-card:hover {
+  transform: translateY(-6px);
+  border-color: color-mix(in srgb, var(--border) 180%, transparent);
+}
+
+/* ── Buttons ──────────────────────────────────────── */
+.btn {
+  transition:
+    background 0.13s ease,
+    border-color 0.13s ease,
+    color 0.13s ease,
+    transform 0.1s ease,
+    box-shadow 0.13s ease;
+}
+
+.btn:active {
+  transform: scale(0.95);
+  transition-duration: 0.07s;
+}
+
+/* ── Nav item transitions ─────────────────────────── */
+.nav-item {
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease,
+    transform 0.12s ease;
+}
+
+.nav-item:active {
+  transform: scale(0.96);
+}
+
+.nav-item .icon {
+  transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+/* ── Bottom nav entrance ──────────────────────────── */
+.bottom-nav {
+  animation: hbitSlideDown 0.45s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Welcome page animations ──────────────────────── */
+.wlc-topbar {
+  animation: hbitFadeIn 0.3s ease both;
+}
+
+.wlc-main {
+  animation: hbitFadeUp 0.5s 0.05s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.wlc-illo-card {
+  animation: hbitScaleIn 0.5s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.wlc-content {
+  animation: hbitFadeUp 0.45s 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.wlc-actions {
+  animation: hbitFadeUp 0.4s 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.wlc-footer {
+  animation: hbitFadeIn 0.4s 0.5s ease both;
+}
+
+/* ── Auth page animations ─────────────────────────── */
+.auth-topbar {
+  animation: hbitSlideDown 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.auth-hero {
+  animation: hbitFadeUp 0.42s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+#loginForm,
+#signupForm {
+  animation: hbitFadeUp 0.42s 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.auth-divider,
+.auth-social {
+  animation: hbitFadeUp 0.38s 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.auth-bottom-link,
+.auth-proof,
+.auth-page-footer {
+  animation: hbitFadeIn 0.35s 0.34s ease both;
+}
+
+/* Auth form side fades in */
+.auth-form-side {
+  animation: hbitFadeIn 0.35s ease both;
+}
+
+/* ── Progress bar fill ────────────────────────────── */
+.progress-bar > i {
+  animation: hbitProgressFill 1s 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Habit card hover ─────────────────────────────── */
+.habit-card {
+  transition:
+    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.18s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+/* ── Link / clickable items ───────────────────────── */
+a.card,
+a.module-card {
+  cursor: pointer;
+}
+
+/* ── Respect reduced motion ───────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

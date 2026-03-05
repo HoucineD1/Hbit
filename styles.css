@@ -1,0 +1,24 @@
+@import url("./css/core/tokens.css");
+@import url("./css/core/base.css");
+@import url("./css/core/layout.css");
+@import url("./css/core/components.css");
+@import url("./css/core/topbar.css");
+@import url("./css/core/nav.css");
+@import url("./css/core/animations.css");
+
+/* existing pages */
+@import url("./css/pages/welcome.css");
+@import url("./css/pages/landing.css");
+@import url("./css/pages/login.css");
+@import url("./css/pages/signup.css");
+@import url("./css/pages/home.css");
+@import url("./css/pages/budget.css");
+@import url("./css/pages/sleep.css");
+@import url("./css/pages/mood.css");
+@import url("./css/pages/profile-settings.css");
+
+/* Hbit new pages (create files even if empty for now) */
+@import url("./css/pages/focus.css");
+@import url("./css/pages/habits.css");
+@import url("./css/pages/plan.css");
+@import url("./css/pages/quit.css");

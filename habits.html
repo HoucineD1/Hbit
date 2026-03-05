@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hbit — Habits</title>
+  <meta name="description" content="Build and track daily habits with Hbit." />
+  <meta name="robots" content="noindex, nofollow" />
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Firebase compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+  <!-- Core -->
+  <script defer src="js/core/utils.js"></script>
+  <script defer src="js/core/storage.js"></script>
+  <script defer src="js/core/theme.js"></script>
+  <script defer src="js/core/i18n.js"></script>
+  <script defer src="js/core/firebase-init.js"></script>
+  <script defer src="js/core/db.js"></script>
+  <script defer src="js/core/nav.js"></script>
+  <script defer src="js/core/core.js"></script>
+
+  <!-- Page -->
+  <script defer src="js/pages/habits.js"></script>
+
+  <!-- App (last) -->
+  <script defer src="js/app.js"></script>
+</head>
+
+<body id="habitsPage">
+
+  <!-- ══ Compact sticky header ════════════════════════════ -->
+  <header class="hb-header">
+    <div class="hb-hdr-left">
+      <span class="hb-hdr-date" id="hbDate">—</span>
+      <h1 class="hb-hdr-title" data-i18n="nav.habits">Habits</h1>
+    </div>
+    <div class="hb-hdr-right">
+      <button class="hb-hdr-cta" id="btnNewHabit" type="button" aria-label="New habit">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        <span data-i18n="habits.new">New habit</span>
+      </button>
+      <button class="hb-hdr-btn" id="langToggle" type="button" aria-label="Switch language">
+        <span id="langLabel">FR</span>
+      </button>
+      <button class="hb-hdr-btn" id="themeToggle" type="button" aria-label="Toggle theme">
+        <svg class="hm-theme-dark" width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <svg class="hm-theme-light" width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+      <a class="hb-avatar" id="hbAvatar" href="profile.html" aria-label="Profile">H</a>
+    </div>
+  </header>
+
+  <!-- ══ Today strip ══════════════════════════════════════ -->
+  <div class="hb-today-strip" id="hbTodayStrip">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    <span id="hbTodayText">Today: 0 / 0 done</span>
+    <span class="hb-today-hint" data-i18n="habits.today.hint">&middot; Tap a habit to mark</span>
+  </div>
+
+  <!-- ══ Tabs ══════════════════════════════════════════════ -->
+  <div class="hb-tabs" role="tablist">
+    <button class="hb-tab active" data-tab="today" role="tab" aria-selected="true"
+            data-i18n="habits.tab.today">Today</button>
+    <button class="hb-tab" data-tab="all" role="tab" aria-selected="false"
+            data-i18n="habits.tab.all">All</button>
+    <button class="hb-tab" data-tab="archived" role="tab" aria-selected="false"
+            data-i18n="habits.tab.archived">Archived</button>
+  </div>
+
+  <!-- ══ Main scrollable area ══════════════════════════════ -->
+  <main class="hb-main" id="hbMain">
+
+    <!-- Empty state -->
+    <div class="hb-empty" id="hbEmpty" style="display:none;" aria-live="polite">
+      <svg class="hb-empty-illo" viewBox="0 0 80 80" fill="none" aria-hidden="true">
+        <circle cx="40" cy="40" r="36" stroke="rgba(255,255,255,0.06)" stroke-width="2"/>
+        <circle cx="40" cy="40" r="24" stroke="rgba(52,211,153,0.18)" stroke-width="2"/>
+        <circle cx="40" cy="40" r="12" stroke="rgba(52,211,153,0.35)" stroke-width="2"/>
+        <circle cx="40" cy="40" r="4" fill="rgba(52,211,153,0.7)"/>
+      </svg>
+      <div class="hb-empty-title" data-i18n="habits.empty.title">No habits yet</div>
+      <div class="hb-empty-sub" data-i18n="habits.empty.sub">Start with one simple habit and build from there.</div>
+      <button class="hb-btn-primary" id="btnEmptyNew" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        <span data-i18n="habits.empty.cta">Create your first habit</span>
+      </button>
+    </div>
+
+    <!-- Habits list -->
+    <div class="hb-list" id="hbList" role="list"></div>
+
+    <!-- Page footer -->
+    <footer class="hb-page-footer">
+      <span data-i18n="footer.copyright">&copy; 2025 Hbit</span>
+      &nbsp;&middot;&nbsp;
+      <a href="privacy.html" data-i18n="landing.footer.privacy">Privacy Policy</a>
+      &nbsp;&middot;&nbsp;
+      <a href="terms.html" data-i18n="landing.footer.terms">Terms of Service</a>
+    </footer>
+
+  </main><!-- /hb-main -->
+
+
+  <!-- ══ Wizard modal ══════════════════════════════════════ -->
+  <div class="hb-wizard-overlay" id="wizardModal" aria-hidden="true" role="dialog"
+       aria-modal="true" aria-labelledby="wzTitle">
+
+    <div class="wz-panel">
+
+      <!-- Wizard header -->
+      <div class="wz-header">
+        <button class="wz-close-btn" id="wzClose" type="button" aria-label="Close wizard">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        <span class="wz-step-label" id="wzStepLabel" aria-live="polite">Step 1 of 7</span>
+        <div style="width:40px"></div>
+      </div>
+
+      <!-- Progress indicator -->
+      <div class="wz-progress-wrap">
+        <div class="wz-progress-bar" aria-hidden="true">
+          <div class="wz-progress-fill" id="wzProgressFill"></div>
+        </div>
+        <div class="wz-dots" id="wzDots" aria-hidden="true"></div>
+      </div>
+
+      <!-- Steps viewport -->
+      <div class="wz-viewport">
+        <div class="wz-slides" id="wzSlides">
+          <!-- Steps are injected by habits.js -->
+        </div>
+      </div>
+
+      <!-- Step error message -->
+      <div class="wz-error-msg" id="wzErrorMsg" aria-live="assertive"></div>
+
+      <!-- Wizard footer controls -->
+      <div class="wz-footer">
+        <button class="wz-btn-back" id="wzBack" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          <span data-i18n="habits.wz.back">Back</span>
+        </button>
+        <button class="wz-btn-next" id="wzNext" type="button">
+          Continue
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div><!-- /wizardModal -->
+
+
+  <!-- ══ Detail modal ══════════════════════════════════════ -->
+  <div class="hb-detail-overlay" id="detailModal" aria-hidden="true" role="dialog"
+       aria-modal="true" aria-labelledby="detailTitle">
+    <div class="hb-detail-backdrop" id="detailBackdrop"></div>
+    <div class="hb-detail-panel">
+      <div class="hb-detail-header">
+        <div>
+          <div class="hb-detail-title" id="detailTitle">Habit</div>
+          <div class="hb-detail-sub" id="detailSub"></div>
+        </div>
+        <button class="hb-hdr-btn" id="detailClose" type="button" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="hb-detail-body" id="detailBody"></div>
+      <div class="hb-detail-footer">
+        <button class="hb-det-btn" id="detailEdit" type="button"
+                data-i18n="habits.det.edit">Edit</button>
+        <button class="hb-det-btn hb-det-btn--pause" id="detailPause" type="button">Pause</button>
+        <button class="hb-det-btn" id="detailArchive" type="button"
+                data-i18n="habits.actions.archive">Archive</button>
+        <button class="hb-det-btn hb-det-btn--danger" id="detailDelete" type="button"
+                data-i18n="habits.actions.delete">Delete</button>
+      </div>
+    </div>
+  </div><!-- /detailModal -->
+
+
+  <!-- ══ Sidebar navigation ══════════════════════════════════ -->
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <div class="items">
+
+      <a class="nav-item" data-nav="overview" href="home.html" aria-label="Home">
+        <span class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </span>
+        <span class="label" data-i18n="nav.overview">Home</span>
+      </a>
+
+      <a class="nav-item active" data-nav="habits" href="habits.html" aria-label="Habits">
+        <span class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 11 12 14 22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+        </span>
+        <span class="label" data-i18n="nav.habits">Habits</span>
+      </a>
+
+      <a class="nav-item" data-nav="budget" href="budget.html" aria-label="Budget">
+        <span class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="12" y1="1" x2="12" y2="23"/>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </span>
+        <span class="label" data-i18n="nav.budget">Budget</span>
+      </a>
+
+      <a class="nav-item" data-nav="sleep" href="sleep.html" aria-label="Sleep">
+        <span class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </span>
+        <span class="label" data-i18n="nav.sleep">Sleep</span>
+      </a>
+
+      <a class="nav-item" data-nav="mood" href="mood.html" aria-label="Mood">
+        <span class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+            <line x1="9" y1="9" x2="9.01" y2="9" stroke-width="2.5"/>
+            <line x1="15" y1="9" x2="15.01" y2="9" stroke-width="2.5"/>
+          </svg>
+        </span>
+        <span class="label" data-i18n="nav.mood">Mood</span>
+      </a>
+
+      <a class="nav-item" data-nav="focus" href="focus.html" aria-label="Focus">
+        <span class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </span>
+        <span class="label">Focus</span>
+      </a>
+
+    </div>
+
+    <div class="nav-bottom">
+      <button class="nav-item nav-logout" id="hbLogoutBtn" type="button" aria-label="Sign out">
+        <span class="icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </span>
+        <span class="label" data-i18n="auth.signout">Sign out</span>
+      </button>
+      <div class="nav-copyright">&copy; 2025 Hbit</div>
+    </div>
+  </nav>
+
+</body>
+</html>

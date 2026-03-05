@@ -1,0 +1,36 @@
+:root{
+  /* Brand */
+  --brand: #ff4d4d;      /* Hbit scarlet */
+  --radius: 22px;
+  --shadow: 0 16px 44px color-mix(in srgb, #000 20%, transparent);
+
+  /* Dark theme (default) */
+  --bg: #0b0f16;
+  --panel: #121827;
+  --panel2:#161f33;
+
+  --text: rgba(255,255,255,0.92);
+  --muted: rgba(255,255,255,0.62);
+  --border: rgba(255,255,255,0.12);
+
+  /* Module accents */
+  --habit: #00e676;
+  --budget:#ff4d4d;
+  --sleep: #3aa0ff;
+  --mind:  #7c4dff;
+  --schedule:#00d4ff;
+  --focus: #ffcc00;
+  --quit:  #ff5252;
+}
+
+html[data-theme="light"]{
+  --bg: #f6f7fb;
+  --panel: #ffffff;
+  --panel2:#ffffff;
+
+  --text: rgba(0,0,0,0.88);
+  --muted: rgba(0,0,0,0.56);
+  --border: rgba(0,0,0,0.10);
+
+  --shadow: 0 16px 44px color-mix(in srgb, #000 10%, transparent);
+}
