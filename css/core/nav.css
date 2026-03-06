@@ -1,23 +1,22 @@
 /* ==========================================================
-   Hbit — Navigation  ·  Always a left sidebar
-   Mobile  (<640px):  icon-only, 60 px wide
-   Desktop (≥640px):  labels + logo, 220 px wide
+   Hbit — Navigation  ·  App bar OFF (sidebar hidden)
    ========================================================== */
 
-/* ── Sidebar width token ────────────────────────────────── */
-:root {
-  --sidebar-w: 0px; /* mobile: drawer only, no space */
+/* ── App bar removed: no sidebar, no menu button, full-width content ── */
+:root { --sidebar-w: 0px; }
+body:has(.bottom-nav) { padding-left: 0 !important; }
+.bottom-nav,
+.nav-menu-btn,
+.nav-overlay {
+  display: none !important;
 }
-@media (min-width: 640px) {
-  :root { --sidebar-w: 220px; }
-}
-@media (min-width: 1280px) {
-  :root { --sidebar-w: 248px; }
+.hm-header, .hb-header, .bg-header, .sl-header, .md-header {
+  padding-left: 16px;
 }
 
-/* ── Push ALL page content right to clear the sidebar ───── */
-body:has(.bottom-nav) {
-  padding-left: var(--sidebar-w);
+/* ── (Legacy sidebar styles kept below for reference; hidden by rule above) ── */
+body.nav-open {
+  overflow: hidden;
 }
 
 /* When sidebar drawer is open on mobile: lock scroll */
@@ -230,44 +229,33 @@ body.nav-open {
 }
 
 /* ════════════════════════════════════════════════════════════
-   MOBILE (< 640px) — sidebar en drawer, déployée au clic ☰
+   MOBILE (< 640px) — collapsible drawer (ChatGPT-style)
+   Closed by default; opens on ☰ tap; closes on ☰ / overlay / nav link.
    ════════════════════════════════════════════════════════════ */
 @media (max-width: 639px) {
   :root { --sidebar-w: 0; }
 
   body:has(.bottom-nav) { padding-left: 0; }
 
-  /* Drawer : cachée par défaut, slide-in au clic sur le bouton */
+  /* Drawer: off-screen when closed, slides in when open */
   .bottom-nav {
-    width: min(280px, 85vw);
-    max-width: 280px;
+    width: 260px;
+    max-width: 72vw;
     transform: translateX(-100%);
-    transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+    transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
     z-index: 400;
     box-shadow: none;
     padding: 16px 12px 24px;
-    border-radius: 0 16px 16px 0;
+    border-radius: 0 14px 14px 0;
+    will-change: transform;
   }
 
   body.nav-open .bottom-nav {
     transform: translateX(0);
-    box-shadow: 8px 0 40px rgba(0, 0, 0, 0.4);
+    box-shadow: 6px 0 32px rgba(0, 0, 0, 0.35);
   }
 
-  /* Overlay : uniquement quand le drawer est ouvert */
-  body.nav-open::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: 398;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    pointer-events: auto;
-    transition: opacity 0.25s;
-  }
-
-  /* Labels visibles dans le drawer */
+  /* Labels visible inside drawer */
   .bottom-nav .nav-item {
     flex-direction: row;
     justify-content: flex-start;
@@ -278,9 +266,37 @@ body.nav-open {
   }
   .bottom-nav .nav-item .label { display: block; font-size: var(--font-size-sm, 13px); }
   .nav-copyright { display: block; }
+
+  /* Header padding for hamburger */
+  .hm-header, .hb-header, .bg-header, .sl-header, .md-header {
+    padding-left: 58px;
+  }
+
+  .nav-menu-btn { display: flex; }
 }
 
-/* ── Bouton hamburger : affiché uniquement sur mobile ────── */
+/* ── Overlay (always in DOM, hidden when nav is closed) ────── */
+.nav-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 398;
+  background: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease-out, visibility 0.22s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+body.nav-open .nav-overlay {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Bouton hamburger : hidden on desktop, shown on mobile ── */
+/* High z-index so it stays above headers; pointer-events for reliable tap */
 .nav-menu-btn {
   display: none;
   align-items: center;
@@ -288,7 +304,7 @@ body.nav-open {
   position: fixed;
   top: 14px;
   left: 16px;
-  z-index: 401;
+  z-index: 9999;
   width: 42px;
   height: 42px;
   border-radius: var(--radius-sm, 12px);
@@ -296,20 +312,18 @@ body.nav-open {
   background: rgba(12, 15, 22, 0.92);
   color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
+  pointer-events: auto;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   transition: background 0.2s, transform 0.1s;
   font-family: var(--font-sans);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 .nav-menu-btn:hover { background: rgba(255, 255, 255, 0.08); }
 .nav-menu-btn:active { transform: scale(0.96); }
 
-@media (max-width: 639px) {
-  .nav-menu-btn { display: flex; }
-  .hm-header, .hb-header, .bg-header, .sl-header, .md-header {
-    padding-left: 58px;
-  }
-}
 
 /* ── Light theme: sidebar & hamburger ───────────────────── */
 html[data-theme="light"] .bottom-nav {

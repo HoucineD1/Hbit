@@ -1367,10 +1367,10 @@ html[data-theme="light"] #habitsPage .hb-prog-label { color: rgba(0,0,0,0.40); }
   .hb-donut-svg { width: 60px; height: 60px; }
 }
 
-@media (max-width: 380px) {
+@media (max-width: 360px) {
   .hb-header { padding: 0 14px; height: 56px; }
   .hb-hdr-title { font-size: 17px; }
-  .hb-list { grid-template-columns: 1fr; }
+  .hb-list { grid-template-columns: 1fr; gap: 10px; }
   .hb-hdr-cta span { display: none; }
   .hb-hdr-cta { padding: 0 10px; gap: 0; }
   .wz-cat-grid { grid-template-columns: repeat(2, 1fr); }

@@ -592,8 +592,19 @@
 
       renderHeader(profile);
 
-      async function refreshDashboard() {
-        if (!HBIT.db || !user) return;
+      async function refreshDashboard(retries = 1) {
+        if (!user) {
+          renderEmpty();
+          return;
+        }
+        if (!HBIT.db) {
+          if (retries > 0) {
+            await new Promise((r) => setTimeout(r, 150));
+            return refreshDashboard(0);
+          }
+          renderEmpty();
+          return;
+        }
         try {
           if (HBIT.dashboardData) {
             const data = await HBIT.dashboardData.fetch(user.uid);
@@ -606,6 +617,7 @@
         } catch (err) {
           console.warn("[Hbit] Home refresh:", err?.message);
           if (HBIT.db) await renderWithData(user).catch(() => renderEmpty());
+          else renderEmpty();
         }
       }
       await refreshDashboard();

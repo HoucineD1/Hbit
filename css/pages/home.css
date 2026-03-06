@@ -255,16 +255,16 @@ html[data-theme="light"] .hm-theme-light { display: block; }
 }
 
 /* ════════════════════════════════════════════════════════════
-   MAIN GRID  — responsive: 1 col mobile → 2 tablet → 3–4 desktop
+   MAIN GRID  — responsive: 2 col mobile (≤768px) → 2 tablet → 3–4 desktop
    Cards scale via minmax(clamp) so desktop uses horizontal space.
    ════════════════════════════════════════════════════════════ */
 .hm-grid {
   flex: 1;
   display: grid;
-  /* Mobile: single column, full width */
-  grid-template-columns: 1fr;
+  /* Mobile (≤768px): 2 per row, equal width, no overflow */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  padding: 16px 16px;
+  padding: 16px 12px;
   padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
   position: relative;
   z-index: 1;
@@ -356,8 +356,9 @@ a.hc-card:active {
 .hc-card--summary:hover,
 .hc-card--summary:active { transform: none; box-shadow: none; }
 
-/* Featured card — full width, taller */
+/* Featured card — full width on all breakpoints, taller */
 .hc-card--featured {
+  grid-column: 1 / -1;
   min-height: 172px;
   background: rgba(255, 255, 255, 0.032);
   border-color: rgba(255, 255, 255, 0.10);
@@ -753,21 +754,21 @@ a.hc-card:hover .hc-chevron {
 }
 
 /* ════════════════════════════════════════════════════════════
-   VERY SMALL MOBILE  (≤ 360px) — fallback to 1 column
+   VERY SMALL MOBILE  (≤ 360px) — keep 2 columns, tighter spacing
    ════════════════════════════════════════════════════════════ */
 @media (max-width: 360px) {
   .hm-header   { height: 56px; padding: 0 14px; }
   .hm-hdr-title { font-size: 16px; }
   .hm-greeting { padding: 0 14px; height: 40px; }
   .hm-grid {
-    grid-template-columns: 1fr;
-    padding: 12px 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 10px 10px;
     gap: 10px;
     padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   }
-  .hc-card--featured { grid-column: 1; }
-  .hc-card     { border-radius: 16px; padding: 14px 14px 12px; min-height: 130px; }
-  .hc-value    { font-size: 24px; }
+  .hc-card--featured { grid-column: 1 / -1; }
+  .hc-card     { border-radius: 16px; padding: 12px 12px 10px; min-height: 120px; }
+  .hc-value    { font-size: 22px; }
   .hc-label    { font-size: 10px; }
   .hm-hdr-btn,
   .hm-avatar   { width: 40px; height: 40px; min-width: 40px; min-height: 40px; }
