@@ -841,7 +841,7 @@
 
   function getLang() {
     if (currentLang) return currentLang;
-    const l = readStr?.(LS.lang, "en") || "en";
+    const l = (LS && readStr) ? readStr(LS.lang, "en") : "en";
     currentLang = normalizeLang(l);
     return currentLang;
   }
@@ -849,7 +849,7 @@
   function setLang(lang) {
     const l = normalizeLang(lang);
     currentLang = l;
-    writeStr?.(LS.lang, l);
+    if (LS && writeStr) writeStr(LS.lang, l);
     applyLang(document, l);
     updateToggle();
     window.dispatchEvent(new CustomEvent("hbit:lang-changed", { detail: { lang: l } }));
