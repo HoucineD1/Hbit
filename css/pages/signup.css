@@ -1,8 +1,9 @@
 /* =========================
    Hbit — signup.css
-   Signup-specific tweaks
-   (All shared auth styles live in login.css)
+   Signup-specific tweaks — shared auth styles imported from login.css
    ========================= */
+
+@import url("login.css");
 
 /* Proof pill doesn't need auto-margin on signup
    since the form is already long */

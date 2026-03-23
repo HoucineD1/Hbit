@@ -11,6 +11,17 @@
   window.HBIT = window.HBIT || {};
   const HBIT = window.HBIT;
 
+  function localDateKey(date = new Date()) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  function localMonthKey(date = new Date()) {
+    return localDateKey(date).slice(0, 7);
+  }
+
   /**
    * Fetch all dashboard summary data for the current user.
    * Call only when user is authenticated and HBIT.db is ready.
@@ -22,12 +33,13 @@
       return getEmptyDashboard();
     }
 
-    const today = new Date().toISOString().slice(0, 10);
-    const thisMonth = today.slice(0, 7);
+    const now = new Date();
+    const today = localDateKey(now);
+    const thisMonth = localMonthKey(now);
     const weekStart = (() => {
       const d = new Date();
       d.setDate(d.getDate() - 6);
-      return d.toISOString().slice(0, 10);
+      return localDateKey(d);
     })();
 
     const out = {
@@ -148,6 +160,7 @@
         energy: lastMood?.energy ?? null,
         stress: lastMood?.stress ?? null,
         focus: lastMood?.focus ?? null,
+        recentScores: moodScores.slice().reverse(),
         hasData: !!lastMood,
       };
       out.weekly.moodAvg = moodAvg;
@@ -211,6 +224,7 @@
         energy: null,
         stress: null,
         focus: null,
+        recentScores: [],
         hasData: false,
       },
       weekly: { habitsPct: null, budgetPct: null, sleepAvg: null, moodAvg: null },

@@ -202,3 +202,26 @@ a.module-card {
     scroll-behavior: auto !important;
   }
 }
+
+/* ── Page transitions ─────────────────────────────── */
+body {
+  opacity:0;
+  transform:translateY(8px);
+  transition: opacity .28s ease, transform .28s ease;
+}
+body.page-ready {
+  opacity:1;
+  transform:translateY(0);
+}
+body.page-exit {
+  opacity:0;
+  transform:translateY(-6px);
+  transition: opacity .22s ease, transform .22s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  body,body.page-ready,body.page-exit {
+    transition:none !important;
+    opacity:1 !important;
+    transform:none !important;
+  }
+}

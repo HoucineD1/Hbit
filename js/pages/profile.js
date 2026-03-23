@@ -139,6 +139,8 @@
   /* ── Init ────────────────────────────────────────────────── */
   function init() {
     if (document.body.id !== "profilePage") return;
+    if (document.body.dataset.profileInit) return;
+    document.body.dataset.profileInit = "1";
 
     /* Bio char counter */
     $("pfBio")?.addEventListener("input", updateCharCount);

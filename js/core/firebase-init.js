@@ -97,6 +97,8 @@ window.HBIT.createUserProfile = async function (user, provider = "password", ext
   const fs  = firebase.firestore();
   const ref = fs.collection("users").doc(user.uid);
   const now = firebase.firestore.FieldValue.serverTimestamp();
+  const langKey = window.HBIT?.storage?.LS?.lang || "hbit:lang";
+  const themeKey = window.HBIT?.storage?.LS?.theme || "hbit:theme";
 
   /* ── Read existing document ────────────────────────── */
   let snap;
@@ -126,8 +128,8 @@ window.HBIT.createUserProfile = async function (user, provider = "password", ext
       provider,
 
       preferences: {
-        language: localStorage.getItem("hbit_lang") || "en",
-        theme:    "dark"
+        language: localStorage.getItem(langKey) || "en",
+        theme:    localStorage.getItem(themeKey) || "dark"
       },
 
       /* ── All module counters start at 0 (no fake data) ── */

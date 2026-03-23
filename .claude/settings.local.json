@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude plugins:*)",
+      "Bash(mkdir -p ~/.ssh)",
+      "Bash(ssh-keyscan github.com)",
+      "Bash(~/.ssh/known_hosts)",
+      "Bash(npm search:*)",
+      "Bash(npm info:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:stitch.withgoogle.com)",
+      "WebFetch(domain:21st.dev)",
+      "Bash(curl -s \"https://21st.dev/home\")",
+      "Bash(curl -s \"https://21st.dev/_next/static/css/1852696739ba21ff.css\")",
+      "Bash(grep -io \"background[^;]*\\\\|gradient[^;]*\\\\|color:[^;]*\\\\|rgba\\([^\\)]*\\)\\\\|rgb\\([^\\)]*\\)\\\\|#[0-9a-f]\\\\{3,6\\\\}\" \"C:\\\\Users\\\\demxa\\\\.claude\\\\projects\\\\c--Users-demxa-OneDrive-Bureau-Hbit\\\\daa0c385-1fac-4220-af90-79794b5c17fe\\\\tool-results\\\\bcr3xpg2l.txt\")",
+      "Bash(curl -s \"https://21st.dev/_next/static/css/6d7e56fbbf71be23.css\")",
+      "Bash(grep -o \"background[^;]*\\\\|gradient[^;]*\\\\|color:[^;]*\\\\|rgba\\([^\\)]*\\)\\\\|rgb\\([^\\)]*\\)\\\\|#[0-9a-f]\\\\{3,6\\\\}\")"
+    ]
+  }
+}

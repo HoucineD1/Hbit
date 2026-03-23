@@ -9,6 +9,7 @@
   <meta name="robots" content="noindex, nofollow" />
 
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/pages/home.css" />
 
   <!-- Firebase compat SDK (sync) -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -260,30 +261,34 @@
         </div>
       </a>
       <div class="hc-mood-suggestions" id="moodSuggestions" aria-live="polite" style="display: none;">
-        <span class="hc-mood-sugg-lbl">Suggestions</span>
-        <a class="hc-mood-sugg-btn" href="focus.html" id="moodSuggestPomodoro">Pomodoro</a>
-        <a class="hc-mood-sugg-btn" href="focus.html" id="moodSuggestMeditation">Méditation</a>
+        <span class="hc-mood-sugg-lbl" data-i18n="sleep.suggestions">Suggestions</span>
+        <a class="hc-mood-sugg-btn" href="focus.html" id="moodSuggestPomodoro" data-i18n="home.mood.suggestion.pomodoro">Pomodoro</a>
+        <a class="hc-mood-sugg-btn" href="focus.html" id="moodSuggestMeditation" data-i18n="home.mood.suggestion.meditation">Meditation</a>
       </div>
     </div>
 
     <!-- ── Card 5 · Schedule ──────────────────────────────── -->
-    <a class="hc-card" data-module="schedule" href="schedule.html" aria-label="Schedule">
+    <!-- ── Card 6 · Focus ────────────────────────────────── -->
+    <a class="hc-card" data-module="plan" href="plan.html" aria-label="Planner">
       <div class="hc-top">
-        <span class="hc-label" data-i18n="nav.schedule">Schedule</span>
-        <span class="hc-dot" data-module="schedule" aria-hidden="true"></span>
+        <span class="hc-label" data-i18n="nav.plan">Planner</span>
+        <span class="hc-dot" data-module="plan" aria-hidden="true"></span>
       </div>
-      <div class="hc-value" id="scheduleMetric">
-        0<span class="hc-unit">&thinsp;%</span>
+      <div class="hc-value" id="planMetric">
+        0<span class="hc-unit">&thinsp;open</span>
       </div>
-      <div class="hc-chart hc-chart--sched">
-        <div class="hc-prog-track">
-          <div class="hc-prog-fill" id="scheduleBar" data-module="schedule"
-               style="width: 0%"></div>
-        </div>
-        <div class="hc-prog-dots" id="scheduleDots" aria-hidden="true"></div>
+      <div class="hc-chart hc-chart--full">
+        <svg class="hc-bars-svg" viewBox="0 0 56 28" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <rect x="8" y="5" width="40" height="4" rx="2" fill="rgba(34,211,238,0.22)"></rect>
+          <rect x="8" y="12" width="34" height="4" rx="2" fill="rgba(34,211,238,0.34)"></rect>
+          <rect x="8" y="19" width="28" height="4" rx="2" fill="rgba(34,211,238,0.46)"></rect>
+          <rect x="3" y="4" width="3" height="6" rx="1.5" fill="var(--hc-plan)"></rect>
+          <rect x="3" y="11" width="3" height="6" rx="1.5" fill="var(--hc-plan)"></rect>
+          <rect x="3" y="18" width="3" height="6" rx="1.5" fill="var(--hc-plan)"></rect>
+        </svg>
       </div>
       <div class="hc-footer">
-        <span class="hc-footer-text" id="scheduleFooter">No tasks &middot; Add your first task</span>
+        <span class="hc-footer-text" id="planFooter">No tasks yet &middot; Add your first one</span>
         <svg class="hc-chevron" viewBox="0 0 8 14" fill="none" aria-hidden="true">
           <polyline points="1 1 7 7 1 13" stroke="currentColor" stroke-width="1.5"
                     stroke-linecap="round" stroke-linejoin="round"/>
@@ -291,7 +296,6 @@
       </div>
     </a>
 
-    <!-- ── Card 6 · Focus ────────────────────────────────── -->
     <a class="hc-card" data-module="focus" href="focus.html" aria-label="Focus">
       <div class="hc-top">
         <span class="hc-label" data-i18n="nav.focus">Focus</span>
@@ -311,7 +315,7 @@
         </svg>
       </div>
       <div class="hc-footer">
-        <span class="hc-footer-text">Pomodoro &middot; Tap to start session</span>
+        <span class="hc-footer-text" data-i18n="home.focus.footer">Pomodoro &middot; Tap to start session</span>
         <svg class="hc-chevron" viewBox="0 0 8 14" fill="none" aria-hidden="true">
           <polyline points="1 1 7 7 1 13" stroke="currentColor" stroke-width="1.5"
                     stroke-linecap="round" stroke-linejoin="round"/>

@@ -9,7 +9,7 @@
   --hc-budget:   #F59E0B;
   --hc-sleep:    #60A5FA;
   --hc-mood:     #A78BFA;
-  --hc-schedule: #22D3EE;
+  --hc-plan:     #22D3EE;
   --hc-focus:    #F97316;
   --hc-brand:    #9a1c1c;
 }
@@ -379,7 +379,7 @@ a.hc-card:active {
 .hc-card[data-module="budget"]   { --hc-module-color: var(--hc-budget);   }
 .hc-card[data-module="sleep"]    { --hc-module-color: var(--hc-sleep);    }
 .hc-card[data-module="mood"]     { --hc-module-color: var(--hc-mood);     }
-.hc-card[data-module="schedule"] { --hc-module-color: var(--hc-schedule); }
+.hc-card[data-module="plan"]     { --hc-module-color: var(--hc-plan);     }
 .hc-card[data-module="focus"]    { --hc-module-color: var(--hc-focus);    }
 .hc-card[data-module="summary"]  { --hc-module-color: var(--hc-brand);    }
 
@@ -416,7 +416,7 @@ a.hc-card:active {
 .hc-dot[data-module="budget"]   { background: var(--hc-budget);   box-shadow: 0 0 6px var(--hc-budget);   }
 .hc-dot[data-module="sleep"]    { background: var(--hc-sleep);    box-shadow: 0 0 6px var(--hc-sleep);    }
 .hc-dot[data-module="mood"]     { background: var(--hc-mood);     box-shadow: 0 0 6px var(--hc-mood);     }
-.hc-dot[data-module="schedule"] { background: var(--hc-schedule); box-shadow: 0 0 6px var(--hc-schedule); }
+.hc-dot[data-module="plan"]     { background: var(--hc-plan);     box-shadow: 0 0 6px var(--hc-plan);     }
 .hc-dot[data-module="focus"]    { background: var(--hc-focus);    box-shadow: 0 0 6px var(--hc-focus);    }
 
 /* ── Metric value ───────────────────────────────────────── */

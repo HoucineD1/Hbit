@@ -758,6 +758,9 @@
 
   function init() {
     if (document.body.id !== "sleepPage") return;
+    if (document.body.dataset.sleepInit) return;
+    document.body.dataset.sleepInit = "1";
+
     state.calMonth = todayKey().slice(0, 7);
     bindEvents();
     renderAll(); // paint immediately with empty state

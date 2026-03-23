@@ -6,6 +6,10 @@
 document.addEventListener("DOMContentLoaded", () => {
   window.HBIT?.i18n?.init?.();
 
+  async function setSessionPersistence() {
+    await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
+  }
+
   /*
    * _inProgress = true while we are actively signing up.
    * This prevents onAuthStateChanged from redirecting the user
@@ -140,6 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         /* ── Step 1: Create the Firebase Auth account ────
            Throws ONLY on auth errors (duplicate email, weak password…) */
+        await setSessionPersistence();
         const cred = await firebase.auth().createUserWithEmailAndPassword(email, password);
 
         /* ── Step 2: Save display name to Auth profile ── */
@@ -187,6 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
       clearError();
       _inProgress = true;
       try {
+        await setSessionPersistence();
         const provider = new firebase.auth.GoogleAuthProvider();
         const cred     = await firebase.auth().signInWithPopup(provider);
         await window.HBIT.createUserProfile(cred.user, "google.com");
@@ -206,6 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
       clearError();
       _inProgress = true;
       try {
+        await setSessionPersistence();
         const provider = new firebase.auth.OAuthProvider("apple.com");
         const cred     = await firebase.auth().signInWithPopup(provider);
         await window.HBIT.createUserProfile(cred.user, "apple.com");
@@ -218,4 +225,36 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  /* ── Password strength ──────────────────────────────── */
+  const pwStrength = document.getElementById("pwStrength");
+  const pwLabel    = document.getElementById("pwLabel");
+  if (passInput && pwStrength && pwLabel) {
+    passInput.addEventListener("input", function () {
+      const v = this.value;
+      let level = 0, label = "";
+      if (v.length >= 6)  { level=1; label="Weak"; }
+      if (v.length >= 8  && /[A-Z]/.test(v)) { level=2; label="Fair"; }
+      if (v.length >= 10 && /[0-9]/.test(v)) { level=3; label="Good"; }
+      if (v.length >= 12 && /[^A-Za-z0-9]/.test(v)) { level=4; label="Strong 💪"; }
+      pwStrength.dataset.level = level;
+      pwLabel.textContent = level > 0 ? label : "";
+      pwLabel.style.color = ["","#ef4444","#f97316","#eab308","#3ecf7f"][level];
+    });
+  }
+
+  /* ── Is-ready CTA watcher ───────────────────────────── */
+  function checkFormReady() {
+    const ready =
+      nameInput?.value.trim() &&
+      emailInput?.value.includes("@") &&
+      passInput?.value.length >= 8 &&
+      passInput?.value === confirmInput?.value &&
+      termsCheck?.checked;
+    submitBtn?.classList.toggle("is-ready", !!ready);
+  }
+  ["nameInput","emailInput","passwordInput","confirmInput"]
+    .forEach(id => document.getElementById(id)
+      ?.addEventListener("input", checkFormReady));
+  termsCheck?.addEventListener("change", checkFormReady);
 });

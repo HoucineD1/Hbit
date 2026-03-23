@@ -6,6 +6,7 @@
   <title>Hbit — Create account</title>
 
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/pages/signup.css" />
 
   <!-- Firebase compat SDK (sync — must run before deferred scripts) -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -23,224 +24,275 @@
 
 <body id="signupPage">
 
-  <!-- ══ Ambient background layer ═══════════════════════ -->
+  <!-- ══ Ambient background ══════════════════════════════ -->
   <div class="auth-bg" aria-hidden="true"></div>
 
-  <!-- ══ Top bar (outside card) ═════════════════════════ -->
-  <header class="auth-topbar">
-    <a class="auth-close-btn" href="index.html" aria-label="Back to welcome">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="15 18 9 12 15 6"/>
-      </svg>
-    </a>
+  <!-- ══ Split shell ════════════════════════════════════ -->
+  <div class="auth-shell">
 
-    <a class="auth-topbar-brand" href="index.html">
-      <div class="wlc-mark auth-topbar-mark" aria-hidden="true">H</div>
-      <span class="auth-topbar-name" data-i18n="brand.title">Hbit</span>
-    </a>
+    <!-- ── Left decorative panel (desktop only) ─────────── -->
+    <aside class="auth-panel" aria-hidden="true">
+      <div class="auth-panel-inner">
 
-    <button class="auth-topbar-lang" id="langToggle" type="button" aria-label="Toggle language">
-      <span id="langLabel">FR</span>
-    </button>
-  </header>
+        <div class="auth-panel-mark">H</div>
 
-  <!-- ══ Centered page container ════════════════════════ -->
-  <main class="auth-page">
-
-    <div class="auth-content" aria-label="Create account">
-
-      <!-- Hero -->
-      <div class="auth-hero">
-        <div class="auth-hero-mark" aria-hidden="true">
-          <div class="wlc-mark auth-mark-lg">H</div>
+        <div class="auth-panel-copy">
+          <h2 class="auth-panel-title">Start your<br>streak today.</h2>
+          <p class="auth-panel-sub">Build habits that stick — one day at a time.</p>
         </div>
-        <h1 class="auth-hero-title" data-i18n="signup.title">Create account</h1>
-        <p class="auth-hero-sub" data-i18n="signup.sub">
-          A calmer way to stay consistent—starting today.
-        </p>
+
+        <ul class="auth-panel-feats">
+          <li>
+            <span class="auth-panel-feat-icon">🔥</span>
+            <span>Daily streaks that build momentum</span>
+          </li>
+          <li>
+            <span class="auth-panel-feat-icon">💤</span>
+            <span>Sleep & mood patterns decoded</span>
+          </li>
+          <li>
+            <span class="auth-panel-feat-icon">💰</span>
+            <span>Budget awareness, zero stress</span>
+          </li>
+        </ul>
+
+        <div class="auth-panel-trust">
+          <span class="auth-panel-dot"></span>
+          <span>10,000+ tracking daily</span>
+        </div>
+
       </div>
+      <div class="auth-panel-glow" aria-hidden="true"></div>
+    </aside>
 
-      <!-- Signup form -->
-      <form id="signupForm" novalidate autocomplete="on">
+    <!-- ── Right form panel ──────────────────────────────── -->
+    <div class="auth-form-wrap">
 
-        <!-- Full name -->
-        <div class="auth-field">
-          <label class="auth-label" for="nameInput" data-i18n="signup.name">Full Name</label>
-          <div class="auth-input-wrap">
-            <span class="auth-icon" aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
-            </span>
-            <input class="auth-input" id="nameInput" type="text" name="name"
-              autocomplete="name"
-              data-i18n-placeholder="signup.name.ph"
-              placeholder="John Doe" required />
-          </div>
-        </div>
+      <!-- Top bar -->
+      <header class="auth-topbar">
+        <a class="auth-close-btn" href="index.html" aria-label="Back to welcome">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </a>
 
-        <!-- Username -->
-        <div class="auth-field">
-          <label class="auth-label" for="usernameInput">Username <span class="auth-label-opt">(optional)</span></label>
-          <div class="auth-input-wrap">
-            <span class="auth-icon" aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <path d="M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
-            </span>
-            <input class="auth-input" id="usernameInput" type="text" name="username"
-              autocomplete="username"
-              placeholder="johndoe" />
-          </div>
-          <p class="auth-field-hint">Letters, numbers, underscore.</p>
-        </div>
+        <a class="auth-topbar-brand" href="index.html">
+          <div class="wlc-mark auth-topbar-mark" aria-hidden="true">H</div>
+          <span class="auth-topbar-name" data-i18n="brand.title">Hbit</span>
+        </a>
 
-        <!-- Email -->
-        <div class="auth-field">
-          <label class="auth-label" for="emailInput" data-i18n="login.email">Email Address</label>
-          <div class="auth-input-wrap">
-            <span class="auth-icon" aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                <polyline points="22,6 12,13 2,6"/>
-              </svg>
-            </span>
-            <input class="auth-input" id="emailInput" type="email" name="email"
-              autocomplete="email" inputmode="email"
-              data-i18n-placeholder="login.email.ph"
-              placeholder="email@example.com" required />
-          </div>
-        </div>
+        <button class="auth-topbar-lang" id="langToggle" type="button" aria-label="Toggle language">
+          <span id="langLabel">FR</span>
+        </button>
+      </header>
 
-        <!-- Password + Confirm -->
-        <div class="auth-field-row">
-          <div class="auth-field">
-            <label class="auth-label" for="passwordInput" data-i18n="login.password">Password</label>
-            <div class="auth-input-wrap">
-              <span class="auth-icon" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="11" width="18" height="11" rx="2"/>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                </svg>
-              </span>
-              <input class="auth-input" id="passwordInput" type="password" name="new-password"
-                autocomplete="new-password"
-                data-i18n-placeholder="signup.password.ph"
-                placeholder="••••••••" required />
-              <button class="auth-eye" id="togglePassword" type="button" aria-label="Show password">
-                <svg class="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                  <circle cx="12" cy="12" r="3"/>
-                </svg>
-              </button>
+      <!-- Main form area -->
+      <main class="auth-page">
+
+        <div class="auth-content" aria-label="Create account">
+
+          <!-- Hero -->
+          <div class="auth-hero">
+            <div class="auth-hero-mark" aria-hidden="true">
+              <div class="wlc-mark auth-mark-lg">H</div>
             </div>
-            <p class="auth-field-hint" data-i18n="signup.password.hint">At least 8 characters.</p>
+            <h1 class="auth-hero-title" data-i18n="signup.title">Earn your streak.</h1>
+            <p class="auth-hero-sub" data-i18n="signup.sub">
+              A calmer way to stay consistent—starting today.
+            </p>
           </div>
 
-          <div class="auth-field">
-            <label class="auth-label" for="confirmInput" data-i18n="signup.confirm">Confirm</label>
-            <div class="auth-input-wrap">
-              <span class="auth-icon" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                </svg>
-              </span>
-              <input class="auth-input" id="confirmInput" type="password" name="confirm-password"
-                autocomplete="new-password"
-                data-i18n-placeholder="signup.confirm.ph"
-                placeholder="••••••••" required />
+          <!-- Signup form -->
+          <form id="signupForm" novalidate autocomplete="on">
+
+            <!-- Full name -->
+            <div class="auth-field">
+              <label class="auth-label" for="nameInput" data-i18n="signup.name">Full Name</label>
+              <div class="auth-input-wrap">
+                <span class="auth-icon" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </span>
+                <input class="auth-input" id="nameInput" type="text" name="name"
+                  autocomplete="name"
+                  data-i18n-placeholder="signup.name.ph"
+                  placeholder="John Doe" required />
+              </div>
             </div>
+
+            <!-- Username -->
+            <div class="auth-field">
+              <label class="auth-label" for="usernameInput">Username <span class="auth-label-opt">(optional)</span></label>
+              <div class="auth-input-wrap">
+                <span class="auth-icon" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <path d="M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                </span>
+                <input class="auth-input" id="usernameInput" type="text" name="username"
+                  autocomplete="username"
+                  placeholder="johndoe" />
+              </div>
+              <p class="auth-field-hint">Letters, numbers, underscore.</p>
+            </div>
+
+            <!-- Email -->
+            <div class="auth-field">
+              <label class="auth-label" for="emailInput" data-i18n="login.email">Email Address</label>
+              <div class="auth-input-wrap">
+                <span class="auth-icon" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                </span>
+                <input class="auth-input" id="emailInput" type="email" name="email"
+                  autocomplete="email" inputmode="email"
+                  data-i18n-placeholder="login.email.ph"
+                  placeholder="email@example.com" required />
+              </div>
+            </div>
+
+            <!-- Password + Confirm -->
+            <div class="auth-field-row">
+              <div class="auth-field">
+                <label class="auth-label" for="passwordInput" data-i18n="login.password">Password</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                  </span>
+                  <input class="auth-input" id="passwordInput" type="password" name="new-password"
+                    autocomplete="new-password"
+                    data-i18n-placeholder="signup.password.ph"
+                    placeholder="••••••••" required />
+                  <button class="auth-eye" id="togglePassword" type="button" aria-label="Show password">
+                    <svg class="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="auth-pw-strength" id="pwStrength" data-level="0" aria-hidden="true">
+                  <div class="auth-pw-fill" id="pwFill"></div>
+                </div>
+                <p class="auth-pw-label" id="pwLabel"></p>
+                <p class="auth-field-hint" data-i18n="signup.password.hint">At least 8 characters.</p>
+              </div>
+
+              <div class="auth-field">
+                <label class="auth-label" for="confirmInput" data-i18n="signup.confirm">Confirm</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                  </span>
+                  <input class="auth-input" id="confirmInput" type="password" name="confirm-password"
+                    autocomplete="new-password"
+                    data-i18n-placeholder="signup.confirm.ph"
+                    placeholder="••••••••" required />
+                </div>
+              </div>
+            </div>
+
+            <!-- Terms -->
+            <label class="auth-terms">
+              <input type="checkbox" id="termsCheck" />
+              <span class="auth-terms-text">
+                <span data-i18n="signup.terms.pre">I agree to the</span>
+                <a class="auth-terms-link" href="terms.html" target="_blank"
+                   data-i18n="signup.terms.tos">Terms of Service</a>
+                <span data-i18n="signup.terms.and">and</span>
+                <a class="auth-terms-link" href="privacy.html" target="_blank"
+                   data-i18n="signup.terms.pp">Privacy Policy</a>
+              </span>
+            </label>
+
+            <!-- Error -->
+            <div class="auth-alert auth-alert--error hidden"
+                 id="signupError" role="alert" aria-live="polite"></div>
+
+            <!-- Submit -->
+            <button class="auth-submit-btn" id="signupSubmit" type="submit">
+              <span id="signupBtnLabel" data-i18n="signup.submit">Create Account</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                   class="auth-btn-arrow" id="signupArrow" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+              <span class="auth-spinner hidden" id="signupSpinner" aria-hidden="true"></span>
+            </button>
+            <p class="auth-microcopy">Free forever · No credit card · Cancel anytime</p>
+
+          </form>
+
+          <!-- Divider -->
+          <div class="auth-divider">
+            <span data-i18n="signup.or">or sign up with</span>
           </div>
+
+          <!-- Social -->
+          <div class="auth-social">
+            <button class="auth-social-btn" type="button" aria-label="Sign up with Google">
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              Google
+            </button>
+            <button class="auth-social-btn" type="button" aria-label="Sign up with Apple">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+              </svg>
+              Apple
+            </button>
+          </div>
+
+          <!-- Switch page -->
+          <p class="auth-bottom-link">
+            <span data-i18n="signup.have-account">Already have an account?</span>
+            <a href="login.html" data-i18n="signup.login">Sign in</a>
+          </p>
+
+        </div><!-- /auth-content -->
+
+        <!-- Trust strip -->
+        <div class="auth-trust">
+          <span class="auth-trust-dot" aria-hidden="true"></span>
+          <span data-i18n="auth.proof">Built for your real life.</span>
         </div>
 
-        <!-- Terms -->
-        <label class="auth-terms">
-          <input type="checkbox" id="termsCheck" />
-          <span class="auth-terms-text">
-            <span data-i18n="signup.terms.pre">I agree to the</span>
-            <a class="auth-terms-link" href="terms.html" target="_blank"
-               data-i18n="signup.terms.tos">Terms of Service</a>
-            <span data-i18n="signup.terms.and">and</span>
-            <a class="auth-terms-link" href="privacy.html" target="_blank"
-               data-i18n="signup.terms.pp">Privacy Policy</a>
-          </span>
-        </label>
+        <footer class="auth-page-footer">
+          <span data-i18n="footer.copyright">&copy; 2025 Hbit</span>
+          &nbsp;·&nbsp;
+          <a href="privacy.html" data-i18n="landing.footer.privacy">Privacy</a>
+          &nbsp;·&nbsp;
+          <a href="terms.html" data-i18n="landing.footer.terms">Terms</a>
+        </footer>
 
-        <!-- Error -->
-        <div class="auth-alert auth-alert--error hidden"
-             id="signupError" role="alert" aria-live="polite"></div>
+      </main><!-- /auth-page -->
 
-        <!-- Submit -->
-        <button class="auth-submit-btn" id="signupSubmit" type="submit">
-          <span id="signupBtnLabel" data-i18n="signup.submit">Create Account</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-               class="auth-btn-arrow" id="signupArrow" aria-hidden="true">
-            <line x1="5" y1="12" x2="19" y2="12"/>
-            <polyline points="12 5 19 12 12 19"/>
-          </svg>
-          <span class="auth-spinner hidden" id="signupSpinner" aria-hidden="true"></span>
-        </button>
+    </div><!-- /auth-form-wrap -->
 
-      </form>
+  </div><!-- /auth-shell -->
 
-      <!-- Divider -->
-      <div class="auth-divider">
-        <span data-i18n="signup.or">or sign up with</span>
-      </div>
-
-      <!-- Social -->
-      <div class="auth-social">
-        <button class="auth-social-btn" type="button" aria-label="Sign up with Google">
-          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-          </svg>
-          Google
-        </button>
-        <button class="auth-social-btn" type="button" aria-label="Sign up with Apple">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-          </svg>
-          Apple
-        </button>
-      </div>
-
-      <!-- Switch page -->
-      <p class="auth-bottom-link">
-        <span data-i18n="signup.have-account">Already have an account?</span>
-        <a href="login.html" data-i18n="signup.login">Sign in</a>
-      </p>
-
-    </div><!-- /auth-content -->
-
-    <!-- Trust strip -->
-    <div class="auth-trust">
-      <span class="auth-trust-dot" aria-hidden="true"></span>
-      <span data-i18n="auth.proof">Built for your real life.</span>
-    </div>
-
-    <footer class="auth-page-footer">
-      <span data-i18n="footer.copyright">&copy; 2025 Hbit</span>
-      &nbsp;·&nbsp;
-      <a href="privacy.html" data-i18n="landing.footer.privacy">Privacy</a>
-      &nbsp;·&nbsp;
-      <a href="terms.html" data-i18n="landing.footer.terms">Terms</a>
-    </footer>
-
-  </main><!-- /auth-page -->
-
+  <script defer src="js/core/auth-transitions.js"></script>
 </body>
 </html>

@@ -21,6 +21,14 @@
     return Number.isFinite(n) ? n : f;
   };
 
+  function todayKey() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
   function getLang() {
     return HBIT.i18n?.getLang?.() || "en";
   }
@@ -487,7 +495,7 @@
     closeMoodLogModal();
 
     if (window.HBIT?.db) {
-      const today = new Date().toISOString().slice(0, 10);
+      const today = todayKey();
       const to10 = v => Math.round(clamp(num(v, 3), 1, 5) * 2);
       HBIT.db.moodLogs.set(today, {
         score:  to10(ov),
@@ -497,6 +505,7 @@
         notes:  data.note || "",
         tags:   [data.emotion, data.impact].filter(Boolean)
       }).then(() => {
+        window.dispatchEvent(new CustomEvent("hbit:data-changed", { detail: { area: "mood" } }));
         if (window.HBIT?.updateUserProfile) {
           HBIT.updateUserProfile({
             "stats.moodLogs": firebase.firestore.FieldValue.increment(1)

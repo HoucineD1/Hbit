@@ -1265,6 +1265,8 @@
   /* ── Init ────────────────────────────────────────────────────────── */
   function init() {
     if (document.body.id !== "budgetPage") return;
+    if (document.body.dataset.budgetInit) return;
+    document.body.dataset.budgetInit = "1";
 
     state.currency = getCurrency();
 

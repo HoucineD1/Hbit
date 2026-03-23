@@ -6,6 +6,10 @@
 document.addEventListener("DOMContentLoaded", () => {
   window.HBIT?.i18n?.init?.();
 
+  async function setSessionPersistence() {
+    await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
+  }
+
   /* Redirect to home if already signed in on page load */
   firebase.auth().onAuthStateChanged(user => {
     if (user) window.location.replace("home.html");
@@ -63,6 +67,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function markField(el, invalid) {
     el?.classList.toggle("error", invalid);
+    if (invalid && el) {
+      el.classList.remove("shake");
+      void el.offsetWidth;
+      el.classList.add("shake");
+      el.addEventListener("animationend",
+        () => el.classList.remove("shake"), { once: true });
+    }
   }
 
   function setLoading(on) {
@@ -182,6 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         /* ── Step 1: Authenticate (throws on auth error) ── */
+        await setSessionPersistence();
         const result = await firebase.auth().signInWithEmailAndPassword(email, password);
 
         /* ── Step 2: Sync Firestore profile — fire & don't block ──
@@ -202,7 +214,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    [emailInput, passInput].forEach(el => el?.addEventListener("input", clearError));
+    [emailInput, passInput].forEach(el => {
+      el?.addEventListener("input", () => {
+        clearError();
+        el.value.trim()
+          ? el.classList.add("valid")
+          : el.classList.remove("valid");
+      });
+    });
   }
 
   /* ── Google sign-in ───────────────────────────────── */
@@ -212,6 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
     socialBtns[0].addEventListener("click", async () => {
       clearError();
       try {
+        await setSessionPersistence();
         const provider = new firebase.auth.GoogleAuthProvider();
         const result   = await firebase.auth().signInWithPopup(provider);
         window.HBIT?.createUserProfile?.(result.user, "google.com")
@@ -230,6 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
     socialBtns[1].addEventListener("click", async () => {
       clearError();
       try {
+        await setSessionPersistence();
         const provider = new firebase.auth.OAuthProvider("apple.com");
         const result   = await firebase.auth().signInWithPopup(provider);
         window.HBIT?.createUserProfile?.(result.user, "apple.com")
