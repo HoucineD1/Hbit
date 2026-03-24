@@ -89,4 +89,85 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ── Init ────────────────────────────────────────────── */
   startAuto();
+
+  /* ── Nav scrolled state ──────────────────────────────── */
+  (function initNavScrolled() {
+    const nav  = document.querySelector('.ld-nav');
+    const hero = document.querySelector('.ld-hero');
+    if (!nav || !hero) return;
+
+    const obs = new IntersectionObserver(([entry]) => {
+      nav.classList.toggle('ld-nav--scrolled', !entry.isIntersecting);
+    }, { threshold: 0.1 });
+
+    obs.observe(hero);
+  })();
+
+  /* ── Line reveal ─────────────────────────────────────── */
+  (function initLineReveal() {
+    const lines = document.querySelectorAll('.ld-reveal-line');
+    if (!lines.length) return;
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const line  = entry.target;
+        const delay = parseFloat(line.dataset.delay || 0) * 160;
+        setTimeout(() => line.classList.add('ld-reveal-visible'), delay);
+        obs.unobserve(line);
+      });
+    }, { threshold: 0.25, rootMargin: '0px 0px -40px 0px' });
+
+    lines.forEach(l => obs.observe(l));
+  })();
+
+  /* ── Generic scroll reveal (.ld-scroll-reveal) ─────── */
+  (function initScrollReveal() {
+    const els = document.querySelectorAll('.ld-scroll-reveal');
+    if (!els.length) return;
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('ld-reveal-visible');
+        obs.unobserve(entry.target);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -50px 0px' });
+
+    els.forEach(el => obs.observe(el));
+  })();
+
+  /* ── Stat counters ───────────────────────────────────── */
+  (function initCountUp() {
+    const counters = document.querySelectorAll('.ld-count-up');
+    if (!counters.length) return;
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        animateStat(entry.target);
+        obs.unobserve(entry.target);
+      });
+    }, { threshold: 0.6 });
+
+    counters.forEach(el => obs.observe(el));
+
+    function animateStat(el) {
+      const target   = parseFloat(el.dataset.target);
+      const suffix   = el.dataset.suffix   || '';
+      const decimals = parseInt(el.dataset.decimals || '0', 10);
+      const duration = 1600;
+      const start    = performance.now();
+
+      function tick(now) {
+        const t       = Math.min((now - start) / duration, 1);
+        const eased   = 1 - Math.pow(1 - t, 3); /* ease-out cubic */
+        const current = (target * eased).toFixed(decimals);
+        el.textContent = current + suffix;
+        if (t < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+  })();
+
 });

@@ -69,7 +69,7 @@
         <span id="langLabel">FR</span>
       </button>
       <a class="ld-nav-ghost" href="login.html" data-i18n="landing.nav.signin">Sign in</a>
-      <a class="ld-nav-solid" href="signup.html" data-i18n="landing.nav.signup">Create account</a>
+      <a class="ld-nav-solid" href="signup.html" data-i18n="landing.nav.signup">Get started</a>
     </nav>
   </header>
 
@@ -87,19 +87,32 @@
         <!-- Eyebrow badge -->
         <p class="ld-eyebrow">
           <span class="ld-eyebrow-dot" aria-hidden="true"></span>
-          <span data-i18n="landing.eyebrow">Life Briefing System</span>
+          <span data-i18n="landing.eyebrow">Your life. One dashboard.</span>
         </p>
+
+        <!-- ── Social proof ─────────────────────────────────── -->
+        <div class="ld-social-proof">
+          <div class="ld-avatars">
+            <span class="ld-avatar" style="background:#3ecf7f;" aria-hidden="true">A</span>
+            <span class="ld-avatar" style="background:#60a5fa;" aria-hidden="true">M</span>
+            <span class="ld-avatar" style="background:#a78bfa;" aria-hidden="true">S</span>
+            <span class="ld-avatar" style="background:#fbbf24;" aria-hidden="true">J</span>
+          </div>
+          <div class="ld-proof-text">
+            <span class="ld-proof-count">Trusted by <strong>10,000+</strong> users</span>
+            <span class="ld-proof-stars" aria-label="Rated 4.8 out of 5">★★★★★ <em>4.8</em></span>
+          </div>
+        </div>
 
         <!-- Headline -->
         <h1 class="ld-h1">
-          <span data-i18n="landing.h1.line1">Track everything</span><br>
-          <span class="ld-h1-accent" data-i18n="landing.h1.line2">that matters</span>
+          <span data-i18n="landing.h1.line1">Everything that makes you</span><br>
+          <span class="ld-h1-accent" data-i18n="landing.h1.line2">better. Right here.</span>
         </h1>
 
         <!-- Subtitle -->
         <p class="ld-sub" data-i18n="landing.sub">
-          Habits, budget, sleep and mood&nbsp;— all in one
-          beautiful dashboard built for real life.
+          Six powerful trackers in one seamless dashboard — habits, budget, sleep, mood, focus, and planner. Built for people serious about becoming better.
         </p>
 
         <!-- Feature chip nav -->
@@ -122,7 +135,7 @@
           <button class="ld-chip-nav" data-idx="3" data-accent="mood"
                   type="button" role="tab" aria-selected="false">
             <span class="ld-chip-dot"></span>
-            <span data-i18n="landing.mood.chip">State of Mind</span>
+            <span data-i18n="landing.mood.chip">Mood</span>
           </button>
           <button class="ld-chip-nav" data-idx="4" data-accent="plan"
                   type="button" role="tab" aria-selected="false">
@@ -134,7 +147,7 @@
         <!-- CTA buttons -->
         <div class="ld-cta-row" role="group" aria-label="Get started">
           <a class="ld-cta-primary" href="signup.html" data-i18n="landing.cta.signup">
-            Get started free
+            Start for free
           </a>
           <a class="ld-cta-secondary" href="login.html">
             <span data-i18n="landing.cta.signin">Sign in</span>
@@ -151,18 +164,18 @@
         <!-- Stats row -->
         <div class="ld-stats-row" aria-label="Key statistics">
           <div class="ld-stat">
-            <span class="ld-stat-value">10K+</span>
-            <span class="ld-stat-label">Users worldwide</span>
+            <span class="ld-stat-value ld-count-up" data-target="10" data-suffix="K+" aria-label="Over 10,000 users worldwide">0K+</span>
+            <span class="ld-stat-label" data-i18n="landing.stat.users">People growing daily</span>
           </div>
           <div class="ld-stats-sep" aria-hidden="true"></div>
           <div class="ld-stat">
-            <span class="ld-stat-value">Free</span>
-            <span class="ld-stat-label">No credit card</span>
+            <span class="ld-stat-value ld-count-up" data-target="6" data-suffix=" modules" aria-label="6 tracking modules">0</span>
+            <span class="ld-stat-label" data-i18n="landing.stat.modules">All in one place</span>
           </div>
           <div class="ld-stats-sep" aria-hidden="true"></div>
           <div class="ld-stat">
-            <span class="ld-stat-value">Dark</span>
-            <span class="ld-stat-label">By design</span>
+            <span class="ld-stat-value" data-i18n="landing.stat.free.value">Free</span>
+            <span class="ld-stat-label" data-i18n="landing.stat.free.label">No credit card</span>
           </div>
         </div>
 
@@ -348,6 +361,142 @@
 
     </section><!-- /ld-hero -->
 
+    <!-- ══ REVEAL STATEMENT ═══════════════════════════════ -->
+    <section class="ld-reveal-statement" aria-label="Brand statement">
+      <div class="ld-reveal-inner">
+        <p class="ld-reveal-line" data-delay="0" data-i18n="landing.reveal.line1">Most people juggle five different apps to manage their life.</p>
+        <p class="ld-reveal-line" data-delay="1" data-i18n="landing.reveal.line2">Their habits in one app. Budget in another.</p>
+        <p class="ld-reveal-line" data-delay="2" data-i18n="landing.reveal.line3">Sleep tracker here. Mood journal there. Planner somewhere else.</p>
+        <p class="ld-reveal-line" data-delay="3" data-i18n="landing.reveal.line4">Hbit ends that. Everything you need to grow —</p>
+        <p class="ld-reveal-line ld-reveal-line--accent" data-delay="4" data-i18n="landing.reveal.line5">unified, powerful, and completely free.</p>
+      </div>
+    </section>
+
+    <!-- ══ SECTION BREAK 1 ════════════════════════════════ -->
+    <div class="ld-section-break ld-scroll-reveal">
+      <h2 class="ld-break-headline" data-i18n="landing.break1.headline">One app.<br>Every dimension of your life.</h2>
+    </div>
+
+    <!-- ══ HOW IT WORKS ════════════════════════════════════ -->
+    <div class="ld-how-wrap">
+      <section class="ld-how" aria-label="How Hbit works">
+
+        <div class="ld-how-header">
+          <p class="ld-how-label" data-i18n="landing.how.label">How it works</p>
+          <h2 class="ld-how-title" data-i18n="landing.how.title">Three steps to your best self.</h2>
+        </div>
+
+        <div class="ld-how-steps">
+
+          <!-- Step 1 -->
+          <div class="ld-how-step ld-scroll-reveal">
+            <div class="ld-how-visual">
+              <div class="ld-how-mock">
+                <svg viewBox="0 0 200 180" fill="none" aria-hidden="true">
+                  <rect x="10" y="8" width="180" height="164" rx="18"
+                    fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                  <rect x="24" y="24" width="80" height="7" rx="3.5" fill="rgba(255,255,255,0.45)"/>
+                  <rect x="24" y="36" width="52" height="5" rx="2.5" fill="rgba(255,255,255,0.18)"/>
+                  <circle cx="34" cy="72" r="11" fill="rgba(62,207,127,0.12)" stroke="#3ecf7f" stroke-width="1.8"/>
+                  <path d="M28 72l5 6 9-12" stroke="#3ecf7f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <rect x="54" y="68" width="80" height="5" rx="2.5" fill="rgba(255,255,255,0.5)"/>
+                  <circle cx="34" cy="104" r="11" fill="rgba(62,207,127,0.12)" stroke="#3ecf7f" stroke-width="1.8"/>
+                  <path d="M28 104l5 6 9-12" stroke="#3ecf7f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <rect x="54" y="100" width="95" height="5" rx="2.5" fill="rgba(255,255,255,0.5)"/>
+                  <circle cx="34" cy="136" r="11" fill="rgba(255,255,255,0.02)"
+                    stroke="rgba(255,255,255,0.18)" stroke-width="1.8" stroke-dasharray="4 3"/>
+                  <rect x="54" y="132" width="68" height="5" rx="2.5" fill="rgba(255,255,255,0.18)"/>
+                  <rect x="24" y="158" width="152" height="4" rx="2" fill="rgba(255,255,255,0.05)"/>
+                  <rect x="24" y="158" width="114" height="4" rx="2" fill="rgba(62,207,127,0.45)"/>
+                </svg>
+              </div>
+            </div>
+            <div class="ld-how-content">
+              <span class="ld-how-num" data-i18n="landing.how.step1.num">01</span>
+              <h3 class="ld-how-step-title" data-i18n="landing.how.step1.title">Set your habits &amp; goals</h3>
+              <p class="ld-how-step-desc" data-i18n="landing.how.step1.desc">Create habit stacks, set financial targets, define your ideal sleep window. Hbit adapts to how you actually live — not how productivity gurus think you should.</p>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="ld-how-step ld-how-step--flip ld-scroll-reveal">
+            <div class="ld-how-content">
+              <span class="ld-how-num" data-i18n="landing.how.step2.num">02</span>
+              <h3 class="ld-how-step-title" data-i18n="landing.how.step2.title">Log your day in seconds</h3>
+              <p class="ld-how-step-desc" data-i18n="landing.how.step2.desc">One tap to mark a habit done. A quick entry for your spending. Rate your sleep. Track your mood. No forms, no friction. Just results.</p>
+            </div>
+            <div class="ld-how-visual">
+              <div class="ld-how-mock">
+                <svg viewBox="0 0 200 180" fill="none" aria-hidden="true">
+                  <rect x="10" y="8" width="180" height="164" rx="18"
+                    fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                  <circle cx="48"  cy="90" r="20" fill="rgba(248,113,113,0.09)" stroke="#f87171" stroke-width="1.5"/>
+                  <circle cx="44"  cy="85" r="2.2" fill="#f87171"/>
+                  <circle cx="52"  cy="85" r="2.2" fill="#f87171"/>
+                  <path d="M43 96 Q48 92 53 96" stroke="#f87171" stroke-width="2" stroke-linecap="round" fill="none"/>
+                  <circle cx="100" cy="90" r="20" fill="rgba(251,191,36,0.09)" stroke="#fbbf24" stroke-width="1.5"/>
+                  <circle cx="96"  cy="85" r="2.2" fill="#fbbf24"/>
+                  <circle cx="104" cy="85" r="2.2" fill="#fbbf24"/>
+                  <line x1="95" y1="94" x2="105" y2="94" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+                  <circle cx="152" cy="90" r="26" fill="rgba(62,207,127,0.10)" stroke="#3ecf7f" stroke-width="2.5"/>
+                  <circle cx="146" cy="84" r="2.8" fill="#3ecf7f"/>
+                  <circle cx="158" cy="84" r="2.8" fill="#3ecf7f"/>
+                  <path d="M144 95 Q152 104 160 95" stroke="#3ecf7f" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                  <rect x="24" y="130" width="152" height="1" fill="rgba(255,255,255,0.07)"/>
+                  <rect x="24" y="144" width="152" height="5" rx="2.5" fill="rgba(255,255,255,0.08)"/>
+                  <rect x="24" y="144" width="110" height="5" rx="2.5" fill="rgba(62,207,127,0.40)"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="ld-how-step ld-scroll-reveal">
+            <div class="ld-how-visual">
+              <div class="ld-how-mock">
+                <svg viewBox="0 0 200 180" fill="none" aria-hidden="true">
+                  <rect x="10" y="8" width="180" height="164" rx="18"
+                    fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                  <rect x="24" y="24" width="90" height="7" rx="3.5" fill="rgba(255,255,255,0.45)"/>
+                  <rect x="24" y="36" width="58" height="5" rx="2.5" fill="rgba(255,255,255,0.18)"/>
+                  <rect x="24" y="60" width="20" height="80" rx="4" fill="rgba(154,28,28,0.55)"/>
+                  <rect x="52" y="80" width="20" height="60" rx="4" fill="rgba(154,28,28,0.55)"/>
+                  <rect x="80" y="68" width="20" height="72" rx="4" fill="rgba(154,28,28,0.70)"/>
+                  <rect x="108" y="48" width="20" height="92" rx="4" fill="rgba(192,41,42,0.80)"/>
+                  <rect x="136" y="36" width="20" height="104" rx="4" fill="#c0292a"/>
+                  <polyline points="34,60 62,52 90,44 118,36 146,28"
+                    stroke="rgba(62,207,127,0.55)" stroke-width="2" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="146" cy="28" r="4" fill="#3ecf7f"/>
+                  <rect x="24" y="152" width="152" height="4" rx="2" fill="rgba(255,255,255,0.05)"/>
+                </svg>
+              </div>
+            </div>
+            <div class="ld-how-content">
+              <span class="ld-how-num" data-i18n="landing.how.step3.num">03</span>
+              <h3 class="ld-how-step-title" data-i18n="landing.how.step3.title">See your patterns. Grow faster.</h3>
+              <p class="ld-how-step-desc" data-i18n="landing.how.step3.desc">Discover how a bad night's sleep tanks your mood. See which habits you actually stick to. Watch your progress compound week by week. The data doesn't lie.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Inline CTA after steps -->
+        <div class="ld-how-cta ld-scroll-reveal">
+          <a class="ld-cta-primary" href="signup.html" data-i18n="landing.cta.signup">Start for free</a>
+          <p class="ld-how-cta-sub" data-i18n="landing.how.cta.sub">Free forever · No credit card required</p>
+        </div>
+
+      </section>
+    </div>
+
+    <!-- ══ SECTION BREAK 2 ════════════════════════════════ -->
+    <div class="ld-section-break ld-section-break--cta ld-scroll-reveal">
+      <h2 class="ld-break-headline" data-i18n="landing.break2.headline">Your habits.<br>Your data. Your pace.</h2>
+      <a class="ld-cta-primary" href="signup.html" data-i18n="landing.cta.signup">Start for free</a>
+      <p class="ld-break-sub" data-i18n="landing.break2.sub">Free forever · No credit card required</p>
+    </div>
+
     <!-- ── FEATURE CARDS ────────────────────────────────── -->
     <section class="ld-features" aria-label="Features">
       <div class="ld-feat-grid">
@@ -360,8 +509,8 @@
               <polyline points="20 6 9 17 4 12"/>
             </svg>
           </div>
-          <h3 class="ld-feat-title">Habits</h3>
-          <p class="ld-feat-desc">Systematic tracking for the routines that build your future self.</p>
+          <h3 class="ld-feat-title" data-i18n="landing.feat.habit.title">Habits</h3>
+          <p class="ld-feat-desc" data-i18n="landing.feat.habit.desc">Build unbreakable routines. Stack habits, track streaks, and watch small daily actions compound into lasting change.</p>
         </div>
 
         <!-- Budget -->
@@ -373,8 +522,8 @@
               <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
             </svg>
           </div>
-          <h3 class="ld-feat-title">Budget</h3>
-          <p class="ld-feat-desc">Visual clarity over your cash flow and spending patterns.</p>
+          <h3 class="ld-feat-title" data-i18n="landing.feat.budget.title">Budget</h3>
+          <p class="ld-feat-desc" data-i18n="landing.feat.budget.desc">Know exactly where every dollar goes. Spot patterns, cut waste, and build the financial habits that actually move your net worth.</p>
         </div>
 
         <!-- Sleep -->
@@ -385,8 +534,8 @@
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
             </svg>
           </div>
-          <h3 class="ld-feat-title">Sleep</h3>
-          <p class="ld-feat-desc">Deep analysis of your recovery cycles and circadian alignment.</p>
+          <h3 class="ld-feat-title" data-i18n="landing.feat.sleep.title">Sleep</h3>
+          <p class="ld-feat-desc" data-i18n="landing.feat.sleep.desc">Quality sleep is your superpower. Track duration, consistency, and how your nights directly shape your days.</p>
         </div>
 
         <!-- Mood -->
@@ -400,8 +549,8 @@
               <line x1="15" y1="9" x2="15.01" y2="9"/>
             </svg>
           </div>
-          <h3 class="ld-feat-title">Mood</h3>
-          <p class="ld-feat-desc">Correlation mapping between your activities and emotional states.</p>
+          <h3 class="ld-feat-title" data-i18n="landing.feat.mood.title">Mood</h3>
+          <p class="ld-feat-desc" data-i18n="landing.feat.mood.desc">Your emotional landscape, mapped. Discover what lifts you up, what drags you down, and how to design more of the days that feel right.</p>
         </div>
 
       </div>
@@ -423,9 +572,9 @@
           <div class="ld-footer-mark" aria-hidden="true">H</div>
           <span class="ld-footer-name">Hbit</span>
         </a>
-        <p class="ld-footer-tagline">
-          Your all-in-one personal dashboard.<br>
-          Track what matters. Win every day.
+        <p class="ld-footer-tagline" data-i18n="landing.footer.tagline">
+          The only dashboard you'll ever need.<br>
+          Track what matters. Become who you want to be.
         </p>
         <!-- Social links -->
         <div class="ld-footer-social" aria-label="Social links">
@@ -488,8 +637,8 @@
 
     <!-- ── Bottom bar ──────────────────────────────────── -->
     <div class="ld-footer-bottom">
-      <p class="ld-footer-copy">© 2025 Hbit. All rights reserved.</p>
-      <p class="ld-footer-made">Built for real life · Dark by design</p>
+      <p class="ld-footer-copy">© 2026 Hbit. All rights reserved.</p>
+      <p class="ld-footer-made" data-i18n="landing.footer.made">Built for real life · Dark by design</p>
     </div>
 
   </footer>
