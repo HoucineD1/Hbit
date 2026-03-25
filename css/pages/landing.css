@@ -137,12 +137,12 @@
   gap: 8px;
 }
 
-.ld-nav-lang {
+.ld-nav-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px; height: 32px;
-  border-radius: 7px;
+  width: 34px; height: 34px;
+  border-radius: 8px;
   border: 1.5px solid rgba(255, 255, 255, 0.13);
   background: rgba(255, 255, 255, 0.04);
   color: rgba(255, 255, 255, 0.60);
@@ -153,12 +153,18 @@
   transition: background 0.18s, color 0.18s, border-color 0.18s;
   flex-shrink: 0;
 }
-.ld-nav-lang:hover {
+.ld-nav-icon:hover {
   background: rgba(255, 255, 255, 0.10);
   color: #fff;
   border-color: rgba(255, 255, 255, 0.24);
 }
-.ld-nav-lang:active { transform: scale(0.95); }
+.ld-nav-icon:active { transform: scale(0.95); }
+
+/* Theme toggle icons — show sun in dark, moon in light */
+.ld-icon-moon { display: none; }
+.ld-icon-sun  { display: block; }
+#landingPage.ld-light .ld-icon-moon { display: block; }
+#landingPage.ld-light .ld-icon-sun  { display: none; }
 
 .ld-nav-ghost {
   display: inline-flex;
@@ -1225,13 +1231,13 @@
    ══════════════════════════════════════════════════════ */
 
 /* FR button active state */
-#landingPage .ld-nav-lang[data-lang="fr"] {
+#landingPage .ld-nav-icon[data-lang="fr"] {
   background: rgba(154, 28, 28, 0.15);
   border-color: rgba(154, 28, 28, 0.40);
   color: var(--ld-brand-l);
 }
 
-#landingPage .ld-nav-lang[data-lang="en"] {
+#landingPage .ld-nav-icon[data-lang="en"] {
   background: rgba(255, 255, 255, 0.04);
   border-color: rgba(255, 255, 255, 0.13);
   color: rgba(255, 255, 255, 0.60);
@@ -1341,12 +1347,22 @@
 
   /* Nav */
   .ld-nav {
-    padding: 0 20px;
-    height: 58px;
+    padding: 0 14px;
+    height: 52px;
+  }
+
+  .ld-header-links {
+    gap: 6px;
   }
 
   .ld-logo-name {
-    font-size: 16px;
+    font-size: 15px;
+  }
+
+  .ld-nav-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 10.5px;
   }
 
   .ld-nav-ghost {
@@ -1354,12 +1370,12 @@
   }
 
   .ld-nav-solid {
-    padding: 7px 16px;
-    font-size: 12.5px;
+    padding: 6px 14px;
+    font-size: 12px;
   }
 
   .ld-main {
-    padding-top: 54px;
+    padding-top: 52px;
   }
 
   /* Hero */
@@ -1573,8 +1589,10 @@
 
   /* Nav */
   .ld-nav { padding: 0 16px; height: 52px; }
-  .ld-nav-lang {
-    display: none; /* hide FR toggle to save space */
+  .ld-nav-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 10px;
   }
 
   /* Hero */
@@ -1867,12 +1885,12 @@
     border-bottom-color: rgba(12, 12, 24, 0.07);
   }
   .ld-logo-name { color: rgba(12, 12, 24, 0.88); }
-  .ld-nav-lang {
+  .ld-nav-icon {
     border-color: rgba(12, 12, 24, 0.14);
     background: rgba(12, 12, 24, 0.04);
     color: rgba(12, 12, 24, 0.52);
   }
-  .ld-nav-lang:hover {
+  .ld-nav-icon:hover {
     background: rgba(12, 12, 24, 0.08);
     color: rgba(12, 12, 24, 0.88);
     border-color: rgba(12, 12, 24, 0.22);
@@ -2014,6 +2032,85 @@
     border-color: rgba(12, 12, 24, 0.16);
   }
 }
+
+/* ══════════════════════════════════════════════════════
+   LIGHT MODE  (manual toggle via .ld-light class)
+   ══════════════════════════════════════════════════════ */
+
+#landingPage.ld-light {
+  --ld-text:         rgba(12, 12, 24, 0.90);
+  --ld-muted:        rgba(12, 12, 24, 0.52);
+  --ld-subtle:       rgba(12, 12, 24, 0.32);
+  --ld-glass-bg:     rgba(255, 255, 255, 0.78);
+  --ld-glass-border: rgba(12, 12, 24, 0.09);
+  --ld-glass-shine:  rgba(255, 255, 255, 0.92);
+  background: #f6f4f0;
+}
+#landingPage.ld-light .ld-ambient--tr {
+  background: radial-gradient(ellipse at center, rgba(154,28,28,0.10) 0%, rgba(154,28,28,0.03) 45%, transparent 70%);
+}
+#landingPage.ld-light .ld-ambient--bl {
+  background: radial-gradient(ellipse at center, rgba(62,207,127,0.05) 0%, transparent 65%);
+}
+#landingPage.ld-light .ld-grid-overlay {
+  background-image: linear-gradient(rgba(12,12,24,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(12,12,24,0.035) 1px, transparent 1px);
+}
+#landingPage.ld-light .ld-nav {
+  background: rgba(246,244,240,0.88);
+  border-bottom-color: rgba(12,12,24,0.07);
+}
+#landingPage.ld-light .ld-logo-name { color: rgba(12,12,24,0.88); }
+#landingPage.ld-light .ld-nav-icon {
+  border-color: rgba(12,12,24,0.14);
+  background: rgba(12,12,24,0.04);
+  color: rgba(12,12,24,0.52);
+}
+#landingPage.ld-light .ld-nav-icon:hover {
+  background: rgba(12,12,24,0.08);
+  color: rgba(12,12,24,0.88);
+  border-color: rgba(12,12,24,0.22);
+}
+#landingPage.ld-light .ld-nav-ghost { color: rgba(12,12,24,0.55); }
+#landingPage.ld-light .ld-nav-ghost:hover { color: rgba(12,12,24,0.85); background: rgba(12,12,24,0.05); }
+#landingPage.ld-light .ld-h1-accent {
+  background: linear-gradient(135deg, #c0292a 0%, #e87070 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+#landingPage.ld-light .ld-eyebrow { border-color: rgba(12,12,24,0.09); background: rgba(12,12,24,0.03); color: rgba(12,12,24,0.52); }
+#landingPage.ld-light .ld-chip-nav { border-color: rgba(12,12,24,0.09); background: rgba(12,12,24,0.03); color: rgba(12,12,24,0.48); }
+#landingPage.ld-light .ld-chip-nav:hover { background: rgba(12,12,24,0.07); color: rgba(12,12,24,0.78); border-color: rgba(12,12,24,0.16); }
+#landingPage.ld-light .ld-cta-secondary { background: rgba(12,12,24,0.04); border-color: rgba(12,12,24,0.11); color: rgba(12,12,24,0.62); }
+#landingPage.ld-light .ld-cta-secondary:hover { background: rgba(12,12,24,0.08); color: rgba(12,12,24,0.88); border-color: rgba(12,12,24,0.20); }
+#landingPage.ld-light .ld-stats-row { border-top-color: rgba(12,12,24,0.08); }
+#landingPage.ld-light .ld-stats-sep { background: rgba(12,12,24,0.08); }
+#landingPage.ld-light .ld-visual-wrap { background: rgba(238,236,232,0.90); border-color: rgba(12,12,24,0.09); }
+#landingPage.ld-light .ld-bg-slide[data-accent="habit"]  { background: radial-gradient(ellipse 80% 70% at 70% 40%, rgba(62,207,127,0.14) 0%, transparent 65%), radial-gradient(ellipse 60% 55% at 20% 75%, rgba(154,28,28,0.10) 0%, transparent 65%), #ede9e3; }
+#landingPage.ld-light .ld-bg-slide[data-accent="budget"] { background: radial-gradient(ellipse 80% 70% at 65% 38%, rgba(248,113,113,0.14) 0%, transparent 65%), radial-gradient(ellipse 55% 50% at 20% 72%, rgba(154,28,28,0.10) 0%, transparent 65%), #ede9e3; }
+#landingPage.ld-light .ld-bg-slide[data-accent="sleep"]  { background: radial-gradient(ellipse 80% 70% at 68% 42%, rgba(96,165,250,0.14) 0%, transparent 65%), radial-gradient(ellipse 55% 50% at 18% 70%, rgba(30,60,130,0.10) 0%, transparent 65%), #ede9e3; }
+#landingPage.ld-light .ld-bg-slide[data-accent="mood"]   { background: radial-gradient(ellipse 80% 70% at 66% 40%, rgba(167,139,250,0.14) 0%, transparent 65%), radial-gradient(ellipse 55% 50% at 20% 72%, rgba(88,28,154,0.09) 0%, transparent 65%), #ede9e3; }
+#landingPage.ld-light .ld-bg-slide[data-accent="plan"]   { background: radial-gradient(ellipse 80% 70% at 68% 38%, rgba(251,191,36,0.12) 0%, transparent 65%), radial-gradient(ellipse 55% 50% at 20% 70%, rgba(180,80,28,0.09) 0%, transparent 65%), #ede9e3; }
+#landingPage.ld-light .ld-visual-dot { background: rgba(12,12,24,0.16); }
+#landingPage.ld-light .ld-feat-card { background: rgba(255,255,255,0.72); border-color: rgba(12,12,24,0.07); }
+#landingPage.ld-light .ld-feat-card:hover { background: rgba(255,255,255,0.92); border-color: rgba(12,12,24,0.12); }
+#landingPage.ld-light .ld-footer { background: #eeebe6; border-top-color: rgba(12,12,24,0.07); }
+#landingPage.ld-light .ld-footer-bottom { border-top-color: rgba(12,12,24,0.07); }
+#landingPage.ld-light .ld-footer-copy { color: rgba(12,12,24,0.30); }
+#landingPage.ld-light .ld-footer-made { color: rgba(12,12,24,0.22); }
+#landingPage.ld-light .ld-footer-col-title { color: rgba(12,12,24,0.44); }
+#landingPage.ld-light .ld-footer-tagline { color: rgba(12,12,24,0.42); }
+#landingPage.ld-light .ld-footer-name { color: rgba(12,12,24,0.88); }
+#landingPage.ld-light .ld-footer-nav a { color: rgba(12,12,24,0.42); }
+#landingPage.ld-light .ld-footer-nav a:hover { color: rgba(12,12,24,0.78); }
+#landingPage.ld-light .ld-footer-social-btn { background: rgba(12,12,24,0.04); border-color: rgba(12,12,24,0.09); color: rgba(12,12,24,0.38); }
+#landingPage.ld-light .ld-footer-social-btn:hover { background: rgba(12,12,24,0.08); color: rgba(12,12,24,0.72); border-color: rgba(12,12,24,0.16); }
+/* Reveal section */
+#landingPage.ld-light .ld-reveal-statement { background: #f0ece6; }
+#landingPage.ld-light .ld-reveal-line { color: rgba(12,12,24,0.28); }
+#landingPage.ld-light .ld-reveal-line.ld-reveal-visible { color: rgba(12,12,24,0.90); }
+/* How section */
+#landingPage.ld-light .ld-how { background: #f6f4f0; }
+#landingPage.ld-light .ld-section-break { background: #f0ece6; }
 
 /* ══════════════════════════════════════════════════════
    REDUCED MOTION

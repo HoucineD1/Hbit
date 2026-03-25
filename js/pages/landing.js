@@ -134,6 +134,28 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ── Init ────────────────────────────────────────────── */
   startAuto();
 
+  /* ── Theme toggle ──────────────────────────────────── */
+  (function initThemeToggle() {
+    const btn  = document.getElementById("themeToggle");
+    const page = document.getElementById("landingPage");
+    if (!btn || !page) return;
+
+    const KEY = "hbit-theme";
+    const saved = localStorage.getItem(KEY);
+
+    if (saved === "light") {
+      page.classList.add("ld-light");
+    } else if (saved === "dark") {
+      page.classList.remove("ld-light");
+    }
+
+    btn.addEventListener("click", () => {
+      page.classList.toggle("ld-light");
+      const isLight = page.classList.contains("ld-light");
+      localStorage.setItem(KEY, isLight ? "light" : "dark");
+    });
+  })();
+
   /* ── Nav scrolled state ──────────────────────────────── */
   (function initNavScrolled() {
     const nav  = document.querySelector('.ld-nav');
