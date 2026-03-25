@@ -139,7 +139,7 @@
 
             <!-- Username -->
             <div class="auth-field">
-              <label class="auth-label" for="usernameInput">Username <span class="auth-label-opt">(optional)</span></label>
+              <label class="auth-label" for="usernameInput"><span data-i18n="signup.username">Username</span> <span class="auth-label-opt" data-i18n="signup.username.opt">(optional)</span></label>
               <div class="auth-input-wrap">
                 <span class="auth-icon" aria-hidden="true">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -151,9 +151,10 @@
                 </span>
                 <input class="auth-input" id="usernameInput" type="text" name="username"
                   autocomplete="username"
+                  data-i18n-placeholder="signup.username.ph"
                   placeholder="johndoe" />
               </div>
-              <p class="auth-field-hint">Letters, numbers, underscore.</p>
+              <p class="auth-field-hint" data-i18n="signup.username.hint">Letters, numbers, underscore.</p>
             </div>
 
             <!-- Email -->
@@ -250,7 +251,7 @@
               </svg>
               <span class="auth-spinner hidden" id="signupSpinner" aria-hidden="true"></span>
             </button>
-            <p class="auth-microcopy">Free forever · No credit card · Cancel anytime</p>
+            <p class="auth-microcopy" data-i18n="signup.microcopy">Free forever · No credit card · Cancel anytime</p>
 
           </form>
 

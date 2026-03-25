@@ -190,28 +190,59 @@
           <div class="ld-bg-slide ld-bg-slide--active" data-accent="habit">
             <div class="ld-bg-art">
               <svg viewBox="0 0 220 220" fill="none">
-                <rect x="12" y="8" width="196" height="204" rx="22"
-                  fill="rgba(255,255,255,0.025)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-                <rect x="26" y="22" width="95" height="8" rx="4" fill="rgba(255,255,255,0.50)"/>
-                <rect x="26" y="35" width="60" height="5" rx="2.5" fill="rgba(255,255,255,0.17)"/>
-                <rect x="151" y="19" width="50" height="22" rx="11"
-                  fill="rgba(62,207,127,0.09)" stroke="rgba(62,207,127,0.26)" stroke-width="1"/>
-                <path d="M161 33 C161 28.5 164 26 165 24 C165 28 168 29.5 168 33.5 C168 35.5 166 37.5 165 37.5 C163 37.5 161 35.5 161 33Z"
-                  fill="#3ecf7f" fill-opacity="0.85"/>
-                <circle cx="38" cy="70" r="13" fill="rgba(62,207,127,0.11)" stroke="#3ecf7f" stroke-width="1.8"/>
-                <path d="M32 70l5 6.5 9-13" stroke="#3ecf7f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-                <rect x="62" y="65" width="94" height="6" rx="3" fill="rgba(255,255,255,0.54)"/>
-                <circle cx="38" cy="106" r="13" fill="rgba(62,207,127,0.11)" stroke="#3ecf7f" stroke-width="1.8"/>
-                <path d="M32 106l5 6.5 9-13" stroke="#3ecf7f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-                <rect x="62" y="101" width="108" height="6" rx="3" fill="rgba(255,255,255,0.54)"/>
-                <circle cx="38" cy="142" r="13" fill="rgba(62,207,127,0.11)" stroke="#3ecf7f" stroke-width="1.8"/>
-                <path d="M32 142l5 6.5 9-13" stroke="#3ecf7f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-                <rect x="62" y="137" width="78" height="6" rx="3" fill="rgba(255,255,255,0.54)"/>
-                <circle cx="38" cy="178" r="13" fill="rgba(255,255,255,0.02)"
-                  stroke="rgba(255,255,255,0.17)" stroke-width="1.8" stroke-dasharray="4 3"/>
-                <rect x="62" y="173" width="86" height="6" rx="3" fill="rgba(255,255,255,0.17)"/>
-                <rect x="26" y="200" width="168" height="5" rx="2.5" fill="rgba(255,255,255,0.05)"/>
-                <rect x="26" y="200" width="126" height="5" rx="2.5" fill="#3ecf7f" fill-opacity="0.55"/>
+                <!-- Ambient green glow behind card -->
+                <ellipse cx="130" cy="95" rx="72" ry="60" fill="rgba(62,207,127,0.09)"/>
+
+                <!-- Glass card -->
+                <rect x="12" y="8" width="196" height="204" rx="20"
+                  fill="rgba(10,30,18,0.62)" stroke="rgba(62,207,127,0.18)" stroke-width="1"/>
+                <!-- Top glass sheen -->
+                <rect x="13" y="9" width="194" height="28" rx="19"
+                  fill="rgba(255,255,255,0.04)"/>
+                <!-- Subtle inner border highlight -->
+                <rect x="13" y="9" width="194" height="203" rx="19"
+                  fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.8"/>
+
+                <!-- Title -->
+                <rect x="26" y="22" width="98" height="8" rx="4" fill="rgba(255,255,255,0.58)"/>
+                <!-- Subtitle -->
+                <rect x="26" y="36" width="62" height="5" rx="2.5" fill="rgba(255,255,255,0.22)"/>
+
+                <!-- Toggle pill (top-right) -->
+                <rect x="148" y="18" width="56" height="22" rx="11"
+                  fill="rgba(62,207,127,0.13)" stroke="rgba(62,207,127,0.38)" stroke-width="1.2"/>
+                <!-- Toggle knob circle -->
+                <circle cx="192" cy="29" r="9" fill="rgba(62,207,127,0.22)" stroke="rgba(62,207,127,0.45)" stroke-width="0.8"/>
+                <!-- Water drop icon inside knob -->
+                <path d="M192 22.5 C192 22.5 187.2 27.8 187.2 31.2 C187.2 33.8 189.3 35.8 192 35.8 C194.7 35.8 196.8 33.8 196.8 31.2 C196.8 27.8 192 22.5 192 22.5Z"
+                  fill="#3ecf7f" fill-opacity="0.92"/>
+
+                <!-- ─── Row 1 · checked ─── -->
+                <circle cx="38" cy="70" r="13" fill="rgba(62,207,127,0.14)" stroke="#3ecf7f" stroke-width="2"/>
+                <!-- Checkmark -->
+                <path d="M31.5 70l5 6.5 9.5-13.5" stroke="#3ecf7f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="62" y="64" width="102" height="7" rx="3.5" fill="rgba(255,255,255,0.56)"/>
+                <rect x="62" y="76" width="66" height="4" rx="2" fill="rgba(255,255,255,0.14)"/>
+
+                <!-- ─── Row 2 · checked ─── -->
+                <circle cx="38" cy="108" r="13" fill="rgba(62,207,127,0.14)" stroke="#3ecf7f" stroke-width="2"/>
+                <path d="M31.5 108l5 6.5 9.5-13.5" stroke="#3ecf7f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="62" y="102" width="114" height="7" rx="3.5" fill="rgba(255,255,255,0.56)"/>
+
+                <!-- ─── Row 3 · checked ─── -->
+                <circle cx="38" cy="144" r="13" fill="rgba(62,207,127,0.14)" stroke="#3ecf7f" stroke-width="2"/>
+                <path d="M31.5 144l5 6.5 9.5-13.5" stroke="#3ecf7f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="62" y="138" width="84" height="7" rx="3.5" fill="rgba(255,255,255,0.56)"/>
+
+                <!-- ─── Row 4 · unchecked ─── -->
+                <circle cx="38" cy="179" r="13" fill="rgba(255,255,255,0.015)"
+                  stroke="rgba(255,255,255,0.22)" stroke-width="1.8"/>
+                <rect x="62" y="174" width="90" height="7" rx="3.5" fill="rgba(255,255,255,0.18)"/>
+
+                <!-- Progress bar track -->
+                <rect x="26" y="202" width="168" height="5" rx="2.5" fill="rgba(255,255,255,0.06)"/>
+                <!-- Progress fill ~75% with glow -->
+                <rect x="26" y="202" width="126" height="5" rx="2.5" fill="#3ecf7f" fill-opacity="0.72"/>
               </svg>
             </div>
           </div>
@@ -220,30 +251,102 @@
           <div class="ld-bg-slide" data-accent="budget">
             <div class="ld-bg-art">
               <svg viewBox="0 0 220 220" fill="none">
-                <rect x="12" y="8" width="196" height="204" rx="22"
-                  fill="rgba(255,255,255,0.025)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-                <rect x="26" y="22" width="82" height="8" rx="4" fill="rgba(255,255,255,0.50)"/>
-                <rect x="138" y="19" width="62" height="22" rx="11"
-                  fill="rgba(62,207,127,0.09)" stroke="rgba(62,207,127,0.26)" stroke-width="1"/>
-                <rect x="150" y="27" width="38" height="6" rx="3" fill="#3ecf7f" fill-opacity="0.58"/>
-                <circle cx="110" cy="112" r="46" stroke="rgba(255,255,255,0.045)" stroke-width="18" fill="none"/>
-                <circle cx="110" cy="112" r="46" stroke="#9a1c1c" stroke-width="18" fill="none"
-                  stroke-linecap="round" stroke-dasharray="159 130" stroke-dashoffset="36"
+                <!-- Ambient red glow -->
+                <ellipse cx="78" cy="50" rx="62" ry="42" fill="rgba(248,113,113,0.09)"/>
+
+                <!-- Glass card -->
+                <rect x="12" y="8" width="196" height="204" rx="20"
+                  fill="rgba(18,8,16,0.75)" stroke="rgba(248,113,113,0.18)" stroke-width="1"/>
+                <!-- Top glass sheen -->
+                <rect x="13" y="9" width="194" height="30" rx="19"
+                  fill="rgba(255,255,255,0.04)"/>
+                <!-- Inner border -->
+                <rect x="13" y="9" width="194" height="203" rx="19"
+                  fill="none" stroke="rgba(255,255,255,0.045)" stroke-width="0.8"/>
+
+                <!-- Title -->
+                <rect x="26" y="22" width="84" height="8" rx="4" fill="rgba(255,255,255,0.55)"/>
+                <!-- Subtitle lines -->
+                <rect x="26" y="36" width="54" height="4.5" rx="2" fill="rgba(255,255,255,0.20)"/>
+                <rect x="26" y="45" width="38" height="3.5" rx="1.8" fill="rgba(255,255,255,0.12)"/>
+
+                <!-- Toggle pill (top-right) — red with ↑ → icons -->
+                <rect x="146" y="18" width="58" height="22" rx="11"
+                  fill="rgba(185,28,28,0.88)" stroke="rgba(248,113,113,0.55)" stroke-width="1.1"/>
+                <!-- Up arrow -->
+                <path d="M160 33 L160 25 M157 28 L160 25 L163 28"
+                  stroke="rgba(255,255,255,0.92)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Separator -->
+                <line x1="168.5" y1="22" x2="168.5" y2="38" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+                <!-- Right arrow -->
+                <path d="M173 29 L181 29 M178 26 L181 29 L178 32"
+                  stroke="rgba(255,255,255,0.92)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+
+                <!-- ── Donut chart ── c=(110,112) r=46 C≈289 ── -->
+                <!-- Track -->
+                <circle cx="110" cy="112" r="46" stroke="rgba(255,255,255,0.04)" stroke-width="18" fill="none"/>
+
+                <!-- Red glow halo -->
+                <circle cx="110" cy="112" r="46"
+                  stroke="rgba(248,113,113,0.22)" stroke-width="28" fill="none"
+                  stroke-dasharray="89 200" stroke-dashoffset="72"
                   transform="rotate(-90 110 112)"/>
-                <circle cx="110" cy="112" r="46" stroke="#60a5fa" stroke-width="18" fill="none"
-                  stroke-linecap="round" stroke-dasharray="73 216" stroke-dashoffset="-123"
+
+                <!-- Red segment: starts at 9 o'clock (~217u), len=89u (~111°) -->
+                <circle cx="110" cy="112" r="46"
+                  stroke="#f87171" stroke-width="18" fill="none" stroke-linecap="butt"
+                  stroke-dasharray="89 200" stroke-dashoffset="72"
                   transform="rotate(-90 110 112)"/>
-                <circle cx="110" cy="112" r="46" stroke="#3ecf7f" stroke-width="18" fill="none"
-                  stroke-linecap="round" stroke-dasharray="58 231" stroke-dashoffset="-196"
+
+                <!-- Teal segment: starts at ~22u (~28°, just past 12), len=52u (~65°) -->
+                <circle cx="110" cy="112" r="46"
+                  stroke="#6ee7b7" stroke-width="18" fill="none" stroke-linecap="butt"
+                  stroke-dasharray="52 237" stroke-dashoffset="267"
                   transform="rotate(-90 110 112)"/>
-                <rect x="88" y="104" width="44" height="8" rx="4" fill="rgba(255,255,255,0.50)"/>
-                <rect x="96" y="116" width="28" height="5" rx="2.5" fill="rgba(255,255,255,0.20)"/>
-                <rect x="24" y="173" width="10" height="10" rx="3" fill="#9a1c1c" fill-opacity="0.82"/>
-                <rect x="40" y="175" width="52" height="5" rx="2.5" fill="rgba(255,255,255,0.40)"/>
-                <rect x="100" y="173" width="10" height="10" rx="3" fill="#60a5fa" fill-opacity="0.82"/>
-                <rect x="116" y="175" width="42" height="5" rx="2.5" fill="rgba(255,255,255,0.40)"/>
-                <rect x="24" y="191" width="10" height="10" rx="3" fill="#3ecf7f" fill-opacity="0.82"/>
-                <rect x="40" y="193" width="46" height="5" rx="2.5" fill="rgba(255,255,255,0.40)"/>
+
+                <!-- Blue segment: starts at ~80u (~100°, ~3:20), len=52u (~65°) -->
+                <circle cx="110" cy="112" r="46"
+                  stroke="#60a5fa" stroke-width="18" fill="none" stroke-linecap="butt"
+                  stroke-dasharray="52 237" stroke-dashoffset="209"
+                  transform="rotate(-90 110 112)"/>
+
+                <!-- Purple/indigo segment: starts at ~138u (~172°, ~5:45), len=37u (~46°) -->
+                <circle cx="110" cy="112" r="46"
+                  stroke="#818cf8" stroke-width="18" fill="none" stroke-linecap="butt"
+                  stroke-dasharray="37 252" stroke-dashoffset="151"
+                  transform="rotate(-90 110 112)"/>
+
+                <!-- ── Legend (bottom-left) ── -->
+                <circle cx="29" cy="174" r="4.5" fill="#f87171"/>
+                <rect x="39" y="170" width="50" height="5.5" rx="2.8" fill="rgba(255,255,255,0.42)"/>
+                <circle cx="29" cy="186" r="4.5" fill="#6ee7b7"/>
+                <rect x="39" y="182" width="44" height="5.5" rx="2.8" fill="rgba(255,255,255,0.36)"/>
+                <circle cx="29" cy="198" r="4.5" fill="#60a5fa"/>
+                <rect x="39" y="194" width="36" height="5.5" rx="2.8" fill="rgba(255,255,255,0.30)"/>
+
+                <!-- ── Bar chart (bottom-right) bottom=203 ── -->
+                <rect x="110" y="197" width="9" height="6"  rx="3.5" fill="#f87171" fill-opacity="0.50"/>
+                <rect x="122" y="192" width="9" height="11" rx="3.5" fill="#f87171" fill-opacity="0.65"/>
+                <rect x="134" y="185" width="9" height="18" rx="4"   fill="#f87171" fill-opacity="0.80"/>
+                <rect x="146" y="180" width="9" height="23" rx="4"   fill="#ef4444" fill-opacity="0.92"/>
+                <rect x="158" y="184" width="9" height="19" rx="3.5" fill="#f87171" fill-opacity="0.78"/>
+                <rect x="170" y="187" width="9" height="16" rx="3.5" fill="#6ee7b7" fill-opacity="0.80"/>
+                <rect x="182" y="193" width="9" height="10" rx="3.5" fill="#60a5fa" fill-opacity="0.65"/>
+
+                <!-- Date axis -->
+                <line x1="26" y1="208" x2="194" y2="208" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                <rect x="26"  y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="40"  y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="54"  y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="68"  y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="82"  y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="96"  y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="110" y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="124" y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="138" y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="152" y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="166" y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="180" y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
               </svg>
             </div>
           </div>
@@ -252,22 +355,95 @@
           <div class="ld-bg-slide" data-accent="sleep">
             <div class="ld-bg-art">
               <svg viewBox="0 0 220 220" fill="none">
-                <circle cx="38"  cy="28" r="2.5" fill="#60a5fa" fill-opacity="0.70"/>
-                <circle cx="174" cy="21" r="2"   fill="#60a5fa" fill-opacity="0.50"/>
-                <circle cx="190" cy="56" r="3"   fill="#60a5fa" fill-opacity="0.60"/>
-                <circle cx="22"  cy="64" r="2"   fill="#60a5fa" fill-opacity="0.40"/>
-                <circle cx="160" cy="47" r="1.5" fill="#60a5fa" fill-opacity="0.38"/>
-                <path d="M98 13 C81 13 68 26 68 43 C68 60 81 73 98 73 C107 73 115 69 120 63
-                         C112 59 106 50 106 40 C106 30 112 21 120 17 C115 14 107 13 98 13Z"
-                  fill="rgba(96,165,250,0.14)" stroke="#60a5fa" stroke-width="1.5"/>
-                <path d="M22 176 A88 88 0 0 1 198 176"
-                  stroke="rgba(96,165,250,0.09)" stroke-width="22" fill="none" stroke-linecap="round"/>
-                <path d="M22 176 A88 88 0 0 1 198 176"
-                  stroke="#60a5fa" stroke-width="22" fill="none" stroke-linecap="round" stroke-dasharray="207 69"/>
-                <rect x="77" y="134" width="66" height="30" rx="12"
-                  fill="rgba(96,165,250,0.09)" stroke="rgba(96,165,250,0.20)" stroke-width="1"/>
-                <rect x="87" y="142" width="46" height="7" rx="3.5" fill="#60a5fa" fill-opacity="0.68"/>
-                <rect x="95" y="153" width="30" height="5" rx="2.5" fill="rgba(255,255,255,0.18)"/>
+                <!-- Ambient blue glow -->
+                <ellipse cx="110" cy="75" rx="78" ry="52" fill="rgba(96,165,250,0.08)"/>
+
+                <!-- Glass card -->
+                <rect x="12" y="8" width="196" height="204" rx="20"
+                  fill="rgba(6,14,30,0.72)" stroke="rgba(96,165,250,0.20)" stroke-width="1"/>
+                <!-- Top glass sheen -->
+                <rect x="13" y="9" width="194" height="30" rx="19"
+                  fill="rgba(255,255,255,0.04)"/>
+                <!-- Inner border highlight -->
+                <rect x="13" y="9" width="194" height="203" rx="19"
+                  fill="none" stroke="rgba(255,255,255,0.045)" stroke-width="0.8"/>
+
+                <!-- Title -->
+                <rect x="26" y="22" width="88" height="8" rx="4" fill="rgba(255,255,255,0.55)"/>
+                <!-- Subtitle lines -->
+                <rect x="26" y="36" width="58" height="4.5" rx="2" fill="rgba(255,255,255,0.20)"/>
+                <rect x="26" y="45" width="40" height="3.5" rx="1.8" fill="rgba(255,255,255,0.12)"/>
+
+                <!-- Toggle pill (top-right) with moon -->
+                <rect x="148" y="18" width="56" height="22" rx="11"
+                  fill="rgba(96,165,250,0.13)" stroke="rgba(96,165,250,0.38)" stroke-width="1.2"/>
+                <circle cx="192" cy="29" r="9"
+                  fill="rgba(96,165,250,0.22)" stroke="rgba(96,165,250,0.48)" stroke-width="0.8"/>
+                <!-- Crescent moon path -->
+                <path d="M192 23 C187 23 183 26.5 183 31 C183 35.5 187 39 192 39 C193.2 39 194.3 38.8 195.3 38.3 C193.8 38.7 192.2 38.6 190.7 38 C187.4 36.7 185.2 33.5 185.2 30 C185.2 26.5 187.4 23.5 190.7 22.2 C191.1 22.1 191.5 22 192 22 Z"
+                  fill="#60a5fa" fill-opacity="0.90"/>
+
+                <!-- ── Arc gauge ── center=(110,158) r=80 -->
+                <!-- Outer dotted ring -->
+                <path d="M 22,158 A 88,88 0 0 1 198,158"
+                  stroke="rgba(96,165,250,0.18)" stroke-width="1.2" fill="none"
+                  stroke-dasharray="2.5 4.5"/>
+                <!-- Track (dim) -->
+                <path d="M 30,158 A 80,80 0 0 1 190,158"
+                  stroke="rgba(96,165,250,0.10)" stroke-width="16" fill="none" stroke-linecap="round"/>
+                <!-- Glow halo on fill -->
+                <path d="M 30,158 A 80,80 0 0 1 190,158"
+                  stroke="rgba(147,197,253,0.18)" stroke-width="26" fill="none" stroke-linecap="round"
+                  stroke-dasharray="198 53"/>
+                <!-- Fill arc ~79% -->
+                <path d="M 30,158 A 80,80 0 0 1 190,158"
+                  stroke="#60a5fa" stroke-width="16" fill="none" stroke-linecap="round"
+                  stroke-dasharray="198 53"/>
+
+                <!-- Tick marks (short lines outside arc) -->
+                <!-- θ=180° left -->  <line x1="22" y1="158" x2="28" y2="158" stroke="rgba(96,165,250,0.45)" stroke-width="1.5" stroke-linecap="round"/>
+                <!-- θ=135° -->        <line x1="44" y1="101" x2="48" y2="105" stroke="rgba(96,165,250,0.35)" stroke-width="1.5" stroke-linecap="round"/>
+                <!-- θ=90° top -->     <line x1="110" y1="70" x2="110" y2="76" stroke="rgba(96,165,250,0.45)" stroke-width="1.5" stroke-linecap="round"/>
+                <!-- θ=45° -->         <line x1="176" y1="101" x2="172" y2="105" stroke="rgba(96,165,250,0.35)" stroke-width="1.5" stroke-linecap="round"/>
+                <!-- θ=0° right -->    <line x1="198" y1="158" x2="192" y2="158" stroke="rgba(96,165,250,0.45)" stroke-width="1.5" stroke-linecap="round"/>
+
+                <!-- Center stacked text bars -->
+                <rect x="92" y="122" width="36" height="5" rx="2.5" fill="rgba(255,255,255,0.45)"/>
+                <rect x="87" y="132" width="46" height="5" rx="2.5" fill="rgba(255,255,255,0.28)"/>
+                <rect x="95" y="142" width="30" height="4" rx="2" fill="rgba(255,255,255,0.16)"/>
+
+                <!-- % labels along arc base -->
+                <rect x="22" y="163" width="14" height="3.5" rx="1.8" fill="rgba(255,255,255,0.25)"/>
+                <rect x="46" y="108" width="14" height="3.5" rx="1.8" fill="rgba(255,255,255,0.22)"/>
+                <rect x="103" y="68" width="14" height="3.5" rx="1.8" fill="rgba(255,255,255,0.22)"/>
+                <rect x="160" y="108" width="14" height="3.5" rx="1.8" fill="rgba(255,255,255,0.22)"/>
+                <rect x="184" y="163" width="14" height="3.5" rx="1.8" fill="rgba(255,255,255,0.25)"/>
+
+                <!-- Divider -->
+                <rect x="26" y="167" width="168" height="1" rx="0.5" fill="rgba(255,255,255,0.06)"/>
+
+                <!-- Bottom-left slider -->
+                <rect x="26" y="175" width="74" height="4" rx="2"
+                  fill="rgba(96,165,250,0.10)" stroke="rgba(96,165,250,0.22)" stroke-width="0.8"/>
+                <rect x="26" y="175" width="44" height="4" rx="2" fill="rgba(96,165,250,0.48)"/>
+                <circle cx="70" cy="177" r="5.5"
+                  fill="rgba(30,58,90,0.9)" stroke="#60a5fa" stroke-width="1.2"/>
+
+                <!-- Bottom-right bar chart (bottom-aligned at y=198) -->
+                <rect x="112" y="190" width="6" height="8"  rx="3" fill="#60a5fa" fill-opacity="0.50"/>
+                <rect x="121" y="185" width="6" height="13" rx="3" fill="#60a5fa" fill-opacity="0.60"/>
+                <rect x="130" y="180" width="6" height="18" rx="3" fill="#60a5fa" fill-opacity="0.72"/>
+                <rect x="139" y="176" width="6" height="22" rx="3" fill="#60a5fa" fill-opacity="0.85"/>
+                <rect x="148" y="178" width="6" height="20" rx="3" fill="#60a5fa" fill-opacity="0.80"/>
+                <rect x="157" y="175" width="6" height="23" rx="3" fill="#60a5fa" fill-opacity="0.88"/>
+                <rect x="166" y="179" width="6" height="19" rx="3" fill="#60a5fa" fill-opacity="0.75"/>
+                <rect x="175" y="183" width="6" height="15" rx="3" fill="#60a5fa" fill-opacity="0.62"/>
+                <rect x="184" y="188" width="6" height="10" rx="3" fill="#60a5fa" fill-opacity="0.50"/>
+
+                <!-- Dotted bottom separator -->
+                <line x1="26" y1="207" x2="194" y2="207"
+                  stroke="rgba(96,165,250,0.32)" stroke-width="2"
+                  stroke-dasharray="2 5" stroke-linecap="round"/>
               </svg>
             </div>
           </div>
@@ -276,34 +452,117 @@
           <div class="ld-bg-slide" data-accent="mood">
             <div class="ld-bg-art">
               <svg viewBox="0 0 220 220" fill="none">
-                <rect x="12" y="8" width="196" height="204" rx="22"
-                  fill="rgba(255,255,255,0.025)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-                <circle cx="36" cy="88" r="18" fill="rgba(248,113,113,0.09)" stroke="#f87171" stroke-width="1.5"/>
-                <circle cx="30" cy="82" r="2.5" fill="#f87171"/>
-                <circle cx="42" cy="82" r="2.5" fill="#f87171"/>
-                <path d="M30 95 Q36 91 42 95" stroke="#f87171" stroke-width="2" stroke-linecap="round" fill="none"/>
-                <circle cx="80" cy="88" r="18" fill="rgba(251,191,36,0.09)" stroke="#fbbf24" stroke-width="1.5"/>
-                <circle cx="74" cy="82" r="2.5" fill="#fbbf24"/>
-                <circle cx="86" cy="82" r="2.5" fill="#fbbf24"/>
-                <line x1="74" y1="93" x2="86" y2="93" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
-                <circle cx="124" cy="88" r="18" fill="rgba(167,139,250,0.09)" stroke="#a78bfa" stroke-width="1.5"/>
-                <circle cx="118" cy="82" r="2.5" fill="#a78bfa"/>
-                <circle cx="130" cy="82" r="2.5" fill="#a78bfa"/>
-                <path d="M118 91 Q124 97 130 91" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" fill="none"/>
-                <circle cx="182" cy="88" r="24" fill="rgba(62,207,127,0.10)" stroke="#3ecf7f" stroke-width="2.5"/>
-                <circle cx="175" cy="81" r="3" fill="#3ecf7f"/>
-                <circle cx="189" cy="81" r="3" fill="#3ecf7f"/>
-                <path d="M174 91 Q182 100 190 91" stroke="#3ecf7f" stroke-width="2.8" stroke-linecap="round" fill="none"/>
-                <rect x="26" y="124" width="168" height="1" fill="rgba(255,255,255,0.07)"/>
-                <polyline points="26,176 54,169 82,163 110,155 138,147 166,137 194,126"
-                  stroke="rgba(62,207,127,0.22)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="26"  cy="176" r="3.5" fill="#f87171"  fill-opacity="0.58"/>
-                <circle cx="54"  cy="169" r="3.5" fill="#fbbf24"  fill-opacity="0.58"/>
-                <circle cx="82"  cy="163" r="3.5" fill="#fbbf24"  fill-opacity="0.58"/>
-                <circle cx="110" cy="155" r="3.5" fill="#a78bfa"  fill-opacity="0.58"/>
-                <circle cx="138" cy="147" r="3.5" fill="#a78bfa"  fill-opacity="0.58"/>
-                <circle cx="166" cy="137" r="3.5" fill="#3ecf7f"  fill-opacity="0.68"/>
-                <circle cx="194" cy="126" r="5"   fill="#3ecf7f"/>
+                <!-- Ambient purple glow -->
+                <ellipse cx="110" cy="52" rx="74" ry="50" fill="rgba(139,92,246,0.12)"/>
+
+                <!-- Glass card -->
+                <rect x="12" y="8" width="196" height="204" rx="20"
+                  fill="rgba(14,10,26,0.80)" stroke="rgba(139,92,246,0.22)" stroke-width="1"/>
+                <!-- Top glass sheen -->
+                <rect x="13" y="9" width="194" height="30" rx="19"
+                  fill="rgba(255,255,255,0.04)"/>
+                <!-- Inner border -->
+                <rect x="13" y="9" width="194" height="203" rx="19"
+                  fill="none" stroke="rgba(255,255,255,0.045)" stroke-width="0.8"/>
+
+                <!-- Title -->
+                <rect x="26" y="22" width="90" height="8" rx="4" fill="rgba(255,255,255,0.55)"/>
+                <!-- Subtitle -->
+                <rect x="26" y="36" width="60" height="4.5" rx="2" fill="rgba(255,255,255,0.22)"/>
+
+                <!-- Toggle pill (top-right) — purple with ↓ arrow + text -->
+                <rect x="146" y="18" width="58" height="22" rx="11"
+                  fill="rgba(76,29,149,0.75)" stroke="rgba(167,139,250,0.42)" stroke-width="1.2"/>
+                <!-- Down arrow -->
+                <path d="M159 24 L159 33 M156 30.5 L159 33 L162 30.5"
+                  stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Text placeholder -->
+                <rect x="166" y="26" width="30" height="5.5" rx="2.8" fill="rgba(167,139,250,0.50)"/>
+
+                <!-- ── Emoji row ── center y=76, r=18 ── -->
+
+                <!-- Emoji 1: Sad (red) x=46 -->
+                <circle cx="46" cy="76" r="18" fill="rgba(248,113,113,0.06)" stroke="#f87171" stroke-width="1.8"/>
+                <circle cx="40" cy="71" r="2"   fill="#f87171"/>
+                <circle cx="52" cy="71" r="2"   fill="#f87171"/>
+                <path d="M40 83 Q46 78 52 83" stroke="#f87171" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+
+                <!-- Emoji 2: Neutral-sad (amber) x=86 -->
+                <circle cx="86" cy="76" r="18" fill="rgba(251,191,36,0.06)" stroke="#fbbf24" stroke-width="1.8"/>
+                <circle cx="80" cy="71" r="2"   fill="#fbbf24"/>
+                <circle cx="92" cy="71" r="2"   fill="#fbbf24"/>
+                <path d="M80 83 Q86 80 92 83" stroke="#fbbf24" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+
+                <!-- Emoji 3: Neutral (purple) x=126 -->
+                <circle cx="126" cy="76" r="18" fill="rgba(167,139,250,0.06)" stroke="#a78bfa" stroke-width="1.8"/>
+                <circle cx="120" cy="71" r="2"   fill="#a78bfa"/>
+                <circle cx="132" cy="71" r="2"   fill="#a78bfa"/>
+                <line x1="120" y1="83" x2="132" y2="83" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"/>
+
+                <!-- Emoji 4: Happy (bright/selected) x=172 — larger + glowing -->
+                <circle cx="172" cy="76" r="26" fill="rgba(210,220,255,0.04)"/>
+                <circle cx="172" cy="76" r="21" fill="rgba(210,220,255,0.06)"/>
+                <circle cx="172" cy="76" r="18" fill="rgba(210,225,255,0.10)" stroke="rgba(225,235,255,0.92)" stroke-width="2.2"/>
+                <circle cx="166" cy="71" r="2.2" fill="rgba(225,235,255,0.95)"/>
+                <circle cx="178" cy="71" r="2.2" fill="rgba(225,235,255,0.95)"/>
+                <path d="M165 80 Q172 88 179 80" stroke="rgba(225,235,255,0.95)" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+
+                <!-- ── Chart ── bars + trend line ── -->
+
+                <!-- Background vertical bars (semi-transparent purple, rising slightly left→right) -->
+                <rect x="26"  y="120" width="13" height="82" rx="3" fill="rgba(139,92,246,0.07)"/>
+                <rect x="46"  y="117" width="13" height="85" rx="3" fill="rgba(139,92,246,0.08)"/>
+                <rect x="66"  y="114" width="13" height="88" rx="3" fill="rgba(139,92,246,0.09)"/>
+                <rect x="86"  y="111" width="13" height="91" rx="3" fill="rgba(139,92,246,0.10)"/>
+                <rect x="106" y="108" width="13" height="94" rx="3" fill="rgba(139,92,246,0.11)"/>
+                <rect x="126" y="105" width="13" height="97" rx="3" fill="rgba(139,92,246,0.12)"/>
+                <rect x="146" y="102" width="13" height="100" rx="3" fill="rgba(139,92,246,0.13)"/>
+                <rect x="166" y="100" width="13" height="102" rx="3" fill="rgba(139,92,246,0.14)"/>
+                <rect x="184" y="98"  width="10" height="104" rx="3" fill="rgba(139,92,246,0.11)"/>
+
+                <!-- Trend line — soft glow (outer) -->
+                <path d="M 28,194 C 65,194 85,185 108,175 C 130,165 155,153 188,138"
+                  stroke="rgba(167,139,250,0.22)" stroke-width="18" fill="none"
+                  stroke-linecap="round"/>
+                <!-- Mid glow -->
+                <path d="M 28,194 C 65,194 85,185 108,175 C 130,165 155,153 188,138"
+                  stroke="rgba(190,170,255,0.42)" stroke-width="7" fill="none"
+                  stroke-linecap="round"/>
+                <!-- Main line (bright white-purple) -->
+                <path d="M 28,194 C 65,194 85,185 108,175 C 130,165 155,153 188,138"
+                  stroke="rgba(225,218,255,0.92)" stroke-width="1.8" fill="none"
+                  stroke-linecap="round"/>
+
+                <!-- Data point dot halos -->
+                <circle cx="28"  cy="194" r="5.5" fill="rgba(167,139,250,0.28)"/>
+                <circle cx="62"  cy="190" r="5.5" fill="rgba(167,139,250,0.28)"/>
+                <circle cx="90"  cy="183" r="5.5" fill="rgba(167,139,250,0.28)"/>
+                <circle cx="116" cy="174" r="5.5" fill="rgba(167,139,250,0.28)"/>
+                <circle cx="142" cy="163" r="5.5" fill="rgba(167,139,250,0.28)"/>
+                <circle cx="164" cy="152" r="5.5" fill="rgba(167,139,250,0.28)"/>
+                <circle cx="188" cy="138" r="5.5" fill="rgba(167,139,250,0.28)"/>
+                <!-- White center dots -->
+                <circle cx="28"  cy="194" r="2.8" fill="rgba(230,222,255,0.95)"/>
+                <circle cx="62"  cy="190" r="2.8" fill="rgba(230,222,255,0.95)"/>
+                <circle cx="90"  cy="183" r="2.8" fill="rgba(230,222,255,0.95)"/>
+                <circle cx="116" cy="174" r="2.8" fill="rgba(230,222,255,0.95)"/>
+                <circle cx="142" cy="163" r="2.8" fill="rgba(230,222,255,0.95)"/>
+                <circle cx="164" cy="152" r="2.8" fill="rgba(230,222,255,0.95)"/>
+                <circle cx="188" cy="138" r="2.8" fill="rgba(230,222,255,0.95)"/>
+
+                <!-- Date axis labels -->
+                <line x1="26" y1="204" x2="194" y2="204" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                <rect x="26"  y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="41"  y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="56"  y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="71"  y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="86"  y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="101" y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="116" y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="131" y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="146" y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="161" y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="176" y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
               </svg>
             </div>
           </div>
@@ -312,33 +571,60 @@
           <div class="ld-bg-slide" data-accent="plan">
             <div class="ld-bg-art">
               <svg viewBox="0 0 220 220" fill="none">
-                <rect x="12" y="8" width="196" height="204" rx="22"
-                  fill="rgba(255,255,255,0.025)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-                <rect x="26" y="22" width="104" height="8" rx="4" fill="rgba(255,255,255,0.50)"/>
-                <circle cx="188" cy="30" r="14" fill="rgba(248,113,113,0.10)" stroke="#f87171" stroke-width="1.2"/>
-                <line x1="181" y1="30" x2="195" y2="30" stroke="#f87171" stroke-width="2.2" stroke-linecap="round"/>
-                <line x1="188" y1="23" x2="188" y2="37" stroke="#f87171" stroke-width="2.2" stroke-linecap="round"/>
-                <rect x="24" y="53" width="172" height="32" rx="12"
-                  fill="rgba(255,255,255,0.035)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
-                <circle cx="54" cy="69" r="9" fill="rgba(62,207,127,0.11)" stroke="#3ecf7f" stroke-width="1.5"/>
-                <path d="M49 69l4 5.5 8-11.5" stroke="#3ecf7f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <rect x="70" y="64" width="86" height="6" rx="3" fill="rgba(255,255,255,0.35)"/>
-                <rect x="24" y="94" width="172" height="32" rx="12"
-                  fill="rgba(255,255,255,0.035)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
-                <circle cx="54" cy="110" r="9" fill="rgba(96,165,250,0.10)"
-                  stroke="#60a5fa" stroke-width="1.5" stroke-dasharray="3 2.5"/>
-                <rect x="70" y="105" width="100" height="6" rx="3" fill="rgba(255,255,255,0.55)"/>
-                <rect x="24" y="135" width="172" height="32" rx="12"
-                  fill="rgba(255,255,255,0.035)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
-                <circle cx="54" cy="151" r="9" fill="transparent" stroke="rgba(255,255,255,0.16)" stroke-width="1.5"/>
-                <rect x="70" y="146" width="72" height="6" rx="3" fill="rgba(255,255,255,0.55)"/>
-                <rect x="24" y="178" width="172" height="22" rx="11"
-                  fill="rgba(248,113,113,0.06)" stroke="rgba(248,113,113,0.17)" stroke-width="1"/>
-                <circle cx="44" cy="189" r="8" fill="none" stroke="#f87171" stroke-width="2"
-                  stroke-dasharray="30 20" transform="rotate(-90 44 189)"/>
-                <rect x="58" y="185" width="52" height="5" rx="2.5" fill="rgba(255,255,255,0.40)"/>
-                <rect x="138" y="182" width="46" height="12" rx="6"
-                  fill="rgba(248,113,113,0.16)" stroke="rgba(248,113,113,0.26)" stroke-width="1"/>
+                <!-- Ambient amber glow -->
+                <ellipse cx="110" cy="48" rx="72" ry="46" fill="rgba(245,158,11,0.10)"/>
+
+                <!-- Glass card -->
+                <rect x="12" y="8" width="196" height="204" rx="20"
+                  fill="rgba(20,13,4,0.78)" stroke="rgba(245,158,11,0.22)" stroke-width="1"/>
+                <!-- Top glass sheen -->
+                <rect x="13" y="9" width="194" height="30" rx="19"
+                  fill="rgba(255,255,255,0.04)"/>
+                <!-- Inner border -->
+                <rect x="13" y="9" width="194" height="203" rx="19"
+                  fill="none" stroke="rgba(255,255,255,0.045)" stroke-width="0.8"/>
+
+                <!-- Title -->
+                <rect x="26" y="22" width="90" height="8" rx="4" fill="rgba(255,255,255,0.55)"/>
+                <!-- Subtitle lines -->
+                <rect x="26" y="36" width="64" height="4.5" rx="2" fill="rgba(255,255,255,0.22)"/>
+                <rect x="26" y="45" width="44" height="3.5" rx="1.8" fill="rgba(255,255,255,0.12)"/>
+
+                <!-- Toggle pill (top-right) — amber with checkmark -->
+                <rect x="150" y="18" width="54" height="22" rx="11"
+                  fill="rgba(120,58,0,0.82)" stroke="rgba(245,158,11,0.52)" stroke-width="1.2"/>
+                <path d="M167 26 L171 30.5 L179 23"
+                  stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+                <!-- ─── Row 1 · checked checkbox ─── -->
+                <rect x="26" y="62" width="22" height="22" rx="5"
+                  fill="rgba(245,158,11,0.18)" stroke="#f59e0b" stroke-width="1.8"/>
+                <path d="M31 73 L35 77 L43 66"
+                  stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="56" y="68" width="112" height="7" rx="3.5" fill="rgba(255,255,255,0.56)"/>
+                <rect x="56" y="80" width="72" height="4" rx="2" fill="rgba(255,255,255,0.14)"/>
+
+                <!-- ─── Row 2 · checked checkbox ─── -->
+                <rect x="26" y="102" width="22" height="22" rx="5"
+                  fill="rgba(245,158,11,0.18)" stroke="#f59e0b" stroke-width="1.8"/>
+                <path d="M31 113 L35 117 L43 106"
+                  stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="56" y="108" width="98" height="7" rx="3.5" fill="rgba(255,255,255,0.56)"/>
+
+                <!-- ─── Row 3 · empty amber checkbox ─── -->
+                <rect x="26" y="142" width="22" height="22" rx="5"
+                  fill="rgba(245,158,11,0.05)" stroke="rgba(245,158,11,0.60)" stroke-width="1.8"/>
+                <rect x="56" y="148" width="78" height="7" rx="3.5" fill="rgba(255,255,255,0.30)"/>
+
+                <!-- ─── Row 4 · dim empty checkbox ─── -->
+                <rect x="26" y="178" width="22" height="22" rx="5"
+                  fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
+                <rect x="56" y="184" width="60" height="7" rx="3.5" fill="rgba(255,255,255,0.16)"/>
+
+                <!-- Progress bar track -->
+                <rect x="26" y="207" width="168" height="5" rx="2.5" fill="rgba(255,255,255,0.06)"/>
+                <!-- Progress fill ~60% amber -->
+                <rect x="26" y="207" width="100" height="5" rx="2.5" fill="#f59e0b" fill-opacity="0.78"/>
               </svg>
             </div>
           </div>

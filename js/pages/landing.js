@@ -22,6 +22,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let touchStartX = 0;
   let touchStartY = 0;
 
+  /* ── DOM refs (extended) ────────────────────────────── */
+  const visualWrap = document.querySelector(".ld-visual-wrap");
+  const mobMQ      = window.matchMedia("(max-width: 480px)");
+
   /* ── Core: go to slide ───────────────────────────────── */
   function goTo(idx) {
     const next = ((idx % N) + N) % N;
@@ -39,7 +43,47 @@ document.addEventListener("DOMContentLoaded", () => {
     chipNavs[current]?.classList.add("ld-chip-nav--active");
     chipNavs[current]?.setAttribute("aria-selected", "true");
     dots.forEach((d, i) => d.classList.toggle("ld-visual-dot--active", i === current));
+
+    /* Mobile: scroll the strip to center the active card */
+    if (mobMQ.matches && visualWrap) {
+      bgSlides[current].scrollIntoView({
+        behavior: "smooth",
+        block:    "nearest",
+        inline:   "center"
+      });
+    }
   }
+
+  /* ── Mobile scroll → sync active slide ──────────────── */
+  (function initMobileScrollSync() {
+    if (!visualWrap) return;
+    let debounce;
+    visualWrap.addEventListener("scroll", () => {
+      if (!mobMQ.matches) return;
+      clearTimeout(debounce);
+      debounce = setTimeout(() => {
+        const wrapCx = visualWrap.getBoundingClientRect().left + visualWrap.offsetWidth / 2;
+        let best = 0, bestDist = Infinity;
+        bgSlides.forEach((slide, i) => {
+          const r  = slide.getBoundingClientRect();
+          const cx = r.left + r.width / 2;
+          const d  = Math.abs(cx - wrapCx);
+          if (d < bestDist) { bestDist = d; best = i; }
+        });
+        if (best !== current) {
+          bgSlides[current].classList.remove("ld-bg-slide--active");
+          chipNavs[current]?.classList.remove("ld-chip-nav--active");
+          chipNavs[current]?.setAttribute("aria-selected", "false");
+          current = best;
+          bgSlides[current].classList.add("ld-bg-slide--active");
+          chipNavs[current]?.classList.add("ld-chip-nav--active");
+          chipNavs[current]?.setAttribute("aria-selected", "true");
+          dots.forEach((d, i) => d.classList.toggle("ld-visual-dot--active", i === current));
+          stopAuto(); startAuto();
+        }
+      }, 120);
+    }, { passive: true });
+  })();
 
   /* ── Auto-advance ────────────────────────────────────── */
   function startAuto() {
@@ -60,13 +104,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  /* ── Touch swipe ─────────────────────────────────────── */
+  /* ── Touch swipe (desktop/tablet only — mobile uses native scroll) ── */
   document.addEventListener("touchstart", e => {
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
   }, { passive: true });
 
   document.addEventListener("touchend", e => {
+    if (mobMQ.matches) return; /* let native scroll handle mobile */
     const dx = touchStartX - e.changedTouches[0].clientX;
     const dy = touchStartY - e.changedTouches[0].clientY;
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 44) {

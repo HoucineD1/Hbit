@@ -11,3 +11,10 @@
   margin-top: 12px;
   padding-top: 0;
 }
+
+/* On mobile, signup form is longer than login — ensure scroll from top */
+@media (max-width: 768px) {
+  #signupPage .auth-page {
+    justify-content: flex-start;
+  }
+}

@@ -966,26 +966,47 @@
   .auth-page { padding: 36px 68px 64px; }
 }
 
-/* ── Tablet / mid-size (480–960px) ────────────────────── */
+/* ── Tablet / mid-size (480–768px) ────────────────────── */
 @media (max-width: 768px) and (min-width: 481px) {
+  .auth-page {
+    justify-content: flex-start;
+    padding: 20px 32px 48px;
+  }
   .auth-topbar { padding: 16px 24px; }
-  .auth-page   { padding: 20px 32px 48px; }
   .auth-content { max-width: 440px; }
+  .auth-input { height: 48px; font-size: 16px; }
+  .auth-submit-btn { height: 50px; }
 }
 
 /* ── Mobile ─────────────────────────────────────────────── */
 @media (max-width: 480px) {
-  .auth-topbar   { padding: 12px 16px; }
-  .auth-page     { padding: 8px 20px 32px; gap: 12px; }
-  .auth-hero     { padding-bottom: 20px; gap: 6px; }
+  .auth-shell { flex-direction: column; }
+  .auth-form-wrap { min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .auth-page {
+    justify-content: flex-start;
+    padding: 12px 20px 40px;
+    gap: 14px;
+  }
+  .auth-topbar   { padding: 14px 18px; position: sticky; top: 0; z-index: 10; background: inherit; }
+  .auth-hero     { padding-bottom: 18px; gap: 6px; }
   .auth-hero-title { font-size: 22px; }
   .auth-hero-sub   { font-size: 13.5px; }
   .auth-field-row  { grid-template-columns: 1fr; }
-  .auth-input,
-  .auth-submit-btn { font-size: 16px; } /* prevent iOS zoom on focus */
-  .auth-submit-btn { height: 50px; }
+  .auth-input    { height: 50px; font-size: 16px; border-radius: 12px; } /* prevent iOS zoom + bigger touch target */
+  .auth-submit-btn { height: 52px; font-size: 16px; border-radius: 14px; }
   .auth-social   { gap: 8px; }
+  .auth-social-btn { height: 48px; border-radius: 12px; font-size: 14px; }
   .auth-divider  { margin: 14px 0 2px; }
+  .auth-terms    { padding: 12px 14px; font-size: 13px; }
+  .auth-content  { max-width: 100%; }
+  .auth-label    { font-size: 12px; }
+  .auth-field    { gap: 7px; }
+  #signupForm,
+  #loginForm     { gap: 16px; }
+  .auth-bottom-link { margin: 14px 0 0; font-size: 14px; }
+  .auth-page-footer { padding: 12px 0 0; }
+  .auth-close-btn { width: 40px; height: 40px; border-radius: 12px; }
+  .auth-topbar-lang { width: 40px; height: 36px; font-size: 12px; border-radius: 10px; }
 }
 
 /* ── Landscape phones ────────────────────────────────────── */

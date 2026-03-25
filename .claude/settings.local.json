@@ -14,7 +14,22 @@
       "Bash(curl -s \"https://21st.dev/_next/static/css/1852696739ba21ff.css\")",
       "Bash(grep -io \"background[^;]*\\\\|gradient[^;]*\\\\|color:[^;]*\\\\|rgba\\([^\\)]*\\)\\\\|rgb\\([^\\)]*\\)\\\\|#[0-9a-f]\\\\{3,6\\\\}\" \"C:\\\\Users\\\\demxa\\\\.claude\\\\projects\\\\c--Users-demxa-OneDrive-Bureau-Hbit\\\\daa0c385-1fac-4220-af90-79794b5c17fe\\\\tool-results\\\\bcr3xpg2l.txt\")",
       "Bash(curl -s \"https://21st.dev/_next/static/css/6d7e56fbbf71be23.css\")",
-      "Bash(grep -o \"background[^;]*\\\\|gradient[^;]*\\\\|color:[^;]*\\\\|rgba\\([^\\)]*\\)\\\\|rgb\\([^\\)]*\\)\\\\|#[0-9a-f]\\\\{3,6\\\\}\")"
+      "Bash(grep -o \"background[^;]*\\\\|gradient[^;]*\\\\|color:[^;]*\\\\|rgba\\([^\\)]*\\)\\\\|rgb\\([^\\)]*\\)\\\\|#[0-9a-f]\\\\{3,6\\\\}\")",
+      "WebFetch(domain:linear.app)",
+      "WebFetch(domain:vercel.com)",
+      "WebSearch",
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:newzilo.com)",
+      "WebFetch(domain:codepen.io)",
+      "WebFetch(domain:fontofweb.com)",
+      "WebFetch(domain:supabase.com)",
+      "WebFetch(domain:blog.logrocket.com)",
+      "WebFetch(domain:ui.shadcn.com)",
+      "WebFetch(domain:silphiumdesign.com)",
+      "WebFetch(domain:www.learningrobo.com)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git add:*)"
     ]
   }
 }
