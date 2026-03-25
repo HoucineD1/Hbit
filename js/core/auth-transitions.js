@@ -22,12 +22,13 @@ document.addEventListener("DOMContentLoaded", () => {
   selectors.forEach(sel => {
     document.querySelectorAll(sel).forEach(el => {
       el.addEventListener("click", e => {
+        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
         const href = el.getAttribute("href");
         if (!href || href.startsWith("#") ||
             href.startsWith("http")) return;
         e.preventDefault();
         document.body.classList.add("page-exit");
-        setTimeout(() => window.location.href = href, 230);
+        window.setTimeout(() => window.location.assign(href), 230);
       });
     });
   });
