@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ── DOM refs (extended) ────────────────────────────── */
   const visualWrap = document.querySelector(".ld-visual-wrap");
-  const mobMQ      = window.matchMedia("(max-width: 480px)");
+  const mobMQ      = window.matchMedia("(max-width: 9999px)"); /* scroll carousel at all sizes */
 
   /* ── Core: go to slide ───────────────────────────────── */
   function goTo(idx) {
@@ -59,7 +59,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!visualWrap) return;
     let debounce;
     visualWrap.addEventListener("scroll", () => {
-      if (!mobMQ.matches) return;
       clearTimeout(debounce);
       debounce = setTimeout(() => {
         const wrapCx = visualWrap.getBoundingClientRect().left + visualWrap.offsetWidth / 2;
@@ -111,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }, { passive: true });
 
   document.addEventListener("touchend", e => {
-    if (mobMQ.matches) return; /* let native scroll handle mobile */
+    /* native scroll handles the carousel everywhere now */
     const dx = touchStartX - e.changedTouches[0].clientX;
     const dy = touchStartY - e.changedTouches[0].clientY;
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 44) {

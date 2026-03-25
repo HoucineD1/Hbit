@@ -450,30 +450,43 @@
    ══════════════════════════════════════════════════════ */
 
 .ld-visual-wrap {
-  position: relative;
+  display: flex;
+  flex-direction: row;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
   width: 100%;
   max-width: 520px;
-  aspect-ratio: 4 / 5;
-  border-radius: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(8, 10, 20, 0.60);
-  backdrop-filter: blur(32px);
-  -webkit-backdrop-filter: blur(32px);
-  overflow: hidden;
-  box-shadow:
-    0 40px 100px rgba(0, 0, 0, 0.65),
-    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  gap: 14px;
+  padding: 0 10%;
+  height: 380px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
 }
+.ld-visual-wrap::-webkit-scrollbar { display: none; }
 
-/* Carousel slides inside the card */
+/* Carousel slides — inline scroll items */
 .ld-bg-slide {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 1.10s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  flex: 0 0 80%;
+  height: 100%;
+  opacity: 0.5;
+  scroll-snap-align: center;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  transform: scale(0.95);
+  transition: transform 0.35s ease, opacity 0.35s ease, border-color 0.35s ease;
 }
 
-.ld-bg-slide--active { opacity: 1; }
+.ld-bg-slide--active {
+  opacity: 1;
+  transform: scale(1);
+  border-color: rgba(255, 255, 255, 0.16);
+}
 
 /* Per-accent gradient fills the card */
 .ld-bg-slide[data-accent="habit"] {
@@ -514,8 +527,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px;
-  opacity: 0.68;
+  padding: 24px;
+  opacity: 0.78;
   pointer-events: none;
   z-index: 1;
 }
@@ -527,34 +540,14 @@
   max-height: 320px;
 }
 
-/* Bottom gradient */
+/* Bottom gradient — hidden with scroll carousel */
 .ld-visual-fade {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  height: 45%;
-  background: linear-gradient(to top,
-    rgba(7, 9, 15, 0.92) 0%,
-    rgba(7, 9, 15, 0.40) 55%,
-    transparent 100%);
-  pointer-events: none;
-  z-index: 3;
+  display: none;
 }
 
-/* ── Floating widgets ─────────────────────────────────── */
+/* ── Floating widgets — hidden with scroll carousel ─── */
 .ld-widget {
-  position: absolute;
-  z-index: 5;
-  background: rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 16px;
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  animation: ldWidgetFloat 4s ease-in-out infinite;
+  display: none;
 }
 
 @keyframes ldWidgetFloat {
@@ -1252,13 +1245,42 @@
     grid-template-columns: 1fr;
     padding: 56px 36px 48px;
     gap: 40px;
-    text-align: left;
+    text-align: center;
+  }
+
+  .ld-hero-left {
+    align-items: center;
   }
 
   .ld-hero-right {
     max-width: 480px;
     margin: 0 auto;
     width: 100%;
+  }
+
+  .ld-visual-wrap {
+    height: 320px;
+  }
+
+  .ld-sub {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .ld-cta-row {
+    justify-content: center;
+  }
+
+  .ld-stats-row {
+    justify-content: center;
+  }
+
+  .ld-social-proof {
+    justify-content: center;
+  }
+
+  .ld-chips-nav {
+    justify-content: center;
   }
 
   /* Reveal section */
@@ -1336,32 +1358,47 @@
     font-size: 12.5px;
   }
 
+  .ld-main {
+    padding-top: 54px;
+  }
+
   /* Hero */
   .ld-hero {
     grid-template-columns: 1fr;
-    padding: 44px 20px 40px;
-    gap: 32px;
+    padding: 24px 16px 24px;
+    gap: 16px;
+    text-align: center;
   }
 
   .ld-hero-left {
-    gap: 20px;
+    gap: 12px;
+    align-items: center;
   }
 
   .ld-hero-right { order: -1; }
 
   .ld-visual-wrap {
-    aspect-ratio: 4 / 3;
+    height: 260px;
     max-width: 100%;
   }
 
   .ld-h1 {
-    font-size: clamp(32px, 9vw, 52px);
-    line-height: 1.06;
+    font-size: clamp(26px, 7.5vw, 42px);
+    line-height: 1.1;
   }
 
   .ld-sub {
-    font-size: 14.5px;
-    line-height: 1.65;
+    font-size: 13px;
+    line-height: 1.6;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .ld-eyebrow {
+    font-size: 9px;
+    padding: 4px 10px 4px 8px;
+    gap: 6px;
   }
 
   /* Chip nav: single row, horizontal scroll */
@@ -1372,133 +1409,156 @@
     padding-bottom: 4px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    gap: 6px;
+    gap: 5px;
+    justify-content: center;
   }
   .ld-chips-nav::-webkit-scrollbar { display: none; }
-  .ld-chip-nav { flex-shrink: 0; font-size: 11.5px; padding: 5px 11px; }
+  .ld-chip-nav { flex-shrink: 0; font-size: 11px; padding: 4px 10px; }
 
   .ld-cta-row {
-    gap: 10px;
+    gap: 8px;
+    justify-content: center;
+    width: 100%;
   }
 
   .ld-cta-primary {
-    padding: 13px 22px;
-    font-size: 14px;
+    padding: 11px 20px;
+    font-size: 13.5px;
     flex: 1;
     justify-content: center;
   }
 
   .ld-cta-secondary {
-    padding: 13px 18px;
-    font-size: 14px;
+    padding: 11px 16px;
+    font-size: 13.5px;
   }
 
   /* Social proof */
   .ld-social-proof {
-    gap: 10px;
+    gap: 8px;
+    justify-content: center;
   }
 
   .ld-avatar {
-    width: 26px;
-    height: 26px;
-    font-size: 9px;
+    width: 24px;
+    height: 24px;
+    font-size: 8px;
   }
 
   .ld-proof-count {
-    font-size: 11.5px;
+    font-size: 11px;
+  }
+
+  .ld-proof-stars {
+    font-size: 10px;
   }
 
   /* Stats row */
   .ld-stats-row {
-    gap: 12px;
-    padding-top: 16px;
+    gap: 10px;
+    padding-top: 12px;
     flex-wrap: nowrap;
-    justify-content: space-between;
+    justify-content: center;
   }
 
   .ld-stat-value {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .ld-stat-label {
-    font-size: 10px;
+    font-size: 9.5px;
   }
 
   /* Reveal statement */
   .ld-reveal-statement {
-    padding: 56px 20px 44px;
+    padding: 40px 16px 32px;
   }
 
   .ld-reveal-line {
-    font-size: clamp(1.2rem, 5.5vw, 1.6rem);
-    margin-bottom: 4px;
+    font-size: clamp(1rem, 4.5vw, 1.4rem);
+    margin-bottom: 3px;
   }
 
   /* How It Works */
   .ld-how {
-    padding: 52px 20px 52px;
+    padding: 36px 16px 36px;
   }
 
   .ld-how-header {
-    margin-bottom: 44px;
+    margin-bottom: 32px;
   }
 
   .ld-how-title {
-    font-size: clamp(1.5rem, 6vw, 2.2rem);
+    font-size: clamp(1.3rem, 5.5vw, 1.8rem);
   }
 
   .ld-how-steps {
-    gap: 44px;
+    gap: 32px;
   }
 
   .ld-how-step-title {
-    font-size: clamp(1.1rem, 4.5vw, 1.4rem);
+    font-size: clamp(1rem, 4vw, 1.25rem);
+  }
+
+  .ld-how-step-desc {
+    font-size: 13px;
+    line-height: 1.55;
   }
 
   .ld-how-cta {
-    margin-top: 48px;
+    margin-top: 36px;
   }
 
   /* Section breaks */
   .ld-section-break {
-    padding: 52px 20px 44px;
-    gap: 24px;
+    padding: 36px 16px 28px;
+    gap: 16px;
   }
 
   .ld-break-headline {
-    font-size: clamp(1.6rem, 7vw, 2.4rem);
+    font-size: clamp(1.3rem, 6vw, 1.8rem);
     letter-spacing: -0.03em;
+  }
+
+  .ld-break-sub {
+    font-size: 13px;
+    line-height: 1.55;
   }
 
   /* Feature cards */
   .ld-features {
-    padding: 0 20px 56px;
+    padding: 0 16px 40px;
   }
 
   .ld-feat-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 8px;
   }
 
   .ld-feat-card {
-    padding: 20px 16px;
-    gap: 10px;
+    padding: 14px 12px;
+    gap: 8px;
+  }
+
+  .ld-feat-icon {
+    width: 36px;
+    height: 36px;
   }
 
   .ld-feat-title {
-    font-size: 14.5px;
+    font-size: 13px;
   }
 
   .ld-feat-desc {
-    font-size: 12.5px;
-    line-height: 1.55;
+    font-size: 11.5px;
+    line-height: 1.5;
   }
 
   /* Footer */
-  .ld-footer { padding: 44px 20px 0; }
+  .ld-footer { padding: 36px 16px 0; }
   .ld-footer-main {
     grid-template-columns: 1fr 1fr;
-    gap: 32px 24px;
+    gap: 24px 16px;
   }
 
   .ld-footer-col--brand {
@@ -1519,46 +1579,50 @@
 
   /* Hero */
   .ld-hero {
-    padding: 40px 16px 36px;
+    padding: 24px 12px 24px;
   }
 
   .ld-h1 {
-    font-size: clamp(28px, 10vw, 42px);
+    font-size: clamp(24px, 8vw, 36px);
   }
 
-  .ld-eyebrow { font-size: 9.5px; }
-  .ld-sub { font-size: 14px; }
+  .ld-eyebrow { font-size: 8.5px; }
+  .ld-sub { font-size: 12.5px; max-width: 280px; }
 
   .ld-cta-row {
     flex-direction: column;
-    align-items: stretch;
+    align-items: center;
   }
 
   .ld-cta-primary,
   .ld-cta-secondary {
     width: 100%;
+    max-width: 260px;
     text-align: center;
     justify-content: center;
-    padding: 13px 20px;
+    padding: 11px 18px;
   }
 
-  .ld-cta-primary { font-size: 14.5px; }
+  .ld-cta-primary { font-size: 13.5px; }
+  .ld-cta-secondary { font-size: 13px; }
 
   .ld-chips-nav {
-    gap: 5px;
+    gap: 4px;
   }
 
   .ld-chip-nav {
-    font-size: 10.5px;
-    padding: 4px 10px;
+    font-size: 10px;
+    padding: 3px 8px;
   }
 
-  /* Stats row — stack vertically on tiny screens */
+  /* Stats row — center on small phones */
   .ld-stats-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    padding-top: 12px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px 12px;
+    padding-top: 10px;
   }
 
   .ld-stats-sep {
@@ -1569,79 +1633,40 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
   }
 
   .ld-stat-value {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .ld-stat-label {
-    font-size: 11px;
+    font-size: 10px;
     margin: 0;
   }
 
-  /* Hero right: show as mobile swipe carousel */
+  /* Hero right: smaller on mobile */
   .ld-hero-right {
-    display: flex;
-    flex-direction: column;
     width: 100%;
-    gap: 14px;
+    gap: 8px;
     order: -1;
-    margin-bottom: 4px;
   }
 
-  /* Wrap becomes a horizontal scroll strip */
   .ld-visual-wrap {
-    display: flex;
-    flex-direction: row;
-    overflow-x: scroll;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    gap: 12px;
-    padding: 0 12%;
-    aspect-ratio: unset;
-    height: 240px;
-    max-width: 100%;
-    border: none;
-    border-radius: 0;
-    background: transparent;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    box-shadow: none;
+    height: 190px;
+    gap: 10px;
+    padding: 0 8%;
   }
-  .ld-visual-wrap::-webkit-scrollbar { display: none; }
 
-  /* Slides: stack → inline flex items */
   .ld-bg-slide {
-    position: relative;
-    inset: auto;
-    flex: 0 0 76%;
-    height: 100%;
-    opacity: 0.55;
-    scroll-snap-align: center;
-    border-radius: 22px;
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    overflow: hidden;
-    transform: scale(0.94);
-    transition: transform 0.35s ease, opacity 0.35s ease, border-color 0.35s ease;
+    flex: 0 0 74%;
+    border-radius: 18px;
   }
 
-  .ld-bg-slide--active {
-    opacity: 1;
-    transform: scale(1);
-    border-color: rgba(255, 255, 255, 0.16);
-  }
-
-  /* Art & fade adjustments for mobile cards */
   .ld-bg-art {
-    padding: 18px;
-    opacity: 0.82;
+    padding: 14px;
+    opacity: 0.85;
   }
-
-  .ld-visual-fade { display: none; }
 
   /* Dots stay visible below the strip */
   .ld-visual-dots {
@@ -1655,53 +1680,90 @@
   .ld-widget-score { font-size: 22px; }
 
   /* Reveal */
+  .ld-reveal-statement {
+    padding: 28px 12px 24px;
+  }
+
   .ld-reveal-line {
-    font-size: clamp(1.1rem, 5.5vw, 1.4rem);
+    font-size: clamp(0.9rem, 4.5vw, 1.2rem);
   }
 
   /* How It Works */
   .ld-how {
-    padding: 44px 16px 44px;
+    padding: 28px 12px 28px;
   }
 
   .ld-how-header {
-    margin-bottom: 36px;
+    margin-bottom: 24px;
+  }
+
+  .ld-how-title {
+    font-size: clamp(1.1rem, 5vw, 1.5rem);
   }
 
   .ld-how-num {
-    font-size: 9.5px;
+    font-size: 9px;
+  }
+
+  .ld-how-step-title {
+    font-size: clamp(0.9rem, 3.8vw, 1.1rem);
+  }
+
+  .ld-how-step-desc {
+    font-size: 12px;
+  }
+
+  .ld-how-steps {
+    gap: 24px;
   }
 
   /* Feature cards — single column */
   .ld-feat-grid {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 6px;
   }
 
   .ld-feat-card {
     flex-direction: row;
     align-items: flex-start;
-    gap: 14px;
-    padding: 18px 16px;
+    gap: 10px;
+    padding: 12px;
   }
 
   .ld-feat-icon {
     flex-shrink: 0;
     margin-top: 2px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .ld-feat-title { font-size: 12.5px; }
+  .ld-feat-desc { font-size: 11px; }
+
+  .ld-features {
+    padding: 0 12px 28px;
   }
 
   /* Section breaks */
   .ld-section-break {
-    padding: 44px 16px 36px;
+    padding: 28px 12px 24px;
+    gap: 12px;
   }
 
   .ld-break-headline {
-    font-size: clamp(1.5rem, 8vw, 2rem);
+    font-size: clamp(1.2rem, 6.5vw, 1.6rem);
+  }
+
+  .ld-break-sub {
+    font-size: 12px;
   }
 
   /* Footer */
+  .ld-footer { padding: 28px 12px 0; }
+
   .ld-footer-main {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
 
   .ld-footer-col--brand {
