@@ -1,114 +1,272 @@
 /* =========================
-   Hbit — nav.js
-   Sidebar drawer (all screens)
+   Hbit — js/core/nav.js
+   Sidebar controller + swipe gestures
    ========================= */
 (function () {
-  "use strict";
+  var HBIT = (window.HBIT = window.HBIT || {});
+  var MOBILE = 768;
+  var EDGE_ZONE = 28;
+  var VELOCITY_THRESHOLD = 0.35;
+  var SNAP_THRESHOLD = 0.35;
 
-  const HBIT = (window.HBIT = window.HBIT || {});
-  const qsa = HBIT.utils?.qsa || ((s, r = document) => Array.from(r.querySelectorAll(s)));
+  var sidebar, overlay, trigger, closeBtn;
+  var sidebarWidth = 300;
 
-  /* ── Highlight current page in nav ── */
-  function setActive() {
-    const file = (location.pathname || "").toLowerCase().split("/").pop() || "home.html";
-    const map = {
-      "home.html": "overview", "plan.html": "plan", "profile.html": "profile",
-      "budget.html": "budget", "sleep.html": "sleep", "mood.html": "mood",
-      "habits.html": "habits", "focus.html": "focus",
-    };
-    const key = map[file] || "";
-    if (!key) return;
-    qsa(".bottom-nav .nav-item").forEach((a) => {
-      const on = (a.getAttribute("data-nav") || "") === key;
-      a.classList.toggle("active", on);
-      a.setAttribute("aria-current", on ? "page" : "false");
-    });
+  function isMobile() {
+    return window.innerWidth < MOBILE;
   }
 
-  /* ── Build drawer chrome + wire events ── */
-  function init() {
-    const nav = document.querySelector(".bottom-nav");
-    if (!nav || document.getElementById("navMenuBtn")) return;
+  function getSidebarWidth() {
+    return sidebar ? sidebar.offsetWidth : 300;
+  }
 
+  /* ── Open / Close (class-based, with transitions) ── */
+  function open() {
+    document.body.classList.add("nav-open");
+    sidebar && sidebar.setAttribute("aria-hidden", "false");
+    trigger && trigger.setAttribute("aria-expanded", "true");
+    clearInlineTransform();
+  }
+
+  function close() {
     document.body.classList.remove("nav-open");
-    document.body.classList.remove("nav-collapsed");
-    try { localStorage.removeItem("hbit:nav-collapsed"); } catch (_) {}
+    sidebar && sidebar.setAttribute("aria-hidden", "true");
+    trigger && trigger.setAttribute("aria-expanded", "false");
+    clearInlineTransform();
+  }
 
-    /* Overlay */
-    const overlay = document.createElement("div");
-    overlay.className = "nav-overlay";
-    overlay.setAttribute("role", "button");
-    overlay.setAttribute("aria-label", "Close menu");
-    overlay.setAttribute("tabindex", "-1");
-    document.body.appendChild(overlay);
+  function clearInlineTransform() {
+    if (sidebar) sidebar.style.transform = "";
+    if (overlay) overlay.style.opacity = "";
+  }
 
-    /* Drawer header (brand + close) */
-    if (!nav.querySelector(".nav-drawer-head")) {
-      const head = document.createElement("div");
-      head.className = "nav-drawer-head";
-      head.innerHTML =
-        '<div class="nav-drawer-brand">' +
-          '<div class="nav-drawer-mark" aria-hidden="true">H</div>' +
-          '<span class="nav-drawer-title">Hbit</span>' +
-        '</div>' +
-        '<button class="nav-close-btn" id="navCloseBtn" type="button" aria-label="Close sidebar">' +
-          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
-        '</button>';
-      nav.insertBefore(head, nav.firstChild);
+  function toggle() {
+    if (isMobile()) {
+      document.body.classList.contains("nav-open") ? close() : open();
+    } else {
+      document.body.classList.toggle("sb-collapsed");
+      var collapsed = document.body.classList.contains("sb-collapsed");
+      try { localStorage.setItem("hbit:sb-collapsed", collapsed ? "1" : ""); } catch (_) {}
     }
+  }
 
-    /* Hamburger button */
-    const menuBtn = document.createElement("button");
-    menuBtn.id = "navMenuBtn";
-    menuBtn.className = "nav-menu-btn";
-    menuBtn.type = "button";
-    menuBtn.setAttribute("aria-label", "Open menu");
-    menuBtn.setAttribute("aria-expanded", "false");
-    menuBtn.innerHTML =
-      '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
-        '<line x1="3" y1="6" x2="21" y2="6"/>' +
-        '<line x1="3" y1="12" x2="21" y2="12"/>' +
-        '<line x1="3" y1="18" x2="21" y2="18"/>' +
-      '</svg>';
-    document.body.appendChild(menuBtn);
+  /* ── Active page highlight ── */
+  function setActive() {
+    if (!sidebar) return;
+    var path = location.pathname.split("/").pop() || "home.html";
+    sidebar.querySelectorAll(".sb-item[data-page]").forEach(function (el) {
+      if (el.dataset.page === path) {
+        el.setAttribute("aria-current", "page");
+      } else {
+        el.removeAttribute("aria-current");
+      }
+    });
+  }
 
-    const closeBtn = document.getElementById("navCloseBtn");
-
-    /* ── Open / close helpers ── */
-    function open() {
-      document.body.classList.add("nav-open");
-      menuBtn.setAttribute("aria-expanded", "true");
-    }
-
-    function close() {
+  /* ── Resize handler ── */
+  function handleResize() {
+    if (!isMobile()) {
       document.body.classList.remove("nav-open");
-      menuBtn.setAttribute("aria-expanded", "false");
+      sidebar && sidebar.setAttribute("aria-hidden", "false");
+    } else {
+      if (!document.body.classList.contains("nav-open")) {
+        sidebar && sidebar.setAttribute("aria-hidden", "true");
+      }
     }
-
-    /* ── Event wiring ── */
-    menuBtn.addEventListener("click", (e) => { e.stopPropagation(); open(); });
-
-    if (closeBtn) {
-      closeBtn.addEventListener("click", (e) => { e.stopPropagation(); close(); });
-    }
-
-    overlay.addEventListener("click", (e) => { e.stopPropagation(); close(); });
-
-    qsa(".bottom-nav .nav-item").forEach((el) => {
-      el.addEventListener("click", close);
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && document.body.classList.contains("nav-open")) close();
-    });
+    sidebarWidth = getSidebarWidth();
   }
 
-  /* ── Boot ── */
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
+  /* ═══════════════════════════════════════════════════════
+     SWIPE GESTURE — mobile only
+     Drag from left edge to open, swipe left to close.
+     Sidebar follows the finger in real-time.
+     ═══════════════════════════════════════════════════════ */
+  var touch = {
+    active: false,
+    startX: 0,
+    startY: 0,
+    startTime: 0,
+    currentX: 0,
+    isOpen: false,
+    locked: false
+  };
+
+  function onTouchStart(e) {
+    if (!isMobile() || !sidebar) return;
+
+    var t = e.touches[0];
+    var isOpen = document.body.classList.contains("nav-open");
+
+    if (!isOpen && t.clientX > EDGE_ZONE) return;
+    if (isOpen && t.clientX > sidebarWidth + 20) {
+      return;
+    }
+
+    touch.active = true;
+    touch.startX = t.clientX;
+    touch.startY = t.clientY;
+    touch.startTime = Date.now();
+    touch.currentX = t.clientX;
+    touch.isOpen = isOpen;
+    touch.locked = false;
   }
 
-  HBIT.nav = { setActive, init };
+  function onTouchMove(e) {
+    if (!touch.active) return;
+
+    var t = e.touches[0];
+    var dx = t.clientX - touch.startX;
+    var dy = t.clientY - touch.startY;
+
+    if (!touch.locked) {
+      if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 10) {
+        touch.active = false;
+        return;
+      }
+      if (Math.abs(dx) > 8) {
+        touch.locked = true;
+        document.body.classList.add("sb-dragging");
+        sidebarWidth = getSidebarWidth();
+      } else {
+        return;
+      }
+    }
+
+    touch.currentX = t.clientX;
+
+    var offset;
+    if (touch.isOpen) {
+      offset = Math.min(0, dx);
+      var pct = 1 + (offset / sidebarWidth);
+      pct = Math.max(0, Math.min(1, pct));
+      sidebar.style.transform = "translateX(" + (offset) + "px)";
+      if (overlay) overlay.style.opacity = pct;
+    } else {
+      offset = Math.min(t.clientX, sidebarWidth);
+      var translate = -sidebarWidth + offset;
+      translate = Math.min(0, translate);
+      var pctOpen = offset / sidebarWidth;
+      pctOpen = Math.max(0, Math.min(1, pctOpen));
+      sidebar.style.transform = "translateX(" + translate + "px)";
+      if (overlay) {
+        overlay.style.visibility = "visible";
+        overlay.style.pointerEvents = "auto";
+        overlay.style.opacity = pctOpen;
+      }
+    }
+
+    if (touch.locked) {
+      e.preventDefault();
+    }
+  }
+
+  function onTouchEnd() {
+    if (!touch.active || !touch.locked) {
+      touch.active = false;
+      return;
+    }
+
+    document.body.classList.remove("sb-dragging");
+
+    var dx = touch.currentX - touch.startX;
+    var dt = (Date.now() - touch.startTime) / 1000;
+    var velocity = dt > 0 ? dx / dt / sidebarWidth : 0;
+
+    if (touch.isOpen) {
+      var shouldClose = velocity < -VELOCITY_THRESHOLD || (dx < 0 && Math.abs(dx) > sidebarWidth * SNAP_THRESHOLD);
+      if (shouldClose) {
+        close();
+      } else {
+        open();
+      }
+    } else {
+      var progress = Math.min(touch.currentX, sidebarWidth) / sidebarWidth;
+      var shouldOpen = velocity > VELOCITY_THRESHOLD || progress > SNAP_THRESHOLD;
+      if (shouldOpen) {
+        open();
+      } else {
+        close();
+      }
+    }
+
+    if (overlay) {
+      overlay.style.visibility = "";
+      overlay.style.pointerEvents = "";
+    }
+
+    touch.active = false;
+    touch.locked = false;
+  }
+
+  /* ── Init ── */
+  function init() {
+    sidebar  = document.querySelector(".sb");
+    overlay  = document.querySelector(".sb-overlay");
+    trigger  = document.querySelector(".sb-trigger");
+    closeBtn = document.querySelector(".sb-close");
+
+    if (!sidebar) return;
+
+    document.body.classList.add("has-sidebar");
+    sidebarWidth = getSidebarWidth();
+
+    var collapseBtn = document.querySelector(".sb-collapse");
+
+    if (trigger)    trigger.addEventListener("click", toggle);
+    if (closeBtn)   closeBtn.addEventListener("click", close);
+    if (collapseBtn) collapseBtn.addEventListener("click", function () {
+      document.body.classList.add("sb-collapsed");
+      try { localStorage.setItem("hbit:sb-collapsed", "1"); } catch (_) {}
+    });
+    if (overlay)    overlay.addEventListener("click", close);
+
+    sidebar.querySelectorAll(".sb-item[data-page]").forEach(function (el) {
+      el.addEventListener("click", function () {
+        if (isMobile()) close();
+      });
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && document.body.classList.contains("nav-open")) {
+        close();
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "b") {
+        e.preventDefault();
+        toggle();
+      }
+    });
+
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    document.addEventListener("touchmove", onTouchMove, { passive: false });
+    document.addEventListener("touchend", onTouchEnd, { passive: true });
+    document.addEventListener("touchcancel", onTouchEnd, { passive: true });
+
+    var logoutBtn = document.getElementById("sbLogout");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", function () {
+        if (typeof firebase !== "undefined" && firebase.auth) {
+          firebase.auth().signOut().then(function () {
+            window.location.href = "index.html";
+          }).catch(function () {
+            window.location.href = "index.html";
+          });
+        } else {
+          window.location.href = "index.html";
+        }
+      });
+    }
+
+    window.addEventListener("resize", handleResize);
+
+    var saved = "";
+    try { saved = localStorage.getItem("hbit:sb-collapsed"); } catch (_) {}
+    if (saved === "1" && !isMobile()) {
+      document.body.classList.add("sb-collapsed");
+    }
+
+    setActive();
+    handleResize();
+  }
+
+  HBIT.nav = { init: init, setActive: setActive, open: open, close: close, toggle: toggle };
 })();

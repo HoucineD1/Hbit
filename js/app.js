@@ -19,7 +19,7 @@
     HBIT.theme?.bind?.();
     HBIT.i18n?.apply?.(document);
     HBIT.i18n?.bind?.();
-    HBIT.nav?.setActive?.();
+    HBIT.nav?.init?.();
     initByBodyId();
   }
 

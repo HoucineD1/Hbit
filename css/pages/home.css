@@ -311,15 +311,11 @@ a.hc-card:active {
   box-shadow: none;
 }
 
-/* Mood card wrapper: card + suggestions row */
+/* Mood card wrapper: transparent grid child, stretches to row */
 .hc-card--mood-wrap {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  padding: 0;
-  background: transparent;
-  border: none;
-  cursor: default;
+  min-height: 0;
 }
 .hc-card--mood-wrap .hc-card--link {
   flex: 1;
@@ -645,7 +641,10 @@ a.hc-card:hover .hc-chevron {
 
 #moodSparkLine {
   stroke: var(--hc-mood);
-  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--hc-mood) 65%, transparent));
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--hc-mood) 55%, transparent));
+}
+.hc-spark-area {
+  transition: opacity 0.3s ease;
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -675,7 +674,7 @@ a.hc-card:hover .hc-chevron {
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .hc-prog-fill[data-module="schedule"] {
-  background: linear-gradient(90deg, var(--hc-schedule), #38bdf8);
+  background: linear-gradient(90deg, var(--hc-plan), #38bdf8);
   box-shadow: 0 0 8px rgba(34, 211, 238, 0.4);
 }
 

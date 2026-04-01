@@ -167,9 +167,9 @@
     const data = (values || []).slice(-7);
     while (data.length < 7) data.unshift(null);
 
-    const width = 56;
-    const height = 28;
-    const pad = 4;
+    const width = 60;
+    const height = 30;
+    const pad = 5;
     const stepX = (width - pad * 2) / (data.length - 1);
 
     const points = data
@@ -190,7 +190,7 @@
     if (!area) {
       area = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
       area.setAttribute("class", "hc-spark-area");
-      area.style.fill = "rgba(167,139,250,0.10)";
+      area.style.fill = "rgba(167,139,250,0.12)";
       svg.insertBefore(area, line);
     }
 

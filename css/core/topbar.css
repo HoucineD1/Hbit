@@ -188,12 +188,3 @@
     gap: 7px;
   }
 }
-
-/* ── Desktop sidebar active: hide brand from topbar  */
-/* (sidebar shows a brand mark; topbar brand is redundant) */
-@media (min-width: 980px) {
-  body:has(.bottom-nav) .brand {
-    /* Keep it visible — topbar brand is useful for branding */
-    opacity: 1;
-  }
-}

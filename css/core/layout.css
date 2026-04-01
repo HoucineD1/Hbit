@@ -39,7 +39,7 @@
   .span-home { grid-column: span 12; }
 }
 
-/* ── Desktop: no more bottom-nav padding ──────────── */
+/* ── Desktop padding ──────────────────────────────── */
 @media (min-width: 980px) {
   .container {
     padding-bottom: 48px;
