@@ -1,0 +1,34 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Reusable predicates ─────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // ── /users/{userId} — profile doc + ALL subcollections ──────
+    //    Pattern: /users/{uid}/habits, /habitLogs, /budgetEntries,
+    //             /budgetGoals, /sleepLogs, /moodLogs,
+    //             /habitOnboarding, and any future subcollection.
+    //
+    //    Rules do NOT require a "userId" field inside documents.
+    //    Ownership is proved by the path alone.
+    match /users/{userId} {
+      allow read, create, update, delete: if isOwner(userId);
+
+      match /{documentPath=**} {
+        allow read, create, update, delete: if isOwner(userId);
+      }
+    }
+
+    // ── Deny everything else ────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

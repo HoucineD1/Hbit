@@ -1,0 +1,16 @@
+/* =====================================================================
+   Hbit — js/core/db.js
+   Firestore data layer — all data stored under /users/{uid}/…
+
+   NEW STRUCTURE (subcollections — no top-level collections):
+   ───────────────────────────────────────────────────────────────────
+   /users/{uid}                        ← profile doc
+   /users/{uid}/habits/{habitId}       ← habit definitions
+   /users/{uid}/habitLogs/{logId}      ← daily completion records
+   /users/{uid}/budgetEntries/{id}     ← income & expense transactions
+   /users/{uid}/budgetGoals/{YYYY-MM}  ← monthly budget targets
+   /users/{uid}/sleepLogs/{YYYY-MM-DD} ← nightly sleep records
+   /users/{uid}/moodLogs/{YYYY-MM-DD}  ← daily mood / energy / stress
+
+   KEY CHANGES vs. previous version:
+   • All data lives under /users/{uid}/...  (no top-level collections)

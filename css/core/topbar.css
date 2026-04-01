@@ -1,0 +1,199 @@
+/* =========================
+   Hbit — Top bar (header)
+   Responsive: mobile compact  |  desktop full
+   ========================= */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+
+.topbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+/* ── Brand ────────────────────────────────────────── */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 180px;
+  text-decoration: none;
+  transition: opacity 0.14s ease;
+}
+
+.brand:hover { opacity: 0.85; }
+
+.mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-weight: 1000;
+  font-size: 18px;
+  letter-spacing: 0.3px;
+  background: color-mix(in srgb, var(--brand) 18%, var(--panel));
+  border: 1px solid color-mix(in srgb, var(--brand) 28%, var(--border));
+  box-shadow:
+    0 4px 12px color-mix(in srgb, var(--brand) 18%, transparent),
+    0 8px 28px color-mix(in srgb, #000 14%, transparent);
+  flex-shrink: 0;
+  transition: box-shadow 0.18s ease, transform 0.15s ease;
+}
+
+.brand:hover .mark {
+  box-shadow:
+    0 6px 18px color-mix(in srgb, var(--brand) 26%, transparent),
+    0 12px 32px color-mix(in srgb, #000 18%, transparent);
+  transform: translateY(-1px);
+}
+
+.brand .t {
+  font-weight: 1000;
+  letter-spacing: 0.2px;
+  line-height: 1.05;
+}
+
+.brand .s {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+/* ── Center title ─────────────────────────────────── */
+.title {
+  font-weight: 1000;
+  letter-spacing: 0.2px;
+  color: color-mix(in srgb, var(--text) 90%, transparent);
+  text-align: center;
+  flex: 1;
+}
+
+/* ── Actions (right side) ─────────────────────────── */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+  justify-content: flex-end;
+}
+
+/* ── Buttons ──────────────────────────────────────── */
+.btn {
+  -webkit-appearance: none;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 13px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  color: var(--text);
+  font-weight: 1000;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: color-mix(in srgb, var(--panel2) 92%, transparent);
+  border-color: color-mix(in srgb, var(--border) 100%, transparent);
+}
+
+.hint-mini {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+/* ── Avatar ───────────────────────────────────────── */
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-weight: 1000;
+  font-size: 15px;
+  border: 1.5px solid color-mix(in srgb, var(--border) 80%, transparent);
+  background: color-mix(in srgb, var(--panel2) 92%, transparent);
+  box-shadow: 0 4px 14px color-mix(in srgb, #000 14%, transparent);
+  text-decoration: none;
+  color: var(--text);
+  transition: background 0.13s ease, border-color 0.13s ease, box-shadow 0.13s ease;
+}
+
+.avatar:hover {
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  border-color: color-mix(in srgb, var(--border) 120%, transparent);
+  box-shadow: 0 6px 20px color-mix(in srgb, #000 20%, transparent);
+}
+
+/* ── Desktop: hide sidebar brand when topbar shows it  */
+@media (min-width: 980px) {
+  .topbar-inner {
+    padding: 14px 24px;
+  }
+}
+
+/* ── Tablet: hide subtitle + center title ─────────── */
+@media (max-width: 820px) {
+  .title { display: none; }
+  .brand .s { display: none; }
+  .brand { min-width: unset; }
+  .actions { min-width: unset; }
+}
+
+/* ── Mobile: even more compact ────────────────────── */
+@media (max-width: 540px) {
+  .topbar-inner {
+    padding: 10px 16px;
+    gap: 10px;
+  }
+
+  .mark {
+    width: 34px;
+    height: 34px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+
+  .btn {
+    padding: 8px 10px;
+    font-size: 13px;
+    gap: 5px;
+    border-radius: 10px;
+  }
+
+  .avatar {
+    width: 34px;
+    height: 34px;
+    font-size: 14px;
+  }
+
+  .actions {
+    gap: 7px;
+  }
+}
+
+/* ── Desktop sidebar active: hide brand from topbar  */
+/* (sidebar shows a brand mark; topbar brand is redundant) */
+@media (min-width: 980px) {
+  body:has(.bottom-nav) .brand {
+    /* Keep it visible — topbar brand is useful for branding */
+    opacity: 1;
+  }
+}

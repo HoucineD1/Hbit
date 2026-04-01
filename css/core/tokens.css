@@ -1,0 +1,61 @@
+/* Premium fonts — Bricolage Grotesque (display) + Plus Jakarta Sans (body) */
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap");
+
+:root{
+  /* Typography — premium UI */
+  --font-display: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body:    "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-size-xs: 0.75rem;   /* 12px */
+  --font-size-sm: 0.8125rem; /* 13px */
+  --font-size-base: 0.9375rem; /* 15px */
+  --font-size-md: 1rem;      /* 16px */
+  --font-size-lg: 1.125rem;  /* 18px */
+  --font-size-xl: 1.25rem;   /* 20px */
+  --font-size-2xl: 1.5rem;   /* 24px */
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --tracking-tight: -0.02em;
+
+  /* Brand */
+  --brand: #ff4d4d;      /* Hbit scarlet */
+  --radius: 20px;
+  --radius-sm: 12px;
+  --radius-lg: 24px;
+  --shadow: 0 16px 44px color-mix(in srgb, #000 20%, transparent);
+
+  /* Dark theme (default) */
+  --bg: #0b0f16;
+  --panel: #121827;
+  --panel2:#161f33;
+
+  --text: rgba(255,255,255,0.92);
+  --muted: rgba(255,255,255,0.62);
+  --border: rgba(255,255,255,0.12);
+
+  /* Module accents */
+  --habit: #00e676;
+  --budget:#ff4d4d;
+  --sleep: #3aa0ff;
+  --mind:  #7c4dff;
+  --schedule:#00d4ff;
+  --focus: #ffcc00;
+  --quit:  #ff5252;
+}
+
+html[data-theme="light"]{
+  --bg: #f6f7fb;
+  --panel: #ffffff;
+  --panel2:#ffffff;
+
+  --text: rgba(0,0,0,0.88);
+  --muted: rgba(0,0,0,0.56);
+  --border: rgba(0,0,0,0.10);
+
+  --shadow: 0 16px 44px color-mix(in srgb, #000 10%, transparent);
+}

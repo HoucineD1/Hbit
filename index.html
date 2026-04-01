@@ -1,0 +1,963 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- ── Primary Meta ──────────────────────────────────── -->
+  <title>Hbit — Build Better Habits Every Day</title>
+  <meta name="title"       content="Hbit — Build Better Habits Every Day" />
+  <meta name="description" content="Hbit is your all-in-one personal dashboard. Track habits, budget, sleep and mood — all in one beautiful dark app built for real life." />
+  <meta name="robots"      content="index, follow" />
+  <link rel="canonical"    href="https://hbit-d62a6.web.app/" />
+
+  <!-- ── Open Graph ────────────────────────────────────── -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://hbit-d62a6.web.app/" />
+  <meta property="og:title"       content="Hbit — Build Better Habits Every Day" />
+  <meta property="og:description" content="Track habits, budget, sleep and mood in one beautiful dashboard." />
+  <meta property="og:image"       content="https://hbit-d62a6.web.app/assets/og-cover.png" />
+
+  <!-- ── Twitter Card ──────────────────────────────────── -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:url"         content="https://hbit-d62a6.web.app/" />
+  <meta name="twitter:title"       content="Hbit — Build Better Habits Every Day" />
+  <meta name="twitter:description" content="Track habits, budget, sleep and mood in one beautiful dashboard." />
+  <meta name="twitter:image"       content="https://hbit-d62a6.web.app/assets/og-cover.png" />
+
+  <!-- ── Schema.org WebApplication ────────────────────── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Hbit",
+    "url": "https://hbit-d62a6.web.app/",
+    "description": "All-in-one personal dashboard for habits, budget, sleep and mood tracking.",
+    "applicationCategory": "LifestyleApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+
+  <!-- ── Styles ─────────────────────────────────────────── -->
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/pages/landing.css" />
+</head>
+
+<body id="landingPage">
+
+  <!-- ══ Ambient glow layers ═════════════════════════════ -->
+  <div class="ld-ambient ld-ambient--tr" aria-hidden="true"></div>
+  <div class="ld-ambient ld-ambient--bl" aria-hidden="true"></div>
+  <div class="ld-grid-overlay" aria-hidden="true"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       HEADER
+       ══════════════════════════════════════════════════════ -->
+  <header class="ld-nav" role="banner">
+    <a class="ld-logo" href="index.html" aria-label="Hbit — go to home">
+      <div class="ld-logo-mark" aria-hidden="true">H</div>
+      <span class="ld-logo-name">Hbit</span>
+    </a>
+
+    <nav class="ld-header-links" aria-label="Site navigation">
+      <button class="ld-nav-icon" id="themeToggle" type="button" aria-label="Toggle theme">
+        <svg class="ld-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <svg class="ld-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+        </svg>
+      </button>
+      <button class="ld-nav-icon" id="langToggle" type="button" aria-label="Toggle language">
+        <span id="langLabel">FR</span>
+      </button>
+      <a class="ld-nav-ghost" href="login.html" data-i18n="landing.nav.signin">Sign in</a>
+      <a class="ld-nav-solid" href="signup.html" data-i18n="landing.nav.signup">Get started</a>
+    </nav>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════
+       MAIN
+       ══════════════════════════════════════════════════════ -->
+  <main class="ld-main">
+
+    <!-- ── HERO: two-column ─────────────────────────────── -->
+    <section class="ld-hero">
+
+      <!-- Left: copy ────────────────────────────────────── -->
+      <div class="ld-hero-left">
+
+        <!-- Eyebrow badge -->
+        <p class="ld-eyebrow">
+          <span class="ld-eyebrow-dot" aria-hidden="true"></span>
+          <span data-i18n="landing.eyebrow">Your life. One dashboard.</span>
+        </p>
+
+        <!-- ── Social proof ─────────────────────────────────── -->
+        <div class="ld-social-proof">
+          <div class="ld-avatars">
+            <span class="ld-avatar" style="background:#3ecf7f;" aria-hidden="true">A</span>
+            <span class="ld-avatar" style="background:#60a5fa;" aria-hidden="true">M</span>
+            <span class="ld-avatar" style="background:#a78bfa;" aria-hidden="true">S</span>
+            <span class="ld-avatar" style="background:#fbbf24;" aria-hidden="true">J</span>
+          </div>
+          <div class="ld-proof-text">
+            <span class="ld-proof-count">Trusted by <strong>10,000+</strong> users</span>
+            <span class="ld-proof-stars" aria-label="Rated 4.8 out of 5">★★★★★ <em>4.8</em></span>
+          </div>
+        </div>
+
+        <!-- Headline -->
+        <h1 class="ld-h1">
+          <span data-i18n="landing.h1.line1">Everything that makes you</span><br>
+          <span class="ld-h1-accent" data-i18n="landing.h1.line2">better. Right here.</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="ld-sub" data-i18n="landing.sub">
+          Six powerful trackers in one seamless dashboard — habits, budget, sleep, mood, focus, and planner. Built for people serious about becoming better.
+        </p>
+
+        <!-- Feature chip nav -->
+        <div class="ld-chips-nav" id="ldChipsNav" role="tablist" aria-label="Feature navigation">
+          <button class="ld-chip-nav ld-chip-nav--active" data-idx="0" data-accent="habit"
+                  type="button" role="tab" aria-selected="true">
+            <span class="ld-chip-dot"></span>
+            <span data-i18n="landing.habit.chip">Habits</span>
+          </button>
+          <button class="ld-chip-nav" data-idx="1" data-accent="budget"
+                  type="button" role="tab" aria-selected="false">
+            <span class="ld-chip-dot"></span>
+            <span data-i18n="landing.budget.chip">Budget</span>
+          </button>
+          <button class="ld-chip-nav" data-idx="2" data-accent="sleep"
+                  type="button" role="tab" aria-selected="false">
+            <span class="ld-chip-dot"></span>
+            <span data-i18n="landing.sleep.chip">Sleep</span>
+          </button>
+          <button class="ld-chip-nav" data-idx="3" data-accent="mood"
+                  type="button" role="tab" aria-selected="false">
+            <span class="ld-chip-dot"></span>
+            <span data-i18n="landing.mood.chip">Mood</span>
+          </button>
+          <button class="ld-chip-nav" data-idx="4" data-accent="plan"
+                  type="button" role="tab" aria-selected="false">
+            <span class="ld-chip-dot"></span>
+            <span data-i18n="landing.plan.chip">Planner</span>
+          </button>
+        </div>
+
+        <!-- CTA buttons -->
+        <div class="ld-cta-row" role="group" aria-label="Get started">
+          <a class="ld-cta-primary" href="signup.html" data-i18n="landing.cta.signup">
+            Start for free
+          </a>
+          <a class="ld-cta-secondary" href="login.html">
+            <span data-i18n="landing.cta.signin">Sign in</span>
+            <span class="ld-cta-arrow" aria-hidden="true">
+              <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                <path d="M2.5 7.5h10M8.5 3.5l4 4-4 4"
+                  stroke="currentColor" stroke-width="1.7"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </a>
+        </div>
+
+        <!-- Stats row -->
+        <div class="ld-stats-row" aria-label="Key statistics">
+          <div class="ld-stat">
+            <span class="ld-stat-value ld-count-up" data-target="10" data-suffix="K+" aria-label="Over 10,000 users worldwide">0K+</span>
+            <span class="ld-stat-label" data-i18n="landing.stat.users">People growing daily</span>
+          </div>
+          <div class="ld-stats-sep" aria-hidden="true"></div>
+          <div class="ld-stat">
+            <span class="ld-stat-value ld-count-up" data-target="6" data-suffix=" modules" aria-label="6 tracking modules">0</span>
+            <span class="ld-stat-label" data-i18n="landing.stat.modules">All in one place</span>
+          </div>
+          <div class="ld-stats-sep" aria-hidden="true"></div>
+          <div class="ld-stat">
+            <span class="ld-stat-value" data-i18n="landing.stat.free.value">Free</span>
+            <span class="ld-stat-label" data-i18n="landing.stat.free.label">No credit card</span>
+          </div>
+        </div>
+
+      </div><!-- /ld-hero-left -->
+
+      <!-- Right: carousel visual ─────────────────────────── -->
+      <div class="ld-hero-right">
+
+        <div class="ld-carousel-wrapper">
+          <button class="ld-carousel-btn ld-carousel-btn--prev" id="carouselPrev" type="button" aria-label="Previous slide">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+        <div class="ld-visual-wrap" role="region" aria-label="Feature preview">
+
+          <!-- ── Slide 0 · Habits ── -->
+          <div class="ld-bg-slide ld-bg-slide--active" data-accent="habit">
+            <div class="ld-bg-art">
+              <svg viewBox="0 0 220 220" fill="none">
+                <!-- Ambient green glow behind card -->
+                <ellipse cx="130" cy="95" rx="72" ry="60" fill="rgba(62,207,127,0.09)"/>
+
+                <!-- Glass card -->
+                <rect x="12" y="8" width="196" height="204" rx="20"
+                  fill="rgba(10,30,18,0.62)" stroke="rgba(62,207,127,0.18)" stroke-width="1"/>
+                <!-- Top glass sheen -->
+                <rect x="13" y="9" width="194" height="28" rx="19"
+                  fill="rgba(255,255,255,0.04)"/>
+                <!-- Subtle inner border highlight -->
+                <rect x="13" y="9" width="194" height="203" rx="19"
+                  fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.8"/>
+
+                <!-- Title -->
+                <rect x="26" y="22" width="98" height="8" rx="4" fill="rgba(255,255,255,0.58)"/>
+                <!-- Subtitle -->
+                <rect x="26" y="36" width="62" height="5" rx="2.5" fill="rgba(255,255,255,0.22)"/>
+
+                <!-- Toggle pill (top-right) -->
+                <rect x="148" y="18" width="56" height="22" rx="11"
+                  fill="rgba(62,207,127,0.13)" stroke="rgba(62,207,127,0.38)" stroke-width="1.2"/>
+                <!-- Toggle knob circle -->
+                <circle cx="192" cy="29" r="9" fill="rgba(62,207,127,0.22)" stroke="rgba(62,207,127,0.45)" stroke-width="0.8"/>
+                <!-- Water drop icon inside knob -->
+                <path d="M192 22.5 C192 22.5 187.2 27.8 187.2 31.2 C187.2 33.8 189.3 35.8 192 35.8 C194.7 35.8 196.8 33.8 196.8 31.2 C196.8 27.8 192 22.5 192 22.5Z"
+                  fill="#3ecf7f" fill-opacity="0.92"/>
+
+                <!-- ─── Row 1 · checked ─── -->
+                <circle cx="38" cy="70" r="13" fill="rgba(62,207,127,0.14)" stroke="#3ecf7f" stroke-width="2"/>
+                <!-- Checkmark -->
+                <path d="M31.5 70l5 6.5 9.5-13.5" stroke="#3ecf7f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="62" y="64" width="102" height="7" rx="3.5" fill="rgba(255,255,255,0.56)"/>
+                <rect x="62" y="76" width="66" height="4" rx="2" fill="rgba(255,255,255,0.14)"/>
+
+                <!-- ─── Row 2 · checked ─── -->
+                <circle cx="38" cy="108" r="13" fill="rgba(62,207,127,0.14)" stroke="#3ecf7f" stroke-width="2"/>
+                <path d="M31.5 108l5 6.5 9.5-13.5" stroke="#3ecf7f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="62" y="102" width="114" height="7" rx="3.5" fill="rgba(255,255,255,0.56)"/>
+
+                <!-- ─── Row 3 · checked ─── -->
+                <circle cx="38" cy="144" r="13" fill="rgba(62,207,127,0.14)" stroke="#3ecf7f" stroke-width="2"/>
+                <path d="M31.5 144l5 6.5 9.5-13.5" stroke="#3ecf7f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="62" y="138" width="84" height="7" rx="3.5" fill="rgba(255,255,255,0.56)"/>
+
+                <!-- ─── Row 4 · unchecked ─── -->
+                <circle cx="38" cy="179" r="13" fill="rgba(255,255,255,0.015)"
+                  stroke="rgba(255,255,255,0.22)" stroke-width="1.8"/>
+                <rect x="62" y="174" width="90" height="7" rx="3.5" fill="rgba(255,255,255,0.18)"/>
+
+                <!-- Progress bar track -->
+                <rect x="26" y="202" width="168" height="5" rx="2.5" fill="rgba(255,255,255,0.06)"/>
+                <!-- Progress fill ~75% with glow -->
+                <rect x="26" y="202" width="126" height="5" rx="2.5" fill="#3ecf7f" fill-opacity="0.72"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- ── Slide 1 · Budget ── -->
+          <div class="ld-bg-slide" data-accent="budget">
+            <div class="ld-bg-art">
+              <svg viewBox="0 0 220 220" fill="none">
+                <!-- Ambient red glow -->
+                <ellipse cx="78" cy="50" rx="62" ry="42" fill="rgba(248,113,113,0.09)"/>
+
+                <!-- Glass card -->
+                <rect x="12" y="8" width="196" height="204" rx="20"
+                  fill="rgba(18,8,16,0.75)" stroke="rgba(248,113,113,0.18)" stroke-width="1"/>
+                <!-- Top glass sheen -->
+                <rect x="13" y="9" width="194" height="30" rx="19"
+                  fill="rgba(255,255,255,0.04)"/>
+                <!-- Inner border -->
+                <rect x="13" y="9" width="194" height="203" rx="19"
+                  fill="none" stroke="rgba(255,255,255,0.045)" stroke-width="0.8"/>
+
+                <!-- Title -->
+                <rect x="26" y="22" width="84" height="8" rx="4" fill="rgba(255,255,255,0.55)"/>
+                <!-- Subtitle lines -->
+                <rect x="26" y="36" width="54" height="4.5" rx="2" fill="rgba(255,255,255,0.20)"/>
+                <rect x="26" y="45" width="38" height="3.5" rx="1.8" fill="rgba(255,255,255,0.12)"/>
+
+                <!-- Toggle pill (top-right) — red with ↑ → icons -->
+                <rect x="146" y="18" width="58" height="22" rx="11"
+                  fill="rgba(185,28,28,0.88)" stroke="rgba(248,113,113,0.55)" stroke-width="1.1"/>
+                <!-- Up arrow -->
+                <path d="M160 33 L160 25 M157 28 L160 25 L163 28"
+                  stroke="rgba(255,255,255,0.92)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Separator -->
+                <line x1="168.5" y1="22" x2="168.5" y2="38" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+                <!-- Right arrow -->
+                <path d="M173 29 L181 29 M178 26 L181 29 L178 32"
+                  stroke="rgba(255,255,255,0.92)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+
+                <!-- ── Donut chart ── c=(110,112) r=46 C≈289 ── -->
+                <!-- Track -->
+                <circle cx="110" cy="112" r="46" stroke="rgba(255,255,255,0.04)" stroke-width="18" fill="none"/>
+
+                <!-- Red glow halo -->
+                <circle cx="110" cy="112" r="46"
+                  stroke="rgba(248,113,113,0.22)" stroke-width="28" fill="none"
+                  stroke-dasharray="89 200" stroke-dashoffset="72"
+                  transform="rotate(-90 110 112)"/>
+
+                <!-- Red segment: starts at 9 o'clock (~217u), len=89u (~111°) -->
+                <circle cx="110" cy="112" r="46"
+                  stroke="#f87171" stroke-width="18" fill="none" stroke-linecap="butt"
+                  stroke-dasharray="89 200" stroke-dashoffset="72"
+                  transform="rotate(-90 110 112)"/>
+
+                <!-- Teal segment: starts at ~22u (~28°, just past 12), len=52u (~65°) -->
+                <circle cx="110" cy="112" r="46"
+                  stroke="#6ee7b7" stroke-width="18" fill="none" stroke-linecap="butt"
+                  stroke-dasharray="52 237" stroke-dashoffset="267"
+                  transform="rotate(-90 110 112)"/>
+
+                <!-- Blue segment: starts at ~80u (~100°, ~3:20), len=52u (~65°) -->
+                <circle cx="110" cy="112" r="46"
+                  stroke="#60a5fa" stroke-width="18" fill="none" stroke-linecap="butt"
+                  stroke-dasharray="52 237" stroke-dashoffset="209"
+                  transform="rotate(-90 110 112)"/>
+
+                <!-- Purple/indigo segment: starts at ~138u (~172°, ~5:45), len=37u (~46°) -->
+                <circle cx="110" cy="112" r="46"
+                  stroke="#818cf8" stroke-width="18" fill="none" stroke-linecap="butt"
+                  stroke-dasharray="37 252" stroke-dashoffset="151"
+                  transform="rotate(-90 110 112)"/>
+
+                <!-- ── Legend (bottom-left) ── -->
+                <circle cx="29" cy="174" r="4.5" fill="#f87171"/>
+                <rect x="39" y="170" width="50" height="5.5" rx="2.8" fill="rgba(255,255,255,0.42)"/>
+                <circle cx="29" cy="186" r="4.5" fill="#6ee7b7"/>
+                <rect x="39" y="182" width="44" height="5.5" rx="2.8" fill="rgba(255,255,255,0.36)"/>
+                <circle cx="29" cy="198" r="4.5" fill="#60a5fa"/>
+                <rect x="39" y="194" width="36" height="5.5" rx="2.8" fill="rgba(255,255,255,0.30)"/>
+
+                <!-- ── Bar chart (bottom-right) bottom=203 ── -->
+                <rect x="110" y="197" width="9" height="6"  rx="3.5" fill="#f87171" fill-opacity="0.50"/>
+                <rect x="122" y="192" width="9" height="11" rx="3.5" fill="#f87171" fill-opacity="0.65"/>
+                <rect x="134" y="185" width="9" height="18" rx="4"   fill="#f87171" fill-opacity="0.80"/>
+                <rect x="146" y="180" width="9" height="23" rx="4"   fill="#ef4444" fill-opacity="0.92"/>
+                <rect x="158" y="184" width="9" height="19" rx="3.5" fill="#f87171" fill-opacity="0.78"/>
+                <rect x="170" y="187" width="9" height="16" rx="3.5" fill="#6ee7b7" fill-opacity="0.80"/>
+                <rect x="182" y="193" width="9" height="10" rx="3.5" fill="#60a5fa" fill-opacity="0.65"/>
+
+                <!-- Date axis -->
+                <line x1="26" y1="208" x2="194" y2="208" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                <rect x="26"  y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="40"  y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="54"  y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="68"  y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="82"  y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="96"  y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="110" y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="124" y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="138" y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="152" y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="166" y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+                <rect x="180" y="211" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.16)"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- ── Slide 2 · Sleep ── -->
+          <div class="ld-bg-slide" data-accent="sleep">
+            <div class="ld-bg-art">
+              <svg viewBox="0 0 220 220" fill="none">
+                <!-- Ambient blue glow -->
+                <ellipse cx="110" cy="75" rx="78" ry="52" fill="rgba(96,165,250,0.08)"/>
+
+                <!-- Glass card -->
+                <rect x="12" y="8" width="196" height="204" rx="20"
+                  fill="rgba(6,14,30,0.72)" stroke="rgba(96,165,250,0.20)" stroke-width="1"/>
+                <!-- Top glass sheen -->
+                <rect x="13" y="9" width="194" height="30" rx="19"
+                  fill="rgba(255,255,255,0.04)"/>
+                <!-- Inner border highlight -->
+                <rect x="13" y="9" width="194" height="203" rx="19"
+                  fill="none" stroke="rgba(255,255,255,0.045)" stroke-width="0.8"/>
+
+                <!-- Title -->
+                <rect x="26" y="22" width="88" height="8" rx="4" fill="rgba(255,255,255,0.55)"/>
+                <!-- Subtitle lines -->
+                <rect x="26" y="36" width="58" height="4.5" rx="2" fill="rgba(255,255,255,0.20)"/>
+                <rect x="26" y="45" width="40" height="3.5" rx="1.8" fill="rgba(255,255,255,0.12)"/>
+
+                <!-- Toggle pill (top-right) with moon -->
+                <rect x="148" y="18" width="56" height="22" rx="11"
+                  fill="rgba(96,165,250,0.13)" stroke="rgba(96,165,250,0.38)" stroke-width="1.2"/>
+                <circle cx="192" cy="29" r="9"
+                  fill="rgba(96,165,250,0.22)" stroke="rgba(96,165,250,0.48)" stroke-width="0.8"/>
+                <!-- Crescent moon path -->
+                <path d="M192 23 C187 23 183 26.5 183 31 C183 35.5 187 39 192 39 C193.2 39 194.3 38.8 195.3 38.3 C193.8 38.7 192.2 38.6 190.7 38 C187.4 36.7 185.2 33.5 185.2 30 C185.2 26.5 187.4 23.5 190.7 22.2 C191.1 22.1 191.5 22 192 22 Z"
+                  fill="#60a5fa" fill-opacity="0.90"/>
+
+                <!-- ── Arc gauge ── center=(110,158) r=80 -->
+                <!-- Outer dotted ring -->
+                <path d="M 22,158 A 88,88 0 0 1 198,158"
+                  stroke="rgba(96,165,250,0.18)" stroke-width="1.2" fill="none"
+                  stroke-dasharray="2.5 4.5"/>
+                <!-- Track (dim) -->
+                <path d="M 30,158 A 80,80 0 0 1 190,158"
+                  stroke="rgba(96,165,250,0.10)" stroke-width="16" fill="none" stroke-linecap="round"/>
+                <!-- Glow halo on fill -->
+                <path d="M 30,158 A 80,80 0 0 1 190,158"
+                  stroke="rgba(147,197,253,0.18)" stroke-width="26" fill="none" stroke-linecap="round"
+                  stroke-dasharray="198 53"/>
+                <!-- Fill arc ~79% -->
+                <path d="M 30,158 A 80,80 0 0 1 190,158"
+                  stroke="#60a5fa" stroke-width="16" fill="none" stroke-linecap="round"
+                  stroke-dasharray="198 53"/>
+
+                <!-- Tick marks (short lines outside arc) -->
+                <!-- θ=180° left -->  <line x1="22" y1="158" x2="28" y2="158" stroke="rgba(96,165,250,0.45)" stroke-width="1.5" stroke-linecap="round"/>
+                <!-- θ=135° -->        <line x1="44" y1="101" x2="48" y2="105" stroke="rgba(96,165,250,0.35)" stroke-width="1.5" stroke-linecap="round"/>
+                <!-- θ=90° top -->     <line x1="110" y1="70" x2="110" y2="76" stroke="rgba(96,165,250,0.45)" stroke-width="1.5" stroke-linecap="round"/>
+                <!-- θ=45° -->         <line x1="176" y1="101" x2="172" y2="105" stroke="rgba(96,165,250,0.35)" stroke-width="1.5" stroke-linecap="round"/>
+                <!-- θ=0° right -->    <line x1="198" y1="158" x2="192" y2="158" stroke="rgba(96,165,250,0.45)" stroke-width="1.5" stroke-linecap="round"/>
+
+                <!-- Center stacked text bars -->
+                <rect x="92" y="122" width="36" height="5" rx="2.5" fill="rgba(255,255,255,0.45)"/>
+                <rect x="87" y="132" width="46" height="5" rx="2.5" fill="rgba(255,255,255,0.28)"/>
+                <rect x="95" y="142" width="30" height="4" rx="2" fill="rgba(255,255,255,0.16)"/>
+
+                <!-- % labels along arc base -->
+                <rect x="22" y="163" width="14" height="3.5" rx="1.8" fill="rgba(255,255,255,0.25)"/>
+                <rect x="46" y="108" width="14" height="3.5" rx="1.8" fill="rgba(255,255,255,0.22)"/>
+                <rect x="103" y="68" width="14" height="3.5" rx="1.8" fill="rgba(255,255,255,0.22)"/>
+                <rect x="160" y="108" width="14" height="3.5" rx="1.8" fill="rgba(255,255,255,0.22)"/>
+                <rect x="184" y="163" width="14" height="3.5" rx="1.8" fill="rgba(255,255,255,0.25)"/>
+
+                <!-- Divider -->
+                <rect x="26" y="167" width="168" height="1" rx="0.5" fill="rgba(255,255,255,0.06)"/>
+
+                <!-- Bottom-left slider -->
+                <rect x="26" y="175" width="74" height="4" rx="2"
+                  fill="rgba(96,165,250,0.10)" stroke="rgba(96,165,250,0.22)" stroke-width="0.8"/>
+                <rect x="26" y="175" width="44" height="4" rx="2" fill="rgba(96,165,250,0.48)"/>
+                <circle cx="70" cy="177" r="5.5"
+                  fill="rgba(30,58,90,0.9)" stroke="#60a5fa" stroke-width="1.2"/>
+
+                <!-- Bottom-right bar chart (bottom-aligned at y=198) -->
+                <rect x="112" y="190" width="6" height="8"  rx="3" fill="#60a5fa" fill-opacity="0.50"/>
+                <rect x="121" y="185" width="6" height="13" rx="3" fill="#60a5fa" fill-opacity="0.60"/>
+                <rect x="130" y="180" width="6" height="18" rx="3" fill="#60a5fa" fill-opacity="0.72"/>
+                <rect x="139" y="176" width="6" height="22" rx="3" fill="#60a5fa" fill-opacity="0.85"/>
+                <rect x="148" y="178" width="6" height="20" rx="3" fill="#60a5fa" fill-opacity="0.80"/>
+                <rect x="157" y="175" width="6" height="23" rx="3" fill="#60a5fa" fill-opacity="0.88"/>
+                <rect x="166" y="179" width="6" height="19" rx="3" fill="#60a5fa" fill-opacity="0.75"/>
+                <rect x="175" y="183" width="6" height="15" rx="3" fill="#60a5fa" fill-opacity="0.62"/>
+                <rect x="184" y="188" width="6" height="10" rx="3" fill="#60a5fa" fill-opacity="0.50"/>
+
+                <!-- Dotted bottom separator -->
+                <line x1="26" y1="207" x2="194" y2="207"
+                  stroke="rgba(96,165,250,0.32)" stroke-width="2"
+                  stroke-dasharray="2 5" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- ── Slide 3 · Mood ── -->
+          <div class="ld-bg-slide" data-accent="mood">
+            <div class="ld-bg-art">
+              <svg viewBox="0 0 220 220" fill="none">
+                <!-- Ambient purple glow -->
+                <ellipse cx="110" cy="52" rx="74" ry="50" fill="rgba(139,92,246,0.12)"/>
+
+                <!-- Glass card -->
+                <rect x="12" y="8" width="196" height="204" rx="20"
+                  fill="rgba(14,10,26,0.80)" stroke="rgba(139,92,246,0.22)" stroke-width="1"/>
+                <!-- Top glass sheen -->
+                <rect x="13" y="9" width="194" height="30" rx="19"
+                  fill="rgba(255,255,255,0.04)"/>
+                <!-- Inner border -->
+                <rect x="13" y="9" width="194" height="203" rx="19"
+                  fill="none" stroke="rgba(255,255,255,0.045)" stroke-width="0.8"/>
+
+                <!-- Title -->
+                <rect x="26" y="22" width="90" height="8" rx="4" fill="rgba(255,255,255,0.55)"/>
+                <!-- Subtitle -->
+                <rect x="26" y="36" width="60" height="4.5" rx="2" fill="rgba(255,255,255,0.22)"/>
+
+                <!-- Toggle pill (top-right) — purple with ↓ arrow + text -->
+                <rect x="146" y="18" width="58" height="22" rx="11"
+                  fill="rgba(76,29,149,0.75)" stroke="rgba(167,139,250,0.42)" stroke-width="1.2"/>
+                <!-- Down arrow -->
+                <path d="M159 24 L159 33 M156 30.5 L159 33 L162 30.5"
+                  stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Text placeholder -->
+                <rect x="166" y="26" width="30" height="5.5" rx="2.8" fill="rgba(167,139,250,0.50)"/>
+
+                <!-- ── Emoji row ── center y=76, r=18 ── -->
+
+                <!-- Emoji 1: Sad (red) x=46 -->
+                <circle cx="46" cy="76" r="18" fill="rgba(248,113,113,0.06)" stroke="#f87171" stroke-width="1.8"/>
+                <circle cx="40" cy="71" r="2"   fill="#f87171"/>
+                <circle cx="52" cy="71" r="2"   fill="#f87171"/>
+                <path d="M40 83 Q46 78 52 83" stroke="#f87171" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+
+                <!-- Emoji 2: Neutral-sad (amber) x=86 -->
+                <circle cx="86" cy="76" r="18" fill="rgba(251,191,36,0.06)" stroke="#fbbf24" stroke-width="1.8"/>
+                <circle cx="80" cy="71" r="2"   fill="#fbbf24"/>
+                <circle cx="92" cy="71" r="2"   fill="#fbbf24"/>
+                <path d="M80 83 Q86 80 92 83" stroke="#fbbf24" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+
+                <!-- Emoji 3: Neutral (purple) x=126 -->
+                <circle cx="126" cy="76" r="18" fill="rgba(167,139,250,0.06)" stroke="#a78bfa" stroke-width="1.8"/>
+                <circle cx="120" cy="71" r="2"   fill="#a78bfa"/>
+                <circle cx="132" cy="71" r="2"   fill="#a78bfa"/>
+                <line x1="120" y1="83" x2="132" y2="83" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"/>
+
+                <!-- Emoji 4: Happy (bright/selected) x=172 — larger + glowing -->
+                <circle cx="172" cy="76" r="26" fill="rgba(210,220,255,0.04)"/>
+                <circle cx="172" cy="76" r="21" fill="rgba(210,220,255,0.06)"/>
+                <circle cx="172" cy="76" r="18" fill="rgba(210,225,255,0.10)" stroke="rgba(225,235,255,0.92)" stroke-width="2.2"/>
+                <circle cx="166" cy="71" r="2.2" fill="rgba(225,235,255,0.95)"/>
+                <circle cx="178" cy="71" r="2.2" fill="rgba(225,235,255,0.95)"/>
+                <path d="M165 80 Q172 88 179 80" stroke="rgba(225,235,255,0.95)" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+
+                <!-- ── Chart ── bars + trend line ── -->
+
+                <!-- Background vertical bars (semi-transparent purple, rising slightly left→right) -->
+                <rect x="26"  y="120" width="13" height="82" rx="3" fill="rgba(139,92,246,0.07)"/>
+                <rect x="46"  y="117" width="13" height="85" rx="3" fill="rgba(139,92,246,0.08)"/>
+                <rect x="66"  y="114" width="13" height="88" rx="3" fill="rgba(139,92,246,0.09)"/>
+                <rect x="86"  y="111" width="13" height="91" rx="3" fill="rgba(139,92,246,0.10)"/>
+                <rect x="106" y="108" width="13" height="94" rx="3" fill="rgba(139,92,246,0.11)"/>
+                <rect x="126" y="105" width="13" height="97" rx="3" fill="rgba(139,92,246,0.12)"/>
+                <rect x="146" y="102" width="13" height="100" rx="3" fill="rgba(139,92,246,0.13)"/>
+                <rect x="166" y="100" width="13" height="102" rx="3" fill="rgba(139,92,246,0.14)"/>
+                <rect x="184" y="98"  width="10" height="104" rx="3" fill="rgba(139,92,246,0.11)"/>
+
+                <!-- Trend line — soft glow (outer) -->
+                <path d="M 28,194 C 65,194 85,185 108,175 C 130,165 155,153 188,138"
+                  stroke="rgba(167,139,250,0.22)" stroke-width="18" fill="none"
+                  stroke-linecap="round"/>
+                <!-- Mid glow -->
+                <path d="M 28,194 C 65,194 85,185 108,175 C 130,165 155,153 188,138"
+                  stroke="rgba(190,170,255,0.42)" stroke-width="7" fill="none"
+                  stroke-linecap="round"/>
+                <!-- Main line (bright white-purple) -->
+                <path d="M 28,194 C 65,194 85,185 108,175 C 130,165 155,153 188,138"
+                  stroke="rgba(225,218,255,0.92)" stroke-width="1.8" fill="none"
+                  stroke-linecap="round"/>
+
+                <!-- Data point dot halos -->
+                <circle cx="28"  cy="194" r="5.5" fill="rgba(167,139,250,0.28)"/>
+                <circle cx="62"  cy="190" r="5.5" fill="rgba(167,139,250,0.28)"/>
+                <circle cx="90"  cy="183" r="5.5" fill="rgba(167,139,250,0.28)"/>
+                <circle cx="116" cy="174" r="5.5" fill="rgba(167,139,250,0.28)"/>
+                <circle cx="142" cy="163" r="5.5" fill="rgba(167,139,250,0.28)"/>
+                <circle cx="164" cy="152" r="5.5" fill="rgba(167,139,250,0.28)"/>
+                <circle cx="188" cy="138" r="5.5" fill="rgba(167,139,250,0.28)"/>
+                <!-- White center dots -->
+                <circle cx="28"  cy="194" r="2.8" fill="rgba(230,222,255,0.95)"/>
+                <circle cx="62"  cy="190" r="2.8" fill="rgba(230,222,255,0.95)"/>
+                <circle cx="90"  cy="183" r="2.8" fill="rgba(230,222,255,0.95)"/>
+                <circle cx="116" cy="174" r="2.8" fill="rgba(230,222,255,0.95)"/>
+                <circle cx="142" cy="163" r="2.8" fill="rgba(230,222,255,0.95)"/>
+                <circle cx="164" cy="152" r="2.8" fill="rgba(230,222,255,0.95)"/>
+                <circle cx="188" cy="138" r="2.8" fill="rgba(230,222,255,0.95)"/>
+
+                <!-- Date axis labels -->
+                <line x1="26" y1="204" x2="194" y2="204" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                <rect x="26"  y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="41"  y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="56"  y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="71"  y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="86"  y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="101" y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="116" y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="131" y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="146" y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="161" y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+                <rect x="176" y="207" width="7" height="2.5" rx="1.2" fill="rgba(255,255,255,0.14)"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- ── Slide 4 · Plan ── -->
+          <div class="ld-bg-slide" data-accent="plan">
+            <div class="ld-bg-art">
+              <svg viewBox="0 0 220 220" fill="none">
+                <!-- Ambient amber glow -->
+                <ellipse cx="110" cy="48" rx="72" ry="46" fill="rgba(245,158,11,0.10)"/>
+
+                <!-- Glass card -->
+                <rect x="12" y="8" width="196" height="204" rx="20"
+                  fill="rgba(20,13,4,0.78)" stroke="rgba(245,158,11,0.22)" stroke-width="1"/>
+                <!-- Top glass sheen -->
+                <rect x="13" y="9" width="194" height="30" rx="19"
+                  fill="rgba(255,255,255,0.04)"/>
+                <!-- Inner border -->
+                <rect x="13" y="9" width="194" height="203" rx="19"
+                  fill="none" stroke="rgba(255,255,255,0.045)" stroke-width="0.8"/>
+
+                <!-- Title -->
+                <rect x="26" y="22" width="90" height="8" rx="4" fill="rgba(255,255,255,0.55)"/>
+                <!-- Subtitle lines -->
+                <rect x="26" y="36" width="64" height="4.5" rx="2" fill="rgba(255,255,255,0.22)"/>
+                <rect x="26" y="45" width="44" height="3.5" rx="1.8" fill="rgba(255,255,255,0.12)"/>
+
+                <!-- Toggle pill (top-right) — amber with checkmark -->
+                <rect x="150" y="18" width="54" height="22" rx="11"
+                  fill="rgba(120,58,0,0.82)" stroke="rgba(245,158,11,0.52)" stroke-width="1.2"/>
+                <path d="M167 26 L171 30.5 L179 23"
+                  stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+                <!-- ─── Row 1 · checked checkbox ─── -->
+                <rect x="26" y="62" width="22" height="22" rx="5"
+                  fill="rgba(245,158,11,0.18)" stroke="#f59e0b" stroke-width="1.8"/>
+                <path d="M31 73 L35 77 L43 66"
+                  stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="56" y="68" width="112" height="7" rx="3.5" fill="rgba(255,255,255,0.56)"/>
+                <rect x="56" y="80" width="72" height="4" rx="2" fill="rgba(255,255,255,0.14)"/>
+
+                <!-- ─── Row 2 · checked checkbox ─── -->
+                <rect x="26" y="102" width="22" height="22" rx="5"
+                  fill="rgba(245,158,11,0.18)" stroke="#f59e0b" stroke-width="1.8"/>
+                <path d="M31 113 L35 117 L43 106"
+                  stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="56" y="108" width="98" height="7" rx="3.5" fill="rgba(255,255,255,0.56)"/>
+
+                <!-- ─── Row 3 · empty amber checkbox ─── -->
+                <rect x="26" y="142" width="22" height="22" rx="5"
+                  fill="rgba(245,158,11,0.05)" stroke="rgba(245,158,11,0.60)" stroke-width="1.8"/>
+                <rect x="56" y="148" width="78" height="7" rx="3.5" fill="rgba(255,255,255,0.30)"/>
+
+                <!-- ─── Row 4 · dim empty checkbox ─── -->
+                <rect x="26" y="178" width="22" height="22" rx="5"
+                  fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
+                <rect x="56" y="184" width="60" height="7" rx="3.5" fill="rgba(255,255,255,0.16)"/>
+
+                <!-- Progress bar track -->
+                <rect x="26" y="207" width="168" height="5" rx="2.5" fill="rgba(255,255,255,0.06)"/>
+                <!-- Progress fill ~60% amber -->
+                <rect x="26" y="207" width="100" height="5" rx="2.5" fill="#f59e0b" fill-opacity="0.78"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Bottom gradient fade -->
+          <div class="ld-visual-fade" aria-hidden="true"></div>
+
+        </div><!-- /ld-visual-wrap -->
+
+          <button class="ld-carousel-btn ld-carousel-btn--next" id="carouselNext" type="button" aria-label="Next slide">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+        </div><!-- /ld-carousel-wrapper -->
+
+        <!-- Slide dot indicators -->
+        <div class="ld-visual-dots" aria-hidden="true">
+          <span class="ld-visual-dot ld-visual-dot--active"></span>
+          <span class="ld-visual-dot"></span>
+          <span class="ld-visual-dot"></span>
+          <span class="ld-visual-dot"></span>
+          <span class="ld-visual-dot"></span>
+        </div>
+
+      </div><!-- /ld-hero-right -->
+
+    </section><!-- /ld-hero -->
+
+    <!-- ══ REVEAL STATEMENT ═══════════════════════════════ -->
+    <section class="ld-reveal-statement" aria-label="Brand statement">
+      <div class="ld-reveal-inner">
+        <p class="ld-reveal-line" data-delay="0" data-i18n="landing.reveal.line1">Most people juggle five different apps to manage their life.</p>
+        <p class="ld-reveal-line" data-delay="1" data-i18n="landing.reveal.line2">Their habits in one app. Budget in another.</p>
+        <p class="ld-reveal-line" data-delay="2" data-i18n="landing.reveal.line3">Sleep tracker here. Mood journal there. Planner somewhere else.</p>
+        <p class="ld-reveal-line" data-delay="3" data-i18n="landing.reveal.line4">Hbit ends that. Everything you need to grow —</p>
+        <p class="ld-reveal-line ld-reveal-line--accent" data-delay="4" data-i18n="landing.reveal.line5">unified, powerful, and completely free.</p>
+      </div>
+    </section>
+
+    <!-- ══ SECTION BREAK 1 ════════════════════════════════ -->
+    <div class="ld-section-break ld-scroll-reveal">
+      <h2 class="ld-break-headline" data-i18n="landing.break1.headline">One app.<br>Every dimension of your life.</h2>
+    </div>
+
+    <!-- ══ HOW IT WORKS ════════════════════════════════════ -->
+    <div class="ld-how-wrap">
+      <section class="ld-how" aria-label="How Hbit works">
+
+        <div class="ld-how-header">
+          <p class="ld-how-label" data-i18n="landing.how.label">How it works</p>
+          <h2 class="ld-how-title" data-i18n="landing.how.title">Three steps to your best self.</h2>
+        </div>
+
+        <div class="ld-how-steps">
+
+          <!-- Step 1 -->
+          <div class="ld-how-step ld-scroll-reveal">
+            <div class="ld-how-visual">
+              <div class="ld-how-mock">
+                <svg viewBox="0 0 200 180" fill="none" aria-hidden="true">
+                  <rect x="10" y="8" width="180" height="164" rx="18"
+                    fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                  <rect x="24" y="24" width="80" height="7" rx="3.5" fill="rgba(255,255,255,0.45)"/>
+                  <rect x="24" y="36" width="52" height="5" rx="2.5" fill="rgba(255,255,255,0.18)"/>
+                  <circle cx="34" cy="72" r="11" fill="rgba(62,207,127,0.12)" stroke="#3ecf7f" stroke-width="1.8"/>
+                  <path d="M28 72l5 6 9-12" stroke="#3ecf7f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <rect x="54" y="68" width="80" height="5" rx="2.5" fill="rgba(255,255,255,0.5)"/>
+                  <circle cx="34" cy="104" r="11" fill="rgba(62,207,127,0.12)" stroke="#3ecf7f" stroke-width="1.8"/>
+                  <path d="M28 104l5 6 9-12" stroke="#3ecf7f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <rect x="54" y="100" width="95" height="5" rx="2.5" fill="rgba(255,255,255,0.5)"/>
+                  <circle cx="34" cy="136" r="11" fill="rgba(255,255,255,0.02)"
+                    stroke="rgba(255,255,255,0.18)" stroke-width="1.8" stroke-dasharray="4 3"/>
+                  <rect x="54" y="132" width="68" height="5" rx="2.5" fill="rgba(255,255,255,0.18)"/>
+                  <rect x="24" y="158" width="152" height="4" rx="2" fill="rgba(255,255,255,0.05)"/>
+                  <rect x="24" y="158" width="114" height="4" rx="2" fill="rgba(62,207,127,0.45)"/>
+                </svg>
+              </div>
+            </div>
+            <div class="ld-how-content">
+              <span class="ld-how-num" data-i18n="landing.how.step1.num">01</span>
+              <h3 class="ld-how-step-title" data-i18n="landing.how.step1.title">Set your habits &amp; goals</h3>
+              <p class="ld-how-step-desc" data-i18n="landing.how.step1.desc">Create habit stacks, set financial targets, define your ideal sleep window. Hbit adapts to how you actually live — not how productivity gurus think you should.</p>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="ld-how-step ld-how-step--flip ld-scroll-reveal">
+            <div class="ld-how-content">
+              <span class="ld-how-num" data-i18n="landing.how.step2.num">02</span>
+              <h3 class="ld-how-step-title" data-i18n="landing.how.step2.title">Log your day in seconds</h3>
+              <p class="ld-how-step-desc" data-i18n="landing.how.step2.desc">One tap to mark a habit done. A quick entry for your spending. Rate your sleep. Track your mood. No forms, no friction. Just results.</p>
+            </div>
+            <div class="ld-how-visual">
+              <div class="ld-how-mock">
+                <svg viewBox="0 0 200 180" fill="none" aria-hidden="true">
+                  <rect x="10" y="8" width="180" height="164" rx="18"
+                    fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                  <circle cx="48"  cy="90" r="20" fill="rgba(248,113,113,0.09)" stroke="#f87171" stroke-width="1.5"/>
+                  <circle cx="44"  cy="85" r="2.2" fill="#f87171"/>
+                  <circle cx="52"  cy="85" r="2.2" fill="#f87171"/>
+                  <path d="M43 96 Q48 92 53 96" stroke="#f87171" stroke-width="2" stroke-linecap="round" fill="none"/>
+                  <circle cx="100" cy="90" r="20" fill="rgba(251,191,36,0.09)" stroke="#fbbf24" stroke-width="1.5"/>
+                  <circle cx="96"  cy="85" r="2.2" fill="#fbbf24"/>
+                  <circle cx="104" cy="85" r="2.2" fill="#fbbf24"/>
+                  <line x1="95" y1="94" x2="105" y2="94" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+                  <circle cx="152" cy="90" r="26" fill="rgba(62,207,127,0.10)" stroke="#3ecf7f" stroke-width="2.5"/>
+                  <circle cx="146" cy="84" r="2.8" fill="#3ecf7f"/>
+                  <circle cx="158" cy="84" r="2.8" fill="#3ecf7f"/>
+                  <path d="M144 95 Q152 104 160 95" stroke="#3ecf7f" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                  <rect x="24" y="130" width="152" height="1" fill="rgba(255,255,255,0.07)"/>
+                  <rect x="24" y="144" width="152" height="5" rx="2.5" fill="rgba(255,255,255,0.08)"/>
+                  <rect x="24" y="144" width="110" height="5" rx="2.5" fill="rgba(62,207,127,0.40)"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="ld-how-step ld-scroll-reveal">
+            <div class="ld-how-visual">
+              <div class="ld-how-mock">
+                <svg viewBox="0 0 200 180" fill="none" aria-hidden="true">
+                  <rect x="10" y="8" width="180" height="164" rx="18"
+                    fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                  <rect x="24" y="24" width="90" height="7" rx="3.5" fill="rgba(255,255,255,0.45)"/>
+                  <rect x="24" y="36" width="58" height="5" rx="2.5" fill="rgba(255,255,255,0.18)"/>
+                  <rect x="24" y="60" width="20" height="80" rx="4" fill="rgba(154,28,28,0.55)"/>
+                  <rect x="52" y="80" width="20" height="60" rx="4" fill="rgba(154,28,28,0.55)"/>
+                  <rect x="80" y="68" width="20" height="72" rx="4" fill="rgba(154,28,28,0.70)"/>
+                  <rect x="108" y="48" width="20" height="92" rx="4" fill="rgba(192,41,42,0.80)"/>
+                  <rect x="136" y="36" width="20" height="104" rx="4" fill="#c0292a"/>
+                  <polyline points="34,60 62,52 90,44 118,36 146,28"
+                    stroke="rgba(62,207,127,0.55)" stroke-width="2" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="146" cy="28" r="4" fill="#3ecf7f"/>
+                  <rect x="24" y="152" width="152" height="4" rx="2" fill="rgba(255,255,255,0.05)"/>
+                </svg>
+              </div>
+            </div>
+            <div class="ld-how-content">
+              <span class="ld-how-num" data-i18n="landing.how.step3.num">03</span>
+              <h3 class="ld-how-step-title" data-i18n="landing.how.step3.title">See your patterns. Grow faster.</h3>
+              <p class="ld-how-step-desc" data-i18n="landing.how.step3.desc">Discover how a bad night's sleep tanks your mood. See which habits you actually stick to. Watch your progress compound week by week. The data doesn't lie.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Inline CTA after steps -->
+        <div class="ld-how-cta ld-scroll-reveal">
+          <a class="ld-cta-primary" href="signup.html" data-i18n="landing.cta.signup">Start for free</a>
+          <p class="ld-how-cta-sub" data-i18n="landing.how.cta.sub">Free forever · No credit card required</p>
+        </div>
+
+      </section>
+    </div>
+
+    <!-- ══ SECTION BREAK 2 ════════════════════════════════ -->
+    <div class="ld-section-break ld-section-break--cta ld-scroll-reveal">
+      <h2 class="ld-break-headline" data-i18n="landing.break2.headline">Your habits.<br>Your data. Your pace.</h2>
+      <a class="ld-cta-primary" href="signup.html" data-i18n="landing.cta.signup">Start for free</a>
+      <p class="ld-break-sub" data-i18n="landing.break2.sub">Free forever · No credit card required</p>
+    </div>
+
+    <!-- ── FEATURE CARDS ────────────────────────────────── -->
+    <section class="ld-features" aria-label="Features">
+      <div class="ld-feat-grid">
+
+        <!-- Habits -->
+        <div class="ld-feat-card" data-accent="habit">
+          <div class="ld-feat-icon ld-feat-icon--green">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <h3 class="ld-feat-title" data-i18n="landing.feat.habit.title">Habits</h3>
+          <p class="ld-feat-desc" data-i18n="landing.feat.habit.desc">Build unbreakable routines. Stack habits, track streaks, and watch small daily actions compound into lasting change.</p>
+        </div>
+
+        <!-- Budget -->
+        <div class="ld-feat-card" data-accent="budget">
+          <div class="ld-feat-icon ld-feat-icon--red">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="7" width="20" height="14" rx="2"/>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+            </svg>
+          </div>
+          <h3 class="ld-feat-title" data-i18n="landing.feat.budget.title">Budget</h3>
+          <p class="ld-feat-desc" data-i18n="landing.feat.budget.desc">Know exactly where every dollar goes. Spot patterns, cut waste, and build the financial habits that actually move your net worth.</p>
+        </div>
+
+        <!-- Sleep -->
+        <div class="ld-feat-card" data-accent="sleep">
+          <div class="ld-feat-icon ld-feat-icon--blue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </div>
+          <h3 class="ld-feat-title" data-i18n="landing.feat.sleep.title">Sleep</h3>
+          <p class="ld-feat-desc" data-i18n="landing.feat.sleep.desc">Quality sleep is your superpower. Track duration, consistency, and how your nights directly shape your days.</p>
+        </div>
+
+        <!-- Mood -->
+        <div class="ld-feat-card" data-accent="mood">
+          <div class="ld-feat-icon ld-feat-icon--purple">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+              <line x1="9" y1="9" x2="9.01" y2="9"/>
+              <line x1="15" y1="9" x2="15.01" y2="9"/>
+            </svg>
+          </div>
+          <h3 class="ld-feat-title" data-i18n="landing.feat.mood.title">Mood</h3>
+          <p class="ld-feat-desc" data-i18n="landing.feat.mood.desc">Your emotional landscape, mapped. Discover what lifts you up, what drags you down, and how to design more of the days that feel right.</p>
+        </div>
+
+      </div>
+    </section><!-- /ld-features -->
+
+  </main><!-- /ld-main -->
+
+  <!-- ══════════════════════════════════════════════════════
+       FOOTER
+       ══════════════════════════════════════════════════════ -->
+  <footer class="ld-footer" role="contentinfo">
+
+    <!-- ── Main footer grid ───────────────────────────── -->
+    <div class="ld-footer-main">
+
+      <!-- Brand column -->
+      <div class="ld-footer-col ld-footer-col--brand">
+        <a class="ld-footer-logo" href="index.html" aria-label="Hbit home">
+          <div class="ld-footer-mark" aria-hidden="true">H</div>
+          <span class="ld-footer-name">Hbit</span>
+        </a>
+        <p class="ld-footer-tagline" data-i18n="landing.footer.tagline">
+          The only dashboard you'll ever need.<br>
+          Track what matters. Become who you want to be.
+        </p>
+        <!-- Social links -->
+        <div class="ld-footer-social" aria-label="Social links">
+          <a class="ld-footer-social-btn" href="#" aria-label="Twitter / X">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
+          <a class="ld-footer-social-btn" href="#" aria-label="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5"/>
+              <circle cx="12" cy="12" r="4"/>
+              <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+            </svg>
+          </a>
+          <a class="ld-footer-social-btn" href="#" aria-label="GitHub">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Product column -->
+      <div class="ld-footer-col">
+        <h4 class="ld-footer-col-title">Product</h4>
+        <nav class="ld-footer-nav" aria-label="Product links">
+          <a href="home.html">Dashboard</a>
+          <a href="habits.html">Habits</a>
+          <a href="budget.html">Budget</a>
+          <a href="sleep.html">Sleep</a>
+          <a href="profile.html">Profile</a>
+        </nav>
+      </div>
+
+      <!-- Resources column -->
+      <div class="ld-footer-col">
+        <h4 class="ld-footer-col-title">Resources</h4>
+        <nav class="ld-footer-nav" aria-label="Resource links">
+          <a href="#">Help Center</a>
+          <a href="#">Getting Started</a>
+          <a href="#">Changelog</a>
+          <a href="#">Status</a>
+        </nav>
+      </div>
+
+      <!-- Legal column -->
+      <div class="ld-footer-col">
+        <h4 class="ld-footer-col-title">Legal</h4>
+        <nav class="ld-footer-nav" aria-label="Legal links">
+          <a href="privacy.html" data-i18n="landing.footer.privacy">Privacy Policy</a>
+          <a href="terms.html" data-i18n="landing.footer.terms">Terms of Service</a>
+          <a href="#">Cookie Policy</a>
+          <a href="#">Security</a>
+        </nav>
+      </div>
+
+    </div><!-- /ld-footer-main -->
+
+    <!-- ── Bottom bar ──────────────────────────────────── -->
+    <div class="ld-footer-bottom">
+      <p class="ld-footer-copy">© 2026 Hbit. All rights reserved.</p>
+      <p class="ld-footer-made" data-i18n="landing.footer.made">Built for real life · Dark by design</p>
+    </div>
+
+  </footer>
+
+  <!-- ── Scripts ────────────────────────────────────────── -->
+  <script defer src="js/core/utils.js"></script>
+  <script defer src="js/core/storage.js"></script>
+  <script defer src="js/core/i18n.js"></script>
+  <script defer src="js/pages/landing.js"></script>
+  <script defer src="js/core/auth-transitions.js"></script>
+
+</body>
+</html>

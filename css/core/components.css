@@ -1,0 +1,184 @@
+/* =========================
+   Hbit — Core Components
+   ========================= */
+
+/* ── Cards ────────────────────────────────────────── */
+.card {
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, var(--panel2), var(--panel));
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-sans);
+}
+
+/* ── Row / tag helpers ────────────────────────────── */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 1000;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+}
+
+.tag-title {
+  font-weight: 1000;
+  letter-spacing: 0.15px;
+}
+
+.chev {
+  color: color-mix(in srgb, var(--text) 55%, transparent);
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 1000;
+  transition: transform 0.18s ease, color 0.15s ease;
+}
+
+/* Chevron slides right on card hover */
+.card:hover .chev {
+  transform: translateX(3px);
+  color: color-mix(in srgb, var(--text) 80%, transparent);
+}
+
+/* ── Module cards (overview) ──────────────────────── */
+.module-card {
+  min-height: 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  /* transition is handled by animations.css */
+}
+
+/* Accent glow — positioned at top-left */
+.module-card::before {
+  content: "";
+  position: absolute;
+  inset: -60px;
+  background: radial-gradient(
+    460px 240px at 0% 0%,
+    rgba(255, 255, 255, 0.10),
+    transparent 62%
+  );
+  pointer-events: none;
+  opacity: 0.95;
+  transition: opacity 0.2s ease;
+}
+
+.module-card:hover::before {
+  opacity: 1;
+}
+
+/* Per-module accent glows */
+.module-card[data-accent="habit"]  .dot { background: var(--habit); }
+.module-card[data-accent="budget"] .dot { background: var(--budget); }
+.module-card[data-accent="sleep"]  .dot { background: var(--sleep); }
+.module-card[data-accent="mind"]   .dot { background: var(--mind); }
+.module-card[data-accent="schedule"].dot { background: var(--schedule); }
+.module-card[data-accent="focus"]  .dot { background: var(--focus); }
+.module-card[data-accent="quit"]   .dot { background: var(--quit); }
+
+.module-card[data-accent="habit"]::before {
+  background: radial-gradient(460px 240px at 0% 0%, color-mix(in srgb, var(--habit) 28%, transparent), transparent 62%);
+}
+.module-card[data-accent="budget"]::before {
+  background: radial-gradient(460px 240px at 0% 0%, color-mix(in srgb, var(--budget) 28%, transparent), transparent 62%);
+}
+.module-card[data-accent="sleep"]::before {
+  background: radial-gradient(460px 240px at 0% 0%, color-mix(in srgb, var(--sleep) 28%, transparent), transparent 62%);
+}
+.module-card[data-accent="mind"]::before {
+  background: radial-gradient(460px 240px at 0% 0%, color-mix(in srgb, var(--mind) 28%, transparent), transparent 62%);
+}
+.module-card[data-accent="schedule"]::before {
+  background: radial-gradient(460px 240px at 0% 0%, color-mix(in srgb, var(--schedule) 28%, transparent), transparent 62%);
+}
+.module-card[data-accent="focus"]::before {
+  background: radial-gradient(460px 240px at 0% 0%, color-mix(in srgb, var(--focus) 28%, transparent), transparent 62%);
+}
+.module-card[data-accent="quit"]::before {
+  background: radial-gradient(460px 240px at 0% 0%, color-mix(in srgb, var(--quit) 28%, transparent), transparent 62%);
+}
+
+/* ── Empty state ──────────────────────────────────── */
+.empty {
+  margin-top: auto;
+  border-radius: 16px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+}
+
+.empty-main {
+  font-weight: 1000;
+  letter-spacing: 0.1px;
+}
+
+.empty-sub {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* ── Pills ────────────────────────────────────────── */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+  font-size: 12px;
+  font-weight: 900;
+  color: color-mix(in srgb, var(--text) 86%, transparent);
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.1s ease;
+}
+
+.pill:hover {
+  background: color-mix(in srgb, var(--panel2) 92%, transparent);
+  transform: translateY(-1px);
+}
+
+/* ── Footer ───────────────────────────────────────── */
+.footer {
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.footer-inner {
+  width: 100%;
+  padding: 16px 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  opacity: 0.55;
+  border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+/* ── Responsive card adjustments ─────────────────── */
+@media (max-width: 600px) {
+  .card {
+    padding: 14px;
+    border-radius: 18px;
+  }
+}

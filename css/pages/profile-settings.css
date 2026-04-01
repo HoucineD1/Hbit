@@ -1,0 +1,312 @@
+/* =========================
+   Hbit — Profile page
+   ========================= */
+
+/* ── Topbar ──────────────────────────────────────── */
+.pf-topbar-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.pf-save-top {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 12%, transparent);
+  border: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+.pf-save-top:hover { opacity: 0.85; }
+
+/* ── Hero card ───────────────────────────────────── */
+.pf-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 18px;
+}
+
+.pf-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: linear-gradient(
+    135deg,
+    var(--brand),
+    color-mix(in srgb, var(--brand) 60%, var(--mind))
+  );
+  color: #fff;
+  font-size: 24px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: -0.5px;
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--brand) 35%, transparent);
+}
+
+.pf-hero-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.pf-hero-name {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pf-hero-meta {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ── Section title ───────────────────────────────── */
+.pf-section-title {
+  margin: 0 0 16px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.1px;
+}
+
+/* ── Form card ───────────────────────────────────── */
+.pf-form-card {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pf-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.pf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  position: relative;
+}
+
+.pf-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pf-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pf-input-prefix {
+  position: absolute;
+  left: 12px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.pf-input {
+  width: 100%;
+  background: var(--panel2);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.pf-input--prefixed {
+  padding-left: 28px;
+}
+
+.pf-input:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 15%, transparent);
+}
+
+.pf-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.pf-textarea {
+  resize: vertical;
+  min-height: 76px;
+  line-height: 1.5;
+}
+
+.pf-char-count {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
+  margin-top: -8px;
+}
+
+/* ── Save button ─────────────────────────────────── */
+.pf-save-btn {
+  width: 100%;
+  padding: 13px;
+  border-radius: 12px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.14s, transform 0.1s;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--brand) 35%, transparent);
+  margin-top: 4px;
+}
+.pf-save-btn:hover   { opacity: 0.9; }
+.pf-save-btn:active  { transform: scale(0.98); }
+.pf-save-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.pf-spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: pf-spin 0.7s linear infinite;
+}
+@keyframes pf-spin { to { transform: rotate(360deg); } }
+
+/* ── Save message ────────────────────────────────── */
+.pf-save-msg {
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+.pf-save-msg--ok    { color: #00c853; background: color-mix(in srgb, #00c853 12%, transparent); }
+.pf-save-msg--error { color: #ff4d4d; background: color-mix(in srgb, #ff4d4d 12%, transparent); }
+
+/* ── Stats card ──────────────────────────────────── */
+.pf-stats-card {
+  padding: 18px;
+}
+
+.pf-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.pf-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 6px;
+  border-radius: 12px;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+}
+
+.pf-stat-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--accent, var(--text));
+  line-height: 1;
+}
+
+.pf-stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+/* ── Account card ────────────────────────────────── */
+.pf-account-card {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.pf-account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.pf-account-row:last-of-type { border-bottom: none; }
+
+.pf-account-key {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.pf-account-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  max-width: 60%;
+  text-align: right;
+  word-break: break-all;
+}
+
+.pf-logout-btn {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, #ff4d4d 10%, transparent);
+  border: 1.5px solid color-mix(in srgb, #ff4d4d 25%, transparent);
+  color: #ff4d4d;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.pf-logout-btn:hover {
+  background: color-mix(in srgb, #ff4d4d 18%, transparent);
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 480px) {
+  .pf-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .pf-row-2 {
+    grid-template-columns: 1fr;
+  }
+}

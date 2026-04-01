@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hbit — Focus Timer</title>
+  <meta name="description"
+        content="Hbit Focus Mode — Pomodoro and deep work sessions to help you stay in the zone." />
+  <meta name="robots" content="noindex, nofollow" />
+
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/pages/focus.css" />
+
+  <!-- Firebase compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+  <!-- Core -->
+  <script defer src="js/core/utils.js"></script>
+  <script defer src="js/core/storage.js"></script>
+  <script defer src="js/core/theme.js"></script>
+  <script defer src="js/core/i18n.js"></script>
+  <script defer src="js/core/firebase-init.js"></script>
+  <script defer src="js/core/db.js"></script>
+  <script defer src="js/core/nav.js"></script>
+  <script defer src="js/core/core.js"></script>
+
+  <!-- Page -->
+  <script defer src="js/pages/focus.js"></script>
+
+  <!-- App (last) -->
+  <script defer src="js/app.js"></script>
+</head>
+
+<body id="focusPage">
+
+  <!-- ══ Header ══════════════════════════════════════════════ -->
+  <header class="fc-header">
+    <a class="fc-back" href="home.html" aria-label="Back to home">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </a>
+    <div class="fc-header-title">
+      <span class="fc-header-label">Focus</span>
+      <span class="fc-header-sub" id="fcPhaseLabel">Pomodoro</span>
+    </div>
+    <div class="fc-header-right">
+      <button class="fc-icon-btn" id="langToggle" type="button" aria-label="Switch language">
+        <span id="langLabel">FR</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ══ Main ════════════════════════════════════════════════ -->
+  <main class="fc-main">
+
+    <!-- Preset chips -->
+    <div class="fc-presets" role="group" aria-label="Timer preset">
+      <button class="fc-preset-btn active" data-preset="pomodoro" type="button">
+        <span class="fc-preset-name">Pomodoro</span>
+        <span class="fc-preset-meta">25 / 5 min</span>
+      </button>
+      <button class="fc-preset-btn" data-preset="deepWork" type="button">
+        <span class="fc-preset-name">Deep Work</span>
+        <span class="fc-preset-meta">50 / 10 min</span>
+      </button>
+    </div>
+
+    <!-- Timer ring + display -->
+    <div class="fc-timer-wrap">
+      <svg class="fc-ring-svg" viewBox="0 0 220 220" aria-hidden="true">
+        <!-- Background track -->
+        <circle class="fc-ring-track" cx="110" cy="110" r="96"/>
+        <!-- Progress arc (animated by JS) -->
+        <circle class="fc-ring-fill" id="fcRingFill" cx="110" cy="110" r="96"
+                stroke-dasharray="603.186"
+                stroke-dashoffset="0"
+                transform="rotate(-90 110 110)"/>
+      </svg>
+
+      <div class="fc-timer-inner">
+        <div class="fc-phase-chip" id="fcPhaseChip">Work</div>
+        <div class="fc-time-display" id="fcTimeDisplay" aria-live="polite" aria-atomic="true">25:00</div>
+        <div class="fc-sessions-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          <span id="fcSessions">0</span>
+          <span class="fc-sessions-lbl">sessions</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="fc-controls">
+      <button class="fc-ctrl-btn fc-ctrl-reset" id="fcResetBtn" type="button" aria-label="Reset timer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="1 4 1 10 7 10"/>
+          <path d="M3.51 15a9 9 0 1 0 .49-3.5"/>
+        </svg>
+      </button>
+
+      <button class="fc-ctrl-btn fc-ctrl-main" id="fcStartBtn" type="button" aria-label="Start timer">
+        <svg class="fc-play-icon" id="fcPlayIcon" width="22" height="22" viewBox="0 0 24 24"
+             fill="currentColor" aria-hidden="true">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        <svg class="fc-pause-icon" id="fcPauseIcon" width="22" height="22" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+             aria-hidden="true" style="display:none">
+          <line x1="6" y1="4" x2="6" y2="20"/>
+          <line x1="18" y1="4" x2="18" y2="20"/>
+        </svg>
+      </button>
+
+      <button class="fc-ctrl-btn fc-ctrl-skip" id="fcSkipBtn" type="button" aria-label="Skip to next phase">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polygon points="5 4 15 12 5 20 5 4"/>
+          <line x1="19" y1="5" x2="19" y2="19"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Tips strip -->
+    <div class="fc-tip" id="fcTip" aria-live="polite">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span>Put your phone down and eliminate distractions</span>
+    </div>
+
+  </main><!-- /fc-main -->
+
+  <!-- ══ Sidebar navigation ══════════════════════════════════ -->
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <div class="items">
+
+      <a class="nav-item" data-nav="overview" href="home.html" aria-label="Home">
+        <span class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </span>
+        <span class="label" data-i18n="nav.overview">Home</span>
+      </a>
+
+      <a class="nav-item" data-nav="habits" href="habits.html" aria-label="Habits">
+        <span class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 11 12 14 22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+        </span>
+        <span class="label" data-i18n="nav.habits">Habits</span>
+      </a>
+
+      <a class="nav-item" data-nav="budget" href="budget.html" aria-label="Budget">
+        <span class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="12" y1="1" x2="12" y2="23"/>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </span>
+        <span class="label" data-i18n="nav.budget">Budget</span>
+      </a>
+
+      <a class="nav-item" data-nav="sleep" href="sleep.html" aria-label="Sleep">
+        <span class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </span>
+        <span class="label" data-i18n="nav.sleep">Sleep</span>
+      </a>
+
+      <a class="nav-item" data-nav="mood" href="mood.html" aria-label="Mood">
+        <span class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+            <line x1="9" y1="9" x2="9.01" y2="9" stroke-width="2.5"/>
+            <line x1="15" y1="9" x2="15.01" y2="9" stroke-width="2.5"/>
+          </svg>
+        </span>
+        <span class="label" data-i18n="nav.mood">Mood</span>
+      </a>
+
+      <a class="nav-item active" data-nav="focus" href="focus.html" aria-label="Focus">
+        <span class="icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </span>
+        <span class="label">Focus</span>
+      </a>
+
+    </div>
+
+    <!-- ── Sidebar bottom: logout + copyright ── -->
+    <div class="nav-bottom">
+      <button class="nav-item nav-logout" id="fcLogoutBtn" type="button" aria-label="Sign out">
+        <span class="icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </span>
+        <span class="label">Sign out</span>
+      </button>
+      <div class="nav-copyright">&copy; 2025 Hbit</div>
+    </div>
+  </nav>
+
+</body>
+</html>
