@@ -4,10 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Hbit — Budget</title>
-  <meta name="description" content="Track income, expenses and accounts with Hbit Budget." />
+  <meta name="description" content="Track income, expenses, bills and accounts with Hbit Budget." />
   <meta name="robots" content="noindex, nofollow" />
 
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/core/nav.css" />
   <link rel="stylesheet" href="css/pages/budget.css" />
 
   <!-- Firebase compat SDK -->
@@ -98,7 +99,7 @@
     </div>
   </nav>
 
-  <!-- ══ Sidebar trigger (hamburger) ═══════════════════════ -->
+  <!-- ══ Sidebar trigger ═══════════════════════════════════ -->
   <button class="sb-trigger" aria-label="Open menu" aria-expanded="false">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="10" width="7" height="7" rx="1"/><rect x="3" y="13" width="7" height="4" rx="1"/></svg>
   </button>
@@ -172,69 +173,113 @@
       </div>
     </div>
 
-    <!-- Summary strip -->
-    <div class="bg-summary">
-      <div class="bg-sum-item">
-        <div class="bg-sum-val income" id="sumIncome">—</div>
-        <div class="bg-sum-lbl" data-i18n="budget.income">Income</div>
+    <!-- KPI summary cards -->
+    <div class="bg-kpi-row">
+      <div class="bg-kpi bg-kpi--income">
+        <div class="bg-kpi-val" id="sumIncome">—</div>
+        <div class="bg-kpi-lbl" data-i18n="budget.income">Income</div>
       </div>
-      <div class="bg-sum-sep" aria-hidden="true"></div>
-      <div class="bg-sum-item">
-        <div class="bg-sum-val expenses" id="sumExpenses">—</div>
-        <div class="bg-sum-lbl" data-i18n="budget.spent">Expenses</div>
+      <div class="bg-kpi bg-kpi--spent">
+        <div class="bg-kpi-val" id="sumExpenses">—</div>
+        <div class="bg-kpi-lbl" data-i18n="budget.spent">Spent</div>
       </div>
-      <div class="bg-sum-sep" aria-hidden="true"></div>
-      <div class="bg-sum-item">
-        <div class="bg-sum-val" id="sumRemaining">—</div>
-        <div class="bg-sum-lbl" data-i18n="budget.remaining">Remaining</div>
+      <div class="bg-kpi bg-kpi--remaining">
+        <div class="bg-kpi-val" id="sumRemaining">—</div>
+        <div class="bg-kpi-lbl" data-i18n="budget.remaining">Remaining</div>
       </div>
     </div>
 
-    <!-- ══ Money overview breakdown ═══════════════════════ -->
-    <section class="bg-sec bg-breakdown-sec" id="breakdownSection">
+    <!-- ══ Money overview + big donut ════════════════════ -->
+    <section class="bg-sec bg-overview-sec" id="overviewSection">
       <div class="bg-sec-head">
-        <span class="bg-sec-title" data-i18n="budget.breakdown.title">Money overview</span>
+        <span class="bg-sec-title" data-i18n="budget.overview.title">Money Overview</span>
+        <span class="bg-networth-chip" id="netWorthChip" aria-live="polite"></span>
       </div>
-      <div class="bg-breakdown-grid" id="breakdownGrid">
-        <div class="bg-breakdown-item" data-type="income">
-          <span class="bg-breakdown-dot income"></span>
-          <span class="bg-breakdown-label" data-i18n="budget.breakdown.income">Income</span>
-          <span class="bg-breakdown-val" id="breakdownIncome">—</span>
+      <div class="bg-overview-body">
+        <div class="bg-overview-donut-wrap">
+          <svg class="bg-overview-donut" id="overviewDonut" viewBox="0 0 160 160" aria-hidden="true"></svg>
         </div>
-        <div class="bg-breakdown-item" data-type="spent">
-          <span class="bg-breakdown-dot spent"></span>
-          <span class="bg-breakdown-label" data-i18n="budget.breakdown.spent">Spent</span>
-          <span class="bg-breakdown-val" id="breakdownSpent">—</span>
-        </div>
-        <div class="bg-breakdown-item" data-type="debt">
-          <span class="bg-breakdown-dot debt"></span>
-          <span class="bg-breakdown-label" data-i18n="budget.breakdown.debt">Debt</span>
-          <span class="bg-breakdown-val" id="breakdownDebt">—</span>
-        </div>
-        <div class="bg-breakdown-item" data-type="remaining">
-          <span class="bg-breakdown-dot remaining"></span>
-          <span class="bg-breakdown-label" data-i18n="budget.breakdown.remaining">Remaining</span>
-          <span class="bg-breakdown-val" id="breakdownRemaining">—</span>
+        <div class="bg-overview-legend">
+          <div class="bg-ov-row" data-type="income">
+            <span class="bg-ov-dot income"></span>
+            <span class="bg-ov-lbl" data-i18n="budget.breakdown.income">Income</span>
+            <span class="bg-ov-val" id="ovIncome">—</span>
+          </div>
+          <div class="bg-ov-row" data-type="spent">
+            <span class="bg-ov-dot spent"></span>
+            <span class="bg-ov-lbl" data-i18n="budget.breakdown.spent">Spent</span>
+            <span class="bg-ov-val" id="ovSpent">—</span>
+          </div>
+          <div class="bg-ov-row" data-type="debt">
+            <span class="bg-ov-dot debt"></span>
+            <span class="bg-ov-lbl" data-i18n="budget.breakdown.debt">Debt</span>
+            <span class="bg-ov-val" id="ovDebt">—</span>
+          </div>
+          <div class="bg-ov-row" data-type="remaining">
+            <span class="bg-ov-dot remaining"></span>
+            <span class="bg-ov-lbl" data-i18n="budget.breakdown.remaining">Remaining</span>
+            <span class="bg-ov-val" id="ovRemaining">—</span>
+          </div>
         </div>
       </div>
-      <div class="bg-breakdown-donut-wrap" id="breakdownDonutWrap">
-        <svg class="bg-breakdown-donut" id="breakdownDonut" viewBox="0 0 100 100" aria-hidden="true"></svg>
+    </section>
+
+    <!-- ══ Budget Planner ════════════════════════════════ -->
+    <section class="bg-sec" id="bgSecPlanner">
+      <div class="bg-sec-head">
+        <span class="bg-sec-title" data-i18n="budget.planner.title">Budget Planner</span>
+        <span class="bg-planner-hint" data-i18n="budget.planner.tapToSet">Tap to set a monthly limit</span>
+      </div>
+      <!-- planner rows filled by JS -->
+      <div class="bg-planner-list" id="plannerList" role="list" aria-label="Budget planner"></div>
+    </section>
+
+    <!-- ══ Bills Tracker ═════════════════════════════════ -->
+    <section class="bg-sec" id="bgSecBills">
+      <div class="bg-sec-head">
+        <span class="bg-sec-title" data-i18n="budget.bills.title">Bills</span>
+        <button class="bg-sec-add-btn" id="btnAddBill" type="button" aria-label="Add bill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span data-i18n="budget.bills.add">Add</span>
+        </button>
+      </div>
+      <!-- bill cards filled by JS -->
+      <div class="bg-bills-list" id="billsList" role="list" aria-label="Bills list"></div>
+      <!-- empty state -->
+      <div class="bg-empty" id="billsEmpty" aria-live="polite" style="display:none">
+        <svg class="bg-empty-illo" viewBox="0 0 80 80" fill="none" aria-hidden="true">
+          <rect x="16" y="20" width="48" height="40" rx="6" stroke="rgba(245,158,11,0.14)" stroke-width="2"/>
+          <line x1="24" y1="32" x2="56" y2="32" stroke="rgba(245,158,11,0.25)" stroke-width="2"/>
+          <line x1="24" y1="40" x2="46" y2="40" stroke="rgba(245,158,11,0.18)" stroke-width="2"/>
+          <line x1="24" y1="48" x2="40" y2="48" stroke="rgba(245,158,11,0.12)" stroke-width="2"/>
+        </svg>
+        <p class="bg-empty-title" data-i18n="budget.bills.empty">No bills yet</p>
+        <p class="bg-empty-sub" data-i18n="budget.bills.emptySub">Add recurring bills like rent, utilities or subscriptions.</p>
+        <button class="bg-btn-primary" id="btnAddBillEmpty" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span data-i18n="budget.sheet.addBill">Add bill</span>
+        </button>
       </div>
     </section>
 
     <!-- ══ Accounts section ══════════════════════════════ -->
     <section class="bg-sec" id="bgSecAccounts">
       <div class="bg-sec-head">
-        <span class="bg-sec-title">Accounts</span>
+        <span class="bg-sec-title" data-i18n="budget.accounts">Accounts</span>
         <button class="bg-sec-add-btn" id="btnAddAccount" type="button" aria-label="Add account">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          Add
+          <span data-i18n="budget.bills.add">Add</span>
         </button>
       </div>
-      <!-- horizontal scroll row — filled by JS -->
       <div class="bg-accounts-wrap">
         <div class="bg-accounts-row" id="accountsList" role="list"></div>
       </div>
@@ -243,16 +288,12 @@
     <!-- ══ Spending chart section ════════════════════════ -->
     <section class="bg-sec" id="bgSecChart">
       <div class="bg-sec-head">
-        <span class="bg-sec-title">Spending by category</span>
+        <span class="bg-sec-title" data-i18n="budget.chart.title">Spending by category</span>
       </div>
-
-      <!-- chart layout: SVG donut + legend -->
       <div class="bg-chart-layout" id="chartSection">
         <svg class="bg-pie-svg" id="pieSVG" viewBox="0 0 180 180" aria-hidden="true"></svg>
         <div class="bg-legend" id="pieLegend" role="list"></div>
       </div>
-
-      <!-- empty state -->
       <div class="bg-empty" id="chartEmpty" aria-live="polite">
         <svg class="bg-empty-illo" viewBox="0 0 80 80" fill="none" aria-hidden="true">
           <circle cx="40" cy="40" r="34" stroke="rgba(245,158,11,0.08)" stroke-width="2"/>
@@ -260,7 +301,7 @@
           <circle cx="40" cy="40" r="10" stroke="rgba(245,158,11,0.32)" stroke-width="2"/>
           <circle cx="40" cy="40" r="3" fill="rgba(245,158,11,0.6)"/>
         </svg>
-        <p class="bg-empty-title">No expenses this month</p>
+        <p class="bg-empty-title" data-i18n="budget.transactions.empty">No expenses this month</p>
         <p class="bg-empty-sub">Add your first expense to see your spending breakdown.</p>
       </div>
     </section>
@@ -268,11 +309,22 @@
     <!-- ══ Transactions section ══════════════════════════ -->
     <section class="bg-sec" id="bgSecTransactions">
       <div class="bg-sec-head">
-        <span class="bg-sec-title">Transactions</span>
+        <span class="bg-sec-title" data-i18n="budget.transactions.title">Transactions</span>
         <span class="bg-badge" id="entriesBadge" aria-live="polite"></span>
       </div>
 
-      <!-- list filled by JS -->
+      <!-- Search bar -->
+      <div class="bg-search-wrap">
+        <svg class="bg-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input class="bg-search-input" id="txSearch" type="search"
+               data-i18n-placeholder="budget.transactions.search"
+               placeholder="Search transactions…" autocomplete="off" />
+      </div>
+
+      <!-- list filled by JS (grouped by date) -->
       <div class="bg-entries" id="entriesList" role="list" aria-label="Expense list"></div>
 
       <!-- empty state -->
@@ -283,14 +335,14 @@
           <line x1="24" y1="34" x2="56" y2="34" stroke="rgba(245,158,11,0.25)" stroke-width="2"/>
           <line x1="24" y1="42" x2="44" y2="42" stroke="rgba(245,158,11,0.18)" stroke-width="2"/>
         </svg>
-        <p class="bg-empty-title">No transactions this month</p>
-        <p class="bg-empty-sub">Track your spending to stay on budget.</p>
+        <p class="bg-empty-title" data-i18n="budget.transactions.empty">No transactions this month</p>
+        <p class="bg-empty-sub" data-i18n="budget.transactions.emptySub">Track your spending to stay on budget.</p>
         <button class="bg-btn-primary" id="btnAddExpenseEmpty" type="button">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          Add your first expense
+          <span data-i18n="budget.transactions.addFirst">Add your first expense</span>
         </button>
       </div>
     </section>
@@ -306,13 +358,39 @@
 
   </main><!-- /bg-main -->
 
-  <!-- ══ FAB ════════════════════════════════════════════ -->
-  <button class="bg-fab" id="fabAdd" type="button" aria-label="Add expense">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-    </svg>
-  </button>
+  <!-- ══ Speed-dial FAB ════════════════════════════════ -->
+  <div class="bg-fab-wrap" id="fabWrap">
+    <div class="bg-fab-menu" id="fabMenu" aria-hidden="true">
+      <div class="bg-fab-sub-row">
+        <span class="bg-fab-sub-label" data-i18n="budget.fab.bill">Bill</span>
+        <button class="bg-fab-sub" id="fabBill" type="button" aria-label="Add bill">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+        </button>
+      </div>
+      <div class="bg-fab-sub-row">
+        <span class="bg-fab-sub-label" data-i18n="budget.fab.expense">Expense</span>
+        <button class="bg-fab-sub" id="fabExpense" type="button" aria-label="Add expense">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="12" y1="1" x2="12" y2="23"/>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <button class="bg-fab" id="fabAdd" type="button" aria-label="Add" aria-expanded="false">
+      <svg class="bg-fab-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    </button>
+  </div>
 
   <!-- ══ Account bottom sheet ══════════════════════════ -->
   <div class="bg-overlay" id="acctOverlay" aria-hidden="true">
@@ -325,44 +403,39 @@
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
         </button>
-        <h3 class="bg-sheet-title" id="acctTitle">Add account</h3>
-        <button class="bg-sheet-action" id="acctSave" type="button">Save</button>
+        <h3 class="bg-sheet-title" id="acctTitle" data-i18n="budget.sheet.addAccount">Add account</h3>
+        <button class="bg-sheet-action" id="acctSave" type="button" data-i18n="budget.sheet.save">Save</button>
       </div>
-
       <div class="bg-sheet-body">
-        <!-- account type selector (rendered by JS) -->
         <div class="bg-type-row" id="acctTypeRow" role="group" aria-label="Account type"></div>
-
         <div class="bg-field">
-          <label for="acctName" class="bg-label">Name</label>
+          <label for="acctName" class="bg-label" data-i18n="budget.sheet.name">Name</label>
           <input id="acctName" class="bg-input" type="text"
                  placeholder="e.g. Salary, Savings, Visa…" autocomplete="off" />
         </div>
-
         <div class="bg-field">
-          <label for="acctBalance" class="bg-label" id="acctBalanceLbl">Balance</label>
+          <label for="acctBalance" class="bg-label" id="acctBalanceLbl" data-i18n="budget.sheet.balance">Balance</label>
           <input id="acctBalance" class="bg-input" type="number"
                  inputmode="decimal" placeholder="0.00" />
         </div>
-
         <div class="bg-field" id="acctLimitRow">
-          <label for="acctLimit" class="bg-label">Credit limit</label>
+          <label for="acctLimit" class="bg-label" data-i18n="budget.sheet.creditLimit">Credit limit</label>
           <input id="acctLimit" class="bg-input" type="number"
                  inputmode="decimal" placeholder="0.00" />
         </div>
-
         <div class="bg-field" id="acctAprRow">
-          <label for="acctApr" class="bg-label">APR %</label>
+          <label for="acctApr" class="bg-label" data-i18n="budget.sheet.apr">APR %</label>
           <input id="acctApr" class="bg-input" type="number"
                  inputmode="decimal" placeholder="e.g. 19.99" />
         </div>
-
         <div class="bg-field">
-          <label for="acctNote" class="bg-label">Note <span class="bg-label-opt">(optional)</span></label>
+          <label for="acctNote" class="bg-label">
+            <span data-i18n="budget.sheet.note">Note</span>
+            <span class="bg-label-opt" data-i18n="budget.sheet.optional">(optional)</span>
+          </label>
           <input id="acctNote" class="bg-input" type="text" placeholder="Optional note" />
         </div>
-
-        <button class="bg-btn-danger" id="acctDelete" type="button">Delete account</button>
+        <button class="bg-btn-danger" id="acctDelete" type="button" data-i18n="budget.sheet.deleteAccount">Delete account</button>
       </div>
     </div>
   </div>
@@ -378,33 +451,102 @@
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
         </button>
-        <h3 class="bg-sheet-title" id="expTitle">Add expense</h3>
-        <button class="bg-sheet-action" id="expSave" type="button">Save</button>
+        <h3 class="bg-sheet-title" id="expTitle" data-i18n="budget.sheet.addExpense">Add expense</h3>
+        <button class="bg-sheet-action" id="expSave" type="button" data-i18n="budget.sheet.save">Save</button>
       </div>
-
       <div class="bg-sheet-body">
-        <!-- Large amount input -->
         <div class="bg-amount-wrap">
           <span class="bg-currency-sym" id="expCurrencySym">$</span>
           <input id="expAmount" class="bg-amount-input" type="number"
                  inputmode="decimal" placeholder="0.00" step="0.01" min="0" />
         </div>
-
-        <!-- Category chip grid (rendered by JS) -->
         <div class="bg-cat-grid" id="catGrid" role="group" aria-label="Category"></div>
-
         <div class="bg-field">
-          <label for="expDesc" class="bg-label">Description <span class="bg-label-opt">(optional)</span></label>
+          <label for="expDesc" class="bg-label">
+            <span data-i18n="budget.sheet.description">Description</span>
+            <span class="bg-label-opt" data-i18n="budget.sheet.optional">(optional)</span>
+          </label>
           <input id="expDesc" class="bg-input" type="text"
                  placeholder="What did you spend on?" autocomplete="off" />
         </div>
-
         <div class="bg-field">
-          <label for="expDate" class="bg-label">Date</label>
+          <label for="expDate" class="bg-label" data-i18n="budget.sheet.date">Date</label>
           <input id="expDate" class="bg-input" type="date" />
         </div>
+        <button class="bg-btn-danger" id="expDelete" type="button" data-i18n="budget.sheet.deleteExpense">Delete expense</button>
+      </div>
+    </div>
+  </div>
 
-        <button class="bg-btn-danger" id="expDelete" type="button">Delete expense</button>
+  <!-- ══ Bill bottom sheet ════════════════════════════ -->
+  <div class="bg-overlay" id="billOverlay" aria-hidden="true">
+    <div class="bg-sheet" id="billSheet" role="dialog" aria-modal="true" aria-labelledby="billTitle">
+      <div class="bg-sheet-drag" aria-hidden="true"></div>
+      <div class="bg-sheet-head">
+        <button class="bg-sheet-close" id="billClose" type="button" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        <h3 class="bg-sheet-title" id="billTitle" data-i18n="budget.sheet.addBill">Add bill</h3>
+        <button class="bg-sheet-action" id="billSave" type="button" data-i18n="budget.sheet.save">Save</button>
+      </div>
+      <div class="bg-sheet-body">
+        <div class="bg-amount-wrap">
+          <span class="bg-currency-sym" id="billCurrencySym">$</span>
+          <input id="billAmount" class="bg-amount-input" type="number"
+                 inputmode="decimal" placeholder="0.00" step="0.01" min="0" />
+        </div>
+        <!-- Category chips for bill -->
+        <div class="bg-cat-grid" id="billCatGrid" role="group" aria-label="Bill category"></div>
+        <div class="bg-field">
+          <label for="billName" class="bg-label" data-i18n="budget.bills.name">Bill name</label>
+          <input id="billName" class="bg-input" type="text"
+                 placeholder="e.g. Rent, Netflix…" autocomplete="off" />
+        </div>
+        <div class="bg-field">
+          <label for="billDueDay" class="bg-label" data-i18n="budget.bills.dueDay">Due day of month</label>
+          <input id="billDueDay" class="bg-input" type="number"
+                 inputmode="numeric" placeholder="1–28" min="1" max="28" />
+        </div>
+        <div class="bg-field">
+          <label for="billNote" class="bg-label">
+            <span data-i18n="budget.sheet.note">Note</span>
+            <span class="bg-label-opt" data-i18n="budget.sheet.optional">(optional)</span>
+          </label>
+          <input id="billNote" class="bg-input" type="text" placeholder="Optional note" />
+        </div>
+        <button class="bg-btn-danger" id="billDelete" type="button" data-i18n="budget.sheet.deleteBill">Delete bill</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Budget Limit sheet ════════════════════════════ -->
+  <div class="bg-overlay" id="limitOverlay" aria-hidden="true">
+    <div class="bg-sheet bg-sheet--sm" id="limitSheet" role="dialog" aria-modal="true" aria-labelledby="limitTitle">
+      <div class="bg-sheet-drag" aria-hidden="true"></div>
+      <div class="bg-sheet-head">
+        <button class="bg-sheet-close" id="limitClose" type="button" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        <h3 class="bg-sheet-title" id="limitTitle" data-i18n="budget.limit.title">Set Budget Limit</h3>
+        <button class="bg-sheet-action" id="limitSave" type="button" data-i18n="budget.limit.save">Save limit</button>
+      </div>
+      <div class="bg-sheet-body">
+        <div class="bg-limit-cat-info" id="limitCatInfo" aria-live="polite"></div>
+        <div class="bg-field">
+          <label for="limitAmount" class="bg-label" data-i18n="budget.limit.for">Monthly limit for</label>
+          <div class="bg-amount-wrap bg-amount-wrap--sm">
+            <span class="bg-currency-sym" id="limitCurrencySym">$</span>
+            <input id="limitAmount" class="bg-amount-input" type="number"
+                   inputmode="decimal" placeholder="e.g. 500" step="1" min="0" />
+          </div>
+        </div>
+        <button class="bg-btn-ghost" id="limitRemove" type="button" data-i18n="budget.limit.remove">Remove limit</button>
       </div>
     </div>
   </div>
@@ -413,7 +555,7 @@
   <div class="bg-overlay" id="helpOverlay" aria-hidden="true">
     <div class="bg-help-popup" id="helpPopup" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
       <div class="bg-help-head">
-        <h3 class="bg-help-title" id="helpTitle">How Budget works</h3>
+        <h3 class="bg-help-title" id="helpTitle" data-i18n="budget.help.title">How Budget works</h3>
         <button class="bg-sheet-close" id="helpClose" type="button" aria-label="Close">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -422,13 +564,13 @@
         </button>
       </div>
       <div class="bg-help-body">
-        <p class="bg-help-step-title" id="helpStepTitle">Accounts</p>
-        <p class="bg-help-step-body" id="helpStepBody">Add your accounts here…</p>
+        <p class="bg-help-step-title" id="helpStepTitle"></p>
+        <p class="bg-help-step-body" id="helpStepBody"></p>
       </div>
       <div class="bg-help-footer">
-        <button class="bg-help-btn back" id="helpBack" type="button">Back</button>
+        <button class="bg-help-btn back" id="helpBack" type="button" data-i18n="budget.help.back">Back</button>
         <span class="bg-help-dots" id="helpDots"></span>
-        <button class="bg-help-btn next" id="helpNext" type="button">Next</button>
+        <button class="bg-help-btn next" id="helpNext" type="button" data-i18n="budget.help.next">Next</button>
       </div>
     </div>
   </div>

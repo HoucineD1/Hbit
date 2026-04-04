@@ -29,7 +29,8 @@
    * @returns {Promise<DashboardData>}
    */
   async function fetchDashboardData(uid) {
-    if (!uid || !HBIT.db) {
+    if (!uid || !HBIT.fbFirestore || !HBIT.db) {
+      console.warn("[dashboard] skipped: uid=%s, fbFirestore=%s, db=%s", !!uid, !!HBIT.fbFirestore, !!HBIT.db);
       return getEmptyDashboard();
     }
 
@@ -51,29 +52,39 @@
     };
 
     try {
+      const userRef = HBIT.fbFirestore.collection("users").doc(uid);
+
       const [
-        habitsList,
-        habitLogsRange,
+        habitsSnap,
+        habitLogsSnap,
         budgetEntriesMonth,
         budgetMonthDoc,
         budgetGoalsDoc,
         budgetAccountsList,
+        budgetBillsList,
         sleepLogsRecent,
         sleepPlansUpcoming,
         moodToday,
         moodRecent,
       ] = await Promise.all([
-        HBIT.db.habits.list().catch(() => []),
-        HBIT.db.habitLogs.range(weekStart, today).catch(() => []),
+        userRef.collection("habits").get().catch((e) => { console.warn("[dashboard] habits query failed:", e.message); return { docs: [] }; }),
+        userRef.collection("habitLogs").where("dateKey", ">=", weekStart).where("dateKey", "<=", today).get().catch((e) => { console.warn("[dashboard] habitLogs query failed:", e.message); return { docs: [] }; }),
         HBIT.db.budgetEntries.forMonth(thisMonth).catch(() => []),
         HBIT.db.budgetMonths?.get?.(thisMonth).catch(() => null) ?? null,
         HBIT.db.budgetGoals.get(thisMonth).catch(() => null),
         HBIT.db.budgetAccounts?.list?.().catch(() => []) ?? [],
-        HBIT.db.sleepLogs.recent(7).catch(() => []),
+        HBIT.db.budgetBills?.list?.().catch(() => []) ?? [],
+        userRef.collection("sleepLogs").orderBy("date", "desc").limit(7).get().catch((e) => { console.warn("[dashboard] sleepLogs:", e.message); return { docs: [] }; }),
         fetchNextSleepPlan(uid),
-        HBIT.db.moodLogs.get(today).catch(() => null),
-        HBIT.db.moodLogs.recent(7).catch(() => []),
+        userRef.collection("moodLogs").doc(today).get().catch((e) => { console.warn("[dashboard] moodToday:", e.message); return { exists: false }; }),
+        userRef.collection("moodLogs").orderBy("date", "desc").limit(7).get().catch((e) => { console.warn("[dashboard] moodRecent:", e.message); return { docs: [] }; }),
       ]);
+
+      const habitsList = habitsSnap.docs.map(d => ({ id: d.id, ...d.data() })).filter(h => !h.archived);
+      const habitLogsRange = habitLogsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const sleepLogsArr = sleepLogsRecent.docs ? sleepLogsRecent.docs.map(d => ({ id: d.id, ...d.data() })) : [];
+      const moodTodayObj = moodToday.exists ? { id: moodToday.id, ...moodToday.data() } : null;
+      const moodRecentArr = moodRecent.docs ? moodRecent.docs.map(d => ({ id: d.id, ...d.data() })) : [];
 
       /* ── Budget ───────────────────────────────────────────── */
       let incomeTotal = 0, expenseTotal = 0, remaining = 0, monthGoal = 0;
@@ -94,12 +105,23 @@
         monthGoal = budgetGoalsDoc.budgetLimit;
       }
       const lastEntry = (budgetEntriesMonth || [])[0] || null;
+
+      /* Bills summary */
+      const today2 = new Date();
+      const todayDay = today2.getDate();
+      const unpaidBills = (budgetBillsList || []).filter(b => b.paidMonth !== thisMonth);
+      const overdueBills = unpaidBills.filter(b => (b.dueDay || 1) < todayDay);
+      const billsTotal = unpaidBills.reduce((s, b) => s + Math.abs(b.amount || 0), 0);
+
       out.budget = {
         incomeTotal,
         expenseTotal,
         remaining,
         monthGoal,
         lastEntry,
+        billsCount: unpaidBills.length,
+        overdueBillsCount: overdueBills.length,
+        billsTotal,
         hasData: incomeTotal > 0 || expenseTotal > 0,
       };
 
@@ -132,18 +154,15 @@
       out.weekly.habitsPct = totalActive > 0 ? Math.min(1, weekDoneDays / 7) : null;
 
       /* ── Sleep ─────────────────────────────────────────────── */
-      const lastSleep = (sleepLogsRecent || [])[0] || null;
-      const sleepAvg =
-        (sleepLogsRecent || []).filter((l) => l.duration > 0).length > 0
-          ? (sleepLogsRecent || [])
-              .filter((l) => l.duration > 0)
-              .reduce((a, l) => a + (l.duration || 0), 0) /
-            (sleepLogsRecent || []).filter((l) => l.duration > 0).length
-          : null;
+      const lastSleep = sleepLogsArr[0] || null;
+      const sleepWithDuration = sleepLogsArr.filter((l) => l.duration > 0);
+      const sleepAvg = sleepWithDuration.length > 0
+        ? sleepWithDuration.reduce((a, l) => a + (l.duration || 0), 0) / sleepWithDuration.length
+        : null;
       out.sleep = {
         lastLog: lastSleep,
         nextPlan: sleepPlansUpcoming,
-        recentHours: (sleepLogsRecent || []).map((l) => l.duration || 0),
+        recentHours: sleepLogsArr.map((l) => l.duration || 0),
         sleepAvg,
         hasData: !!lastSleep || !!sleepPlansUpcoming,
       };
@@ -151,8 +170,8 @@
       out.weekly.sleepPct = sleepAvg != null && sleepAvg > 0 ? Math.min(1, sleepAvg / 8) : null;
 
       /* ── State of Mind ────────────────────────────────────── */
-      const lastMood = moodToday || (moodRecent || [])[0] || null;
-      const moodScores = (moodRecent || []).map((m) => m.score).filter((s) => s != null && s > 0);
+      const lastMood = moodTodayObj || moodRecentArr[0] || null;
+      const moodScores = moodRecentArr.map((m) => m.score).filter((s) => s != null && s > 0);
       const moodAvg = moodScores.length > 0 ? moodScores.reduce((a, b) => a + b, 0) / moodScores.length : null;
       out.mind = {
         lastEntry: lastMood,
@@ -188,7 +207,8 @@
       if (snap.empty) return null;
       const doc = snap.docs[0];
       return { id: doc.id, ...doc.data() };
-    } catch {
+    } catch (e) {
+      console.warn("[dashboard] sleepPlans query failed:", e?.message);
       return null;
     }
   }
@@ -201,6 +221,9 @@
         remaining: 0,
         monthGoal: 0,
         lastEntry: null,
+        billsCount: 0,
+        overdueBillsCount: 0,
+        billsTotal: 0,
         hasData: false,
       },
       habits: {

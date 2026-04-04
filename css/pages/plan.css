@@ -49,7 +49,10 @@ html[data-theme="light"] .hm-theme-light { display: block; }
   justify-content: space-between;
   gap: 16px;
   height: 68px;
-  padding: 0 20px;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-right: 20px;
+  padding-left: 56px;
   background: rgba(7, 9, 14, 0.9);
   backdrop-filter: blur(24px);
   border-bottom: 1px solid var(--pl-border);
@@ -268,7 +271,7 @@ html[data-theme="light"] .pl-header {
 }
 
 @media (min-width: 640px) {
-  .pl-header { padding: 0 28px; }
+  .pl-header { padding-right: 28px; }
   .pl-main { padding: 24px 24px 32px; }
   .pl-form {
     grid-template-columns: 1fr auto;
@@ -280,14 +283,14 @@ html[data-theme="light"] .pl-header {
 }
 
 @media (min-width: 960px) {
-  .pl-header { padding: 0 40px; }
+  .pl-header { padding-right: 40px; }
   .pl-main { padding: 28px 36px 36px; }
 }
 
 @media (max-width: 360px) {
   .pl-header {
     height: 58px;
-    padding: 0 14px;
+    padding-right: 14px;
   }
   .pl-title {
     font-size: 18px;

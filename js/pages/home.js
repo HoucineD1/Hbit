@@ -287,16 +287,26 @@
       ? Math.min(1, (budget.expenseTotal || 0) / budget.monthGoal)
       : (budget.incomeTotal > 0 ? Math.min(1, (budget.expenseTotal || 0) / budget.incomeTotal) : 0);
     setDonut("budgetDonutFill", budget.incomeTotal > 0 ? Math.max(0, 1 - budgetPct) : budgetPct);
-    setFooter(
-      "budgetFooter",
-      !budget.hasData
-        ? tr("home.budget.footer.empty", "No entries yet · Add an expense")
-        : budget.incomeTotal > 0
-          ? tr("home.budget.footer.spent", "{amount} spent · Tap to see breakdown", {
-              amount: formatCurrency(budget.expenseTotal || 0, budget.lastEntry?.currency || "CAD"),
-            })
-          : tr("home.budget.footer.manage", "Tap to manage budget")
-    );
+    /* Budget footer — prioritise bills alert over generic tip */
+    let budgetFooterText;
+    if (!budget.hasData && budget.billsCount === 0) {
+      budgetFooterText = tr("home.budget.footer.empty", "No entries yet · Add an expense");
+    } else if (budget.overdueBillsCount > 0) {
+      budgetFooterText = getLang() === "fr"
+        ? `${budget.overdueBillsCount} facture${budget.overdueBillsCount > 1 ? "s" : ""} en retard · Voir les factures`
+        : `${budget.overdueBillsCount} overdue bill${budget.overdueBillsCount > 1 ? "s" : ""} · Tap to review`;
+    } else if (budget.billsCount > 0) {
+      budgetFooterText = getLang() === "fr"
+        ? `${budget.billsCount} facture${budget.billsCount > 1 ? "s" : ""} à payer · ${formatCurrency(budget.billsTotal, "CAD")}`
+        : `${budget.billsCount} bill${budget.billsCount > 1 ? "s" : ""} due · ${formatCurrency(budget.billsTotal, "CAD")}`;
+    } else if (budget.incomeTotal > 0) {
+      budgetFooterText = tr("home.budget.footer.spent", "{amount} spent · Tap to see breakdown", {
+        amount: formatCurrency(budget.expenseTotal || 0, budget.lastEntry?.currency || "CAD"),
+      });
+    } else {
+      budgetFooterText = tr("home.budget.footer.manage", "Tap to manage budget");
+    }
+    setFooter("budgetFooter", budgetFooterText);
 
     const lastSleepHours = sleep.lastLog?.duration || 0;
     setMetricHtml(

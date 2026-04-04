@@ -152,18 +152,46 @@
     <span class="hb-today-hint" data-i18n="habits.today.hint">&middot; Tap a habit to mark</span>
   </div>
 
-  <!-- ══ Tabs ══════════════════════════════════════════════ -->
-  <div class="hb-tabs" role="tablist">
-    <button class="hb-tab active" data-tab="today" role="tab" aria-selected="true"
-            data-i18n="habits.tab.today">Today</button>
-    <button class="hb-tab" data-tab="all" role="tab" aria-selected="false"
-            data-i18n="habits.tab.all">All</button>
-    <button class="hb-tab" data-tab="archived" role="tab" aria-selected="false"
-            data-i18n="habits.tab.archived">Archived</button>
+  <!-- ══ Filter chips ═══════════════════════════════════════ -->
+  <div class="hb-chips" id="hbChips" role="tablist">
+    <button class="hb-chip active" data-filter="all" role="tab" aria-selected="true"
+            data-i18n="habits.chip.all">All</button>
+    <button class="hb-chip" data-filter="health" role="tab" aria-selected="false">Health</button>
+    <button class="hb-chip" data-filter="fitness" role="tab" aria-selected="false">Fitness</button>
+    <button class="hb-chip" data-filter="mind" role="tab" aria-selected="false">Mind</button>
+    <button class="hb-chip" data-filter="learning" role="tab" aria-selected="false">Learning</button>
+    <button class="hb-chip" data-filter="finance" role="tab" aria-selected="false">Finance</button>
+    <button class="hb-chip" data-filter="sleep" role="tab" aria-selected="false">Sleep</button>
+    <button class="hb-chip" data-filter="social" role="tab" aria-selected="false">Social</button>
+    <button class="hb-chip" data-filter="lifestyle" role="tab" aria-selected="false">Lifestyle</button>
+    <button class="hb-chip hb-chip--muted" data-filter="archived" role="tab" aria-selected="false"
+            data-i18n="habits.chip.archived">Archived</button>
   </div>
 
   <!-- ══ Main scrollable area ══════════════════════════════ -->
   <main class="hb-main" id="hbMain">
+
+    <!-- ── Contribution heatmap ──────────────────────────── -->
+    <section class="hb-heatmap-section" id="hbHeatmapSection">
+      <button class="hb-heatmap-toggle" id="hbHeatmapToggle" type="button" aria-expanded="true">
+        <span data-i18n="habits.heatmap.title">Activity</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="hb-heatmap-wrap" id="hbHeatmapWrap">
+        <div class="hb-heatmap-months" id="hbHeatmapMonths"></div>
+        <div class="hb-heatmap-grid" id="hbHeatmapGrid"></div>
+        <div class="hb-heatmap-legend">
+          <span class="hb-heatmap-legend-label">Less</span>
+          <span class="hb-heatmap-cell" data-level="0"></span>
+          <span class="hb-heatmap-cell" data-level="1"></span>
+          <span class="hb-heatmap-cell" data-level="2"></span>
+          <span class="hb-heatmap-cell" data-level="3"></span>
+          <span class="hb-heatmap-cell" data-level="4"></span>
+          <span class="hb-heatmap-legend-label">More</span>
+        </div>
+      </div>
+    </section>
 
     <!-- Empty state -->
     <div class="hb-empty" id="hbEmpty" style="display:none;" aria-live="polite">

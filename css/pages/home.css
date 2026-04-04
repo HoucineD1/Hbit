@@ -127,7 +127,10 @@ html[data-theme="light"] .hm-theme-light { display: block; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-right: 20px;
+  padding-left: 56px;
   background: rgba(7, 9, 14, 0.90);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -705,7 +708,7 @@ a.hc-card:hover .hc-chevron {
    TABLET + DESKTOP  (≥ 600px) — 3 columns, uniform cards
    ════════════════════════════════════════════════════════════ */
 @media (min-width: 600px) {
-  .hm-header   { padding: 0 28px; }
+  .hm-header   { padding-right: 28px; }
   .hm-greeting { padding: 0 28px; }
   .hm-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -723,7 +726,7 @@ a.hc-card:hover .hc-chevron {
    DESKTOP  (≥ 900px) — more spacing, taller cards
    ════════════════════════════════════════════════════════════ */
 @media (min-width: 900px) {
-  .hm-header   { height: 68px; padding: 0 40px; }
+  .hm-header   { height: 68px; padding-right: 40px; }
   .hm-greeting { height: 50px; padding: 0 40px; }
   .hm-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -743,7 +746,7 @@ a.hc-card:hover .hc-chevron {
    VERY SMALL MOBILE  (≤ 360px) — keep 2 columns, tighter spacing
    ════════════════════════════════════════════════════════════ */
 @media (max-width: 360px) {
-  .hm-header    { height: 56px; padding: 0 14px; }
+  .hm-header    { height: 56px; padding-right: 14px; }
   .hm-hdr-title { font-size: 16px; }
   .hm-greeting  { padding: 0 14px; height: 40px; }
   .hm-grid {

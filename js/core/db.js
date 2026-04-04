@@ -503,6 +503,101 @@
   };
 
   /* ═══════════════════════════════════════════════════════════════
+     BUDGET PLAN   /users/{uid}/budgetPlan/{YYYY-MM}
+
+     Doc-ID = month string, e.g. "2026-03".
+     Stores per-category spending limits for a given month.
+
+     Schema:
+       month      string  YYYY-MM
+       byCategory { [categoryId]: number }   e.g. { food: 500, housing: 1500 }
+       updatedAt  Timestamp
+     ═══════════════════════════════════════════════════════════════ */
+  const budgetPlan = {
+    _col() { return userSubcollectionRef(getUidOrThrow(), "budgetPlan"); },
+
+    async get(month) {
+      try {
+        const doc = await this._col().doc(month).get();
+        return snap2obj(doc);
+      } catch (err) {
+        console.warn("[Hbit] budgetPlan.get:", err?.message);
+        return null;
+      }
+    },
+
+    async set(month, byCategory) {
+      try {
+        await this._col().doc(month).set({
+          month,
+          byCategory: byCategory || {},
+          updatedAt:  now(),
+        }, { merge: true });
+      } catch (err) {
+        console.warn("[Hbit] budgetPlan.set:", err?.message);
+      }
+    }
+  };
+
+  /* ═══════════════════════════════════════════════════════════════
+     BUDGET BILLS   /users/{uid}/budgetBills/{billId}
+
+     Recurring bills tracked per user.  "Paid" state is kept
+     client-side via paidMonth (YYYY-MM) so bills auto-reset.
+
+     Schema:
+       name       string
+       amount     number
+       dueDay     number  1–28 (day of month)
+       category   string  matches expense categories
+       note       string  (optional)
+       paidMonth  string  YYYY-MM or "" if unpaid this month
+       createdAt  Timestamp
+       updatedAt  Timestamp
+     ═══════════════════════════════════════════════════════════════ */
+  const budgetBills = {
+    _col() { return userSubcollectionRef(getUidOrThrow(), "budgetBills"); },
+
+    async list() {
+      try {
+        const snap = await this._col().orderBy("createdAt", "asc").get();
+        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      } catch (err) {
+        console.warn("[Hbit] budgetBills.list:", err?.message);
+        return [];
+      }
+    },
+
+    async add(bill) {
+      try {
+        const ref = await this._col().add({
+          name:       bill.name      || "Bill",
+          amount:     Math.abs(bill.amount || 0),
+          dueDay:     bill.dueDay    || 1,
+          category:   bill.category  || "subscriptions",
+          note:       bill.note      || "",
+          paidMonth:  "",
+          createdAt:  now(),
+          updatedAt:  now(),
+        });
+        return ref.id;
+      } catch (err) { return logAndThrow("budgetBills.add", err); }
+    },
+
+    async update(billId, fields) {
+      try {
+        await this._col().doc(billId).update({ ...fields, updatedAt: now() });
+      } catch (err) { return logAndThrow("budgetBills.update", err); }
+    },
+
+    async delete(billId) {
+      try {
+        await this._col().doc(billId).delete();
+      } catch (err) { return logAndThrow("budgetBills.delete", err); }
+    }
+  };
+
+  /* ═══════════════════════════════════════════════════════════════
      SLEEP LOGS   /users/{uid}/sleepLogs/{YYYY-MM-DD}
 
      Doc-ID = date string, e.g. "2025-03-04"  (uid removed from ID).
@@ -682,6 +777,8 @@
     budgetGoals,
     budgetAccounts,
     budgetMonths,
+    budgetPlan,
+    budgetBills,
     sleepLogs,
     moodLogs,
 
