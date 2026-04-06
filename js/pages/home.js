@@ -8,6 +8,7 @@
   const HBIT = (window.HBIT = window.HBIT || {});
   const $ = (id) => document.getElementById(id);
   const PLANNER_KEY = "hbit:plan:items";
+  const FOCUS_DAILY_KEY = "hbit:focus:daily";
 
   const DONUT_CIRC = 2 * Math.PI * 18;
   const WK_HABITS_CIRC = 2 * Math.PI * 30;
@@ -75,6 +76,18 @@
     if (el) el.textContent = text;
   }
 
+  function setBudgetSubline(text) {
+    const el = $("budgetSubline");
+    if (!el) return;
+    if (!text) {
+      el.textContent = "";
+      el.hidden = true;
+      return;
+    }
+    el.textContent = text;
+    el.hidden = false;
+  }
+
   function readPlannerItems() {
     try {
       const raw = localStorage.getItem(PLANNER_KEY);
@@ -94,6 +107,28 @@
       next: openItems[0] || null,
       hasData: items.length > 0,
     };
+  }
+
+  function todayKeyLocal() {
+    const d = new Date();
+    return [
+      d.getFullYear(),
+      String(d.getMonth() + 1).padStart(2, "0"),
+      String(d.getDate()).padStart(2, "0"),
+    ].join("-");
+  }
+
+  /** Pomodoros completed today (persisted by focus.js). */
+  function getFocusSummary() {
+    try {
+      const raw = localStorage.getItem(FOCUS_DAILY_KEY);
+      const o = raw ? JSON.parse(raw) : null;
+      const tk = todayKeyLocal();
+      if (!o || o.date !== tk) return { sessions: 0 };
+      return { sessions: Math.max(0, parseInt(o.sessions, 10) || 0) };
+    } catch {
+      return { sessions: 0 };
+    }
   }
 
   function setDonut(fillId, pct) {
@@ -223,6 +258,7 @@
     setMetricHtml("budgetMetric", "—", tr("home.budget.unit.left", "left"));
     setDonut("budgetDonutFill", 0);
     setFooter("budgetFooter", tr("home.budget.footer.empty", "No entries yet · Add an expense"));
+    setBudgetSubline("");
 
     setMetricHtml("sleepMetric", "—", tr("home.sleep.unit", "hrs"));
     renderSleepBars("sleepBarsChart", [0, 0, 0, 0, 0, 0, 0], "#60A5FA");
@@ -234,6 +270,10 @@
 
     setMetricHtml("planMetric", "0", tr("home.plan.unit.open", "open"));
     setFooter("planFooter", tr("home.plan.footer.empty", "No tasks yet - Add your first one"));
+
+    setMetricHtml("focusMetric", "0", tr("home.focus.unit.sessions", "sessions"));
+    setDonut("focusDonutFill", 0);
+    setFooter("focusFooter", tr("home.focus.footer", "Pomodoro · Tap to start session"));
 
     const suggestions = $("moodSuggestions");
     if (suggestions) suggestions.style.display = "none";
@@ -251,6 +291,7 @@
     const mind = data?.mind || {};
     const weekly = data?.weekly || {};
     const planner = getPlannerSummary();
+    const focus = getFocusSummary();
 
     setMetricHtml(
       "habitsMetric",
@@ -308,6 +349,25 @@
     }
     setFooter("budgetFooter", budgetFooterText);
 
+    const liabilitiesTotal = (budget.debtLiabilityTotal || 0) + (budget.creditLiabilityTotal || 0);
+    const subParts = [];
+    if (liabilitiesTotal > 0) {
+      subParts.push(
+        tr("home.budget.subline.liabilities", "{amount} debt & cards", {
+          amount: formatCurrency(liabilitiesTotal, budget.lastEntry?.currency || "CAD"),
+        })
+      );
+    }
+    if ((budget.savingsGoalsCount || 0) > 0) {
+      subParts.push(
+        tr("home.budget.subline.savings", "{count} goals · {amount} saved", {
+          count: String(budget.savingsGoalsCount),
+          amount: formatCurrency(budget.savingsGoalsSavedTotal || 0, budget.lastEntry?.currency || "CAD"),
+        })
+      );
+    }
+    setBudgetSubline(subParts.join(" · "));
+
     const lastSleepHours = sleep.lastLog?.duration || 0;
     setMetricHtml(
       "sleepMetric",
@@ -362,6 +422,20 @@
             })
     );
 
+    const focusSessions = focus.sessions || 0;
+    const focusUnit =
+      focusSessions === 1
+        ? tr("home.focus.unit.one", "session")
+        : tr("home.focus.unit.sessions", "sessions");
+    setMetricHtml("focusMetric", String(focusSessions), focusUnit);
+    setDonut("focusDonutFill", Math.min(1, focusSessions / 8));
+    setFooter(
+      "focusFooter",
+      focusSessions > 0
+        ? tr("home.focus.footer.active", "{n} focus rounds today · Tap to continue", { n: String(focusSessions) })
+        : tr("home.focus.footer", "Pomodoro · Tap to start session")
+    );
+
     setWeeklyRing("wkHabitsFill", weekly.habitsPct ?? 0, WK_HABITS_CIRC);
     setWeeklyRing("wkBudgetFill", weekly.budgetPct ?? 0, WK_BUDGET_CIRC);
     setWeeklyRing("wkSleepFill", weekly.sleepPct ?? 0, WK_SLEEP_CIRC);
@@ -381,8 +455,6 @@
   }
 
   async function refreshDashboard(user = state.user) {
-    const planner = getPlannerSummary();
-
     if (!user) {
       renderEmpty();
       return;
@@ -390,11 +462,6 @@
 
     try {
       const data = await fetchHomeSummary(user.uid);
-      const hasAny = data?.budget?.hasData || data?.habits?.hasData || data?.sleep?.hasData || data?.mind?.hasData || planner.hasData;
-      if (!hasAny) {
-        renderEmpty();
-        return;
-      }
       renderFromDashboard(data);
     } catch {
       renderEmpty();
@@ -429,6 +496,12 @@
 
     window.addEventListener("hbit:data-changed", () => {
       refreshDashboard().catch(() => renderEmpty());
+    });
+
+    window.addEventListener("storage", (e) => {
+      if (e.key === PLANNER_KEY || e.key === FOCUS_DAILY_KEY) {
+        refreshDashboard().catch(() => renderEmpty());
+      }
     });
   }
 

@@ -130,47 +130,148 @@
   </header>
 
   <main class="md-main">
-    <p class="md-leadin" data-i18n="mood.leadin">
-      Track your state of mind with simple levels. Log your day in one tap.
-    </p>
+    <div class="md-sleep-banner md-sleep-banner--hidden" id="mdSleepBanner" role="status" hidden>
+      <span class="md-sleep-icon" aria-hidden="true">🌙</span>
+      <span class="md-sleep-text" id="mdSleepText"></span>
+      <button type="button" class="md-sleep-dismiss" id="mdSleepDismiss" data-i18n="mood.sleepBannerDismiss">Dismiss</button>
+    </div>
 
-    <section class="md-card md-card--today" id="moodTodayCard">
-      <div class="md-card-head">
-        <span class="md-card-label" data-i18n="mood.today">Today</span>
-        <div class="pill md-pill" id="moodOverallPill">—</div>
+    <p class="md-leadin" data-i18n="mood.leadin">How are you today?</p>
+
+    <div class="md-layout">
+      <div class="md-col md-col-left">
+        <section class="md-card md-card--today" aria-labelledby="mdTodayHeading">
+          <div class="md-card-head">
+            <h2 class="md-card-label" id="mdTodayHeading" data-i18n="mood.today">Today</h2>
+          </div>
+
+          <div id="mdTodaySummary" class="md-today-summary md-today-summary--hidden" hidden></div>
+
+          <div id="mdSelectorWrap" class="md-selector-wrap">
+            <div class="md-selector" id="mdSelector" role="listbox" aria-label="Mood">
+              <button type="button" class="md-band-card" data-band="1" role="option" aria-selected="false">
+                <span class="md-band-swatch" aria-hidden="true"></span>
+                <span class="md-band-label" data-i18n="mood.band.1">Very difficult</span>
+                <span class="md-band-check" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+              </button>
+              <button type="button" class="md-band-card" data-band="2" role="option" aria-selected="false">
+                <span class="md-band-swatch" aria-hidden="true"></span>
+                <span class="md-band-label" data-i18n="mood.band.2">Difficult</span>
+                <span class="md-band-check" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+              </button>
+              <button type="button" class="md-band-card" data-band="3" role="option" aria-selected="false">
+                <span class="md-band-swatch" aria-hidden="true"></span>
+                <span class="md-band-label" data-i18n="mood.band.3">Okay</span>
+                <span class="md-band-check" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+              </button>
+              <button type="button" class="md-band-card" data-band="4" role="option" aria-selected="false">
+                <span class="md-band-swatch" aria-hidden="true"></span>
+                <span class="md-band-label" data-i18n="mood.band.4">Good</span>
+                <span class="md-band-check" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+              </button>
+              <button type="button" class="md-band-card" data-band="5" role="option" aria-selected="false">
+                <span class="md-band-swatch" aria-hidden="true"></span>
+                <span class="md-band-label" data-i18n="mood.band.5">Great</span>
+                <span class="md-band-check" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+              </button>
+            </div>
+
+            <div class="md-selector-actions md-selector-actions--hidden" id="mdSelectorActions" hidden>
+              <button type="button" class="md-btn-save" id="mdSaveQuick" data-i18n="mood.save" disabled>Save</button>
+              <button type="button" class="md-btn-details" id="mdOpenDepth" data-i18n="mood.addDetails">Add details →</button>
+            </div>
+
+            <div class="md-edit-row md-edit-row--hidden" id="mdEditRow" hidden>
+              <button type="button" class="md-today-edit" id="mdEditToday" data-i18n="mood.editToday">Edit today</button>
+            </div>
+          </div>
+
+          <div class="md-depth" id="mdDepth" aria-hidden="true">
+            <div class="md-depth-inner">
+              <div class="md-depth-bands md-depth-bands--hidden" id="mdDepthBands" hidden></div>
+              <div class="md-subdim-grid">
+                <div class="md-subdim-row">
+                  <span class="md-subdim-label" data-i18n="mood.energy">Energy</span>
+                  <input type="range" class="md-subdim-range" id="mdRngEnergy" min="1" max="5" value="3" aria-valuemin="1" aria-valuemax="5" />
+                  <span class="md-subdim-val" id="mdCapEnergy">—</span>
+                </div>
+                <div class="md-subdim-row">
+                  <span class="md-subdim-label" data-i18n="mood.stress">Stress</span>
+                  <input type="range" class="md-subdim-range" id="mdRngStress" min="1" max="5" value="3" aria-valuemin="1" aria-valuemax="5" />
+                  <span class="md-subdim-val" id="mdCapStress">—</span>
+                </div>
+                <div class="md-subdim-row">
+                  <span class="md-subdim-label" data-i18n="mood.focus">Focus</span>
+                  <input type="range" class="md-subdim-range" id="mdRngFocus" min="1" max="5" value="3" aria-valuemin="1" aria-valuemax="5" />
+                  <span class="md-subdim-val" id="mdCapFocus">—</span>
+                </div>
+                <div class="md-subdim-row">
+                  <span class="md-subdim-label" data-i18n="mood.social">Social</span>
+                  <input type="range" class="md-subdim-range" id="mdRngSocial" min="1" max="5" value="3" aria-valuemin="1" aria-valuemax="5" />
+                  <span class="md-subdim-val" id="mdCapSocial">—</span>
+                </div>
+              </div>
+
+              <p class="md-depth-heading" data-i18n="mood.emotionTitle">What emotion fits best?</p>
+              <div class="md-chips" id="mdEmotionChips"></div>
+              <button type="button" class="md-chip-more" id="mdEmoMore" data-i18n="mood.showMore">Show more</button>
+
+              <p class="md-depth-heading" data-i18n="mood.impactTitle">What had the most impact?</p>
+              <div class="md-chips" id="mdImpactChips"></div>
+              <button type="button" class="md-chip-more" id="mdImpMore" data-i18n="mood.showMore">Show more</button>
+
+              <div class="md-reflect">
+                <label class="md-reflect-label" for="mdImpactQ" data-i18n="mood.q.impact">What impacted your day the most?</label>
+                <input type="text" class="md-reflect-input" id="mdImpactQ" autocomplete="off" />
+                <label class="md-reflect-label" for="mdTriggerQ" data-i18n="mood.q.trigger">Main trigger?</label>
+                <input type="text" class="md-reflect-input" id="mdTriggerQ" autocomplete="off" />
+                <label class="md-reflect-label" for="mdActionQ" data-i18n="mood.q.action">One action you can take now?</label>
+                <input type="text" class="md-reflect-input" id="mdActionQ" autocomplete="off" />
+              </div>
+
+              <label class="md-note-label visually-hidden" for="mdNote" data-i18n="mood.note">Notes</label>
+              <textarea class="md-note" id="mdNote" rows="2" data-i18n-placeholder="mood.notePlaceholder" placeholder="Anything else on your mind?"></textarea>
+
+              <button type="button" class="md-btn-save-full" id="mdSaveFull" data-i18n="mood.saveAll">Save</button>
+            </div>
+          </div>
+        </section>
       </div>
-      <button class="md-btn md-btn--log" id="moodLogBtn" type="button" data-i18n="mood.log">Log</button>
-    </section>
 
-    <!-- Log modal — step-by-step wizard -->
-    <div class="md-log-overlay" id="moodLogModal" aria-hidden="true" role="dialog" aria-modal="true">
-      <div class="md-log-panel">
-        <div class="md-log-header">
-          <button class="md-log-close" id="moodLogClose" type="button" aria-label="Close">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-          <span class="md-log-step-label" id="mdLogStepLabel">1 / 7</span>
-          <div style="width:40px"></div>
-        </div>
-        <div class="md-log-progress-bar">
-          <div class="md-log-progress-fill" id="mdLogProgressFill"></div>
-        </div>
-        <h2 class="md-log-step-title" id="mdLogStepTitle"></h2>
-        <div class="md-log-content" id="mdLogContent"></div>
-        <div class="md-log-footer">
-          <button class="md-btn md-log-btn-back" id="mdLogBtnBack" type="button">Back</button>
-          <button class="md-btn md-btn--primary" id="mdLogBtnNext" type="button">Next</button>
-        </div>
+      <div class="md-col md-col-right">
+        <div class="md-streak md-streak--hidden" id="mdStreak" hidden></div>
+
+        <section class="md-card md-insight-card" id="mdInsightCard" aria-labelledby="mdInsightHeading">
+          <div class="md-card-head">
+            <h2 class="md-card-label" id="mdInsightHeading"><span aria-hidden="true">📊</span> <span data-i18n="mood.weekInsight">This week</span></h2>
+          </div>
+          <p class="md-insight-text" id="mdInsightText"></p>
+          <div class="md-mini-bars-labels" id="mdMiniBarLabels" aria-hidden="true"></div>
+          <div class="md-mini-bars" id="mdMiniBars" role="img" aria-label="Last 7 days"></div>
+          <!-- FUTURE: resource suggestions based on weekly mood -->
+        </section>
+
+        <section class="md-card" aria-labelledby="mdEntriesHeading">
+          <div class="md-card-head">
+            <h2 class="md-card-label" id="mdEntriesHeading" data-i18n="mood.entries">Recent entries</h2>
+          </div>
+          <p class="md-entries-empty" id="mdEntriesEmpty" data-i18n="mood.noEntries">No entries yet — log your first day above ↑</p>
+          <div class="md-entries" id="mdEntries"></div>
+        </section>
       </div>
     </div>
 
-    <section class="md-card" id="moodHistoryCard">
-      <div class="md-card-head">
-        <span class="md-card-label" data-i18n="mood.history">History</span>
-        <span class="pill" id="moodHistoryCount">0</span>
-      </div>
-      <div id="moodHistory" class="md-history"></div>
-    </section>
+    <div class="md-toast" id="mdToast" role="status" aria-live="polite"></div>
   </main>
 
 </body>

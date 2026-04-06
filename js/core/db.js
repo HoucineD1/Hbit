@@ -10,7 +10,21 @@
    /users/{uid}/budgetEntries/{id}     ← income & expense transactions
    /users/{uid}/budgetGoals/{YYYY-MM}  ← monthly budget targets
    /users/{uid}/sleepLogs/{YYYY-MM-DD} ← nightly sleep records
+   /users/{uid}/sleepSettings/default ← sleep preferences (singleton)
    /users/{uid}/moodLogs/{YYYY-MM-DD}  ← daily mood / energy / stress
+
+   FUTURE: wearable field schema (Apple Watch / Oura Ring — not yet implemented):
+   wearable: {
+     source:  'apple_watch' | 'oura',
+     hrv:     Number,          // ms — Heart Rate Variability
+     spo2:    Number,          // % — Blood Oxygen
+     stages: {
+       deep:  Number,          // minutes
+       rem:   Number,          // minutes
+       light: Number,          // minutes
+       awake: Number,          // minutes
+     }
+   }
 
    KEY CHANGES vs. previous version:
    • All data lives under /users/{uid}/...  (no top-level collections)
@@ -527,14 +541,20 @@
     },
 
     async set(month, byCategory) {
+      const cleaned = {};
+      const src = byCategory && typeof byCategory === "object" ? byCategory : {};
+      Object.keys(src).forEach((k) => {
+        const n = Number(src[k]);
+        if (Number.isFinite(n) && n >= 0) cleaned[k] = n;
+      });
       try {
         await this._col().doc(month).set({
           month,
-          byCategory: byCategory || {},
+          byCategory: cleaned,
           updatedAt:  now(),
         }, { merge: true });
       } catch (err) {
-        console.warn("[Hbit] budgetPlan.set:", err?.message);
+        return logAndThrow("budgetPlan.set", err);
       }
     }
   };
@@ -610,6 +630,11 @@
        quality   number  1–10
        cycles    number
        notes     string
+       sleepStart   string  (optional) ISO — "Ready to Sleep" timestamp
+       planned      boolean (optional) pre-filled from sleepPlan
+       windDownDone number  (optional) 0–4 checklist count
+       planId       string  (optional) linked sleepPlan id
+       wearable     object|null  (future — hook field)
        createdAt Timestamp
      ═══════════════════════════════════════════════════════════════ */
   const sleepLogs = {
@@ -634,6 +659,11 @@
           quality,
           cycles,
           notes,
+          ...(log.sleepStart   != null && { sleepStart:   log.sleepStart }),
+          ...(log.planned      != null && { planned:      log.planned }),
+          ...(log.windDownDone != null && { windDownDone: log.windDownDone }),
+          ...(log.planId       != null && { planId:       log.planId }),
+          wearable: log.wearable != null ? log.wearable : null,
           createdAt: now(),
           updatedAt: now()
         }, { merge: true });
@@ -687,6 +717,58 @@
       const end = `${month}-${String(lastDay).padStart(2, "0")}`;
       const list = await this.range(start, end);
       return list;
+    },
+
+    /** Returns sleep stats: { avgDuration, avgQuality, totalDays, debtVsTarget, logs } */
+    async getStats(days = 7, targetHours = 8) {
+      try {
+        const logs = await this.recent(days);
+        const durations = logs.map(l => l.duration || 0).filter(d => d > 0);
+        const qualities = logs.map(l => l.quality || 0).filter(q => q > 0);
+        const avgDuration = durations.length
+          ? durations.reduce((a, b) => a + b, 0) / durations.length
+          : 0;
+        const avgQuality = qualities.length
+          ? qualities.reduce((a, b) => a + b, 0) / qualities.length
+          : 0;
+        const totalActual = logs.reduce((s, l) => s + (l.duration || 0), 0);
+        const debtVsTarget = (targetHours * logs.length) - totalActual;
+        return { avgDuration, avgQuality, totalDays: logs.length, debtVsTarget, logs };
+      } catch (err) { return logAndThrow("sleepLogs.getStats", err); }
+    }
+  };
+
+  /* ═══════════════════════════════════════════════════════════════
+     SLEEP SETTINGS   /users/{uid}/sleepSettings/default
+
+     Singleton preferences (merge fields as needed):
+       targetHours    number   daily sleep target (default 8)
+       defaultWake    string   "HH:MM"
+       windDownMins   number   minutes before bedtime to start wind-down (default 60)
+       alarmEnabled   boolean
+       updatedAt      Timestamp
+     ═══════════════════════════════════════════════════════════════ */
+  const sleepSettings = {
+    _ref() {
+      return userSubcollectionRef(getUidOrThrow(), "sleepSettings").doc("default");
+    },
+
+    async get() {
+      try {
+        const doc = await this._ref().get();
+        return snap2obj(doc) || {};
+      } catch (err) { return logAndThrow("sleepSettings.get", err); }
+    },
+
+    async set(fields) {
+      try {
+        const patch = { updatedAt: now() };
+        if (fields && fields.targetHours != null) patch.targetHours = fields.targetHours;
+        if (fields && fields.defaultWake != null) patch.defaultWake = fields.defaultWake;
+        if (fields && fields.windDownMins != null) patch.windDownMins = fields.windDownMins;
+        if (fields && fields.alarmEnabled != null) patch.alarmEnabled = fields.alarmEnabled;
+        await this._ref().set(patch, { merge: true });
+      } catch (err) { return logAndThrow("sleepSettings.set", err); }
     }
   };
 
@@ -698,28 +780,45 @@
      Schema (no userId field):
        date      string  YYYY-MM-DD
        score     number  1–10  (overall mood)
-       energy    number  1–10
-       stress    number  1–10  (10 = very stressed)
+       mood      number  1–5   (primary band)
+       energy    number  1–10  or null if not rated
+       stress    number  1–10
+       focus     number  1–10
+       social    number  1–10
        notes     string
        tags      string[]
+       emotion, impact, impactQ, triggerQ, actionQ  strings
        createdAt Timestamp
      ═══════════════════════════════════════════════════════════════ */
   const moodLogs = {
     _col() { return userSubcollectionRef(getUidOrThrow(), "moodLogs"); },
 
-    /** Save or overwrite a mood log for a date. score/energy/stress/focus 1–10. */
+    /**
+     * Save or merge a mood log for a date.
+     * Numeric fields: pass null to clear “not rated”; omit key to leave Firestore unchanged on merge.
+     */
     async set(date, log) {
       try {
-        await this._col().doc(date).set({
-          date,
-          score:    log.score  != null ? Number(log.score)  : 5,
-          energy:   log.energy != null ? Number(log.energy) : 5,
-          stress:   log.stress != null ? Number(log.stress) : 5,
-          focus:    log.focus  != null ? Number(log.focus)  : 5,
-          notes:    log.notes  || "",
-          tags:     log.tags   || [],
-          createdAt: now()
-        }, { merge: true });
+        const patch = { date, createdAt: now() };
+        const numericKeys = ["score", "energy", "stress", "focus", "social", "mood"];
+        for (const k of numericKeys) {
+          if (!Object.prototype.hasOwnProperty.call(log, k)) continue;
+          const v = log[k];
+          patch[k] = v === null ? null : Number(v);
+        }
+        if (Object.prototype.hasOwnProperty.call(log, "notes")) {
+          patch.notes = log.notes == null ? "" : String(log.notes);
+        }
+        if (Object.prototype.hasOwnProperty.call(log, "tags")) {
+          patch.tags = Array.isArray(log.tags) ? log.tags : [];
+        }
+        const stringKeys = ["emotion", "impact", "impactQ", "triggerQ", "actionQ"];
+        for (const k of stringKeys) {
+          if (!Object.prototype.hasOwnProperty.call(log, k)) continue;
+          const v = log[k];
+          patch[k] = v == null ? "" : String(v);
+        }
+        await this._col().doc(date).set(patch, { merge: true });
         await users.incrementStat("moodLogs").catch(() => {});
       } catch (err) { return logAndThrow("moodLogs.set", err); }
     },
@@ -780,6 +879,7 @@
     budgetPlan,
     budgetBills,
     sleepLogs,
+    sleepSettings,
     moodLogs,
 
     /** Today's date as YYYY-MM-DD (local time). */

@@ -49,13 +49,13 @@
 }
 
 html[data-theme="light"]{
-  --bg: #f6f7fb;
-  --panel: #ffffff;
-  --panel2:#ffffff;
+  --bg: #ebe8e3;
+  --panel: #fffcf8;
+  --panel2: #f7f4ef;
 
-  --text: rgba(0,0,0,0.88);
-  --muted: rgba(0,0,0,0.56);
-  --border: rgba(0,0,0,0.10);
+  --text: rgba(18, 20, 26, 0.92);
+  --muted: rgba(18, 20, 26, 0.55);
+  --border: rgba(18, 20, 26, 0.09);
 
-  --shadow: 0 16px 44px color-mix(in srgb, #000 10%, transparent);
+  --shadow: 0 12px 40px color-mix(in srgb, #1a1208 8%, transparent);
 }

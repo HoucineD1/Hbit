@@ -68,6 +68,8 @@ html[data-theme="light"] .hc-value    { color: rgba(18,15,12,0.88); }
 html[data-theme="light"] .hc-unit     { color: rgba(18,15,12,0.38); }
 html[data-theme="light"] .hc-footer   { border-top-color: rgba(18,15,12,0.07); }
 html[data-theme="light"] .hc-footer-text { color: rgba(18,15,12,0.36); }
+html[data-theme="light"] .hc-footer-subline { color: rgba(18,15,12,0.28); }
+html[data-theme="light"] a.hc-card:hover .hc-footer-subline { color: rgba(18,15,12,0.42); }
 html[data-theme="light"] .hc-chevron  { color: rgba(18,15,12,0.22); }
 html[data-theme="light"] .hc-donut-track { stroke: rgba(18,15,12,0.08); }
 html[data-theme="light"] .hc-wr-track    { stroke: rgba(18,15,12,0.06); }
@@ -467,6 +469,14 @@ a.hc-card:active {
   margin-top: auto;
 }
 
+.hc-footer-main {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .hc-footer-text {
   font-size: 11.5px;
   color: rgba(255, 255, 255, 0.32);
@@ -477,8 +487,22 @@ a.hc-card:active {
   transition: color 0.15s;
 }
 
+.hc-footer-subline {
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.24);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 a.hc-card:hover .hc-footer-text {
   color: rgba(255, 255, 255, 0.55);
+}
+
+a.hc-card:hover .hc-footer-subline {
+  color: rgba(255, 255, 255, 0.38);
 }
 
 .hc-chevron {

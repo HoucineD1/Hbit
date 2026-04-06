@@ -62,6 +62,7 @@
         budgetGoalsDoc,
         budgetAccountsList,
         budgetBillsList,
+        savingsGoalsSnap,
         sleepLogsRecent,
         sleepPlansUpcoming,
         moodToday,
@@ -74,6 +75,7 @@
         HBIT.db.budgetGoals.get(thisMonth).catch(() => null),
         HBIT.db.budgetAccounts?.list?.().catch(() => []) ?? [],
         HBIT.db.budgetBills?.list?.().catch(() => []) ?? [],
+        userRef.collection("savingsGoals").get().catch((e) => { console.warn("[dashboard] savingsGoals:", e.message); return { docs: [] }; }),
         userRef.collection("sleepLogs").orderBy("date", "desc").limit(7).get().catch((e) => { console.warn("[dashboard] sleepLogs:", e.message); return { docs: [] }; }),
         fetchNextSleepPlan(uid),
         userRef.collection("moodLogs").doc(today).get().catch((e) => { console.warn("[dashboard] moodToday:", e.message); return { exists: false }; }),
@@ -106,6 +108,20 @@
       }
       const lastEntry = (budgetEntriesMonth || [])[0] || null;
 
+      const savingsGoalDocs = savingsGoalsSnap.docs ? savingsGoalsSnap.docs : [];
+      const savingsGoalsCount = savingsGoalDocs.length;
+      const savingsGoalsSavedTotal = savingsGoalDocs.reduce((sum, doc) => {
+        const g = doc.data();
+        return sum + (Number(g.savedAmount) || 0);
+      }, 0);
+
+      const debtLiabilityTotal = (budgetAccountsList || [])
+        .filter((a) => a.type === "debt")
+        .reduce((s, a) => s + Math.abs(Number(a.balance) || 0), 0);
+      const creditLiabilityTotal = (budgetAccountsList || [])
+        .filter((a) => a.type === "credit_card")
+        .reduce((s, a) => s + Math.abs(Number(a.balance) || 0), 0);
+
       /* Bills summary */
       const today2 = new Date();
       const todayDay = today2.getDate();
@@ -122,6 +138,10 @@
         billsCount: unpaidBills.length,
         overdueBillsCount: overdueBills.length,
         billsTotal,
+        debtLiabilityTotal,
+        creditLiabilityTotal,
+        savingsGoalsCount,
+        savingsGoalsSavedTotal,
         hasData: incomeTotal > 0 || expenseTotal > 0,
       };
 
@@ -224,6 +244,10 @@
         billsCount: 0,
         overdueBillsCount: 0,
         billsTotal: 0,
+        debtLiabilityTotal: 0,
+        creditLiabilityTotal: 0,
+        savingsGoalsCount: 0,
+        savingsGoalsSavedTotal: 0,
         hasData: false,
       },
       habits: {

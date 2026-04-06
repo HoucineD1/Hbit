@@ -27,6 +27,29 @@
     deepWork: { work: 50, brk: 10, label: "Deep Work" },
   };
 
+  const FOCUS_DAILY_KEY = "hbit:focus:daily";
+
+  function focusTodayKey() {
+    const d = new Date();
+    return [
+      d.getFullYear(),
+      String(d.getMonth() + 1).padStart(2, "0"),
+      String(d.getDate()).padStart(2, "0"),
+    ].join("-");
+  }
+
+  function recordCompletedPomodoro() {
+    try {
+      const tk = focusTodayKey();
+      const raw = localStorage.getItem(FOCUS_DAILY_KEY);
+      let o = raw ? JSON.parse(raw) : null;
+      if (!o || o.date !== tk) o = { date: tk, sessions: 0 };
+      o.sessions = (parseInt(o.sessions, 10) || 0) + 1;
+      localStorage.setItem(FOCUS_DAILY_KEY, JSON.stringify(o));
+      window.dispatchEvent(new CustomEvent("hbit:data-changed", { detail: { area: "focus" } }));
+    } catch (e) { /* ignore */ }
+  }
+
   const TIPS = [
     "Put your phone down and eliminate distractions.",
     "One task at a time. Close unused tabs.",
@@ -117,6 +140,7 @@
 
         if (isWorking) {
           sessions++;
+          recordCompletedPomodoro();
           /* vibrate if supported */
           if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
           setPhase(false);
@@ -150,6 +174,7 @@
     pause();
     if (isWorking) {
       sessions++;
+      recordCompletedPomodoro();
       setPhase(false);
     } else {
       setPhase(true);

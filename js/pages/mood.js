@@ -1,595 +1,954 @@
-/* =========================
-   Mood — js/pages/mood.js
-   1..5 labels + emotion suggestions + impacts + ring + history
-   ========================= */
+/* ==========================================================
+   Hbit — State of Mind — Firestore moodLogs, 5-band UI
+   FUTURE: Video suggestions based on mood band (see weekly insight card)
+   FUTURE: Article suggestions from emotion tag → static map
+   FUTURE: HBIT.sleep.openBreathingModal() shortcut from this page
+   ========================================================== */
 (function () {
+  "use strict";
+
   const HBIT = (window.HBIT = window.HBIT || {});
 
+  const KEY_HIST = "life_mood7_history";
   const KEY_TODAY = "life_mood7_today";
-  const KEY_HIST  = "life_mood7_history";
-  const KEY_UI    = "life_mood7_ui";
+  const SS_EMO = "md-emo-more";
+  const SS_IMP = "md-imp-more";
 
-  // Prefer core utils if available
-  const U = HBIT.utils || {};
-  const qs  = U.qs  || ((s, r=document) => r.querySelector(s));
-  const qsa = U.qsa || ((s, r=document) => Array.from(r.querySelectorAll(s)));
-  const on  = U.on  || ((el, ev, fn, opts) => el && el.addEventListener(ev, fn, opts));
+  const $ = (id) => document.getElementById(id);
+  const qs = (sel, r) => (r || document).querySelector(sel);
+  const qsa = (sel, r) => Array.from((r || document).querySelectorAll(sel));
 
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
-  const num = (v, f=0) => {
+  const num = (v, f = 0) => {
     const n = Number(v);
     return Number.isFinite(n) ? n : f;
   };
 
+  function pad2(n) {
+    return String(n).padStart(2, "0");
+  }
+
   function todayKey() {
     const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  }
+
+  /** Local calendar add (days can be negative). dateStr = YYYY-MM-DD */
+  function addDaysKey(dateStr, deltaDays) {
+    const [y, m, day] = dateStr.split("-").map(Number);
+    const d = new Date(y, m - 1, day);
+    d.setDate(d.getDate() + deltaDays);
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
   }
 
   function getLang() {
-    return HBIT.i18n?.getLang?.() || "en";
+    return HBIT.i18n?.getLang?.() === "fr" ? "fr" : "en";
+  }
+
+  function t(key, fb) {
+    try {
+      const v = HBIT.i18n?.t?.(key, fb);
+      return v && v !== key ? v : fb;
+    } catch (_) {
+      return fb;
+    }
   }
 
   function scaleLabel(v, lang) {
-    const en = ["Very bad","Bad","Slightly bad","Good","Other"];
-    const fr = ["Très mal","Mal","Légèrement mal","Bien","Autre"];
-    return (lang === "fr" ? fr : en)[v - 1] || "—";
+    const bands = lang === "fr"
+      ? ["Très difficile", "Difficile", "Ça va", "Bien", "Super"]
+      : ["Very difficult", "Difficult", "Okay", "Good", "Great"];
+    return bands[clamp(Math.round(v), 1, 5) - 1] || "—";
   }
 
   function emotionSets(lang) {
     const EN = {
-      verybad: { base:["Overwhelmed","Anxious","Angry","Sad","Hopeless","Tired","Stressed"], more:["Empty","Burned out","Panicked","Ashamed","Numb","Defeated","Confused","Guilty","Scared","Irritable","Lonely"] },
-      bad:     { base:["Unmotivated","Irritated","Worried","Drained","Frustrated","Insecure","Down"], more:["Bored","Restless","Sensitive","Disappointed","Uncertain","Stuck","Annoyed","Distracted","Tense","Undervalued","Disconnected"] },
-      slight:  { base:["Okay","Meh","Calm","Reserved","Low energy","Quiet","Neutral"], more:["Stable","Chill","Content","Thoughtful","Observing","Routine","Balanced","Patient","Grounded"] },
-      good:    { base:["Confident","Motivated","Hopeful","Grateful","Energized","Proud","Relaxed"], more:["Optimistic","Clear-headed","Productive","Social","Playful","Present","Disciplined","Connected","Refreshed","Brave","Creative"] },
-      other:   { base:["Other","Mixed","Unsure","Complicated","Different","Unique","Varied"], more:["Bittersweet","Changing","In between","Hard to name","Uneven","Blurred","Complex"] }
+      verybad: { base: ["Overwhelmed", "Anxious", "Angry", "Sad", "Hopeless", "Tired", "Stressed"], more: ["Empty", "Burned out", "Panicked", "Ashamed", "Numb", "Defeated", "Confused", "Guilty", "Scared", "Irritable", "Lonely"] },
+      bad: { base: ["Unmotivated", "Irritated", "Worried", "Drained", "Frustrated", "Insecure", "Down"], more: ["Bored", "Restless", "Sensitive", "Disappointed", "Uncertain", "Stuck", "Annoyed", "Distracted", "Tense", "Undervalued", "Disconnected"] },
+      slight: { base: ["Okay", "Meh", "Calm", "Reserved", "Low energy", "Quiet", "Neutral"], more: ["Stable", "Chill", "Content", "Thoughtful", "Observing", "Routine", "Balanced", "Patient", "Grounded"] },
+      good: { base: ["Confident", "Motivated", "Hopeful", "Grateful", "Energized", "Proud", "Relaxed"], more: ["Optimistic", "Clear-headed", "Productive", "Social", "Playful", "Present", "Disciplined", "Connected", "Refreshed", "Brave", "Creative"] },
+      other: { base: ["Other", "Mixed", "Unsure", "Complicated", "Different", "Unique", "Varied"], more: ["Bittersweet", "Changing", "In between", "Hard to name", "Uneven", "Blurred", "Complex"] }
     };
-
     const FR = {
-      verybad: { base:["Débordé","Anxieux","En colère","Triste","Sans espoir","Fatigué","Stressé"], more:["Vide","Épuisé mentalement","Paniqué","Honteux","Engourdi","Abattu","Confus","Coupable","Effrayé","Irritable","Seul"] },
-      bad:     { base:["Démotivé","Irrité","Inquiet","Drainé","Frustré","Insécure","Morne"], more:["Ennuyé","Agité","Sensible","Déçu","Incertain","Bloqué","Gosser","Distrait","Tendu","Sous-estimé","Déconnecté"] },
-      slight:  { base:["OK","Bof","Calme","Réservé","Faible énergie","Discret","Neutre"], more:["Stable","Tranquille","Satisfait","Pensif","Observateur","Routin\u00e9","Équilibré","Patient","Ancré"] },
-      good:    { base:["Confiant","Motivé","Plein d’espoir","Reconnaissant","Énergique","Fier","Détendu"], more:["Optimiste","Lucide","Productif","Sociable","Joueur","Présent","Discipliné","Connecté","Reposé","Courageux","Créatif"] },
-      other:   { base:["Autre","Mitigé","Incertain","Compliqué","Différent","Unique","Varié"], more:["Doux-amer","Changeant","Entre deux","Difficile à nommer","Inégal","Flou","Complexe"] }
+      verybad: { base: ["Débordé", "Anxieux", "En colère", "Triste", "Sans espoir", "Fatigué", "Stressé"], more: ["Vide", "Épuisé mentalement", "Paniqué", "Honteux", "Engourdi", "Abattu", "Confus", "Coupable", "Effrayé", "Irritable", "Seul"] },
+      bad: { base: ["Démotivé", "Irrité", "Inquiet", "Drainé", "Frustré", "Insécure", "Morne"], more: ["Ennuyé", "Agité", "Sensible", "Déçu", "Incertain", "Bloqué", "Gosser", "Distrait", "Tendu", "Sous-estimé", "Déconnecté"] },
+      slight: { base: ["OK", "Bof", "Calme", "Réservé", "Faible énergie", "Discret", "Neutre"], more: ["Stable", "Tranquille", "Satisfait", "Pensif", "Observateur", "Routiné", "Équilibré", "Patient", "Ancré"] },
+      good: { base: ["Confiant", "Motivé", "Plein d'espoir", "Reconnaissant", "Énergique", "Fier", "Détendu"], more: ["Optimiste", "Lucide", "Productif", "Sociable", "Joueur", "Présent", "Discipliné", "Connecté", "Reposé", "Courageux", "Créatif"] },
+      other: { base: ["Autre", "Mitigé", "Incertain", "Compliqué", "Différent", "Unique", "Varié"], more: ["Doux-amer", "Changeant", "Entre deux", "Difficile à nommer", "Inégal", "Flou", "Complexe"] }
     };
-
-    return (lang === "fr") ? FR : EN;
+    return lang === "fr" ? FR : EN;
   }
 
   function impactSets(lang) {
     const EN = {
-      base: ["Sleep","Work/School","Training","Relationships","Money","Health"],
-      more: ["Diet","Family","Friends","Weather","Travel","Social media","Deadlines","Injury","Recovery","Motivation","Confidence","Time management","Habits","Stress"]
+      base: ["Sleep", "Work/School", "Training", "Relationships", "Money", "Health"],
+      more: ["Diet", "Family", "Friends", "Weather", "Travel", "Social media", "Deadlines", "Injury", "Recovery", "Motivation", "Confidence", "Time management", "Habits", "Stress"]
     };
     const FR = {
-      base: ["Sommeil","Travail/École","Entraînement","Relations","Argent","Santé"],
-      more: ["Alimentation","Famille","Amis","Météo","Voyage","Réseaux sociaux","Deadlines","Blessure","Récupération","Motivation","Confiance","Gestion du temps","Habitudes","Stress"]
+      base: ["Sommeil", "Travail/École", "Entraînement", "Relations", "Argent", "Santé"],
+      more: ["Alimentation", "Famille", "Amis", "Météo", "Voyage", "Réseaux sociaux", "Deadlines", "Blessure", "Récupération", "Motivation", "Confiance", "Gestion du temps", "Habitudes", "Stress"]
     };
-    return (lang === "fr") ? FR : EN;
+    return lang === "fr" ? FR : EN;
   }
 
-  function moodClassFrom5(v) { return `mood-${clamp(v, 1, 5)}`; }
-
-  const MOOD_COLORS = ["#9b2748","#c6513b","#d1a23a","#42b883","#5cc9b7"];
-
-  function moodColor(v) {
-    return MOOD_COLORS[clamp(v, 1, 5) - 1];
-  }
-
-  function updateRangeStyle(el, v, max) {
-    if (!el) return;
-    const pct = Math.round((v - 1) / (max - 1) * 100);
-    el.style.setProperty("--pct", `${pct}%`);
-    el.style.setProperty("--moodColor", moodColor(v));
-  }
-
-  function setPill(el, v, text) {
-    if (!el) return;
-    el.className = `pill mood7-pill ${moodClassFrom5(v)}`;
-    el.textContent = text ?? scaleLabel(v, getLang());
-  }
-
-  function renderOne(rngId, pillId, capId) {
-    const r = qs("#" + rngId);
-    const pill = qs("#" + pillId);
-    const cap = qs("#" + capId);
-    if (!r) return;
-
-    const lang = getLang();
-    const v = clamp(num(r.value, 3), 1, 5);
-    const label = scaleLabel(v, lang);
-
-    setPill(pill, v, label);
-    if (cap) cap.textContent = label;
-    updateRangeStyle(r, v, 5);
-  }
-
-  function readJSON(key, fallback) {
-    try {
-      const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : fallback;
-    } catch {
-      return fallback;
-    }
-  }
-
-  function writeJSON(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
-  }
-
-  function readToday()   { return readJSON(KEY_TODAY, null); }
-  function saveToday(st) { writeJSON(KEY_TODAY, st); }
-
-  function readHistory() { return readJSON(KEY_HIST, []); }
-  function writeHistory(arr) { writeJSON(KEY_HIST, arr.slice(0, 30)); }
-
-  function readUI() {
-    const ui = readJSON(KEY_UI, null);
-    return ui || { emoMore:false, impMore:false };
-  }
-  function writeUI(ui) { writeJSON(KEY_UI, ui); }
-
-  function normalizeFrom7(v) {
-    const n = clamp(num(v, 3), 1, 7);
-    return clamp(Math.round(((n - 1) * 4) / 6 + 1), 1, 5);
-  }
-
-  function normalizeEntry(st) {
-    if (!st) return st;
-    // If legacy 1..7 values are present, map them to 1..5
-    const max = Math.max(st.mood || 0, st.stress || 0, st.energy || 0, st.focus || 0, st.social || 0, st.overall || 0);
-    if (max > 5) {
-      return {
-        ...st,
-        mood: normalizeFrom7(st.mood),
-        stress: normalizeFrom7(st.stress),
-        energy: normalizeFrom7(st.energy),
-        focus: normalizeFrom7(st.focus),
-        social: normalizeFrom7(st.social),
-        overall: normalizeFrom7(st.overall),
-      };
-    }
-    return st;
-  }
-
-  function overallScore(st) {
-    const raw = (st.mood + st.energy + st.focus + st.social) / 4;
-    const adj = raw - ((st.stress - 3) * 0.4);
-    return clamp(Math.round(adj * 10) / 10, 1, 5);
-  }
-
-  function bandFromOverall(v) {
-    if (v <= 1.5) return "verybad";
-    if (v <= 2.5) return "bad";
-    if (v <= 3.5) return "slight";
-    if (v <= 4.5) return "good";
+  function bandKeyFromMood(band) {
+    const b = clamp(Math.round(num(band, 3)), 1, 5);
+    if (b === 1) return "verybad";
+    if (b === 2) return "bad";
+    if (b === 3) return "slight";
+    if (b === 4) return "good";
     return "other";
   }
 
-  function setOverallPill(st) {
-    const lang = getLang();
-    const ov = overallScore(st);
-    const pill = qs("#moodOverallPill");
-    if (!pill) return;
-
-    const v = clamp(Math.round(ov), 1, 5);
-    pill.className = `pill ${moodClassFrom5(v)}`;
-    pill.textContent = scaleLabel(v, lang);
+  function moodLabel(band, lang) {
+    return t(`mood.band.${clamp(Math.round(band), 1, 5)}`, scaleLabel(band, lang));
   }
 
-  function makeChip(label, value, onClick) {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = "mood-chip";
-    b.textContent = label;
-    b.setAttribute("data-value", value);
-    on(b, "click", onClick);
-    return b;
+  function inferMoodBand(log) {
+    if (!log) return 3;
+    if (log.mood != null && log.mood !== "") return clamp(Math.round(num(log.mood, 3)), 1, 5);
+    const s = num(log.score, 0);
+    if (s > 0) return clamp(Math.round(s / 2), 1, 5);
+    return 3;
   }
 
-  function renderHistory() {
-    const box = qs("#moodHistory");
-    const count = qs("#moodHistoryCount");
-    if (!box) return;
-
-    const arr = readHistory().map(normalizeEntry);
-    if (count) count.textContent = String(arr.length);
-
-    if (arr.length === 0) {
-      box.innerHTML = `<div class="empty-note" data-i18n="mood.history.empty">No entries yet.</div>`;
-      HBIT.i18n?.apply?.(box);
-      return;
-    }
-
-    box.innerHTML = "";
-    arr.forEach(e => {
-      const div = document.createElement("div");
-      div.className = "card";
-      const dt = new Date(e.ts);
-      div.innerHTML = `
-        <div class="row">
-          <div class="tag"><span class="dot"></span><span>${dt.toLocaleString()}</span></div>
-          <div class="pill ${moodClassFrom5(Math.round(e.overall || 3))}">${scaleLabel(Math.round(e.overall || 3), getLang())}</div>
-        </div>
-        <div class="sub" style="margin-top:10px;">
-          ${scaleLabel(e.mood, getLang())} • ${scaleLabel(e.stress, getLang())} • ${scaleLabel(e.energy, getLang())} • ${scaleLabel(e.focus, getLang())} • ${scaleLabel(e.social, getLang())}
-        </div>
-        <div class="sub" style="margin-top:8px;">
-          ${e.emotion ? `Emotion: <b>${e.emotion}</b>` : "Emotion: —"} • ${e.impact ? `Impact: <b>${e.impact}</b>` : "Impact: —"}
-        </div>
-        ${e.note ? `<div class="sub" style="margin-top:8px;">${e.note}</div>` : ""}
-      `;
-      box.appendChild(div);
-    });
+  function tenToSlider(v) {
+    if (v == null) return 3;
+    return clamp(Math.round(num(v, 6) / 2), 1, 5);
   }
 
-  /* ════════════════════════════════════════════════════════════
-     WIZARD — step-by-step log popup
-     Steps: 0 sliders | 1 emotion | 2 impact | 3 impact-q |
-            4 trigger-q | 5 action-q | 6 notes
-     ════════════════════════════════════════════════════════════ */
-  const WZ_TOTAL = 7;
-  const wz = {
-    step: 0,
-    data: { mood:3, stress:3, energy:3, focus:3, social:3, emotion:"", impact:"", impactQ:"", triggerQ:"", actionQ:"", note:"" }
+  function sliderToTen(v) {
+    return clamp(Math.round(num(v, 3)) * 2, 2, 10);
+  }
+
+  function overallScore(st) {
+    const raw = (num(st.mood, 3) + num(st.energy, 3) + num(st.focus, 3) + num(st.social, 3)) / 4;
+    const adj = raw - ((num(st.stress, 3) - 3) * 0.4);
+    return clamp(Math.round(adj * 10) / 10, 1, 5);
+  }
+
+  const state = {
+    uid: null,
+    todayLog: null,
+    recentLogs: [],
+    selectedBand: null,
+    depthOpen: false,
+    depthBand: 3,
+    streak: 0,
+    weekInsight: null,
+    editingToday: false,
+    editingDateKey: null,
+    emotionPick: "",
+    impactPick: "",
+    sliderTouched: { energy: false, stress: false, focus: false, social: false },
+    eventsBound: false
   };
 
-  function wzTitle(step) {
-    const lang = getLang();
-    const en = [
-      "How do you feel today?",
-      "What emotion fits best?",
-      "What had the most impact?",
-      "What impacted your day?",
-      "What was the main trigger?",
-      "One action you can take now?",
-      "Any notes?"
-    ];
-    const fr = [
-      "Comment tu te sens aujourd'hui ?",
-      "Quelle émotion te correspond ?",
-      "Qu'est-ce qui a eu le plus d'impact ?",
-      "Qu'est-ce qui a impacté ta journée ?",
-      "Quel a été le déclencheur principal ?",
-      "Une action que tu peux faire maintenant ?",
-      "Des notes ?"
-    ];
-    return (lang === "fr" ? fr : en)[step] || "";
-  }
-
-  function wzSave() {
-    const s = wz.step;
-    const lang = getLang();
-    if (s === 0) {
-      const dims = ["Mood7","Stress7","Energy7","Focus7","Social7"];
-      const keys = ["mood","stress","energy","focus","social"];
-      dims.forEach((d, i) => {
-        const el = qs("#wzRng" + d);
-        if (el) wz.data[keys[i]] = num(el.value, 3);
-      });
-    } else if (s === 1) {
-      const a = qs("#wzEmotionChips .mood-chip.active");
-      if (a) wz.data.emotion = a.getAttribute("data-value");
-    } else if (s === 2) {
-      const a = qs("#wzImpactChips .mood-chip.active");
-      if (a) wz.data.impact = a.getAttribute("data-value");
-    } else if (s === 3) {
-      wz.data.impactQ = (qs("#wzImpactQ")?.value || "").trim();
-    } else if (s === 4) {
-      wz.data.triggerQ = (qs("#wzTriggerQ")?.value || "").trim();
-    } else if (s === 5) {
-      wz.data.actionQ = (qs("#wzActionQ")?.value || "").trim();
-    } else if (s === 6) {
-      wz.data.note = (qs("#wzNote")?.value || "").trim();
+  async function migrateLegacyData() {
+    try {
+      const raw = localStorage.getItem(KEY_HIST);
+      if (!raw) return;
+      const arr = JSON.parse(raw);
+      if (!Array.isArray(arr) || arr.length === 0) return;
+      const norm = (v) =>
+        Math.max(1, Math.min(5, Math.round(((Math.max(1, Math.min(7, v || 3)) - 1) * 4) / 6 + 1)));
+      for (const entry of arr) {
+        const dk = entry.dateKey || (entry.ts ? new Date(entry.ts).toISOString().slice(0, 10) : "");
+        if (!dk) continue;
+        await HBIT.db.moodLogs.set(dk, {
+          mood: norm(entry.mood),
+          stress: norm(entry.stress) * 2,
+          energy: norm(entry.energy) * 2,
+          focus: norm(entry.focus) * 2,
+          social: norm(entry.social) * 2,
+          score: entry.overall != null ? Math.round(clamp(num(entry.overall, 3), 1, 5) * 2) : norm(entry.mood) * 2,
+          emotion: entry.emotion || "",
+          impact: entry.impact || "",
+          impactQ: entry.impactQ || "",
+          triggerQ: entry.triggerQ || "",
+          actionQ: entry.actionQ || "",
+          notes: entry.note || "",
+          tags: []
+        });
+      }
+      localStorage.removeItem(KEY_HIST);
+      localStorage.removeItem(KEY_TODAY);
+      console.log("[Hbit mood] Migrated", arr.length, "legacy entries to Firestore");
+    } catch (e) {
+      console.warn("[Hbit mood] Migration skipped:", e?.message || e);
     }
   }
 
-  function wzRender(step) {
-    const content = qs("#mdLogContent");
-    if (!content) return;
+  async function loadTodayLog() {
+    return HBIT.db.moodLogs.get(todayKey());
+  }
+
+  async function loadRecentLogs() {
+    return HBIT.db.moodLogs.recent(7);
+  }
+
+  function logDateKey(log) {
+    return log.date || log.id || "";
+  }
+
+  function calcStreak(logs) {
+    if (!logs.length) return 0;
+    let streak = 0;
+    let expected = todayKey();
+    const byDate = new Map(logs.map((l) => [logDateKey(l), l]));
+    while (byDate.has(expected)) {
+      streak++;
+      expected = addDaysKey(expected, -1);
+    }
+    return streak;
+  }
+
+  function formatLogTime(log) {
+    const ts = log.createdAt;
+    let d = null;
+    if (ts && typeof ts.toDate === "function") d = ts.toDate();
+    else if (ts && typeof ts.seconds === "number") d = new Date(ts.seconds * 1000);
+    if (!d || isNaN(d.getTime())) d = new Date();
+    const locale = getLang() === "fr" ? "fr-FR" : "en-US";
+    return d.toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" });
+  }
+
+  function formatEntryDate(dateStr) {
+    const today = todayKey();
+    const yest = addDaysKey(today, -1);
+    const locale = getLang() === "fr" ? "fr-FR" : "en-US";
+    if (dateStr === today) return t("mood.today", "Today");
+    if (dateStr === yest) return t("mood.yesterday", "Yesterday");
+    const [Y, M, D] = dateStr.split("-").map(Number);
+    const dt = new Date(Y, M - 1, D);
+    const now = new Date();
+    const diffDays = (now - dt) / (864e5);
+    if (diffDays < 7) {
+      return dt.toLocaleDateString(locale, { weekday: "long" });
+    }
+    return dt.toLocaleDateString(locale, { month: "short", day: "numeric" });
+  }
+
+  function topEmotionFromLogs(logs) {
+    const freq = new Map();
+    for (const l of logs) {
+      const e = l.emotion;
+      if (!e) continue;
+      freq.set(e, (freq.get(e) || 0) + 1);
+    }
+    let best = null;
+    let bestN = 0;
+    for (const [k, n] of freq) {
+      if (n > bestN) {
+        best = k;
+        bestN = n;
+      }
+    }
+    return best;
+  }
+
+  function generateWeeklyInsight(logs) {
+    if (logs.length < 3) return null;
     const lang = getLang();
-    content.innerHTML = "";
+    const avg = logs.reduce((s, l) => s + inferMoodBand(l), 0) / logs.length;
+    const avgBand = clamp(Math.round(avg), 1, 5);
+    const best = logs.reduce((a, b) => (inferMoodBand(b) > inferMoodBand(a) ? b : a), logs[0]);
+    const topEmotion = topEmotionFromLogs(logs);
+    const locale = lang === "fr" ? "fr-FR" : "en-US";
+    const bestDate = logDateKey(best);
+    const dayName = new Date(bestDate + "T12:00:00").toLocaleDateString(locale, { weekday: "long" });
+    const label = moodLabel(avgBand, lang);
 
-    if (step === 0) {
-      const dims = [
-        { id: "Mood7",   key: "mood",   label: lang === "fr" ? "Humeur" : "Mood" },
-        { id: "Stress7", key: "stress", label: "Stress" },
-        { id: "Energy7", key: "energy", label: lang === "fr" ? "Énergie" : "Energy" },
-        { id: "Focus7",  key: "focus",  label: "Focus" },
-        { id: "Social7", key: "social", label: "Social" },
-      ];
-      const grid = document.createElement("div");
-      grid.className = "md-sliders";
-      dims.forEach(d => {
-        const v = wz.data[d.key];
-        const card = document.createElement("div");
-        card.className = "md-slider-card";
-        card.innerHTML = `
-          <div class="md-slider-head">
-            <span class="md-slider-label">${d.label}</span>
-            <span class="pill mood7-pill" id="wzPill${d.id}">—</span>
-          </div>
-          <input id="wzRng${d.id}" type="range" min="1" max="5" value="${v}" class="md-range" />
-          <div class="md-cap" id="wzCap${d.id}">—</div>
-        `;
-        grid.appendChild(card);
+    const poolEn = [
+      avg >= 4 ? `A strong week — you averaged "${label}" across ${logs.length} days.` : null,
+      avg <= 2 ? `A tough week. You logged "${label}" on average — be kind to yourself.` : null,
+      topEmotion ? `Your most common feeling this week was "${topEmotion}".` : null,
+      best ? `${dayName} was your best day this week.` : null
+    ].filter(Boolean);
+
+    const poolFr = [
+      avg >= 4 ? `Belle semaine — tu as moyenné "${label}" sur ${logs.length} jours.` : null,
+      avg <= 2 ? `Semaine difficile. Tu as moyenné "${label}" — sois indulgent avec toi-même.` : null,
+      topEmotion ? `Ton ressenti le plus fréquent cette semaine : "${topEmotion}".` : null,
+      best ? `${dayName} était ta meilleure journée de la semaine.` : null
+    ].filter(Boolean);
+
+    const pool = lang === "fr" ? poolFr : poolEn;
+    return pool[0] || null;
+  }
+
+  function applyMoodTint(band) {
+    const page = $("moodPage");
+    const main = qs(".md-main");
+    if (!page) return;
+    if (band != null && band >= 1 && band <= 5) {
+      page.setAttribute("data-mood-band", String(band));
+      main?.classList.add("tinted");
+    } else {
+      page.removeAttribute("data-mood-band");
+      main?.classList.remove("tinted");
+    }
+  }
+
+  function showToast(msg, ms = 2200) {
+    const el = $("mdToast");
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add("visible");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => el.classList.remove("visible"), ms);
+  }
+
+  async function saveMoodQuick(band) {
+    const b = clamp(Math.round(band), 1, 5);
+    await HBIT.db.moodLogs.set(todayKey(), {
+      mood: b,
+      score: b * 2,
+      energy: null,
+      stress: null,
+      focus: null,
+      social: null,
+      emotion: "",
+      impact: "",
+      impactQ: "",
+      triggerQ: "",
+      actionQ: "",
+      notes: "",
+      tags: []
+    });
+  }
+
+  async function saveMoodFull(data, dateKey) {
+    const dk = dateKey || todayKey();
+    const payload = {
+      mood: data.mood,
+      score: data.mood * 2,
+      energy: data.energy,
+      stress: data.stress,
+      focus: data.focus,
+      social: data.social,
+      emotion: data.emotion,
+      impact: data.impact,
+      impactQ: data.impactQ,
+      triggerQ: data.triggerQ,
+      actionQ: data.actionQ,
+      notes: data.notes,
+      tags: data.tags
+    };
+    await HBIT.db.moodLogs.set(dk, payload);
+  }
+
+  function readDepthFormData() {
+    const moodBand = clamp(
+      Math.round(state.depthBand || state.selectedBand || inferMoodBand(state.todayLog) || 3),
+      1,
+      5
+    );
+    const g = (id) => num($(id)?.value, 3);
+    return {
+      mood: moodBand,
+      energy: state.sliderTouched.energy ? sliderToTen(g("mdRngEnergy")) : null,
+      stress: state.sliderTouched.stress ? sliderToTen(g("mdRngStress")) : null,
+      focus: state.sliderTouched.focus ? sliderToTen(g("mdRngFocus")) : null,
+      social: state.sliderTouched.social ? sliderToTen(g("mdRngSocial")) : null,
+      emotion: state.emotionPick || "",
+      impact: state.impactPick || "",
+      impactQ: $("mdImpactQ")?.value?.trim() || "",
+      triggerQ: $("mdTriggerQ")?.value?.trim() || "",
+      actionQ: $("mdActionQ")?.value?.trim() || "",
+      notes: $("mdNote")?.value?.trim() || "",
+      tags: [state.emotionPick, state.impactPick].filter(Boolean)
+    };
+  }
+
+  function updateSubdimCaps() {
+    const lang = getLang();
+    [["mdRngEnergy", "mdCapEnergy"], ["mdRngStress", "mdCapStress"], ["mdRngFocus", "mdCapFocus"], ["mdRngSocial", "mdCapSocial"]].forEach(([rid, cid]) => {
+      const r = $(rid);
+      const c = $(cid);
+      if (!r || !c) return;
+      const v = clamp(num(r.value, 3), 1, 5);
+      c.textContent = scaleLabel(v, lang);
+    });
+  }
+
+  function renderDepthBands() {
+    const wrap = $("mdDepthBands");
+    if (!wrap) return;
+    const need = state.editingDateKey && state.editingDateKey !== todayKey();
+    if (!need) {
+      wrap.classList.add("md-depth-bands--hidden");
+      wrap.hidden = true;
+      wrap.innerHTML = "";
+      return;
+    }
+    wrap.classList.remove("md-depth-bands--hidden");
+    wrap.hidden = false;
+    const lang = getLang();
+    wrap.innerHTML = [1, 2, 3, 4, 5]
+      .map((b) => {
+        const active = state.depthBand === b ? " active" : "";
+        return `<button type="button" class="md-depth-band${active}" data-db="${b}">${moodLabel(b, lang)}</button>`;
+      })
+      .join("");
+    wrap.querySelectorAll(".md-depth-band").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.depthBand = num(btn.getAttribute("data-db"), 3);
+        renderDepthBands();
+        renderEmotionChips(state.depthBand);
       });
-      content.appendChild(grid);
+    });
+  }
 
-      const ringWrap = document.createElement("div");
-      ringWrap.className = "md-ring-wrap";
-      ringWrap.innerHTML = `
-        <div class="md-ring" id="wzRing" style="--deg:0deg;">
-          <div class="md-ring-center">
-            <span class="md-ring-label">${lang === "fr" ? "Global" : "Overall"}</span>
-            <span class="md-ring-val" id="wzRingScore">—</span>
+  function renderEmotionChips(band) {
+    const box = $("mdEmotionChips");
+    if (!box) return;
+    const lang = getLang();
+    const key = bandKeyFromMood(band);
+    const set = emotionSets(lang)[key];
+    const expanded = sessionStorage.getItem(SS_EMO) === "1";
+    const labels = expanded ? [...set.base, ...set.more] : set.base;
+    box.innerHTML = "";
+    labels.forEach((label) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "md-chip" + (state.emotionPick === label ? " active" : "");
+      b.textContent = label;
+      b.addEventListener("click", () => {
+        state.emotionPick = state.emotionPick === label ? "" : label;
+        renderEmotionChips(band);
+      });
+      box.appendChild(b);
+    });
+    const moreBtn = $("mdEmoMore");
+    if (moreBtn) {
+      moreBtn.textContent = expanded ? t("mood.showLess", "Show less") : t("mood.showMore", "Show more");
+      moreBtn.onclick = () => {
+        sessionStorage.setItem(SS_EMO, expanded ? "" : "1");
+        renderEmotionChips(band);
+      };
+    }
+  }
+
+  function renderImpactChips() {
+    const box = $("mdImpactChips");
+    if (!box) return;
+    const lang = getLang();
+    const set = impactSets(lang);
+    const expanded = sessionStorage.getItem(SS_IMP) === "1";
+    const labels = expanded ? [...set.base, ...set.more] : set.base;
+    box.innerHTML = "";
+    labels.forEach((label) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "md-chip" + (state.impactPick === label ? " active" : "");
+      b.textContent = label;
+      b.addEventListener("click", () => {
+        state.impactPick = state.impactPick === label ? "" : label;
+        renderImpactChips();
+      });
+      box.appendChild(b);
+    });
+    const moreBtn = $("mdImpMore");
+    if (moreBtn) {
+      moreBtn.textContent = expanded ? t("mood.showLess", "Show less") : t("mood.showMore", "Show more");
+      moreBtn.onclick = () => {
+        sessionStorage.setItem(SS_IMP, expanded ? "" : "1");
+        renderImpactChips();
+      };
+    }
+  }
+
+  function openDepthSection(prefill) {
+    const depth = $("mdDepth");
+    if (!depth) return;
+    state.depthOpen = true;
+    depth.classList.add("open");
+    depth.setAttribute("aria-hidden", "false");
+
+    state.sliderTouched = { energy: false, stress: false, focus: false, social: false };
+    const band = inferMoodBand(prefill) || state.selectedBand || 3;
+    state.depthBand = clamp(Math.round(band), 1, 5);
+
+    const setR = (id, val, touched) => {
+      const el = $(id);
+      if (el) el.value = String(val);
+      return touched;
+    };
+
+    if (prefill) {
+      setR("mdRngEnergy", prefill.energy != null ? tenToSlider(prefill.energy) : 3, false);
+      setR("mdRngStress", prefill.stress != null ? tenToSlider(prefill.stress) : 3, false);
+      setR("mdRngFocus", prefill.focus != null ? tenToSlider(prefill.focus) : 3, false);
+      setR("mdRngSocial", prefill.social != null ? tenToSlider(prefill.social) : 3, false);
+      if (prefill.energy != null) state.sliderTouched.energy = true;
+      if (prefill.stress != null) state.sliderTouched.stress = true;
+      if (prefill.focus != null) state.sliderTouched.focus = true;
+      if (prefill.social != null) state.sliderTouched.social = true;
+      state.emotionPick = prefill.emotion || "";
+      state.impactPick = prefill.impact || "";
+      if ($("mdImpactQ")) $("mdImpactQ").value = prefill.impactQ || "";
+      if ($("mdTriggerQ")) $("mdTriggerQ").value = prefill.triggerQ || "";
+      if ($("mdActionQ")) $("mdActionQ").value = prefill.actionQ || "";
+      if ($("mdNote")) $("mdNote").value = prefill.notes || "";
+    } else {
+      ["mdRngEnergy", "mdRngStress", "mdRngFocus", "mdRngSocial"].forEach((id) => {
+        const el = $(id);
+        if (el) el.value = "3";
+      });
+      state.emotionPick = "";
+      state.impactPick = "";
+      ["mdImpactQ", "mdTriggerQ", "mdActionQ", "mdNote"].forEach((id) => {
+        const el = $(id);
+        if (el) el.value = "";
+      });
+    }
+
+    updateSubdimCaps();
+    renderDepthBands();
+    renderEmotionChips(state.depthBand);
+    renderImpactChips();
+  }
+
+  function closeDepthSection() {
+    const depth = $("mdDepth");
+    if (!depth) return;
+    state.depthOpen = false;
+    depth.classList.remove("open");
+    depth.setAttribute("aria-hidden", "true");
+    state.editingDateKey = null;
+    state.editingToday = false;
+    renderDepthBands();
+  }
+
+  function renderSelector() {
+    const cards = qsa(".md-band-card");
+    const band =
+      state.selectedBand != null
+        ? state.selectedBand
+        : state.todayLog
+          ? inferMoodBand(state.todayLog)
+          : null;
+    cards.forEach((c) => {
+      const b = num(c.getAttribute("data-band"), 0);
+      const sel = band != null && b === band;
+      c.classList.toggle("selected", sel);
+      c.setAttribute("aria-selected", sel ? "true" : "false");
+    });
+    const saveBtn = $("mdSaveQuick");
+    if (saveBtn) saveBtn.disabled = state.selectedBand == null;
+  }
+
+  function selectBand(band) {
+    state.selectedBand = clamp(Math.round(band), 1, 5);
+    applyMoodTint(state.selectedBand);
+    renderSelector();
+    const actions = $("mdSelectorActions");
+    if (actions) {
+      actions.classList.remove("md-selector-actions--hidden");
+      actions.hidden = false;
+    }
+    const saveBtn = $("mdSaveQuick");
+    if (saveBtn) saveBtn.disabled = false;
+  }
+
+  function renderTodaySummary(log) {
+    const el = $("mdTodaySummary");
+    if (!el) return;
+    const b = inferMoodBand(log);
+    const lang = getLang();
+    const time = formatLogTime(log);
+    const logged = t("mood.loggedAt", "Logged at {time}").replace("{time}", time);
+    el.innerHTML = `
+      <span class="md-today-summary-swatch" style="--entry-band:var(--md-band-${b})"></span>
+      <div class="md-today-summary-text">
+        <span class="md-today-summary-label">${moodLabel(b, lang)}</span>
+        <span class="md-today-summary-time">${logged}</span>
+      </div>`;
+    el.classList.remove("md-today-summary--hidden");
+    el.hidden = false;
+  }
+
+  function hideTodaySummary() {
+    const el = $("mdTodaySummary");
+    if (el) {
+      el.classList.add("md-today-summary--hidden");
+      el.hidden = true;
+      el.innerHTML = "";
+    }
+  }
+
+  function renderStreak(logs) {
+    const el = $("mdStreak");
+    if (!el) return;
+    const n = calcStreak(logs);
+    state.streak = n;
+    if (n < 2) {
+      el.classList.add("md-streak--hidden");
+      el.hidden = true;
+      return;
+    }
+    el.classList.remove("md-streak--hidden");
+    el.hidden = false;
+    const text = t("mood.streak", "{n}-day streak").replace("{n}", String(n));
+    el.textContent = "🔥 " + text;
+  }
+
+  function renderWeeklyInsight(logs) {
+    const textEl = $("mdInsightText");
+    const labelsEl = $("mdMiniBarLabels");
+    const barsEl = $("mdMiniBars");
+    if (!textEl || !barsEl) return;
+
+    if (logs.length < 3) {
+      textEl.textContent = t("mood.insightNeedMore", "Log a few more days for insights.");
+    } else {
+      textEl.textContent = generateWeeklyInsight(logs) || t("mood.insightNeedMore", "Log a few more days for insights.");
+    }
+
+    const locale = getLang() === "fr" ? "fr-FR" : "en-US";
+    const today = todayKey();
+    const days = [];
+    for (let i = 6; i >= 0; i--) days.push(addDaysKey(today, -i));
+    const map = new Map(logs.map((l) => [logDateKey(l), l]));
+
+    if (labelsEl) {
+      labelsEl.innerHTML = days
+        .map((d) => {
+          const dt = new Date(d + "T12:00:00");
+          const short = dt.toLocaleDateString(locale, { weekday: "short" });
+          return `<span>${short}</span>`;
+        })
+        .join("");
+    }
+
+    barsEl.innerHTML = days
+      .map((d) => {
+        const log = map.get(d);
+        const b = log ? inferMoodBand(log) : null;
+        const h = b ? 12 + b * 10 : 12;
+        if (!b) return `<div class="md-mini-bar empty" style="height:${h}px"></div>`;
+        return `<div class="md-mini-bar" style="--md-color:var(--md-band-${b});height:${h}px;background:var(--md-band-${b})"></div>`;
+      })
+      .join("");
+  }
+
+  function renderEntryCards(logs) {
+    const box = $("mdEntries");
+    const empty = $("mdEntriesEmpty");
+    if (!box) return;
+    box.innerHTML = "";
+    const lang = getLang();
+    if (!logs.length) {
+      empty?.classList.remove("md-entries-empty--hidden");
+      if (empty) empty.hidden = false;
+      return;
+    }
+    empty?.classList.add("md-entries-empty--hidden");
+    if (empty) empty.hidden = true;
+
+    logs.slice(0, 7).forEach((log) => {
+      const dk = logDateKey(log);
+      const b = inferMoodBand(log);
+      const card = document.createElement("article");
+      card.className = "md-entry-card";
+      card.innerHTML = `
+        <div class="md-entry-swatch" style="--entry-band:var(--md-band-${b})"></div>
+        <div class="md-entry-body">
+          <div class="md-entry-top">
+            <span class="md-entry-label">${moodLabel(b, lang)}</span>
+            <span class="md-entry-date">${formatEntryDate(dk)}</span>
           </div>
+          <div class="md-entry-chips"></div>
+          <div class="md-entry-note"></div>
         </div>
-      `;
-      content.appendChild(ringWrap);
-
-      function wzUpdateRing() {
-        const ov = overallScore(wz.data);
-        const deg = (ov / 5) * 360;
-        const ring = qs("#wzRing");
-        const score = qs("#wzRingScore");
-        if (ring) {
-          ring.style.setProperty("--deg", `${deg}deg`);
-          ring.style.setProperty("--ringColor", moodColor(Math.round(ov)));
-        }
-        if (score) score.textContent = scaleLabel(Math.round(ov), lang);
+        <button type="button" class="md-entry-edit" data-date="${dk}">${t("mood.edit", "Edit")}</button>`;
+      const chips = card.querySelector(".md-entry-chips");
+      const noteEl = card.querySelector(".md-entry-note");
+      if (log.emotion) {
+        const s = document.createElement("span");
+        s.className = "md-entry-chip";
+        s.textContent = log.emotion;
+        chips.appendChild(s);
       }
-
-      dims.forEach(d => {
-        renderOne("wzRng" + d.id, "wzPill" + d.id, "wzCap" + d.id);
-        const el = qs("#wzRng" + d.id);
-        if (el) {
-          updateRangeStyle(el, num(el.value, 3), 5);
-          el.addEventListener("input", () => {
-            wz.data[d.key] = num(el.value, 3);
-            renderOne("wzRng" + d.id, "wzPill" + d.id, "wzCap" + d.id);
-            wzUpdateRing();
-          });
-        }
-      });
-      wzUpdateRing();
-
-    } else if (step === 1) {
-      const ov = overallScore(wz.data);
-      const band = bandFromOverall(ov);
-      const ui = readUI();
-      const sets = emotionSets(lang)[band];
-      const list = ui.emoMore ? [...sets.base, ...sets.more] : sets.base;
-      const wrap = document.createElement("div");
-      wrap.id = "wzEmotionChips";
-      wrap.className = "chips";
-      list.forEach(name => {
-        const b = makeChip(name, name, () => {
-          qsa("#wzEmotionChips .mood-chip").forEach(x => x.classList.remove("active"));
-          b.classList.add("active");
-          wz.data.emotion = name;
-        });
-        if (wz.data.emotion === name) b.classList.add("active");
-        wrap.appendChild(b);
-      });
-      content.appendChild(wrap);
-      const moreBtn = document.createElement("button");
-      moreBtn.className = "md-btn small";
-      moreBtn.style.marginTop = "10px";
-      moreBtn.textContent = ui.emoMore ? (lang === "fr" ? "Afficher moins" : "Show less") : (lang === "fr" ? "Afficher plus" : "Show more");
-      moreBtn.addEventListener("click", () => {
-        const u = readUI(); u.emoMore = !u.emoMore; writeUI(u); wzRender(1);
-      });
-      content.appendChild(moreBtn);
-
-    } else if (step === 2) {
-      const ui = readUI();
-      const sets = impactSets(lang);
-      const list = ui.impMore ? [...sets.base, ...sets.more] : sets.base;
-      const wrap = document.createElement("div");
-      wrap.id = "wzImpactChips";
-      wrap.className = "chips";
-      list.forEach(name => {
-        const b = makeChip(name, name, () => {
-          qsa("#wzImpactChips .mood-chip").forEach(x => x.classList.remove("active"));
-          b.classList.add("active");
-          wz.data.impact = name;
-        });
-        if (wz.data.impact === name) b.classList.add("active");
-        wrap.appendChild(b);
-      });
-      content.appendChild(wrap);
-      const moreBtn = document.createElement("button");
-      moreBtn.className = "md-btn small";
-      moreBtn.style.marginTop = "10px";
-      moreBtn.textContent = ui.impMore ? (lang === "fr" ? "Afficher moins" : "Show less") : (lang === "fr" ? "Afficher plus" : "Show more");
-      moreBtn.addEventListener("click", () => {
-        const u = readUI(); u.impMore = !u.impMore; writeUI(u); wzRender(2);
-      });
-      content.appendChild(moreBtn);
-
-    } else if (step === 3) {
-      const inp = document.createElement("input");
-      inp.type = "text"; inp.id = "wzImpactQ"; inp.className = "md-input";
-      inp.placeholder = lang === "fr" ? "ex. Travail, sommeil, famille..." : "e.g. Work, sleep, family...";
-      inp.maxLength = 120; inp.value = wz.data.impactQ || "";
-      content.appendChild(inp);
-      setTimeout(() => inp.focus(), 60);
-
-    } else if (step === 4) {
-      const inp = document.createElement("input");
-      inp.type = "text"; inp.id = "wzTriggerQ"; inp.className = "md-input";
-      inp.placeholder = lang === "fr" ? "ex. Après ___ je me suis senti(e)..." : "e.g. After ___ I felt ___";
-      inp.maxLength = 120; inp.value = wz.data.triggerQ || "";
-      content.appendChild(inp);
-      setTimeout(() => inp.focus(), 60);
-
-    } else if (step === 5) {
-      const inp = document.createElement("input");
-      inp.type = "text"; inp.id = "wzActionQ"; inp.className = "md-input";
-      inp.placeholder = lang === "fr" ? "ex. 5 min de marche, appeler un ami..." : "e.g. 5 min walk, call a friend...";
-      inp.maxLength = 120; inp.value = wz.data.actionQ || "";
-      content.appendChild(inp);
-      setTimeout(() => inp.focus(), 60);
-
-    } else if (step === 6) {
-      const ta = document.createElement("textarea");
-      ta.id = "wzNote"; ta.className = "md-textarea"; ta.rows = 4;
-      ta.placeholder = lang === "fr" ? "Écris ce que tu veux..." : "Write anything...";
-      ta.value = wz.data.note || "";
-      content.appendChild(ta);
-      setTimeout(() => ta.focus(), 60);
-    }
-  }
-
-  function wzSync() {
-    const lang = getLang();
-    const label = qs("#mdLogStepLabel");
-    if (label) label.textContent = `${wz.step + 1} / ${WZ_TOTAL}`;
-
-    const fill = qs("#mdLogProgressFill");
-    if (fill) fill.style.width = `${(wz.step / (WZ_TOTAL - 1)) * 100}%`;
-
-    const title = qs("#mdLogStepTitle");
-    if (title) title.textContent = wzTitle(wz.step);
-
-    const back = qs("#mdLogBtnBack");
-    if (back) {
-      back.disabled = wz.step === 0;
-      back.textContent = lang === "fr" ? "Retour" : "Back";
-    }
-
-    const next = qs("#mdLogBtnNext");
-    if (next) {
-      if (wz.step === WZ_TOTAL - 1) {
-        next.textContent = lang === "fr" ? "Enregistrer ✓" : "Save ✓";
+      if (log.impact) {
+        const s = document.createElement("span");
+        s.className = "md-entry-chip";
+        s.textContent = log.impact;
+        chips.appendChild(s);
+      }
+      if (log.notes) {
+        noteEl.textContent = log.notes;
       } else {
-        next.textContent = lang === "fr" ? "Suivant →" : "Next →";
+        noteEl.remove();
+      }
+      box.appendChild(card);
+    });
+  }
+
+  function updateDateDisplay() {
+    const el = $("moodDate");
+    if (!el) return;
+    const locale = getLang() === "fr" ? "fr-FR" : "en-US";
+    el.textContent = new Date().toLocaleDateString(locale, { weekday: "short", day: "numeric", month: "short" });
+  }
+
+  function handleSleepBanner() {
+    const banner = $("mdSleepBanner");
+    const textEl = $("mdSleepText");
+    if (!banner || !textEl) return;
+    const sum = HBIT.sleep?.lastNightSummary;
+    if (!sum || sum.isBelowTarget !== true) {
+      banner.classList.add("md-sleep-banner--hidden");
+      banner.hidden = true;
+      return;
+    }
+    const dismissKey = `md-sleep-banner-dismissed-${todayKey()}`;
+    if (sessionStorage.getItem(dismissKey) === "1") {
+      banner.classList.add("md-sleep-banner--hidden");
+      banner.hidden = true;
+      return;
+    }
+    const hours = sum.displayHours || sum.hoursLabel || sum.hoursFormatted || "—";
+    textEl.innerHTML = t("mood.sleepBanner", "Last night you slept {hours}.").replace("{hours}", `<strong>${hours}</strong>`);
+    banner.classList.remove("md-sleep-banner--hidden");
+    banner.hidden = false;
+  }
+
+  function renderAll() {
+    updateDateDisplay();
+    HBIT.i18n?.apply?.(document);
+
+    const hasToday = !!state.todayLog;
+    const historyEdit = state.editingDateKey && state.editingDateKey !== todayKey();
+    const collapsed = hasToday && !state.editingToday && state.editingDateKey == null;
+
+    const wrap = $("mdSelectorWrap");
+    const actions = $("mdSelectorActions");
+    const editRow = $("mdEditRow");
+
+    if (collapsed) {
+      wrap?.classList.add("md-selector-wrap--hidden");
+      if (wrap) wrap.hidden = true;
+      actions?.classList.add("md-selector-actions--hidden");
+      if (actions) actions.hidden = true;
+      editRow?.classList.remove("md-edit-row--hidden");
+      if (editRow) editRow.hidden = false;
+      renderTodaySummary(state.todayLog);
+      state.selectedBand = null;
+      applyMoodTint(inferMoodBand(state.todayLog));
+      renderSelector();
+    } else {
+      hideTodaySummary();
+      if (historyEdit) {
+        wrap?.classList.add("md-selector-wrap--hidden");
+        if (wrap) wrap.hidden = true;
+        editRow?.classList.add("md-edit-row--hidden");
+        if (editRow) editRow.hidden = true;
+      } else {
+        wrap?.classList.remove("md-selector-wrap--hidden");
+        if (wrap) wrap.hidden = false;
+        editRow?.classList.add("md-edit-row--hidden");
+        if (editRow) editRow.hidden = true;
+      }
+      if (!state.depthOpen && !state.selectedBand && hasToday && !historyEdit) {
+        state.selectedBand = inferMoodBand(state.todayLog);
+      }
+      if (state.selectedBand != null) applyMoodTint(state.selectedBand);
+      else if (!hasToday) applyMoodTint(null);
+      else applyMoodTint(inferMoodBand(state.todayLog));
+      renderSelector();
+      if (historyEdit) {
+        actions?.classList.add("md-selector-actions--hidden");
+        if (actions) actions.hidden = true;
+      } else if (state.selectedBand != null) {
+        actions?.classList.remove("md-selector-actions--hidden");
+        if (actions) actions.hidden = false;
+      } else if (!hasToday) {
+        actions?.classList.add("md-selector-actions--hidden");
+        if (actions) actions.hidden = true;
+      } else {
+        actions?.classList.add("md-selector-actions--hidden");
+        if (actions) actions.hidden = true;
       }
     }
 
-    wzRender(wz.step);
+    renderStreak(state.recentLogs);
+    renderWeeklyInsight(state.recentLogs);
+    renderEntryCards(state.recentLogs);
+
+    HBIT.mood = HBIT.mood || {};
+    HBIT.mood.todaySummary = {
+      band: state.todayLog ? inferMoodBand(state.todayLog) : null,
+      label: state.todayLog ? moodLabel(inferMoodBand(state.todayLog), getLang()) : null,
+      logged: !!state.todayLog
+    };
   }
 
-  function wzPersistAndSave() {
-    wzSave();
-    const data = { ...wz.data };
-    const ov = overallScore(data);
-    const entry = { ...data, overall: ov, ts: Date.now() };
-    const arr = readHistory();
-    arr.unshift(entry);
-    writeHistory(arr);
-    saveToday(data);
+  function bindEvents() {
+    if (state.eventsBound) return;
+    state.eventsBound = true;
 
-    setOverallPill(data);
-    const page = document.getElementById("moodPage");
-    if (page) {
-      const v = Math.round(ov);
-      page.setAttribute("data-mood-tone", v <= 2 ? "low" : v >= 4 ? "high" : "mid");
-    }
+    qsa(".md-band-card").forEach((card) => {
+      card.addEventListener("click", () => {
+        const b = num(card.getAttribute("data-band"), 3);
+        selectBand(b);
+      });
+    });
 
-    renderHistory();
-    closeMoodLogModal();
+    [["mdRngEnergy", "energy"], ["mdRngStress", "stress"], ["mdRngFocus", "focus"], ["mdRngSocial", "social"]].forEach(([id, key]) => {
+      $(id)?.addEventListener("input", () => {
+        state.sliderTouched[key] = true;
+        updateSubdimCaps();
+      });
+    });
 
-    if (window.HBIT?.db) {
-      const today = todayKey();
-      const to10 = v => Math.round(clamp(num(v, 3), 1, 5) * 2);
-      HBIT.db.moodLogs.set(today, {
-        score:  to10(ov),
-        energy: to10(data.energy || 3),
-        stress: to10(data.stress || 3),
-        focus:  to10(data.focus || 3),
-        notes:  data.note || "",
-        tags:   [data.emotion, data.impact].filter(Boolean)
-      }).then(() => {
+    $("mdSaveQuick")?.addEventListener("click", async () => {
+      if (state.selectedBand == null) return;
+      try {
+        await saveMoodQuick(state.selectedBand);
+        state.todayLog = await loadTodayLog();
+        state.recentLogs = await loadRecentLogs();
+        state.editingToday = false;
+        state.selectedBand = null;
+        state.depthOpen = false;
+        $("mdDepth")?.classList.remove("open");
+        $("mdDepth")?.setAttribute("aria-hidden", "true");
+        renderAll();
+        showToast(t("mood.savedToast", "Mood saved ✓"));
         window.dispatchEvent(new CustomEvent("hbit:data-changed", { detail: { area: "mood" } }));
-        if (window.HBIT?.updateUserProfile) {
-          HBIT.updateUserProfile({
-            "stats.moodLogs": firebase.firestore.FieldValue.increment(1)
-          }).catch(() => {});
-        }
-      }).catch(e => console.warn("[Hbit] Mood Firestore sync:", e.message));
-    }
-  }
-
-  function openMoodLogModal() {
-    const prev = normalizeEntry(readToday());
-    const def = { mood:3, stress:3, energy:3, focus:3, social:3, emotion:"", impact:"", impactQ:"", triggerQ:"", actionQ:"", note:"" };
-    wz.data = { ...def, ...(prev || {}) };
-    wz.step = 0;
-    wzSync();
-    const modal = qs("#moodLogModal");
-    if (modal) { modal.setAttribute("aria-hidden", "false"); document.body.style.overflow = "hidden"; }
-  }
-
-  function closeMoodLogModal() {
-    const modal = qs("#moodLogModal");
-    if (modal) { modal.setAttribute("aria-hidden", "true"); document.body.style.overflow = ""; }
-  }
-
-  function bind() {
-    on(qs("#moodLogBtn"),   "click", openMoodLogModal);
-    on(qs("#moodLogClose"), "click", closeMoodLogModal);
-
-    qs("#moodLogModal")?.addEventListener("click", (e) => {
-      if (e.target.id === "moodLogModal") closeMoodLogModal();
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && qs("#moodLogModal")?.getAttribute("aria-hidden") === "false") closeMoodLogModal();
-    });
-
-    on(qs("#mdLogBtnBack"), "click", () => {
-      if (wz.step > 0) { wzSave(); wz.step--; wzSync(); }
-    });
-
-    on(qs("#mdLogBtnNext"), "click", () => {
-      wzSave();
-      if (wz.step === WZ_TOTAL - 1) {
-        wzPersistAndSave();
-      } else {
-        wz.step++;
-        wzSync();
+      } catch (e) {
+        console.warn(e);
+        showToast(getLang() === "fr" ? "Erreur d'enregistrement" : "Could not save");
       }
     });
+
+    $("mdOpenDepth")?.addEventListener("click", () => {
+      if (state.selectedBand == null) return;
+      if ($("mdDepth")?.classList.contains("open")) return;
+      state.depthBand = state.selectedBand;
+      openDepthSection({
+        mood: state.selectedBand,
+        energy: null,
+        stress: null,
+        focus: null,
+        social: null,
+        emotion: "",
+        impact: "",
+        impactQ: "",
+        triggerQ: "",
+        actionQ: "",
+        notes: ""
+      });
+    });
+
+    $("mdSaveFull")?.addEventListener("click", async () => {
+      try {
+        const data = readDepthFormData();
+        const dk = state.editingDateKey || todayKey();
+        await saveMoodFull(data, dk);
+        closeDepthSection();
+        state.todayLog = await loadTodayLog();
+        state.recentLogs = await loadRecentLogs();
+        state.selectedBand = null;
+        renderAll();
+        showToast(getLang() === "fr" ? "Enregistré ✓" : "Saved ✓");
+        window.dispatchEvent(new CustomEvent("hbit:data-changed", { detail: { area: "mood" } }));
+      } catch (e) {
+        console.warn(e);
+        showToast(getLang() === "fr" ? "Erreur d'enregistrement" : "Could not save");
+      }
+    });
+
+    $("mdEditToday")?.addEventListener("click", () => {
+      state.editingToday = true;
+      state.editingDateKey = null;
+      state.selectedBand = inferMoodBand(state.todayLog);
+      applyMoodTint(state.selectedBand);
+      openDepthSection(state.todayLog);
+      renderAll();
+    });
+
+    $("mdSleepDismiss")?.addEventListener("click", () => {
+      sessionStorage.setItem(`md-sleep-banner-dismissed-${todayKey()}`, "1");
+      const b = $("mdSleepBanner");
+      b?.classList.add("md-sleep-banner--hidden");
+      if (b) b.hidden = true;
+    });
+
+    $("mdEntries")?.addEventListener("click", (e) => {
+      const btn = e.target.closest(".md-entry-edit");
+      if (!btn) return;
+      const dk = btn.getAttribute("data-date");
+      if (!dk) return;
+      const log = state.recentLogs.find((l) => logDateKey(l) === dk);
+      if (!log) return;
+      state.editingDateKey = dk;
+      state.editingToday = dk === todayKey();
+      state.selectedBand = inferMoodBand(log);
+      state.depthBand = state.selectedBand;
+      openDepthSection(log);
+      renderAll();
+    });
+
+    document.addEventListener("hbit:lang-changed", () => {
+      renderAll();
+      if (state.depthOpen) {
+        renderDepthBands();
+        renderEmotionChips(state.depthBand);
+        renderImpactChips();
+        updateSubdimCaps();
+      }
+    });
+  }
+
+  async function start(user) {
+    state.uid = user.uid;
+    await migrateLegacyData();
+    const [todayLog, recentLogs] = await Promise.all([loadTodayLog(), loadRecentLogs()]);
+    state.todayLog = todayLog;
+    state.recentLogs = recentLogs;
+    state.weekInsight = generateWeeklyInsight(recentLogs);
+    bindEvents();
+    renderAll();
+    handleSleepBanner();
   }
 
   function init() {
-    const ui = readUI();
-    writeUI(ui);
-
-    const def = { mood:3, stress:3, energy:3, focus:3, social:3, emotion:"", impact:"", impactQ:"", triggerQ:"", actionQ:"", note:"" };
-    const st = normalizeEntry(readToday());
-    const active = st || def;
-    if (!st) saveToday(def);
-    setOverallPill(active);
-
-    const page = document.getElementById("moodPage");
-    if (page && st) {
-      const v = Math.round(overallScore(st));
-      page.setAttribute("data-mood-tone", v <= 2 ? "low" : v >= 4 ? "high" : "mid");
+    if (!window.firebase?.auth) {
+      console.warn("[mood] Firebase Auth not available");
+      return;
     }
-
-    const dateEl = document.getElementById("moodDate");
-    if (dateEl) dateEl.textContent = new Date().toLocaleDateString(getLang() === "fr" ? "fr-FR" : "en-US", { weekday: "short", day: "numeric", month: "short" });
-
-    bind();
-    renderHistory();
-
-    qs("#logoutBtn")?.addEventListener("click", async () => {
-      try {
-        if (typeof firebase !== "undefined" && firebase.auth) {
-          await firebase.auth().signOut();
-          window.location.replace("index.html");
-        }
-      } catch (e) {
-        console.warn("[mood] Sign out:", e?.message);
+    const auth = firebase.auth();
+    if (auth.currentUser) {
+      start(auth.currentUser).catch((e) => console.warn("[mood]", e?.message || e));
+      return;
+    }
+    const unsub = auth.onAuthStateChanged((user) => {
+      if (user) {
+        unsub();
+        start(user).catch((e) => console.warn("[mood]", e?.message || e));
       }
     });
   }
 
   HBIT.pages = HBIT.pages || {};
   HBIT.pages.mood = { init };
+
+  if (typeof HBIT.onReady !== "function") {
+    HBIT.onReady = function (cb) {
+      if (!window.firebase?.auth) return;
+      const auth = firebase.auth();
+      if (auth.currentUser) {
+        Promise.resolve().then(() => cb(auth.currentUser));
+        return;
+      }
+      const u = auth.onAuthStateChanged((user) => {
+        if (user) {
+          u();
+          cb(user);
+        }
+      });
+    };
+  }
 })();

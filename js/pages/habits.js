@@ -113,6 +113,113 @@
     ],
   };
 
+  /* French display labels for saved habits (Firestore stores English preset names). */
+  const PRESETS_FR = {
+    health: [
+      "Boire 2 L d’eau par jour", "Manger 5 portions de fruits et légumes", "Pas de malbouffe",
+      "Prendre des vitamines chaque jour", "Petit-déjeuner sain chaque jour", "Réduire le sucre raffiné",
+      "Cuisiner un repas à la maison", "Une salade avec le déjeuner", "Ne plus manger après 20 h",
+      "Suivre calories / macros", "Boire du thé vert", "Se filer les dents chaque soir",
+      "Prendre un probiotique", "Manger en pleine conscience (sans écran)", "Préparer des encas sains",
+      "Limiter les aliments ultra-transformés", "Un verre d’eau au réveil", "Privilégier les céréales complètes",
+    ],
+    fitness: [
+      "Sport du matin 30 min", "Marcher 10 000 pas", "S’étirer 10 min",
+      "Aller à la salle", "Courir 20 min", "Sortir le vélo 30 min",
+      "Faire 50 pompes", "Planche 2 min", "Séance de yoga 20 min",
+      "Corde à sauter 10 min", "Longueur de piscine 30 min", "HIIT 15 min",
+      "Toujours prendre les escaliers", "Marche du soir après dîner", "Musculation",
+      "Danse cardio 20 min", "Faire 100 squats", "Douche froide ou bain froid",
+    ],
+    mind: [
+      "Méditer 10 min", "Tenir un journal", "Liste de gratitude (3 choses)",
+      "Pas de téléphone la 1re heure", "Respiration profonde 5 min", "Lire avant de dormir",
+      "Détox numérique 1 h", "Affirmations positives", "Visualisation",
+      "Marche consciente 15 min", "Brain dump / écriture libre", "Apprendre à dire non",
+      "Limiter les infos", "Méditation scan corporel", "Pas de réseaux avant midi",
+      "Thérapie / introspection", "Travailler la patience", "Une tâche à la fois",
+    ],
+    learning: [
+      "Lire 20 pages", "Étudier 45 min", "Pratiquer une langue",
+      "Une leçon de cours en ligne", "Réviser les flashcards (Anki)", "Notes sur un podcast",
+      "Regarder une conférence TED", "Apprendre un mot nouveau", "Coder 30 min",
+      "Rédiger un résumé de ce que j’ai appris", "Écouter un livre audio", "Réflexion / puzzle",
+      "Instrument 20 min", "Dessiner 15 min", "Écrire 500 mots",
+      "Apprendre une nouvelle recette", "Prise de parole en public", "Lire un article pro",
+    ],
+    finance: [
+      "Noter chaque dépense", "Épargner 10 % du revenu", "Pas d’achats impulsifs",
+      "Préparer le déjeuner (pas acheté)", "Bilan budget hebdo", "Résilier un abonnement inutile",
+      "Vérifier le solde bancaire", "Mettre de l’argent de côté", "Pas d’achats en ligne aujourd’hui",
+      "Comparer les prix avant d’acheter", "Café de la maison", "Revoir les abonnements du mois",
+      "Plafond de dépenses quotidien", "Lire sur les finances perso", "Automatiser un paiement",
+      "Vendre un objet inutile", "Payer en liquide aujourd’hui", "Planifier les repas anti-gaspillage",
+    ],
+    sleep: [
+      "Au lit avant 22 h 30", "Pas d’écran 1 h avant le coucher", "Réveil à heure fixe",
+      "Rituel du soir apaisant", "Pas de café après 14 h", "Chambre sombre et fraîche",
+      "Lire 15 min avant de dormir", "Pas de gros repas le soir", "Masque de sommeil",
+      "Méditation du sommeil", "Pas d’alcool avant le coucher", "Étirements avant de dormir",
+      "To-do pour demain", "Lumière tamisée après 20 h", "Bruit blanc ou sons calmes",
+      "Pas de sieste après 15 h", "Téléphone hors de la chambre", "Magnésium",
+    ],
+    social: [
+      "Appeler ou écrire à un ami", "Dîner en famille", "Un geste de gentillesse",
+      "Contacter quelqu’un de nouveau", "Réseaux limités à 30 min", "Organiser une sortie",
+      "Message de remerciement", "Conversation profonde", "Compliment sincère",
+      "Bénévolat ou voisin", "Écoute active", "Écrire une carte ou lettre",
+      "Soirée jeux", "Prendre des nouvelles d’un proche", "Rejoindre un club",
+      "Pas de téléphone aux repas avec les autres", "Regarder et sourire", "Mentorer ou transmettre",
+    ],
+    lifestyle: [
+      "Faire son lit chaque matin", "Ranger le bureau 5 min", "Meal prep le dimanche",
+      "Rituel du soir avant le coucher", "Vérifier la posture chaque heure", "Désencombrer 5 min",
+      "Routine soin du matin", "Préparer les vêtements la veille", "Arroser les plantes",
+      "Pas de TV aux repas", "Rangement 10 min avant le coucher", "Planifier 3 priorités demain",
+      "15 min sur un loisir", "Se désabonner d’un mail", "Organiser un tiroir ou une étagère",
+      "Marcher ou vélo plutôt que la voiture", "Routine matinale", "Rangement fichiers numériques 5 min",
+    ],
+  };
+
+  function getLang() {
+    try {
+      return window.HBIT?.i18n?.getLang?.() === "fr" ? "fr" : "en";
+    } catch (_) { return "en"; }
+  }
+
+  function findCategoryForPreset(name) {
+    const keys = Object.keys(PRESETS);
+    for (let i = 0; i < keys.length; i++) {
+      const cat = keys[i];
+      if (PRESETS[cat].includes(name)) return cat;
+    }
+    return null;
+  }
+
+  function habitDisplayName(h) {
+    const raw = (h && h.name) ? String(h.name) : "";
+    if (!raw || getLang() !== "fr") return raw;
+    const cat = h.category;
+    if (!cat || !PRESETS[cat] || !PRESETS_FR[cat]) return raw;
+    const idx = PRESETS[cat].indexOf(raw);
+    return idx >= 0 ? PRESETS_FR[cat][idx] : raw;
+  }
+
+  function presetChipLabel(enName) {
+    const name = String(enName || "");
+    if (!name || getLang() !== "fr") return name;
+    const cat = findCategoryForPreset(name);
+    if (!cat) return name;
+    const idx = PRESETS[cat].indexOf(name);
+    return idx >= 0 ? PRESETS_FR[cat][idx] : name;
+  }
+
+  function heatmapTooltipText(count, dateKey) {
+    return t("habits.heatmap.tooltip", "{n} done · {date}")
+      .replace("{n}", String(count))
+      .replace("{date}", dateKey);
+  }
+
   const MOTIVATION_CHIPS = ["Health", "Energy", "Confidence", "Stress relief", "Focus", "Family", "Career", "Growth", "Discipline", "Happiness", "Self-esteem", "Productivity", "Longevity", "Mental clarity", "Financial freedom"];
   const OBSTACLE_CHIPS   = ["Time", "Stress", "Phone", "Social plans", "Low energy", "Mood", "Forgetfulness", "Comfort zone", "Procrastination", "Weather", "Cost", "Motivation dips"];
   const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -274,7 +381,8 @@
       const isFuture = d > today;
 
       if (i % 7 === 0 && d.getMonth() !== lastMonth) {
-        monthLabels.push({ col: Math.floor(i / 7), label: d.toLocaleString("default", { month: "short" }) });
+        const loc = getLang() === "fr" ? "fr-FR" : "en-US";
+        monthLabels.push({ col: Math.floor(i / 7), label: d.toLocaleString(loc, { month: "short" }) });
         lastMonth = d.getMonth();
       }
 
@@ -288,7 +396,7 @@
       el.className = "hb-heatmap-cell";
       el.dataset.level = c.isFuture ? "0" : String(c.level);
       if (!c.isFuture && c.count > 0) {
-        el.dataset.tooltip = `${c.count} done — ${c.key}`;
+        el.dataset.tooltip = heatmapTooltipText(c.count, c.key);
       }
       grid.appendChild(el);
     });
@@ -411,7 +519,7 @@
       <div class="hb-card-inner">
         <div class="hb-card-head">
           <div class="hb-card-cat-icon">${catIcon}</div>
-          <div class="hb-card-name">${esc(h.name)}</div>
+          <div class="hb-card-name">${esc(habitDisplayName(h))}</div>
           <span class="hb-card-status-dot ${dotClass}"></span>
         </div>
         <div class="hb-card-ring">
@@ -551,8 +659,12 @@
     const goalDays = Math.max(1, h.goalDays || 30);
     const pct = Math.max(0, Math.min(100, Math.round((doneDays / goalDays) * 100)));
 
-    $("detailTitle").textContent = h.name;
-    $("detailSub").textContent = [h.category || "General", h.frequency || "daily"].join(" \u00b7 ");
+    $("detailTitle").textContent = habitDisplayName(h);
+    const catId = (h.category || "lifestyle").toLowerCase();
+    const catLbl = t("habits.chip." + catId, h.category || "General");
+    const fq = (h.frequency || "daily").toLowerCase();
+    const freqLbl = t("habits.freq." + fq, h.frequency || "daily");
+    $("detailSub").textContent = [catLbl, freqLbl].join(" \u00b7 ");
 
     const archiveBtn = $("detailArchive");
     const pauseBtn   = $("detailPause");
@@ -780,7 +892,7 @@
     const s = makeSlide();
     const catCards = CATEGORIES.map(c => {
       const a = state.wizard.data.category === c.id ? " active" : "";
-      return `<button class="wz-cat-card${a}" data-cat="${c.id}" type="button"><div class="wz-cat-icon">${c.icon}</div><div class="wz-cat-label">${c.label}</div></button>`;
+      return `<button class="wz-cat-card${a}" data-cat="${c.id}" type="button"><div class="wz-cat-icon">${c.icon}</div><div class="wz-cat-label">${esc(t("habits.chip." + c.id, c.label))}</div></button>`;
     }).join("");
     s.innerHTML = `<div class="wz-slide-inner">
       <div class="wz-slide-title">${t("habits.wz.step2.title", "What area of life?")}</div>
@@ -826,7 +938,7 @@
     const list = (cat && PRESETS[cat]) ? PRESETS[cat] : Object.entries(PRESETS).flatMap(([, v]) => v.slice(0, 2)).slice(0, 16);
     wrap.innerHTML = list.map(name => {
       const a = state.wizard.data.name === name ? " active" : "";
-      return `<button class="wz-chip${a}" data-preset="${esc(name)}" type="button">${esc(name)}</button>`;
+      return `<button class="wz-chip${a}" data-preset="${esc(name)}" type="button">${esc(presetChipLabel(name))}</button>`;
     }).join("");
     qsa(".wz-chip", wrap).forEach(btn => {
       btn.addEventListener("click", () => {
@@ -871,7 +983,11 @@
 
   function buildStep5() {
     const s = makeSlide();
-    const freqMap = { daily: "Daily", weekdays: "Weekdays", custom: "Custom" };
+    const freqMap = {
+      daily: t("habits.freq.daily", "Daily"),
+      weekdays: t("habits.freq.weekdays", "Weekdays"),
+      custom: t("habits.freq.custom", "Custom"),
+    };
     const diffMap = { easy: "Easy \u{1F33F}", moderate: "Moderate \u{1F525}", hard: "Hard \u{1F4AA}" };
     const freqBtns = Object.entries(freqMap).map(([k, l]) => {
       const a = state.wizard.data.frequency === k ? " active" : "";
@@ -881,9 +997,12 @@
       const a = state.wizard.data.difficulty === k ? " active" : "";
       return `<button class="wz-opt-btn${a}" data-diff="${k}" type="button">${l}</button>`;
     }).join("");
+    const dayShort = { Mon: "Mo", Tue: "Tu", Wed: "We", Thu: "Th", Fri: "Fr", Sat: "Sa", Sun: "Su" };
+    const dayShortFr = { Mon: "Lu", Tue: "Ma", Wed: "Me", Thu: "Je", Fri: "Ve", Sat: "Sa", Sun: "Di" };
     const dayBtns = DAYS.map(d => {
       const a = (state.wizard.data.customDays || []).includes(d) ? " active" : "";
-      return `<button class="wz-day-btn${a}" data-day="${d}" type="button">${d.slice(0, 2)}</button>`;
+      const lbl = getLang() === "fr" ? dayShortFr[d] : dayShort[d];
+      return `<button class="wz-day-btn${a}" data-day="${d}" type="button">${lbl}</button>`;
     }).join("");
     const daysVis = state.wizard.data.frequency === "custom" ? "" : ' style="display:none"';
     s.innerHTML = `<div class="wz-slide-inner">
@@ -993,7 +1112,7 @@
         </div>
       </div>
       <div class="wz-summary-box" id="wzSummaryBox">
-        <div class="wz-summary-name" id="wzSummaryName">${esc(state.wizard.data.name || "Your habit")}</div>
+        <div class="wz-summary-name" id="wzSummaryName">${esc(state.wizard.data.name ? habitDisplayName({ name: state.wizard.data.name, category: state.wizard.data.category }) : t("habits.wz.summaryPlaceholder", "Your habit"))}</div>
         <div class="wz-summary-meta" id="wzSummaryMeta">${buildSummaryMeta()}</div>
       </div>
     </div>`;
@@ -1073,7 +1192,7 @@
     if (nextBtn) {
       nextBtn.disabled = false;
       if (step === WIZARD_TOTAL - 1) {
-        nextBtn.textContent = state.wizard.editId ? t("habits.wz.save", "Save changes") : t("habits.wz.create", "Create habit");
+        nextBtn.textContent = state.wizard.editId ? t("habits.wz.saveEdit", "Save changes") : t("habits.wz.create", "Create habit");
         nextBtn.classList.add("wz-btn-save");
       } else {
         nextBtn.innerHTML = `${t("habits.wz.continue", "Continue")} <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
@@ -1082,7 +1201,12 @@
     }
 
     if (step === 6) {
-      const sn = $("wzSummaryName"); if (sn) sn.textContent = state.wizard.data.name || "Your habit";
+      const sn = $("wzSummaryName");
+      if (sn) {
+        sn.textContent = state.wizard.data.name
+          ? habitDisplayName({ name: state.wizard.data.name, category: state.wizard.data.category })
+          : t("habits.wz.summaryPlaceholder", "Your habit");
+      }
       const sm = $("wzSummaryMeta"); if (sm) sm.textContent = buildSummaryMeta();
     }
 
@@ -1337,6 +1461,22 @@
       if (e.key === "Escape") {
         if ($("wizardModal")?.getAttribute("aria-hidden") === "false") closeWizard();
         if ($("detailModal")?.getAttribute("aria-hidden") === "false") closeDetail();
+      }
+    });
+
+    window.addEventListener("hbit:lang-changed", () => {
+      setHeaderDate();
+      renderAll();
+      const wz = $("wizardModal");
+      if (wz && wz.getAttribute("aria-hidden") === "false") {
+        const s = state.wizard.step;
+        buildWizardSlides();
+        goToStep(s);
+      }
+      if (state.detailId) {
+        const h = state.habits.find(x => x.id === state.detailId);
+        const det = $("detailModal");
+        if (h && det && det.getAttribute("aria-hidden") === "false") renderDetailContent(h);
       }
     });
   }

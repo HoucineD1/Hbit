@@ -58,6 +58,7 @@
   const LS_CURRENCY = "hbit:budget:currency";
   const LS_MONTH    = "hbit:budget:month";
   const LS_EXPENSES = "hbit:budget:expenses";
+  const LS_PLANNER  = "hbit:budget:plannerMode";
 
   /* ── State ────────────────────────────────────────────────────────── */
   const state = {
@@ -72,12 +73,53 @@
     focusedCat:  null,
     sheet: { type: null, data: null },
     fabOpen: false,
+    savingsGoals:      [],
+    wizardMeta:        null,
+    setupDone:         false,
+    plannerMode:       "track",
+    plannerDraft:      {},
+    plannerInView:     false,
+    plannerShowAll:    false,
+    trendLoaded:       false,
+    trendLoading:      false,
+    trendData:         null,
+    allEntriesCache:   null,
+    exportOpen:        false,
+    budgetAuthSubscribed: false,
+    goalSheetMode:     "create",
+    goalEditId:        null,
+    goalSelectedColor: "#F59E0B",
+    goalDetailId:      null,
   };
+
+  const GOAL_COLORS = [
+    { hex: "#F59E0B" },
+    { hex: "#34D399" },
+    { hex: "#60A5FA" },
+    { hex: "#FB7185" },
+    { hex: "#A78BFA" },
+    { hex: "#2DD4BF" },
+  ];
+
+  function budgetMetaCol() {
+    return HBIT.userSubcollectionRef(state.uid, "budgetMeta");
+  }
+  function savingsGoalsCol() {
+    return HBIT.userSubcollectionRef(state.uid, "savingsGoals");
+  }
 
   let acctEditType  = "salary";
   let expEditCat    = "other";
   let billEditCat   = "subscriptions";
   let limitEditCat  = null;
+  let acctFlowStep  = 1;
+  let billFlowStep  = 1;
+
+  let wizardSlideIndex = 0;
+  const wizardAnswers = {
+    struggle: null, goals: [], payFrequency: null, mode: null, topCategory: null, level: null, commitment: null,
+  };
+  let wizardTrapHandler = null;
 
   /* ── Date helpers ─────────────────────────────────────────────────── */
   function todayKey() {
@@ -102,8 +144,114 @@
     return new Date(+y, +m - 1, 1).toLocaleDateString(undefined, { month: "long", year: "numeric" });
   }
 
+  function daysInMonthYm(ym) {
+    const [y, m] = ym.split("-").map(Number);
+    return new Date(y, m, 0).getDate();
+  }
+
+  function totalMonthlyPlan() {
+    return Object.values(state.plan).reduce((s, v) => s + (Number(v) || 0), 0);
+  }
+
   /** Day-of-month for today */
   function todayDay() { return new Date().getDate(); }
+
+  function monthsBetweenDates(start, end) {
+    return (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+  }
+
+  function showToast(msg) {
+    const host = $("bgToastHost");
+    if (!host) return;
+    const el = document.createElement("div");
+    el.className = "bg-toast";
+    el.textContent = msg;
+    host.appendChild(el);
+    setTimeout(() => {
+      el.style.opacity = "0";
+      el.style.transition = "opacity 0.25s ease";
+      setTimeout(() => el.remove(), 280);
+    }, 3000);
+  }
+
+  async function loadBudgetMeta() {
+    state.wizardMeta = null;
+    state.setupDone = false;
+    if (!state.uid) return;
+    try {
+      const wizSnap = await budgetMetaCol().doc("wizard").get();
+      state.wizardMeta = wizSnap.exists ? wizSnap.data() : null;
+      const setupSnap = await budgetMetaCol().doc("setup").get();
+      state.setupDone = !!(setupSnap.exists && setupSnap.data()?.done);
+    } catch (err) {
+      console.warn("[Hbit] budgetMeta:", err?.message);
+    }
+  }
+
+  async function saveWizardDoc(data, merge = true) {
+    await budgetMetaCol().doc("wizard").set(data, { merge });
+  }
+
+  async function saveSetupDone() {
+    await budgetMetaCol().doc("setup").set({
+      done: true,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+    state.setupDone = true;
+  }
+
+  async function loadSavingsGoals() {
+    if (!state.uid) { state.savingsGoals = []; return; }
+    try {
+      const snap = await savingsGoalsCol().get();
+      state.savingsGoals = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      state.savingsGoals.sort((a, b) => {
+        const ta = a.createdAt?.toMillis?.() || 0;
+        const tb = b.createdAt?.toMillis?.() || 0;
+        return ta - tb;
+      });
+    } catch (err) {
+      console.warn("[Hbit] savingsGoals:", err?.message);
+      state.savingsGoals = [];
+    }
+  }
+
+  function initPlannerModeFromMeta() {
+    try {
+      const saved = localStorage.getItem(LS_PLANNER);
+      if (saved === "track" || saved === "plan") {
+        state.plannerMode = saved;
+        return;
+      }
+    } catch {}
+    state.plannerMode = state.wizardMeta?.mode === "reactive" ? "track" : "plan";
+  }
+
+  function persistPlannerMode() {
+    try { localStorage.setItem(LS_PLANNER, state.plannerMode); } catch {}
+    syncPlannerToggleUi();
+  }
+
+  function syncPlannerToggleUi() {
+    const tr = $("bgPlannerTrack");
+    const pl = $("bgPlannerPlan");
+    const hint = $("bgPlannerHint");
+    const saveBtn = $("bgPlannerSaveBtn");
+    if (tr) {
+      tr.classList.toggle("active", state.plannerMode === "track");
+      tr.setAttribute("aria-selected", state.plannerMode === "track" ? "true" : "false");
+    }
+    if (pl) {
+      pl.classList.toggle("active", state.plannerMode === "plan");
+      pl.setAttribute("aria-selected", state.plannerMode === "plan" ? "true" : "false");
+    }
+    if (hint) {
+      hint.textContent = state.plannerMode === "plan"
+        ? "Set limits per category, then Save plan."
+        : (typeof HBIT?.i18n?.t === "function" ? HBIT.i18n.t("budget.planner.tapToSet") : "Tap a category to adjust its limit.");
+    }
+    if (saveBtn) saveBtn.style.display = state.plannerMode === "plan" ? "" : "none";
+  }
 
   /* ── Currency / formatting ────────────────────────────────────────── */
   function getCurrency() { try { return localStorage.getItem(LS_CURRENCY) || "CAD"; } catch { return "CAD"; } }
@@ -139,12 +287,27 @@
   function acctCol() { return HBIT.userSubcollectionRef(state.uid, "budgetAccounts"); }
 
   async function loadAccounts() {
+    if (!state.uid) {
+      state.accounts = [];
+      return;
+    }
     try {
       const snap = await acctCol().orderBy("createdAt", "asc").get();
       state.accounts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     } catch (err) {
       console.warn("[Hbit] Budget loadAccounts:", err?.code, err?.message);
-      state.accounts = [];
+      try {
+        const snap = await acctCol().get();
+        state.accounts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        state.accounts.sort((a, b) => {
+          const ta = a.createdAt?.toMillis?.() || 0;
+          const tb = b.createdAt?.toMillis?.() || 0;
+          return ta - tb;
+        });
+      } catch (err2) {
+        console.warn("[Hbit] Budget loadAccounts fallback:", err2?.code, err2?.message);
+        state.accounts = [];
+      }
     }
   }
 
@@ -302,16 +465,353 @@
     return map;
   }
 
+  function hasSalaryIncome() {
+    return state.accounts.some(a =>
+      (a.type === "salary" || a.type === "cash") && (a.balance || 0) > 0
+    );
+  }
+
+  function hasAnyPlanLimit() {
+    return Object.values(state.plan).some(v => Number(v) > 0);
+  }
+
+  function setupChecklistStatus() {
+    return {
+      income:   hasSalaryIncome(),
+      plan:     hasAnyPlanLimit(),
+      expense:  state.entries.some(e => !e._pending && Math.abs(e.amount || 0) > 0),
+      bill:     state.bills.length > 0,
+      goal:     state.savingsGoals.length > 0,
+    };
+  }
+
+  function renderSetupChecklist() {
+    const box = $("bgSetupChecklist");
+    if (!box) return;
+    if (!state.uid || state.setupDone || !state.wizardMeta?.completed) {
+      box.style.display = "none";
+      return;
+    }
+    const st = setupChecklistStatus();
+    const items = [
+      { key: "income", done: st.income, label: "Add your income source", action: "account" },
+      { key: "plan", done: st.plan, label: "Set your monthly plan", action: "planner" },
+      { key: "expense", done: st.expense, label: "Log your first expense", action: "expense" },
+      { key: "bill", done: st.bill, label: "Add a recurring bill", action: "bills" },
+      { key: "goal", done: st.goal, label: "Create a savings goal", action: "goals" },
+    ];
+    const doneN = items.filter(i => i.done).length;
+    if (doneN >= items.length) {
+      saveSetupDone().then(() => { box.style.display = "none"; }).catch(() => {});
+      return;
+    }
+    box.style.display = "";
+    setText("bgSetupCount", `${doneN} / ${items.length} done`);
+    const pct = (doneN / items.length) * 100;
+    const fill = $("bgSetupProgressFill");
+    if (fill) fill.style.width = `${pct}%`;
+    const list = $("bgSetupList");
+    if (!list) return;
+    list.innerHTML = items.map(i => `
+      <li class="bg-setup-item${i.done ? " done" : ""}" data-setup-action="${i.action}" role="listitem">
+        <span class="bg-setup-check" aria-hidden="true">${i.done ? "✓" : ""}</span>
+        <span class="bg-setup-item-text">${escHtml(i.label)}</span>
+      </li>`).join("");
+  }
+
+  function sessionAlertKey(id) { return `hbit:budget:alert:${id}`; }
+
+  function renderSmartAlerts() {
+    const host = $("bgAlerts");
+    if (!host || !state.uid) return;
+    const dismissed = (id) => {
+      try { return sessionStorage.getItem(sessionAlertKey(id)) === "1"; } catch { return false; }
+    };
+    const catMap = computeByCategory();
+    const income = computeIncome();
+    const planTotal = totalMonthlyPlan();
+    const daysLeft = daysInMonthYm(state.month) - todayDay();
+    const monthName = monthLabel(state.month).split(" ")[0];
+
+    let alert = null;
+
+    for (const c of CATEGORIES) {
+      const lim = state.plan[c.id] || 0;
+      const sp = catMap[c.id] || 0;
+      if (lim > 0 && sp > lim) {
+        alert = {
+          id: `over-${c.id}-${state.month}`,
+          type: "err",
+          html: `You've exceeded your <strong>${escHtml(c.label)}</strong> budget by ${fmtMoney(sp - lim)} this month.`,
+          auto: false,
+        };
+        break;
+      }
+    }
+
+    if (!alert) {
+      for (const c of CATEGORIES) {
+        const lim = state.plan[c.id] || 0;
+        const sp = catMap[c.id] || 0;
+        if (lim > 0 && sp >= lim * 0.8 && sp <= lim && daysLeft > 0) {
+          alert = {
+            id: `near-${c.id}-${state.month}`,
+            type: "warn",
+            html: `You're ${Math.round((sp / lim) * 100)}% through your <strong>${escHtml(c.label)}</strong> budget with ${daysLeft} day${daysLeft === 1 ? "" : "s"} left.`,
+            auto: true,
+          };
+          break;
+        }
+      }
+    }
+
+    if (!alert && planTotal <= 0) {
+      alert = {
+        id: `noplan-${state.month}`,
+        type: "info",
+        html: `You haven't set a budget plan for <strong>${escHtml(monthName)}</strong> yet.`,
+        link: "setplan",
+        auto: true,
+      };
+    }
+
+    if (!alert) {
+      const dim = daysInMonthYm(state.month);
+      if (todayDay() > dim - 3) {
+        const next = nextMonth(state.month);
+        alert = {
+          id: `ahead-${state.month}`,
+          type: "info",
+          html: `${escHtml(monthName)} ends in ${dim - todayDay()} day${dim - todayDay() === 1 ? "" : "s"}. Ready to plan <strong>${escHtml(monthLabel(next).split(" ")[0])}</strong>?`,
+          link: "nextmonth",
+          auto: true,
+        };
+      }
+    }
+
+    if (!alert && income > 0 && planTotal > 0) {
+      const spent = computeExpenses();
+      const mid = daysInMonthYm(state.month) / 2;
+      if (todayDay() >= mid && spent < planTotal * 0.5) {
+        const id = `ontrack-${state.month}`;
+        if (!dismissed(id)) {
+          alert = {
+            id,
+            type: "ok",
+            html: `Great job — you're ${fmtMoney(planTotal - spent)} under budget halfway through the month!`,
+            auto: true,
+          };
+        }
+      }
+    }
+
+    if (!alert || dismissed(alert.id)) {
+      host.style.display = "none";
+      host.innerHTML = "";
+      return;
+    }
+
+    const cls = alert.type === "err" ? "bg-alert-card--err"
+      : alert.type === "warn" ? "bg-alert-card--warn"
+      : alert.type === "ok" ? "bg-alert-card--ok" : "bg-alert-card--info";
+    host.style.display = "";
+    host.innerHTML = `
+      <div class="bg-alert-card ${cls}" data-alert-id="${escHtml(alert.id)}">
+        <div class="bg-alert-msg">${alert.html}</div>
+        ${alert.link === "setplan" ? `<button type="button" class="bg-alert-link" data-alert-jump="planner">Set it now</button>` : ""}
+        ${alert.link === "nextmonth" ? `<button type="button" class="bg-alert-link" data-alert-jump="nextmonth">Start planning</button>` : ""}
+        <button type="button" class="bg-alert-dismiss" aria-label="Dismiss alert">×</button>
+      </div>`;
+
+    if (alert.auto && alert.type !== "err" && alert.type !== "warn") {
+      const card = host.querySelector(".bg-alert-card");
+      setTimeout(() => {
+        if (card) card.classList.add("fade-out");
+        setTimeout(() => {
+          try { sessionStorage.setItem(sessionAlertKey(alert.id), "1"); } catch {}
+          renderSmartAlerts();
+        }, 400);
+      }, 8000);
+    }
+  }
+
+  function renderDailyAllowanceChip() {
+    const chip = $("bgDailyChip");
+    const tx = $("bgDailyChipText");
+    const bar = $("bgDailyChipBar");
+    if (!chip || !tx || !bar) return;
+    const dim = daysInMonthYm(state.month);
+    const plan = totalMonthlyPlan();
+    const fallbackInc = computeIncome();
+    const dailyBase = plan > 0 ? plan / dim : (fallbackInc > 0 ? fallbackInc / 30 : 0);
+    const today = todayKey();
+    const todaySpent = state.entries
+      .filter(e => (e.dateKey || e.date || "") === today && !e._pending)
+      .reduce((s, e) => s + Math.abs(e.amount || 0), 0);
+    if (dailyBase <= 0) {
+      chip.style.display = "none";
+      return;
+    }
+    chip.style.display = "";
+    const left = dailyBase - todaySpent;
+    const pct = Math.max(0, Math.min(100, (left / dailyBase) * 100));
+    bar.style.width = `${pct}%`;
+    if (left >= 0) {
+      tx.textContent = `💚 ${fmtMoney(left)} left today`;
+      chip.classList.remove("bg-daily-chip--bad", "bg-daily-chip--mid");
+      chip.classList.add(left / dailyBase > 0.35 ? "bg-daily-chip--ok" : "bg-daily-chip--mid");
+      bar.style.background = left / dailyBase > 0.35 ? "#34D399" : "#FBBF24";
+    } else {
+      tx.textContent = `🔴 ${fmtMoney(Math.abs(left))} over today`;
+      chip.classList.remove("bg-daily-chip--ok", "bg-daily-chip--mid");
+      chip.classList.add("bg-daily-chip--bad");
+      bar.style.background = "#F87171";
+    }
+  }
+
+  function goalStatusLabel(g) {
+    const end = new Date((g.targetDate || "").slice(0, 10) + "T12:00:00");
+    if (Number.isNaN(end.getTime())) return { text: "—", cls: "" };
+    const today = new Date();
+    today.setHours(12, 0, 0, 0);
+    if (end < today) return { text: "Past due", cls: "past" };
+    const monthsLeft = Math.max(1, monthsBetweenDates(today, end));
+    const tgt = Number(g.targetAmount) || 0;
+    const saved = Number(g.savedAmount) || 0;
+    const need = tgt - saved;
+    const neededPerMo = need / monthsLeft;
+    const mt = g.monthlyTarget != null && g.monthlyTarget !== "" ? Number(g.monthlyTarget) : null;
+    if (mt != null && Number.isFinite(mt)) {
+      const on = mt + 1e-6 >= neededPerMo;
+      return { text: on ? "On track ✓" : "Behind ⚠️", cls: on ? "on" : "behind" };
+    }
+    return { text: "Set monthly target", cls: "" };
+  }
+
+  function renderGoalsSection() {
+    const row = $("bgGoalsRow");
+    if (!row) return;
+    row.innerHTML = "";
+    state.savingsGoals.forEach(g => {
+      const tgt = Number(g.targetAmount) || 0;
+      const saved = Number(g.savedAmount) || 0;
+      const pct = tgt > 0 ? Math.min(100, (saved / tgt) * 100) : 0;
+      const end = g.targetDate ? new Date(g.targetDate.slice(0, 10) + "T12:00:00") : null;
+      const endStr = end && !Number.isNaN(end.getTime())
+        ? end.toLocaleDateString(undefined, { month: "short", year: "numeric" })
+        : "—";
+      const st = goalStatusLabel(g);
+      const mt = g.monthlyTarget != null && Number(g.monthlyTarget) > 0
+        ? `${fmtMoney(g.monthlyTarget)}/mo`
+        : "";
+      const card = document.createElement("div");
+      card.className = "bg-goal-card";
+      card.style.setProperty("--goal-accent", g.color || "#F59E0B");
+      card.dataset.goalId = g.id;
+      card.setAttribute("role", "listitem");
+      card.innerHTML = `
+        <div class="bg-goal-card-name"><span class="bg-goal-card-dot" style="background:${escHtml(g.color || "#F59E0B")}"></span>${escHtml(g.name || "Goal")}</div>
+        <div class="bg-goal-card-amt">${fmtMoney(saved)} saved of ${fmtMoney(tgt)}</div>
+        <div class="bg-goal-card-bar"><div class="bg-goal-card-bar-fill" style="width:${pct.toFixed(1)}%;background:${escHtml(g.color || "#F59E0B")}"></div></div>
+        <div class="bg-goal-card-meta">${pct.toFixed(0)}% · By ${escHtml(endStr)}${mt ? ` · +${escHtml(mt)} to stay on track` : ""}</div>
+        <div class="bg-goal-card-status ${st.cls}">${escHtml(st.text)}</div>`;
+      row.appendChild(card);
+    });
+    const add = document.createElement("button");
+    add.type = "button";
+    add.className = "bg-goal-add-card";
+    add.id = "bgGoalAddCard";
+    add.textContent = "+ New Goal";
+    row.appendChild(add);
+  }
+
+  function renderActivityCalendar() {
+    const wrap = $("bgCalendarWrap");
+    if (!wrap) return;
+    const byDay = {};
+    state.entries.forEach(e => {
+      if (e._pending) return;
+      const dk = e.dateKey || e.date || "";
+      if (!dk) return;
+      if (!byDay[dk]) byDay[dk] = { sum: 0, n: 0 };
+      byDay[dk].sum += Math.abs(e.amount || 0);
+      byDay[dk].n += 1;
+    });
+    const plan = totalMonthlyPlan();
+    const inc = computeIncome();
+    const dailyAvg = plan > 0 ? plan / 30 : (inc > 0 ? inc / 30 : 1);
+    const today = new Date();
+    today.setHours(12, 0, 0, 0);
+    const start = new Date(today);
+    start.setDate(start.getDate() - 83);
+    const monday0 = new Date(start);
+    const dow = (monday0.getDay() + 6) % 7;
+    monday0.setDate(monday0.getDate() - dow);
+
+    let html = `<div class="bg-cal-corner"></div>`;
+    for (let w = 0; w < 12; w++) {
+      const monday = new Date(monday0);
+      monday.setDate(monday.getDate() + w * 7);
+      const lbl = monday.toLocaleDateString(undefined, { month: "short" });
+      html += `<div class="bg-cal-month-lbl" style="grid-column:${w + 2};grid-row:1">${escHtml(lbl)}</div>`;
+    }
+    const dayLblRows = [1, 3, 5];
+    const dayLetters = ["M", "W", "F"];
+    for (let i = 0; i < 3; i++) {
+      html += `<div class="bg-cal-day-lbl" style="grid-column:1;grid-row:${dayLblRows[i] + 1}">${dayLetters[i]}</div>`;
+    }
+    for (let w = 0; w < 12; w++) {
+      for (let r = 0; r < 7; r++) {
+        const d = new Date(monday0);
+        d.setDate(d.getDate() + w * 7 + r);
+        const dk = [
+          d.getFullYear(),
+          String(d.getMonth() + 1).padStart(2, "0"),
+          String(d.getDate()).padStart(2, "0"),
+        ].join("-");
+        const isFuture = d > today;
+        const info = byDay[dk];
+        const spent = info ? info.sum : 0;
+        let bg = "rgba(255,255,255,0.05)";
+        if (spent > 0 && dailyAvg > 0) {
+          const ratio = spent / dailyAvg;
+          if (spent > dailyAvg * 1.15) bg = "#F87171";
+          else if (ratio < 0.25) bg = "rgba(245,158,11,0.2)";
+          else if (ratio <= 0.75) bg = "rgba(245,158,11,0.5)";
+          else bg = "rgba(245,158,11,0.85)";
+        }
+        const tip = `${d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })} · ${fmtMoney(spent)} spent · ${info ? info.n : 0} transaction${(info?.n || 0) === 1 ? "" : "s"}`;
+        const futCls = isFuture ? " future" : "";
+        html += `<div class="bg-cal-cell${futCls}" style="grid-column:${w + 2};grid-row:${r + 2};background:${bg}" data-tip="${escHtml(tip)}" tabindex="0" role="img" aria-label="${escHtml(tip)}"></div>`;
+      }
+    }
+    wrap.innerHTML = html;
+  }
+
   /* ── Full re-render ───────────────────────────────────────────────── */
   function renderAll() {
     renderHeader();
     renderKpis();
+    renderSetupChecklist();
+    renderSmartAlerts();
+    renderGoalsSection();
     renderOverviewDonut();
     renderBudgetPlanner();
     renderBills();
     renderAccounts();
+    renderActivityCalendar();
     renderPieChart();
     renderEntries();
+    renderDailyAllowanceChip();
+    if (!state.trendLoaded && !state.trendLoading) {
+      const sk = $("bgTrendSkeleton");
+      if (sk && !sk.dataset.built) {
+        sk.dataset.built = "1";
+        sk.innerHTML = Array.from({ length: 6 }, () =>
+          `<div class="bg-trend-sk-pair"><div class="bg-trend-sk-bar"></div><div class="bg-trend-sk-bar"></div></div>`
+        ).join("");
+      }
+    }
   }
 
   /* ── Header ───────────────────────────────────────────────────────── */
@@ -397,54 +897,140 @@
     svg.innerHTML = `<g>${track}${circles}</g>${hole}${textEls}`;
   }
 
+  function fmtHtmlMoney(n) {
+    return escHtml(fmtMoney(Number(n) || 0));
+  }
+
+  function readPlannerDraftFromDom() {
+    const list = $("plannerList");
+    if (!list) return;
+    state.plannerDraft = {};
+    list.querySelectorAll("[data-plan-cat]").forEach(inp => {
+      const raw = parseFloat(inp.value);
+      if (Number.isFinite(raw) && raw > 0) state.plannerDraft[inp.dataset.planCat] = raw;
+    });
+  }
+
+  function updatePlannerPlanHints(listEl) {
+    const list = listEl || $("plannerList");
+    if (!list) return;
+    const income = computeIncome();
+    const draft = {};
+    list.querySelectorAll("[data-plan-cat]").forEach(inp => {
+      const raw = parseFloat(inp.value);
+      if (Number.isFinite(raw) && raw > 0) draft[inp.dataset.planCat] = raw;
+    });
+    const sumDraft = CATEGORIES.reduce((s, c) => s + (Number(draft[c.id]) || 0), 0);
+    const txt = `${fmtMoney(Math.max(0, income - sumDraft))} of income unallocated`;
+    list.querySelectorAll(".bg-planner-plan-hint").forEach(h => { h.textContent = txt; });
+  }
+
   /* ── Budget Planner ───────────────────────────────────────────────── */
   function renderBudgetPlanner() {
     const list = $("plannerList");
+    const sumEl = $("bgPlannerSummary");
     if (!list) return;
+    syncPlannerToggleUi();
+    list.classList.toggle("bg-planner-inview", state.plannerInView);
     const catMap = computeByCategory();
+    const mode = state.plannerMode;
 
-    /* Build rows for:
-       1. categories that have a budget limit set
-       2. categories that have actual spending this month
-       (union of both) */
-    const catIds = new Set([
-      ...Object.keys(state.plan).filter(k => (state.plan[k] || 0) > 0),
-      ...Object.keys(catMap).filter(k => (catMap[k] || 0) > 0),
-      ...CATEGORIES.map(c => c.id), // always show all
-    ]);
+    if (mode === "plan") {
+      list.innerHTML = CATEGORIES.map(row => {
+        const v = state.plannerDraft[row.id] != null ? state.plannerDraft[row.id] : (state.plan[row.id] || "");
+        const val = v === "" || v == null ? "" : String(v);
+        return `
+        <div class="bg-planner-row bg-planner-row--plan" data-cat="${row.id}" role="listitem">
+          <div class="bg-planner-icon" style="background:${row.color}22;color:${row.color}">${escHtml(row.icon)}</div>
+          <div class="bg-planner-info">
+            <div class="bg-planner-name">${escHtml(row.label)}</div>
+            <input class="bg-planner-plan-input" type="number" min="0" step="1" data-plan-cat="${row.id}"
+                   value="${escHtml(val)}" placeholder="0" aria-label="Limit for ${escHtml(row.label)}" />
+            <div class="bg-planner-plan-hint"></div>
+          </div>
+        </div>`;
+      }).join("");
+      updatePlannerPlanHints(list);
+    } else {
+      const catIds = new Set([
+        ...Object.keys(state.plan).filter(k => (state.plan[k] || 0) > 0),
+        ...Object.keys(catMap).filter(k => (catMap[k] || 0) > 0),
+      ]);
+      const allTrackRows = CATEGORIES.filter(c => catIds.has(c.id)).map(c => ({
+        ...c,
+        spent: catMap[c.id] || 0,
+        limit: state.plan[c.id] || 0,
+      }));
+      const cap = 6;
+      const capped = !state.plannerShowAll && allTrackRows.length > cap;
+      const rows = capped ? allTrackRows.slice(0, cap) : allTrackRows;
 
-    const rows = CATEGORIES.filter(c => catIds.has(c.id)).map(c => ({
-      ...c,
-      spent: catMap[c.id] || 0,
-      limit: state.plan[c.id] || 0,
-    }));
-
-    list.innerHTML = rows.map(row => {
-      const pct   = row.limit > 0 ? Math.min((row.spent / row.limit) * 100, 100) : 0;
-      const over  = row.limit > 0 && row.spent > row.limit;
-      const warn  = row.limit > 0 && pct >= 80 && !over;
-      const hasLimit = row.limit > 0;
-      const barClass = over ? "over" : warn ? "warn" : hasLimit ? "good" : "";
-      const barWidth = row.limit > 0 ? `${pct}%` : `${Math.min((row.spent / Math.max(computeExpenses(), 1)) * 100, 100)}%`;
-
-      return `
-        <div class="bg-planner-row" data-cat="${row.id}" role="listitem"
-             tabindex="0" aria-label="Set budget for ${escHtml(row.label)}">
+      let rowsHtml = rows.map(row => {
+        const hasLimit = row.limit > 0;
+        const displayPct = hasLimit
+          ? Math.min((row.spent / row.limit) * 100, 999)
+          : 0;
+        const pctClamped = hasLimit ? Math.min((row.spent / row.limit) * 100, 100) : 0;
+        const over = hasLimit && row.spent > row.limit;
+        const warn = hasLimit && !over && pctClamped >= 80;
+        let barColor = "#6B7280";
+        if (hasLimit) {
+          if (over) barColor = "#F87171";
+          else if (warn) barColor = "#FBBF24";
+          else barColor = "#F59E0B";
+        } else if (row.spent > 0) {
+          barColor = "#F59E0B";
+        }
+        const barWidth = hasLimit
+          ? `${Math.min(displayPct, 100)}%`
+          : `${Math.min((row.spent / Math.max(computeExpenses(), 1)) * 100, 100)}%`;
+        const animClass = state.plannerInView ? "bg-planner-anim" : "";
+        return `
+        <div class="bg-planner-row bg-planner-row--track${hasLimit ? "" : " bg-planner-row--nolimit"}" data-cat="${row.id}" data-mode="track" data-has-limit="${hasLimit ? "1" : "0"}" role="listitem" tabindex="0"
+             aria-label="Budget ${escHtml(row.label)}">
           <div class="bg-planner-icon" style="background:${row.color}22;color:${row.color}">${escHtml(row.icon)}</div>
           <div class="bg-planner-info">
             <div class="bg-planner-name">${escHtml(row.label)}</div>
             <div class="bg-planner-bar-wrap">
-              <div class="bg-planner-bar-fill ${barClass}" style="width:${barWidth}"></div>
+              <div class="bg-planner-bar-fill ${animClass}" style="width:${barWidth};background:${barColor}"></div>
             </div>
           </div>
           <div class="bg-planner-amounts">
-            <div class="bg-planner-spent" style="color:${row.color}">${fmtMoney(row.spent)}</div>
-            <div class="bg-planner-limit ${hasLimit ? "" : "no-limit"}">
-              ${hasLimit ? `/ ${fmtMoney(row.limit)}` : t("budget.planner.noLimit")}
+            <div class="bg-planner-topline" style="display:flex;align-items:center;gap:6px;justify-content:flex-end;flex-wrap:wrap">
+              <span class="bg-planner-spent" style="color:${row.color}">${fmtMoney(row.spent)}</span>
+              <span class="bg-planner-limit ${hasLimit ? "" : "no-limit"}">
+                ${hasLimit ? "/ " + fmtHtmlMoney(row.limit) : escHtml(t("budget.planner.noLimit"))}
+                ${!hasLimit ? `<button type="button" class="bg-planner-set-limit" data-set-plan-cat="${row.id}">+ Set limit</button>` : ""}
+              </span>
+              ${hasLimit ? `<span class="bg-planner-pct">${Math.round(Math.min((row.spent / row.limit) * 100, 999))}%</span>` : ""}
+              ${over ? `<span class="bg-planner-over-badge">OVER</span>` : ""}
             </div>
           </div>
         </div>`;
-    }).join("");
+      }).join("");
+      if (capped) {
+        rowsHtml += `<div class="bg-planner-more-row" role="presentation">
+          <button type="button" class="bg-btn-ghost bg-planner-show-all" aria-label="${escHtml(t("budget.planner.showAllCategories"))}">${escHtml(t("budget.planner.showAllCategories"))}</button>
+        </div>`;
+      } else if (state.plannerShowAll && allTrackRows.length > cap) {
+        rowsHtml += `<div class="bg-planner-more-row" role="presentation">
+          <button type="button" class="bg-btn-ghost bg-planner-show-less" aria-label="${escHtml(t("budget.planner.showFewerCategories"))}">${escHtml(t("budget.planner.showFewerCategories"))}</button>
+        </div>`;
+      }
+      list.innerHTML = rowsHtml;
+    }
+
+    const totalBudgeted = CATEGORIES.reduce((s, c) => s + (Number(state.plan[c.id]) || 0), 0);
+    const totalSpent = computeExpenses();
+    const rem = totalBudgeted - totalSpent;
+    if (sumEl) {
+      sumEl.innerHTML = `
+        <span>Total budgeted: <strong>${fmtMoney(totalBudgeted)}</strong></span>
+        <span>·</span>
+        <span>Total spent: <strong>${fmtMoney(totalSpent)}</strong></span>
+        <span>·</span>
+        <span>Remaining: <strong class="${rem >= 0 ? "rem-pos" : "rem-neg"}">${fmtMoney(rem)}</strong></span>`;
+    }
   }
 
   /* ── Bills section ────────────────────────────────────────────────── */
@@ -803,9 +1389,120 @@
   /* ════════════════════════════════════════════════════════════
      ACCOUNT SHEET
      ════════════════════════════════════════════════════════════ */
+  function flowStepLabel(current, total) {
+    const tpl = t("budget.flow.stepOf");
+    if (tpl && tpl.includes("{")) {
+      return tpl.replace("{current}", String(current)).replace("{total}", String(total));
+    }
+    return `Step ${current} of ${total}`;
+  }
+
+  function syncAcctFlowUI() {
+    const editing = !!(state.sheet?.type === "account" && state.sheet.data?.id);
+    const addMode = state.sheet?.type === "account" && !state.sheet.data?.id;
+    const bType = $("acctBlockType");
+    const bDet = $("acctBlockDetails");
+    const foot = $("acctFlowFooter");
+    const prog = $("acctFlowProgress");
+    const save = $("acctSave");
+    const next = $("acctFlowNext");
+    const back = $("acctFlowBack");
+    if (!bType || !bDet) return;
+
+    if (editing) {
+      bType.style.display = "";
+      bDet.style.display = "";
+      if (foot) foot.style.display = "none";
+      if (prog) prog.textContent = "";
+      if (save) {
+        save.style.visibility = "visible";
+        save.style.pointerEvents = "";
+      }
+      if (next) next.style.display = "";
+      if (back) back.textContent = t("budget.flow.back");
+      return;
+    }
+
+    if (addMode && acctFlowStep === 1) {
+      bType.style.display = "";
+      bDet.style.display = "none";
+      if (foot) foot.style.display = "flex";
+      if (prog) prog.textContent = flowStepLabel(1, 2);
+      if (save) {
+        save.style.visibility = "hidden";
+        save.style.pointerEvents = "none";
+      }
+      if (next) next.style.display = "";
+      if (back) back.textContent = t("budget.flow.cancel");
+    } else if (addMode && acctFlowStep === 2) {
+      bType.style.display = "none";
+      bDet.style.display = "";
+      if (foot) foot.style.display = "flex";
+      if (prog) prog.textContent = flowStepLabel(2, 2);
+      if (save) {
+        save.style.visibility = "visible";
+        save.style.pointerEvents = "";
+      }
+      if (next) next.style.display = "none";
+      if (back) back.textContent = t("budget.flow.back");
+    }
+  }
+
+  function syncBillFlowUI() {
+    const editing = !!(state.sheet?.type === "bill" && state.sheet.data?.id);
+    const addMode = state.sheet?.type === "bill" && !state.sheet.data?.id;
+    const b1 = $("billBlockAmountCat");
+    const b2 = $("billBlockDetails");
+    const foot = $("billFlowFooter");
+    const prog = $("billFlowProgress");
+    const save = $("billSave");
+    const next = $("billFlowNext");
+    const back = $("billFlowBack");
+    if (!b1 || !b2) return;
+
+    if (editing) {
+      b1.style.display = "";
+      b2.style.display = "";
+      if (foot) foot.style.display = "none";
+      if (prog) prog.textContent = "";
+      if (save) {
+        save.style.visibility = "visible";
+        save.style.pointerEvents = "";
+      }
+      if (next) next.style.display = "";
+      if (back) back.textContent = t("budget.flow.back");
+      return;
+    }
+
+    if (addMode && billFlowStep === 1) {
+      b1.style.display = "";
+      b2.style.display = "none";
+      if (foot) foot.style.display = "flex";
+      if (prog) prog.textContent = flowStepLabel(1, 2);
+      if (save) {
+        save.style.visibility = "hidden";
+        save.style.pointerEvents = "none";
+      }
+      if (next) next.style.display = "";
+      if (back) back.textContent = t("budget.flow.cancel");
+    } else if (addMode && billFlowStep === 2) {
+      b1.style.display = "none";
+      b2.style.display = "";
+      if (foot) foot.style.display = "flex";
+      if (prog) prog.textContent = flowStepLabel(2, 2);
+      if (save) {
+        save.style.visibility = "visible";
+        save.style.pointerEvents = "";
+      }
+      if (next) next.style.display = "none";
+      if (back) back.textContent = t("budget.flow.back");
+    }
+  }
+
   function openAccountSheet(account) {
     state.sheet  = { type: "account", data: account || null };
     acctEditType = account?.type || "salary";
+    acctFlowStep = account ? 0 : 1;
     setText("acctTitle", account ? t("budget.sheet.editAccount") : t("budget.sheet.addAccount"));
     setVal("acctName",    account?.name    ?? "");
     setVal("acctBalance", account?.balance ?? "");
@@ -816,6 +1513,7 @@
     updateAccountFields(acctEditType);
     const del = $("acctDelete");
     if (del) del.style.display = account ? "" : "none";
+    syncAcctFlowUI();
     openOverlay("acctOverlay");
   }
 
@@ -857,8 +1555,15 @@
       renderAll();
       updateBudgetMonthAggregate(state.month).catch(() => {});
     } catch (err) {
-      console.warn("[Hbit] Save account:", err?.message);
-      showSheetError("acctSave", "Save failed — retry");
+      console.warn("[Hbit] Save account:", err?.code, err?.message);
+      const code = err?.code || "";
+      const detail = err?.message || "Save failed";
+      const short = code === "permission-denied"
+        ? "Permission denied — sign in and try again"
+        : (code ? `${code}: ` : "") + detail;
+      const btnMsg = short.length > 52 ? short.slice(0, 49) + "…" : short;
+      showSheetError("acctSave", btnMsg);
+      showToast(short.length > 120 ? short.slice(0, 117) + "…" : short);
     } finally {
       setBusy("acctSave", false, t("budget.sheet.save"));
     }
@@ -873,9 +1578,13 @@
       renderAll();
       updateBudgetMonthAggregate(state.month).catch(() => {});
     } catch (err) {
-      console.warn("[Hbit] Delete account:", err?.message);
-      showSheetError("acctDelete", "Error — retry");
+      console.warn("[Hbit] Delete account:", err?.code, err?.message);
+      const code = err?.code || "";
+      const msg = code === "permission-denied" ? "Permission denied" : (code ? `${code}: ` : "") + (err?.message || "Error");
+      showSheetError("acctDelete", msg.length > 52 ? msg.slice(0, 49) + "…" : msg);
+      showToast(msg.length > 120 ? msg.slice(0, 117) + "…" : msg);
     } finally {
+      clearBodyScrollUnlessOverlayOpen();
       setBusy("acctDelete", false, t("budget.sheet.deleteAccount"));
     }
   }
@@ -934,6 +1643,7 @@
 
     try {
       const realId = await persistExpense({ id: editId, amount, category: cat, description: desc, dateKey });
+      state.allEntriesCache = null;
       state.entries = state.entries.map(e => e.id === TEMP_ID ? { ...e, id: realId, _pending: false } : e);
       renderAll();
       updateBudgetMonthAggregate(month).catch(() => {});
@@ -943,6 +1653,8 @@
       renderAll();
       openExpenseSheet({ id: editId, amount, category: cat, description: desc, dateKey });
       showSheetError("expSave", "Save failed — check connection");
+    } finally {
+      clearBodyScrollUnlessOverlayOpen();
     }
   }
 
@@ -953,11 +1665,14 @@
     renderAll();
     try {
       await removeExpense(id);
+      state.allEntriesCache = null;
       updateBudgetMonthAggregate(state.month).catch(() => {});
     } catch (err) {
       console.warn("[Hbit] Delete expense:", err?.message);
       if (removed) state.entries = [...state.entries, removed];
       renderAll();
+    } finally {
+      clearBodyScrollUnlessOverlayOpen();
     }
   }
 
@@ -966,6 +1681,7 @@
      ════════════════════════════════════════════════════════════ */
   function openBillSheet(bill) {
     state.sheet = { type: "bill", data: bill || null };
+    billFlowStep = bill ? 0 : 1;
     billEditCat = bill?.category || "subscriptions";
     setText("billTitle", bill ? t("budget.sheet.editBill") : t("budget.sheet.addBill"));
     setVal("billAmount", bill ? String(bill.amount) : "");
@@ -977,9 +1693,14 @@
     if (del) del.style.display = bill ? "" : "none";
     const sym = $("billCurrencySym");
     if (sym) sym.textContent = currencySymbol();
+    syncBillFlowUI();
     closeFab();
     openOverlay("billOverlay");
-    setTimeout(() => $("billAmount")?.focus?.(), 380);
+    setTimeout(() => {
+      if (bill) $("billAmount")?.focus?.();
+      else if (billFlowStep === 1) $("billAmount")?.focus?.();
+      else $("billName")?.focus?.();
+    }, 380);
   }
 
   async function submitBill() {
@@ -997,11 +1718,12 @@
       await saveBill({ id: editId, name, amount, dueDay, category: billEditCat, note });
       closeOverlay("billOverlay");
       await loadBills();
-      renderBills();
+      renderAll();
     } catch (err) {
       console.warn("[Hbit] Save bill:", err?.message);
       showSheetError("billSave", "Save failed — retry");
     } finally {
+      clearBodyScrollUnlessOverlayOpen();
       setBusy("billSave", false, t("budget.sheet.save"));
     }
   }
@@ -1012,11 +1734,12 @@
       await deleteBill(id);
       closeOverlay("billOverlay");
       state.bills = state.bills.filter(b => b.id !== id);
-      renderBills();
+      renderAll();
     } catch (err) {
       console.warn("[Hbit] Delete bill:", err?.message);
       showSheetError("billDelete", "Error — retry");
     } finally {
+      clearBodyScrollUnlessOverlayOpen();
       setBusy("billDelete", false, t("budget.sheet.deleteBill"));
     }
   }
@@ -1044,16 +1767,22 @@
     const raw = parseFloat($("limitAmount")?.value);
     if (!raw || raw <= 0) { flashError("limitAmount"); return; }
     state.plan[limitEditCat] = raw;
+    state.plannerDraft = { ...state.plan };
     closeOverlay("limitOverlay");
     renderBudgetPlanner();
     savePlan().catch(() => {});
+    renderSetupChecklist();
+    renderSmartAlerts();
   }
 
   async function removeLimit() {
     delete state.plan[limitEditCat];
+    state.plannerDraft = { ...state.plan };
     closeOverlay("limitOverlay");
     renderBudgetPlanner();
     savePlan().catch(() => {});
+    renderSetupChecklist();
+    renderSmartAlerts();
   }
 
   /* ── Speed-dial FAB ──────────────────────────────────────────────── */
@@ -1076,9 +1805,27 @@
   }
 
   /* ── Overlay helpers ─────────────────────────────────────────────── */
+  const BUDGET_OVERLAY_IDS = ["acctOverlay", "expOverlay", "billOverlay", "limitOverlay", "goalOverlay", "goalDetailOverlay", "helpOverlay"];
+
+  function clearBodyScrollUnlessOverlayOpen() {
+    const anyOpen = BUDGET_OVERLAY_IDS.some(oid => $(oid)?.classList.contains("open"));
+    if (!anyOpen) document.body.style.overflow = "";
+  }
+
   function openOverlay(id) {
+    BUDGET_OVERLAY_IDS.forEach((oid) => {
+      if (oid !== id) {
+        const o = $(oid);
+        if (o && (o.classList.contains("open") || o.style.display === "flex")) {
+          closeOverlay(oid);
+        }
+      }
+    });
     const el = $(id);
     if (!el) return;
+    el.style.display = "flex";
+    el.style.visibility = "visible";
+    void el.offsetWidth;
     el.setAttribute("aria-hidden", "false");
     el.classList.add("open");
     document.body.style.overflow = "hidden";
@@ -1087,9 +1834,24 @@
   function closeOverlay(id) {
     const el = $(id);
     if (!el) return;
-    el.setAttribute("aria-hidden", "true");
     el.classList.remove("open");
-    document.body.style.overflow = "";
+    el.setAttribute("aria-hidden", "true");
+    el.style.visibility = "";
+    const onEnd = (e) => {
+      if (e.target !== el) return;
+      if (!el.classList.contains("open")) {
+        el.style.display = "none";
+      }
+      el.removeEventListener("transitionend", onEnd);
+    };
+    el.addEventListener("transitionend", onEnd);
+    setTimeout(() => {
+      if (!el.classList.contains("open")) {
+        el.style.display = "none";
+      }
+      el.removeEventListener("transitionend", onEnd);
+    }, 360);
+    clearBodyScrollUnlessOverlayOpen();
   }
 
   /* ── Help tour ───────────────────────────────────────────────────── */
@@ -1104,13 +1866,11 @@
   function openHelp() {
     helpStepIndex = 0;
     updateHelpContent();
-    const ov = $("helpOverlay");
-    if (ov) { ov.setAttribute("aria-hidden", "false"); ov.classList.add("open"); document.body.style.overflow = "hidden"; }
+    openOverlay("helpOverlay");
   }
 
   function closeHelp() {
-    const ov = $("helpOverlay");
-    if (ov) { ov.setAttribute("aria-hidden", "true"); ov.classList.remove("open"); document.body.style.overflow = ""; }
+    closeOverlay("helpOverlay");
   }
 
   function updateHelpContent() {
@@ -1173,6 +1933,645 @@
     setTimeout(() => { el.textContent = orig; el.style.background = ""; }, 3000);
   }
 
+  /* ── Wizard ──────────────────────────────────────────────────────── */
+  function spawnWizardConfetti(card) {
+    if (!card) return;
+    const colors = ["#F59E0B", "#34D399", "#60A5FA", "#FB7185", "#ffffff"];
+    for (let i = 0; i < 30; i++) {
+      const p = document.createElement("span");
+      p.className = "bg-confetti-piece";
+      const x = (Math.random() * 400 - 200).toFixed(0) + "px";
+      const r = (Math.random() * 720).toFixed(0) + "deg";
+      p.style.setProperty("--x", x);
+      p.style.setProperty("--r", r);
+      p.style.setProperty("--c", colors[i % colors.length]);
+      p.style.setProperty("--delay", `${Math.floor(Math.random() * 120)}ms`);
+      card.appendChild(p);
+    }
+    setTimeout(() => { card.querySelectorAll(".bg-confetti-piece").forEach(n => n.remove()); }, 900);
+  }
+
+  function renderWizardSlideContent(n) {
+    const stage = $("bgWizStage");
+    if (!stage) return;
+    const slide = document.createElement("div");
+    slide.className = "bg-wiz-slide entering";
+    slide.tabIndex = -1;
+    slide.setAttribute("role", "group");
+
+    if (n === 0) {
+      slide.innerHTML = `
+        <div class="bg-wiz-welcome-icon" aria-hidden="true">👛</div>
+        <h2 class="bg-wiz-title">Let's understand how you manage money</h2>
+        <p class="bg-wiz-sub">8 quick questions. No judgment. We'll set things up your way.</p>`;
+    } else if (n === 1) {
+      const opts = [
+        { id: "spend_track", icon: "😅", t: "I spend without tracking", d: "Money disappears and I don't know where" },
+        { id: "save", icon: "😰", t: "I never save enough", d: "Month ends and savings is zero" },
+        { id: "debt", icon: "💳", t: "Debt stress", d: "Credit cards or loans weighing on me" },
+        { id: "avoid", icon: "🙈", t: "Avoiding my finances", d: "I'd rather not look" },
+        { id: "insight", icon: "📊", t: "I track but want better insights", d: "I use spreadsheets, want something smarter" },
+      ];
+      slide.innerHTML = `<h2 class="bg-wiz-title">What's your biggest challenge with money right now?</h2>
+        ${opts.map((o, i) => `
+          <button type="button" class="bg-wiz-option${wizardAnswers.struggle === o.id ? " selected" : ""}" data-struggle="${o.id}" style="--i:${i}">
+            <svg class="bg-wiz-check-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>
+            <span><span class="bg-wiz-option-label">${o.icon} ${escHtml(o.t)}</span><span class="bg-wiz-option-desc">${escHtml(o.d)}</span></span>
+          </button>`).join("")}`;
+    } else if (n === 2) {
+      const opts = [
+        { id: "save_more", icon: "🎯", t: "Save more each month" },
+        { id: "debt_pay", icon: "💳", t: "Pay off debt faster" },
+        { id: "know", icon: "📊", t: "Know where my money goes" },
+        { id: "big", icon: "🏠", t: "Save for a big purchase" },
+        { id: "impulse", icon: "🧾", t: "Stop impulse spending" },
+        { id: "emergency", icon: "🚀", t: "Build an emergency fund" },
+      ];
+      slide.innerHTML = `<h2 class="bg-wiz-title">What do you want to achieve? Pick up to 3.</h2>
+        <div class="bg-wiz-goals-grid">
+        ${opts.map((o, i) => `
+          <button type="button" class="bg-wiz-goal-chip${wizardAnswers.goals.includes(o.id) ? " selected" : ""}" data-goal="${o.id}" style="--i:${i}">${o.icon} ${escHtml(o.t)}</button>`).join("")}
+        </div>`;
+    } else if (n === 3) {
+      slide.innerHTML = `<h2 class="bg-wiz-title">How often do you get paid?</h2>
+        <div class="bg-wiz-pay-row">
+          ${["weekly", "biweekly", "monthly"].map((id, i) => {
+            const labels = { weekly: "Weekly", biweekly: "Bi-weekly", monthly: "Monthly" };
+            return `<button type="button" class="bg-wiz-pay-chip${wizardAnswers.payFrequency === id ? " selected" : ""}" data-payf="${id}" style="--i:${i}">${labels[id]}</button>`;
+          }).join("")}
+        </div>`;
+    } else if (n === 4) {
+      slide.innerHTML = `<h2 class="bg-wiz-title">How do you like to budget?</h2>
+        <div class="bg-wiz-mode-row">
+          <button type="button" class="bg-wiz-mode-card${wizardAnswers.mode === "plan" ? " selected" : ""}" data-mode="plan">
+            <span class="bg-wiz-option-label">📋 Plan first</span><span class="bg-wiz-option-desc">I want to set limits before the month starts. Keep me accountable.</span>
+          </button>
+          <button type="button" class="bg-wiz-mode-card${wizardAnswers.mode === "reactive" ? " selected" : ""}" data-mode="reactive">
+            <span class="bg-wiz-option-label">📝 Track as I go</span><span class="bg-wiz-option-desc">I'll log spending and see where I land. No pressure.</span>
+          </button>
+        </div>`;
+    } else if (n === 5) {
+      slide.innerHTML = `<h2 class="bg-wiz-title">Where does most of your money go?</h2>
+        <div class="bg-wiz-cat-scroll">
+          ${CATEGORIES.map((c, i) => `
+            <button type="button" class="bg-wiz-cat-chip${wizardAnswers.topCategory === c.id ? " selected" : ""}" data-topcat="${c.id}" style="--i:${i}">${escHtml(c.icon)} ${escHtml(c.label)}</button>`).join("")}
+        </div>`;
+    } else if (n === 6) {
+      const lv = [
+        { id: "beginner", icon: "🌱", t: "Beginner", d: "Just getting started" },
+        { id: "intermediate", icon: "🌿", t: "Intermediate", d: "I track sometimes" },
+        { id: "advanced", icon: "🌳", t: "Advanced", d: "I know my numbers" },
+      ];
+      slide.innerHTML = `<h2 class="bg-wiz-title">How comfortable are you with budgeting?</h2>
+        <div class="bg-wiz-level-row">
+          ${lv.map((o, i) => `
+            <button type="button" class="bg-wiz-level-card${wizardAnswers.level === o.id ? " selected" : ""}" data-level="${o.id}" style="--i:${i}">
+              <span class="bg-wiz-option-label">${o.icon} ${escHtml(o.t)}</span><span class="bg-wiz-option-desc">${escHtml(o.d)}</span>
+            </button>`).join("")}
+        </div>`;
+    } else {
+      const cm = [
+        { id: "allin", icon: "🔥", t: "All in", d: "Check in daily, set goals, push me" },
+        { id: "mod", icon: "⚡", t: "Moderate", d: "Weekly check-ins, gentle nudges" },
+        { id: "casual", icon: "🌊", t: "Casual", d: "Just track, no pressure" },
+      ];
+      slide.innerHTML = `<h2 class="bg-wiz-title">How committed are you to improving your finances?</h2>
+        ${cm.map((o, i) => `
+          <button type="button" class="bg-wiz-commit-card${wizardAnswers.commitment === o.id ? " selected" : ""}" data-commit="${o.id}" style="--i:${i}">
+            <span class="bg-wiz-option-label">${o.icon} ${escHtml(o.t)}</span><span class="bg-wiz-option-desc">${escHtml(o.d)}</span>
+          </button>`).join("")}`;
+    }
+
+    stage.innerHTML = "";
+    stage.appendChild(slide);
+    const finishEnter = () => {
+      slide.classList.remove("entering");
+      slide.style.removeProperty("opacity");
+    };
+    const onAnimEnd = (ev) => {
+      if (ev.target !== slide || ev.animationName !== "bg-wiz-in") return;
+      slide.removeEventListener("animationend", onAnimEnd);
+      finishEnter();
+    };
+    slide.addEventListener("animationend", onAnimEnd);
+    window.setTimeout(() => {
+      slide.removeEventListener("animationend", onAnimEnd);
+      if (slide.classList.contains("entering")) finishEnter();
+    }, 280);
+    slide.focus();
+
+    const pr = $("bgWizProgress");
+    if (pr) pr.style.width = `${((n + 1) / 8) * 100}%`;
+    setText("bgWizCounter", `${n + 1} / 8`);
+    const back = $("bgWizBack");
+    if (back) back.style.visibility = n === 0 ? "hidden" : "visible";
+    const next = $("bgWizNext");
+    if (next) next.textContent = n === 7 ? "Let's go ✓" : "Next →";
+  }
+
+  function transitionWizardSlide(fromN, toN, dir, done) {
+    const stage = $("bgWizStage");
+    const old = stage?.querySelector(".bg-wiz-slide");
+    if (old && fromN !== toN) {
+      old.classList.add("leaving");
+      setTimeout(() => {
+        wizardSlideIndex = toN;
+        renderWizardSlideContent(toN);
+        if (done) done();
+      }, 100);
+    } else {
+      wizardSlideIndex = toN;
+      renderWizardSlideContent(toN);
+      if (done) done();
+    }
+  }
+
+  function openWizard() {
+    const ov = $("bg-wizard-overlay");
+    if (!ov) return;
+    Object.assign(wizardAnswers, {
+      struggle: null, goals: [], payFrequency: null, mode: null, topCategory: null, level: null, commitment: null,
+    });
+    ov.style.display = "flex";
+    ov.setAttribute("aria-hidden", "false");
+    wizardSlideIndex = 0;
+    renderWizardSlideContent(0);
+    document.body.style.overflow = "hidden";
+
+    wizardTrapHandler = e => {
+      const wov = $("bg-wizard-overlay");
+      if (!wov || wov.style.display === "none") return;
+      if (e.key === "Tab") {
+        const focusables = ov.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        const list = [...focusables].filter(el => !el.disabled && el.offsetParent !== null);
+        if (!list.length) return;
+        const first = list[0];
+        const last = list[list.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+      if (e.key === "ArrowRight") { e.preventDefault(); wizardGoNext(); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); wizardGoBack(); }
+      if (e.key === "Enter" && !e.target.closest?.("button")) { e.preventDefault(); wizardGoNext(); }
+    };
+    document.addEventListener("keydown", wizardTrapHandler);
+    setTimeout(() => $("bgWizNext")?.focus(), 200);
+  }
+
+  function closeWizardRemove() {
+    const ov = $("bg-wizard-overlay");
+    if (wizardTrapHandler) {
+      document.removeEventListener("keydown", wizardTrapHandler);
+      wizardTrapHandler = null;
+    }
+    if (!ov) return;
+    ov.style.display = "none";
+    ov.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    ov.remove();
+  }
+
+  function fadeOutWizardThen(cb) {
+    const card = $("bgWizardCard");
+    const ov = $("bg-wizard-overlay");
+    if (card) card.classList.add("bg-wizard-fade-out");
+    setTimeout(() => {
+      if (typeof cb === "function") cb();
+      if (ov && ov.parentNode) {
+        if (wizardTrapHandler) document.removeEventListener("keydown", wizardTrapHandler);
+        wizardTrapHandler = null;
+        ov.remove();
+        document.body.style.overflow = "";
+      }
+    }, 400);
+  }
+
+  async function skipWizard() {
+    try {
+      await saveWizardDoc({
+        completed: true,
+        completedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      }, true);
+      state.wizardMeta = { ...state.wizardMeta, completed: true };
+      fadeOutWizardThen(() => {
+        renderSetupChecklist();
+        showToast("Skipped — you can always revisit settings later.");
+      });
+    } catch (err) {
+      console.warn("[Hbit] skipWizard:", err?.code, err?.message);
+      showToast(`Could not save: ${err?.code || err?.message || "error"}`);
+    }
+  }
+
+  async function finishWizard() {
+    const card = $("bgWizardCard");
+    try {
+      await saveWizardDoc({
+        completed: true,
+        completedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        struggle: wizardAnswers.struggle,
+        goals: wizardAnswers.goals,
+        payFrequency: wizardAnswers.payFrequency,
+        mode: wizardAnswers.mode,
+        topCategory: wizardAnswers.topCategory,
+        level: wizardAnswers.level,
+        commitment: wizardAnswers.commitment,
+      }, true);
+    } catch (err) {
+      console.warn("[Hbit] finishWizard:", err?.code, err?.message);
+      showToast(`Could not save: ${err?.code || err?.message || "error"}`);
+      return;
+    }
+    spawnWizardConfetti(card);
+    state.wizardMeta = {
+      completed: true,
+      mode: wizardAnswers.mode,
+    };
+    initPlannerModeFromMeta();
+    fadeOutWizardThen(() => {
+      renderAll();
+      showToast("You're all set! Let's build your budget. 🎉");
+    });
+  }
+
+  function wizardValidate(n) {
+    if (n === 1 && !wizardAnswers.struggle) return false;
+    if (n === 2 && wizardAnswers.goals.length === 0) return false;
+    if (n === 3 && !wizardAnswers.payFrequency) return false;
+    if (n === 4 && !wizardAnswers.mode) return false;
+    if (n === 5 && !wizardAnswers.topCategory) return false;
+    if (n === 6 && !wizardAnswers.level) return false;
+    if (n === 7 && !wizardAnswers.commitment) return false;
+    return true;
+  }
+
+  function wizardGoNext() {
+    if (!wizardValidate(wizardSlideIndex)) {
+      const st = $("bgWizStage");
+      if (st) {
+        st.classList.add("bg-shake");
+        window.setTimeout(() => st.classList.remove("bg-shake"), 400);
+      }
+      showToast(t("budget.wizard.chooseOption"));
+      return;
+    }
+    if (wizardSlideIndex >= 7) {
+      finishWizard().catch(err => console.warn(err));
+      return;
+    }
+    transitionWizardSlide(wizardSlideIndex, wizardSlideIndex + 1, 1);
+  }
+
+  function wizardGoBack() {
+    if (wizardSlideIndex <= 0) return;
+    transitionWizardSlide(wizardSlideIndex, wizardSlideIndex - 1, -1);
+  }
+
+  function onWizardStageClick(e) {
+    const str = e.target.closest("[data-struggle]");
+    if (str) {
+      wizardAnswers.struggle = str.dataset.struggle;
+      renderWizardSlideContent(wizardSlideIndex);
+      return;
+    }
+    const g = e.target.closest("[data-goal]");
+    if (g) {
+      const id = g.dataset.goal;
+      const i = wizardAnswers.goals.indexOf(id);
+      if (i >= 0) wizardAnswers.goals.splice(i, 1);
+      else if (wizardAnswers.goals.length < 3) wizardAnswers.goals.push(id);
+      else {
+        const grid = g.closest(".bg-wiz-goals-grid");
+        if (grid) { grid.classList.add("bg-shake"); setTimeout(() => grid.classList.remove("bg-shake"), 400); }
+      }
+      renderWizardSlideContent(wizardSlideIndex);
+      return;
+    }
+    const pf = e.target.closest("[data-payf]");
+    if (pf) {
+      wizardAnswers.payFrequency = pf.dataset.payf;
+      renderWizardSlideContent(wizardSlideIndex);
+      return;
+    }
+    const md = e.target.closest("[data-mode]");
+    if (md) {
+      wizardAnswers.mode = md.dataset.mode;
+      renderWizardSlideContent(wizardSlideIndex);
+      return;
+    }
+    const tc = e.target.closest("[data-topcat]");
+    if (tc) {
+      wizardAnswers.topCategory = tc.dataset.topcat;
+      renderWizardSlideContent(wizardSlideIndex);
+      return;
+    }
+    const lv = e.target.closest("[data-level]");
+    if (lv) {
+      wizardAnswers.level = lv.dataset.level;
+      renderWizardSlideContent(wizardSlideIndex);
+      return;
+    }
+    const cm = e.target.closest("[data-commit]");
+    if (cm) {
+      wizardAnswers.commitment = cm.dataset.commit;
+      renderWizardSlideContent(wizardSlideIndex);
+      return;
+    }
+  }
+
+  /* ── Trend chart (lazy) ─────────────────────────────────────────── */
+  async function loadTrendData() {
+    if (state.trendLoading || state.trendLoaded) return;
+    state.trendLoading = true;
+    const sk = $("bgTrendSkeleton");
+    const wrap = $("bgTrendChartWrap");
+    if (sk) sk.style.display = "";
+    if (wrap) wrap.style.display = "none";
+
+    const months = [];
+    let d = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const dt = new Date(d.getFullYear(), d.getMonth() - i, 1);
+      const ym = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}`;
+      months.push({ ym, label: dt.toLocaleDateString(undefined, { month: "short" }) });
+    }
+    const income = computeIncome();
+    const spentArr = [];
+    for (const m of months) {
+      try {
+        const entries = await HBIT.db.budgetEntries.forMonth(m.ym);
+        const sum = entries.reduce((s, e) => s + Math.abs(e.amount || 0), 0);
+        spentArr.push(sum);
+      } catch { spentArr.push(0); }
+    }
+    state.trendData = { months, income, spent: spentArr };
+    state.trendLoaded = true;
+    state.trendLoading = false;
+    if (sk) sk.style.display = "none";
+    if (wrap) {
+      wrap.style.display = "";
+      wrap.innerHTML = buildTrendSvg(months, income, spentArr);
+    }
+  }
+
+  function buildTrendSvg(months, income, spentArr) {
+    const W = 320;
+    const H = 200;
+    const padL = 36;
+    const padB = 28;
+    const padT = 16;
+    const bw = 14;
+    const gap = 8;
+    const savings = months.map((_, i) => income - (spentArr[i] || 0));
+    const maxVal = Math.max(income, ...spentArr, ...savings.map(s => Math.max(0, s)), 1);
+    const chartW = W - padL - 12;
+    const chartH = H - padT - padB;
+    const groupW = chartW / 6;
+
+    let bars = "";
+    let linePts = "";
+    months.forEach((m, i) => {
+      const cx = padL + i * groupW + groupW / 2;
+      const hInc = (income / maxVal) * chartH;
+      const hSp = ((spentArr[i] || 0) / maxVal) * chartH;
+      const x1 = cx - bw - gap / 2;
+      const x2 = cx + gap / 2;
+      const delayInc = i * 160;
+      const delaySp = i * 160 + 80;
+      bars += `<rect class="bg-trend-bar" x="${x1}" y="${padT + chartH - hInc}" width="${bw}" height="${hInc}" fill="#34D399" rx="2" style="animation-delay:${delayInc}ms"/>`;
+      bars += `<rect class="bg-trend-bar" x="${x2}" y="${padT + chartH - hSp}" width="${bw}" height="${hSp}" fill="#F59E0B" rx="2" style="animation-delay:${delaySp}ms"/>`;
+      const sv = Math.max(0, savings[i]);
+      const sy = padT + chartH - (sv / maxVal) * chartH;
+      const sx = cx;
+      linePts += (i === 0 ? "M" : "L") + `${sx},${sy} `;
+    });
+
+    const tooltipId = "bgTrendTip";
+    let svg = `<svg class="bg-trend-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" aria-label="Spending trend chart">`;
+    svg += bars;
+    svg += `<path d="${linePts.trim()}" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+    months.forEach((m, i) => {
+      const cx = padL + i * groupW + groupW / 2;
+      const tip = `${m.label} · Income ${fmtMoney(income)} · Spent ${fmtMoney(spentArr[i] || 0)} · Saved ${fmtMoney(savings[i])}`;
+      svg += `<rect x="${padL + i * groupW}" y="${padT}" width="${groupW}" height="${chartH}" fill="transparent" class="bg-trend-hit" data-tip="${escHtml(tip)}" data-i="${i}"/>`;
+      svg += `<text x="${cx}" y="${H - 6}" text-anchor="middle" font-size="9" fill="#a0a0aa" font-family="system-ui,sans-serif">${escHtml(m.label)}</text>`;
+    });
+    svg += `</svg><div class="bg-trend-tooltip" id="${tooltipId}"></div>`;
+
+    setTimeout(() => {
+      const host = $("bgTrendChartWrap");
+      const tip = $("bgTrendTip");
+      if (!host || !tip) return;
+      host.querySelectorAll(".bg-trend-hit").forEach(h => {
+        h.addEventListener("mouseenter", ev => {
+          tip.textContent = h.dataset.tip || "";
+          tip.style.display = "block";
+          const r = h.getBoundingClientRect();
+          const hr = host.getBoundingClientRect();
+          tip.style.left = `${r.left - hr.left + r.width / 2 - tip.offsetWidth / 2}px`;
+          tip.style.top = `${r.top - hr.top - tip.offsetHeight - 8}px`;
+        });
+        h.addEventListener("mouseleave", () => { tip.style.display = "none"; });
+      });
+    }, 0);
+
+    return svg;
+  }
+
+  /* ── CSV export ───────────────────────────────────────────────────── */
+  async function fetchEntriesForExport(range) {
+    if (range === "month") {
+      return state.entries.filter(e =>
+        (e.month || (e.dateKey || "").slice(0, 7)) === state.month
+      );
+    }
+    if (range === "all") {
+      if (state.allEntriesCache) return state.allEntriesCache;
+      const col = HBIT.userSubcollectionRef(state.uid, "budgetEntries");
+      const snap = await col.get();
+      state.allEntriesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      return state.allEntriesCache;
+    }
+    const n = range === "3" ? 3 : 6;
+    const months = [];
+    let ym = state.month;
+    for (let i = 0; i < n; i++) {
+      months.push(ym);
+      ym = prevMonth(ym);
+    }
+    const all = [];
+    for (const m of months) {
+      const rows = await HBIT.db.budgetEntries.forMonth(m);
+      all.push(...rows);
+    }
+    return all;
+  }
+
+  function runCsvExport(range) {
+    fetchEntriesForExport(range).then(rows => {
+      const lines = ["Date,Category,Amount,Note,Month"];
+      rows.forEach(e => {
+        const dk = e.dateKey || e.date || "";
+        const mo = e.month || dk.slice(0, 7);
+        const cat = e.category || "other";
+        const amt = (Math.abs(e.amount || 0)).toFixed(2);
+        const note = String(e.description || "").replace(/"/g, '""');
+        lines.push(`"${dk}","${cat}",${amt},"${note}","${mo}"`);
+      });
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `hbit-budget-${state.month}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }).catch(err => console.warn("[Hbit] CSV export:", err));
+  }
+
+  /* ── Savings goals CRUD ─────────────────────────────────────────── */
+  function openGoalCreateSheet() {
+    state.goalSheetMode = "create";
+    state.goalEditId = null;
+    setText("goalSheetTitle", "New goal");
+    setVal("goalName", "");
+    setVal("goalTargetAmt", "");
+    setVal("goalTargetDate", "");
+    setVal("goalMonthly", "");
+    state.goalSelectedColor = GOAL_COLORS[0].hex;
+    const createBtn = $("goalCreateBtn");
+    if (createBtn) createBtn.textContent = "Create Goal";
+    const sym = $("goalCurrencySym");
+    if (sym) sym.textContent = currencySymbol();
+    renderGoalSwatches();
+    openOverlay("goalOverlay");
+  }
+
+  function openGoalEditSheet(g) {
+    state.goalSheetMode = "edit";
+    state.goalEditId = g.id;
+    setText("goalSheetTitle", "Edit goal");
+    setVal("goalName", g.name || "");
+    setVal("goalTargetAmt", g.targetAmount != null ? String(g.targetAmount) : "");
+    setVal("goalTargetDate", g.targetDate || "");
+    setVal("goalMonthly", g.monthlyTarget != null && g.monthlyTarget !== ""
+      ? String(g.monthlyTarget) : "");
+    state.goalSelectedColor = g.color || GOAL_COLORS[0].hex;
+    const createBtn = $("goalCreateBtn");
+    if (createBtn) createBtn.textContent = "Save goal";
+    const sym = $("goalCurrencySym");
+    if (sym) sym.textContent = currencySymbol();
+    renderGoalSwatches();
+    openOverlay("goalOverlay");
+  }
+
+  function renderGoalSwatches() {
+    const row = $("goalSwatches");
+    if (!row) return;
+    row.innerHTML = GOAL_COLORS.map((c, i) =>
+      `<button type="button" class="bg-goal-swatch${c.hex === state.goalSelectedColor ? " selected" : ""}" style="background:${c.hex}" data-hex="${c.hex}" aria-label="Color ${i + 1}"></button>`
+    ).join("");
+  }
+
+  async function submitGoalSheet() {
+    const name = ($("goalName")?.value || "").trim();
+    const tgt = parseFloat($("goalTargetAmt")?.value);
+    const dt = ($("goalTargetDate")?.value || "").trim();
+    const monthlyRaw = ($("goalMonthly")?.value || "").trim();
+    const monthly = monthlyRaw ? parseFloat(monthlyRaw) : null;
+    if (!name) { flashError("goalName"); return; }
+    if (!tgt || tgt <= 0) { flashError("goalTargetAmt"); return; }
+    if (!dt) { flashError("goalTargetDate"); return; }
+
+    const ts = firebase.firestore.FieldValue.serverTimestamp();
+
+    try {
+      if (state.goalSheetMode === "edit" && state.goalEditId) {
+        await savingsGoalsCol().doc(state.goalEditId).update({
+          name,
+          targetAmount: tgt,
+          targetDate: dt,
+          color: state.goalSelectedColor,
+          monthlyTarget: monthly != null && Number.isFinite(monthly) ? monthly : null,
+          updatedAt: ts,
+        });
+      } else {
+        await savingsGoalsCol().add({
+          uid: state.uid,
+          name,
+          targetAmount: tgt,
+          savedAmount: 0,
+          targetDate: dt,
+          color: state.goalSelectedColor,
+          monthlyTarget: monthly != null && Number.isFinite(monthly) ? monthly : null,
+          createdAt: ts,
+          updatedAt: ts,
+        });
+      }
+      closeOverlay("goalOverlay");
+      await loadSavingsGoals();
+      renderGoalsSection();
+      renderSetupChecklist();
+    } catch (err) {
+      console.warn("[Hbit] goal save:", err);
+      const msg = err?.message || "Could not save goal — check connection and try again.";
+      showToast(msg.length > 140 ? msg.slice(0, 137) + "…" : msg);
+    }
+  }
+
+  function openGoalDetail(g) {
+    state.goalDetailId = g.id;
+    setText("goalDetailTitle", g.name || "Goal");
+    const tgt = Number(g.targetAmount) || 0;
+    const saved = Number(g.savedAmount) || 0;
+    const pct = tgt > 0 ? Math.min(100, (saved / tgt) * 100) : 0;
+    const arc = $("goalDetailArc");
+    if (arc) {
+      const r = 40;
+      const c = 2 * Math.PI * r * (pct / 100);
+      arc.innerHTML = `<svg viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="${r}" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
+        <circle cx="50" cy="50" r="${r}" fill="none" stroke="${escHtml(g.color || "#F59E0B")}" stroke-width="8"
+          stroke-dasharray="${c.toFixed(1)} ${(2 * Math.PI * r).toFixed(1)}"
+          transform="rotate(-90 50 50)" stroke-linecap="round"/></svg>`;
+    }
+    setText("goalDetailProgress", `${fmtMoney(saved)} of ${fmtMoney(tgt)} (${pct.toFixed(0)}%)`);
+    const cf = $("goalContribField");
+    if (cf) cf.style.display = "none";
+    setVal("goalContribAmt", "");
+    const sym = $("goalContribSym");
+    if (sym) sym.textContent = currencySymbol();
+    openOverlay("goalDetailOverlay");
+  }
+
+  async function submitGoalContrib() {
+    const amt = parseFloat($("goalContribAmt")?.value);
+    if (!amt || amt <= 0) { flashError("goalContribAmt"); return; }
+    const g = state.savingsGoals.find(x => x.id === state.goalDetailId);
+    if (!g) return;
+    const newSaved = (Number(g.savedAmount) || 0) + amt;
+    try {
+      await savingsGoalsCol().doc(g.id).update({
+        savedAmount: newSaved,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+      closeOverlay("goalDetailOverlay");
+      await loadSavingsGoals();
+      renderGoalsSection();
+    } catch (err) { console.warn(err); }
+  }
+
+  async function deleteGoal() {
+    const id = state.goalDetailId;
+    if (!id) return;
+    try {
+      await savingsGoalsCol().doc(id).delete();
+      closeOverlay("goalDetailOverlay");
+      await loadSavingsGoals();
+      renderGoalsSection();
+      renderSetupChecklist();
+    } catch (err) { console.warn(err); }
+  }
+
   /* ── Event delegation ────────────────────────────────────────────── */
   function bindEvents() {
     /* Month navigation */
@@ -1212,9 +2611,27 @@
 
     /* Account sheet */
     ($("btnAddAccount") || {}).onclick = () => openAccountSheet(null);
+    ($("btnIncomeHintAdd") || {}).onclick = () => openAccountSheet(null);
     ($("acctSave")      || {}).onclick = submitAccount;
     ($("acctClose")     || {}).onclick = () => closeOverlay("acctOverlay");
     ($("acctDelete")    || {}).onclick = () => { const id = state.sheet.data?.id; if (id) submitDeleteAccount(id); };
+    ($("acctFlowBack")  || {}).onclick = () => {
+      const editing = state.sheet?.type === "account" && state.sheet.data?.id;
+      if (editing) return;
+      if (acctFlowStep <= 1) closeOverlay("acctOverlay");
+      else {
+        acctFlowStep = 1;
+        syncAcctFlowUI();
+      }
+    };
+    ($("acctFlowNext")  || {}).onclick = () => {
+      if (state.sheet?.type !== "account" || state.sheet.data?.id) return;
+      if (acctFlowStep !== 1) return;
+      acctFlowStep = 2;
+      syncAcctFlowUI();
+      updateAccountFields(acctEditType);
+      setTimeout(() => $("acctName")?.focus?.(), 80);
+    };
 
     /* Expense sheet */
     ($("expSave")   || {}).onclick = submitExpense;
@@ -1227,6 +2644,22 @@
     ($("billSave")  || {}).onclick = submitBill;
     ($("billClose") || {}).onclick = () => closeOverlay("billOverlay");
     ($("billDelete")||{}).onclick  = () => { const id = state.sheet.data?.id; if (id) submitDeleteBill(id); };
+    ($("billFlowBack") || {}).onclick = () => {
+      if (state.sheet?.type !== "bill" || state.sheet.data?.id) return;
+      if (billFlowStep <= 1) closeOverlay("billOverlay");
+      else {
+        billFlowStep = 1;
+        syncBillFlowUI();
+      }
+    };
+    ($("billFlowNext") || {}).onclick = () => {
+      if (state.sheet?.type !== "bill" || state.sheet.data?.id) return;
+      const rawAmt = parseFloat($("billAmount")?.value);
+      if (!rawAmt || rawAmt <= 0) { flashError("billAmount"); return; }
+      billFlowStep = 2;
+      syncBillFlowUI();
+      setTimeout(() => $("billName")?.focus?.(), 80);
+    };
 
     /* Limit sheet */
     ($("limitSave")   || {}).onclick = submitLimit;
@@ -1234,17 +2667,157 @@
     ($("limitRemove") || {}).onclick = removeLimit;
 
     /* Backdrop close */
-    ["acctOverlay", "expOverlay", "billOverlay", "limitOverlay"].forEach(id => {
+    ["acctOverlay", "expOverlay", "billOverlay", "limitOverlay", "goalOverlay", "goalDetailOverlay"].forEach(id => {
       ($(id) || {}).addEventListener?.("click", e => { if (e.target.id === id) closeOverlay(id); });
     });
+
+    /* Wizard buttons */
+    ($("bgWizNext") || {}).onclick = () => wizardGoNext();
+    ($("bgWizBack") || {}).onclick = () => wizardGoBack();
+    ($("bgWizSkip") || {}).onclick = () => skipWizard().catch(() => {});
+    ($("bgWizStage") || {}).addEventListener?.("click", onWizardStageClick);
+
+    /* Planner mode */
+    ($("bgPlannerTrack") || {}).onclick = () => {
+      state.plannerMode = "track";
+      state.plannerShowAll = false;
+      persistPlannerMode();
+      renderBudgetPlanner();
+    };
+    ($("bgPlannerPlan") || {}).onclick = () => {
+      state.plannerMode = "plan";
+      state.plannerDraft = { ...state.plan };
+      persistPlannerMode();
+      renderBudgetPlanner();
+    };
+    ($("bgPlannerSaveBtn") || {}).onclick = async () => {
+      readPlannerDraftFromDom();
+      state.plan = { ...state.plannerDraft };
+      await savePlan();
+      showToast("Plan saved.");
+      renderBudgetPlanner();
+      renderSmartAlerts();
+      renderSetupChecklist();
+    };
+
+    document.addEventListener("click", (e) => {
+      if (e.target.closest?.(".bg-planner-show-all")) {
+        state.plannerShowAll = true;
+        renderBudgetPlanner();
+        return;
+      }
+      if (e.target.closest?.(".bg-planner-show-less")) {
+        state.plannerShowAll = false;
+        renderBudgetPlanner();
+      }
+    });
+
+    ($("bgDailyChip") || {}).onclick = () => {
+      const cal = $("bgCalendarSection");
+      if (cal && cal.tagName === "DETAILS") cal.open = true;
+      cal?.scrollIntoView({ behavior: "smooth", block: "start" });
+      cal?.classList.add("bg-section-pulse");
+      setTimeout(() => cal?.classList.remove("bg-section-pulse"), 2000);
+    };
+
+    /* Export */
+    ($("bgExportBtn") || {}).onclick = e => {
+      e.stopPropagation();
+      state.exportOpen = !state.exportOpen;
+      const dd = $("bgExportDropdown");
+      const btn = $("bgExportBtn");
+      if (dd) {
+        dd.hidden = !state.exportOpen;
+        dd.setAttribute("aria-hidden", state.exportOpen ? "false" : "true");
+      }
+      if (btn) btn.setAttribute("aria-expanded", state.exportOpen ? "true" : "false");
+    };
+    ($("bgExportRun") || {}).onclick = () => {
+      const r = document.querySelector('input[name="bgExportRange"]:checked');
+      runCsvExport(r?.value || "month");
+      state.exportOpen = false;
+      const dd = $("bgExportDropdown");
+      if (dd) { dd.hidden = true; dd.setAttribute("aria-hidden", "true"); }
+      $("bgExportBtn")?.setAttribute("aria-expanded", "false");
+    };
+    document.addEventListener("click", e => {
+      if (e.target.closest("#bgExportWrapHeader") || e.target.closest(".bg-export-wrap--header")) return;
+      state.exportOpen = false;
+      const dd = $("bgExportDropdown");
+      if (dd && !dd.hidden) { dd.hidden = true; dd.setAttribute("aria-hidden", "true"); }
+      $("bgExportBtn")?.setAttribute("aria-expanded", "false");
+    });
+
+    /* Goal sheets */
+    ($("goalClose") || {}).onclick = () => closeOverlay("goalOverlay");
+    ($("goalCreateBtn") || {}).onclick = () => submitGoalSheet();
+    ($("goalDetailClose") || {}).onclick = () => closeOverlay("goalDetailOverlay");
+    ($("goalAddContribBtn") || {}).onclick = () => {
+      const cf = $("goalContribField");
+      if (cf) cf.style.display = "";
+      $("goalContribAmt")?.focus();
+    };
+    ($("goalContribConfirm") || {}).onclick = () => submitGoalContrib();
+    ($("goalDeleteBtn") || {}).onclick = () => deleteGoal();
+    ($("goalEditBtn") || {}).onclick = () => {
+      const g = state.savingsGoals.find(x => x.id === state.goalDetailId);
+      if (g) { closeOverlay("goalDetailOverlay"); openGoalEditSheet(g); }
+    };
+
+    document.addEventListener("click", e => {
+      const sw = e.target.closest(".bg-goal-swatch");
+      if (sw && $("goalSwatches")?.contains(sw)) {
+        state.goalSelectedColor = sw.dataset.hex;
+        renderGoalSwatches();
+      }
+    });
+
+    /* Plan inputs */
+    document.addEventListener("input", e => {
+      const inp = e.target.closest?.("[data-plan-cat]");
+      if (inp && $("plannerList")?.contains(inp)) updatePlannerPlanHints();
+    });
+
+    /* Planner intersection */
+    const ioPl = new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (en.target.id === "bgSecPlanner" && en.isIntersecting) {
+          state.plannerInView = true;
+          $("plannerList")?.classList.add("bg-planner-inview");
+          renderBudgetPlanner();
+          ioPl.disconnect();
+        }
+      });
+    }, { threshold: 0.08 });
+    const plSec = $("bgSecPlanner");
+    if (plSec) ioPl.observe(plSec);
+
+    const ioTrend = new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (en.target.id === "bgTrendSection" && en.isIntersecting) {
+          loadTrendData().catch(() => {});
+          ioTrend.disconnect();
+        }
+      });
+    }, { threshold: 0.15 });
+    const trSec = $("bgTrendSection");
+    if (trSec) ioTrend.observe(trSec);
+    if (trSec && trSec.tagName === "DETAILS") {
+      trSec.addEventListener("toggle", () => {
+        if (trSec.open) loadTrendData().catch(() => {});
+      });
+    }
 
     /* ESC key */
     document.addEventListener("keydown", e => {
       if (e.key !== "Escape") return;
-      ["acctOverlay", "expOverlay", "billOverlay", "limitOverlay", "helpOverlay"].forEach(id => {
-        if ($(id)?.classList.contains("open")) closeOverlay(id);
+      BUDGET_OVERLAY_IDS.forEach(oid => {
+        if ($(oid)?.classList.contains("open")) closeOverlay(oid);
       });
       closeFab();
+      state.exportOpen = false;
+      const dd = $("bgExportDropdown");
+      if (dd) { dd.hidden = true; dd.setAttribute("aria-hidden", "true"); }
     });
 
     /* Search input */
@@ -1308,10 +2881,91 @@
         return;
       }
 
-      /* Planner row → open limit sheet */
-      const plannerRow = e.target.closest(".bg-planner-row");
-      if (plannerRow) {
+      const setLim = e.target.closest("[data-set-plan-cat]");
+      if (setLim) {
+        state.plannerMode = "plan";
+        state.plannerDraft = { ...state.plan };
+        persistPlannerMode();
+        renderBudgetPlanner();
+        requestAnimationFrame(() => {
+          const inp = $("plannerList")?.querySelector(`[data-plan-cat="${setLim.dataset.setPlanCat}"]`);
+          inp?.focus?.();
+        });
+        return;
+      }
+
+      const plannerRow = e.target.closest(".bg-planner-row--track");
+      if (plannerRow && plannerRow.dataset.hasLimit === "1" && !e.target.closest(".bg-planner-set-limit")) {
         openLimitSheet(plannerRow.dataset.cat);
+        return;
+      }
+
+      const setupItem = e.target.closest(".bg-setup-item");
+      if (setupItem && !setupItem.classList.contains("done")) {
+        const act = setupItem.dataset.setupAction;
+        if (act === "account") { openAccountSheet(null); return; }
+        if (act === "planner") {
+          state.plannerMode = "plan";
+          state.plannerDraft = { ...state.plan };
+          persistPlannerMode();
+          openBudgetDetailsSection("bgSecPlanner");
+          $("bgSecPlanner")?.scrollIntoView({ behavior: "smooth" });
+          $("bgSecPlanner")?.classList.add("bg-section-pulse");
+          setTimeout(() => $("bgSecPlanner")?.classList.remove("bg-section-pulse"), 2000);
+          renderBudgetPlanner();
+          return;
+        }
+        if (act === "expense") { openExpenseSheet(null); return; }
+        if (act === "bills") {
+          $("bgSecBills")?.scrollIntoView({ behavior: "smooth" });
+          $("bgSecBills")?.classList.add("bg-section-pulse");
+          setTimeout(() => $("bgSecBills")?.classList.remove("bg-section-pulse"), 2000);
+          openBillSheet(null);
+          return;
+        }
+        if (act === "goals") {
+          openBudgetDetailsSection("bgGoalsSection");
+          $("bgGoalsSection")?.scrollIntoView({ behavior: "smooth" });
+          $("bgGoalsSection")?.classList.add("bg-section-pulse");
+          setTimeout(() => $("bgGoalsSection")?.classList.remove("bg-section-pulse"), 2000);
+          openGoalCreateSheet();
+          return;
+        }
+      }
+
+      const alertDismiss = e.target.closest(".bg-alert-dismiss");
+      if (alertDismiss) {
+        const card = alertDismiss.closest(".bg-alert-card");
+        const id = card?.dataset.alertId;
+        if (id) try { sessionStorage.setItem(sessionAlertKey(id), "1"); } catch {}
+        renderSmartAlerts();
+        return;
+      }
+      const alertJump = e.target.closest("[data-alert-jump]");
+      if (alertJump?.dataset.alertJump === "planner") {
+        state.plannerMode = "plan";
+        state.plannerDraft = { ...state.plan };
+        persistPlannerMode();
+        openBudgetDetailsSection("bgSecPlanner");
+        $("bgSecPlanner")?.scrollIntoView({ behavior: "smooth" });
+        renderBudgetPlanner();
+        return;
+      }
+      if (alertJump?.dataset.alertJump === "nextmonth") {
+        state.month = nextMonth(state.month);
+        try { localStorage.setItem(LS_MONTH, state.month); } catch {}
+        Promise.all([loadEntries(), loadPlan()]).then(() => renderAll());
+        return;
+      }
+
+      if (e.target.closest("#bgGoalAddCard")) {
+        openGoalCreateSheet();
+        return;
+      }
+      const goalCard = e.target.closest(".bg-goal-card");
+      if (goalCard?.dataset.goalId) {
+        const g = state.savingsGoals.find(x => x.id === goalCard.dataset.goalId);
+        if (g) openGoalDetail(g);
         return;
       }
 
@@ -1387,6 +3041,21 @@
     } catch (err) { console.warn("[Hbit] Budget migration:", err?.message); }
   }
 
+  function openBudgetDetailsSection(id) {
+    const el = $(id);
+    if (el && el.tagName === "DETAILS") el.open = true;
+  }
+
+  function applyBudgetDetailsDefaults() {
+    const pl = $("bgSecPlanner");
+    if (!pl || pl.tagName !== "DETAILS") return;
+    try {
+      if (window.matchMedia("(min-width: 768px)").matches) pl.setAttribute("open", "");
+    } catch (_) {
+      pl.setAttribute("open", "");
+    }
+  }
+
   /* ── Init ────────────────────────────────────────────────────────── */
   function init() {
     if (document.body.id !== "budgetPage") return;
@@ -1400,28 +3069,42 @@
     } catch {}
 
     bindEvents();
+    applyBudgetDetailsDefaults();
     renderAll();
 
-    if (!window.firebase?.auth) return;
+    function subscribeBudgetAuth() {
+      if (!window.firebase?.auth || state.budgetAuthSubscribed) return;
+      state.budgetAuthSubscribed = true;
+      firebase.auth().onAuthStateChanged(async user => {
+        if (!user) { window.location.replace("login.html"); return; }
+        state.uid = user.uid;
 
-    firebase.auth().onAuthStateChanged(async user => {
-      if (!user) { window.location.replace("login.html"); return; }
-      state.uid = user.uid;
+        try {
+          const profile = await HBIT.getCurrentUserProfile?.();
+          const name = profile?.fullName || user.displayName || user.email || "U";
+          const av   = $("bgAvatar");
+          if (av) av.textContent = name.charAt(0).toUpperCase();
+        } catch {}
 
-      try {
-        const profile = await HBIT.getCurrentUserProfile?.();
-        const name = profile?.fullName || user.displayName || user.email || "U";
-        const av   = $("bgAvatar");
-        if (av) av.textContent = name.charAt(0).toUpperCase();
-      } catch {}
+        await loadBudgetMeta();
+        initPlannerModeFromMeta();
+        await Promise.all([loadAccounts(), loadEntries(), loadPlan(), loadBills(), loadSavingsGoals()]);
+        state.plannerDraft = { ...state.plan };
+        migrateLocalStorage().catch(() => {});
+        const needsWizard = !state.wizardMeta || state.wizardMeta.completed !== true;
+        if (needsWizard) openWizard();
+        applyBudgetDetailsDefaults();
+        renderAll();
+      });
+    }
 
-      await Promise.all([loadAccounts(), loadEntries(), loadPlan(), loadBills()]);
-      migrateLocalStorage().catch(() => {});
-      renderAll();
-    });
+    subscribeBudgetAuth();
+    window.addEventListener("load", () => subscribeBudgetAuth(), { once: true });
   }
 
   HBIT.pages        = HBIT.pages || {};
   HBIT.pages.budget = { init };
+  HBIT.budget       = HBIT.budget || {};
+  HBIT.budget.wizard = { openWizard, skipWizard, finishWizard };
   document.addEventListener("DOMContentLoaded", init);
 })();

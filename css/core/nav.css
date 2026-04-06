@@ -18,15 +18,15 @@
   --sb-ring: rgba(154, 28, 28, 0.5);
 }
 html[data-theme="light"] {
-  --sb-bg: #fafaf9;
-  --sb-border: rgba(0, 0, 0, 0.08);
-  --sb-text: rgba(0, 0, 0, 0.62);
-  --sb-text-muted: rgba(0, 0, 0, 0.36);
-  --sb-accent: rgba(0, 0, 0, 0.04);
-  --sb-accent-hover: rgba(0, 0, 0, 0.06);
-  --sb-accent-active: rgba(154, 28, 28, 0.08);
-  --sb-accent-active-border: rgba(154, 28, 28, 0.16);
-  --sb-ring: rgba(154, 28, 28, 0.3);
+  --sb-bg: #f4f3f0;
+  --sb-border: rgba(0, 0, 0, 0.07);
+  --sb-text: rgba(0, 0, 0, 0.72);
+  --sb-text-muted: rgba(0, 0, 0, 0.42);
+  --sb-accent: rgba(0, 0, 0, 0.045);
+  --sb-accent-hover: rgba(0, 0, 0, 0.075);
+  --sb-accent-active: rgba(154, 28, 28, 0.1);
+  --sb-accent-active-border: rgba(154, 28, 28, 0.2);
+  --sb-ring: rgba(154, 28, 28, 0.35);
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -298,9 +298,9 @@ html[data-theme="light"] .sb-overlay {
    ════════════════════════════════════════════════════════════ */
 .sb-trigger {
   position: fixed;
-  top: 13px;
-  left: 10px;
-  z-index: 40;
+  top: max(12px, calc(env(safe-area-inset-top, 0px) + 8px));
+  left: max(10px, env(safe-area-inset-left, 0px));
+  z-index: 200;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -316,6 +316,16 @@ html[data-theme="light"] .sb-overlay {
 }
 .sb-trigger:hover {
   background: var(--sb-accent-hover);
+}
+html[data-theme="light"] .sb-trigger {
+  color: rgba(0, 0, 0, 0.72);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+html[data-theme="light"] .sb-trigger:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(0, 0, 0, 0.1);
 }
 .sb-trigger:active {
   transform: scale(0.92);
@@ -378,6 +388,8 @@ body.nav-open .sb-trigger { opacity: 0; pointer-events: none; }
   /* Header left-pad when sidebar is expanded (trigger sits over sidebar) */
   body.sb-collapsed .hm-header,
   body.sb-collapsed .hb-header,
+  body.sb-collapsed .hb-today-strip,
+  body.sb-collapsed .hb-chips,
   body.sb-collapsed .bg-header,
   body.sb-collapsed .sl-header,
   body.sb-collapsed .md-header,
@@ -393,7 +405,7 @@ body.nav-open .sb-trigger { opacity: 0; pointer-events: none; }
    HEADER PADDING — room for trigger button
    ════════════════════════════════════════════════════════════ */
 @media (max-width: 767px) {
-  .hm-header, .hb-header, .bg-header, .sl-header,
+  .hm-header, .hb-header, .hb-today-strip, .hb-chips, .bg-header, .sl-header,
   .md-header, .fc-header, .topbar, .pl-header {
     padding-left: 56px;
   }
@@ -401,6 +413,8 @@ body.nav-open .sb-trigger { opacity: 0; pointer-events: none; }
 @media (min-width: 768px) {
   body:not(.sb-collapsed) .hm-header,
   body:not(.sb-collapsed) .hb-header,
+  body:not(.sb-collapsed) .hb-today-strip,
+  body:not(.sb-collapsed) .hb-chips,
   body:not(.sb-collapsed) .bg-header,
   body:not(.sb-collapsed) .sl-header,
   body:not(.sb-collapsed) .md-header,
