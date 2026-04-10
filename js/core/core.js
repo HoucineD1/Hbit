@@ -1,6 +1,6 @@
 /* =========================
    Hbit - js/core/core.js
-   Global boot (theme + i18n + nav)
+   Global boot (theme + i18n + nav + auth guard)
    ========================= */
 (function () {
   const HBIT = (window.HBIT = window.HBIT || {});
@@ -13,5 +13,28 @@
     HBIT.nav?.init?.();
   }
 
-  HBIT.core = { boot };
+  /**
+   * A0 — Shared auth guard.
+   * Resolves with the signed-in user or redirects to the login page.
+   * Usage: HBIT.requireAuth().then(user => { ... }).catch(() => {});
+   */
+  HBIT.requireAuth = function (redirectTo) {
+    return new Promise(function (resolve, reject) {
+      if (typeof firebase === "undefined") {
+        resolve(null);
+        return;
+      }
+      var unsub = firebase.auth().onAuthStateChanged(function (user) {
+        unsub();
+        if (!user) {
+          window.location.replace(redirectTo || "login.html");
+          reject(new Error("unauthenticated"));
+        } else {
+          resolve(user);
+        }
+      });
+    });
+  };
+
+  HBIT.core = { boot: boot };
 })();

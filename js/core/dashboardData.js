@@ -30,7 +30,7 @@
    */
   async function fetchDashboardData(uid) {
     if (!uid || !HBIT.fbFirestore || !HBIT.db) {
-      console.warn("[dashboard] skipped: uid=%s, fbFirestore=%s, db=%s", !!uid, !!HBIT.fbFirestore, !!HBIT.db);
+      /* silent */
       return getEmptyDashboard();
     }
 
@@ -68,18 +68,18 @@
         moodToday,
         moodRecent,
       ] = await Promise.all([
-        userRef.collection("habits").get().catch((e) => { console.warn("[dashboard] habits query failed:", e.message); return { docs: [] }; }),
-        userRef.collection("habitLogs").where("dateKey", ">=", weekStart).where("dateKey", "<=", today).get().catch((e) => { console.warn("[dashboard] habitLogs query failed:", e.message); return { docs: [] }; }),
+        userRef.collection("habits").get().catch((e) => { /* silent */ return { docs: [] }; }),
+        userRef.collection("habitLogs").where("dateKey", ">=", weekStart).where("dateKey", "<=", today).get().catch((e) => { /* silent */ return { docs: [] }; }),
         HBIT.db.budgetEntries.forMonth(thisMonth).catch(() => []),
         HBIT.db.budgetMonths?.get?.(thisMonth).catch(() => null) ?? null,
         HBIT.db.budgetGoals.get(thisMonth).catch(() => null),
         HBIT.db.budgetAccounts?.list?.().catch(() => []) ?? [],
         HBIT.db.budgetBills?.list?.().catch(() => []) ?? [],
-        userRef.collection("savingsGoals").get().catch((e) => { console.warn("[dashboard] savingsGoals:", e.message); return { docs: [] }; }),
-        userRef.collection("sleepLogs").orderBy("date", "desc").limit(7).get().catch((e) => { console.warn("[dashboard] sleepLogs:", e.message); return { docs: [] }; }),
+        userRef.collection("savingsGoals").get().catch((e) => { /* silent */ return { docs: [] }; }),
+        userRef.collection("sleepLogs").orderBy("date", "desc").limit(7).get().catch((e) => { /* silent */ return { docs: [] }; }),
         fetchNextSleepPlan(uid),
-        userRef.collection("moodLogs").doc(today).get().catch((e) => { console.warn("[dashboard] moodToday:", e.message); return { exists: false }; }),
-        userRef.collection("moodLogs").orderBy("date", "desc").limit(7).get().catch((e) => { console.warn("[dashboard] moodRecent:", e.message); return { docs: [] }; }),
+        userRef.collection("moodLogs").doc(today).get().catch((e) => { /* silent */ return { exists: false }; }),
+        userRef.collection("moodLogs").orderBy("date", "desc").limit(7).get().catch((e) => { /* silent */ return { docs: [] }; }),
       ]);
 
       const habitsList = habitsSnap.docs.map(d => ({ id: d.id, ...d.data() })).filter(h => !h.archived);
@@ -208,7 +208,7 @@
           ? Math.max(0, 1 - (out.budget.expenseTotal / (out.budget.monthGoal || out.budget.incomeTotal || 1)))
           : null;
     } catch (err) {
-      console.warn("[Hbit dashboardData] fetch error:", err?.message);
+      /* silent */
       return getEmptyDashboard();
     }
 
@@ -228,7 +228,7 @@
       const doc = snap.docs[0];
       return { id: doc.id, ...doc.data() };
     } catch (e) {
-      console.warn("[dashboard] sleepPlans query failed:", e?.message);
+      /* silent */
       return null;
     }
   }

@@ -64,6 +64,8 @@
 
     setStoredMode(next);
     apply();
+    HBIT.i18n?.apply?.(document);
+    HBIT.i18n?.updateToggle?.();
 
     window.dispatchEvent(
       new CustomEvent("hbit:theme-changed", { detail: { mode: next } })

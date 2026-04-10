@@ -4,6 +4,7 @@
    ========================= */
 
 document.addEventListener("DOMContentLoaded", () => {
+  window.HBIT?.theme?.apply?.();
   window.HBIT?.i18n?.init?.();
 
   async function setSessionPersistence() {
@@ -33,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const resetSpinner    = document.getElementById("resetSpinner");
   const resetMsg        = document.getElementById("resetMsg");
 
-  const t = (key, fb) => window.HBIT?.i18n?.t(key) || fb;
+  const t = (key, fb) => window.HBIT?.i18n?.t?.(key, fb) ?? fb ?? key;
 
   /* ── Password visibility toggle ──────────────────── */
   if (eyeBtn && passInput) {
@@ -201,7 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
            If they fail (e.g. rules not yet set), the user still
            reaches home.html — home.js will retry the profile sync.  */
         window.HBIT?.createUserProfile?.(result.user, "password")
-          .catch(err => console.warn("[Hbit] Profile sync skipped:", err.code, err.message));
+          .catch(() => {});
 
         window.location.replace("home.html");
 
@@ -235,11 +236,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const provider = new firebase.auth.GoogleAuthProvider();
         const result   = await firebase.auth().signInWithPopup(provider);
         window.HBIT?.createUserProfile?.(result.user, "google.com")
-          .catch(err => console.warn("[Hbit] Profile sync skipped:", err.message));
+          .catch(() => {});
         window.location.replace("home.html");
       } catch (err) {
         if (err.code !== "auth/popup-closed-by-user") {
-          showError("Google sign-in failed. Please try again.");
+          showError(t("login.error.google", "Google sign-in failed. Please try again."));
         }
       }
     });
@@ -254,11 +255,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const provider = new firebase.auth.OAuthProvider("apple.com");
         const result   = await firebase.auth().signInWithPopup(provider);
         window.HBIT?.createUserProfile?.(result.user, "apple.com")
-          .catch(err => console.warn("[Hbit] Profile sync skipped:", err.message));
+          .catch(() => {});
         window.location.replace("home.html");
       } catch (err) {
         if (err.code !== "auth/popup-closed-by-user") {
-          showError("Apple sign-in failed. Please try again.");
+          showError(t("login.error.apple", "Apple sign-in failed. Please try again."));
         }
       }
     });

@@ -28,28 +28,81 @@
 
   /* ── Category definitions ─────────────────────────────────────────── */
   const CATEGORIES = [
-    { id: "housing",       icon: "🏠", color: "#60A5FA", label: "Housing"       },
-    { id: "food",          icon: "🍔", color: "#34D399", label: "Food"          },
-    { id: "transport",     icon: "🚗", color: "#F59E0B", label: "Transport"     },
-    { id: "health",        icon: "❤️",  color: "#F87171", label: "Health"        },
-    { id: "entertainment", icon: "🎬", color: "#A78BFA", label: "Fun"           },
-    { id: "subscriptions", icon: "📱", color: "#22D3EE", label: "Subscriptions" },
-    { id: "shopping",      icon: "🛍",  color: "#FB923C", label: "Shopping"      },
-    { id: "education",     icon: "📚", color: "#818CF8", label: "Education"     },
-    { id: "savings",       icon: "💰", color: "#4ADE80", label: "Savings"       },
-    { id: "other",         icon: "⋯",  color: "#6B7280", label: "Other"         },
+    { id: "housing",       color: "#818CF8", label: "Housing"       },
+    { id: "food",          color: "#34D399", label: "Food"          },
+    { id: "transport",     color: "#F59E0B", label: "Transport"     },
+    { id: "health",        color: "#F87171", label: "Health"        },
+    { id: "entertainment", color: "#A78BFA", label: "Fun"           },
+    { id: "subscriptions", color: "#22D3EE", label: "Subscriptions" },
+    { id: "shopping",      color: "#FB923C", label: "Shopping"      },
+    { id: "education",     color: "#818CF8", label: "Education"     },
+    { id: "savings",       color: "#4ADE80", label: "Savings"       },
+    { id: "other",         color: "#6B7280", label: "Other"         },
   ];
 
   const CAT_MAP = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
   function getCat(id) { return CAT_MAP[id] || CATEGORIES[CATEGORIES.length - 1]; }
 
+  /* Lucide-style SVG icons (stroke currentColor) */
+  function svgIconLucide(inner, size) {
+    const s = size || 18;
+    return `<svg class="bg-icon-svg" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+  }
+  const CAT_SVG_INNER = {
+    housing: `<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>`,
+    food: `<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>`,
+    transport: `<path d="M5 17h14v-5H5v5zM5 9h14V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3z"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/>`,
+    health: `<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>`,
+    entertainment: `<rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/>`,
+    subscriptions: `<rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>`,
+    shopping: `<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>`,
+    education: `<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>`,
+    savings: `<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>`,
+    other: `<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>`,
+  };
+  function catIconSvg(id, size) {
+    return svgIconLucide(CAT_SVG_INNER[id] || CAT_SVG_INNER.other, size);
+  }
+
   /* ── Account type definitions ─────────────────────────────────────── */
   const ACCOUNT_TYPES = [
-    { id: "salary",      icon: "💼", label: "Salary",  color: "#34D399" },
-    { id: "cash",        icon: "💵", label: "Cash",    color: "#F59E0B" },
-    { id: "credit_card", icon: "💳", label: "Credit",  color: "#A78BFA" },
-    { id: "debt",        icon: "📉", label: "Debt",    color: "#F87171" },
+    { id: "salary",      label: "Salary",  color: "#34D399" },
+    { id: "cash",        label: "Cash",    color: "#F59E0B" },
+    { id: "credit_card", label: "Credit",  color: "#A78BFA" },
+    { id: "debt",        label: "Debt",    color: "#F87171" },
   ];
+  const ACCT_SVG_INNER = {
+    salary: `<rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>`,
+    cash: `<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>`,
+    credit_card: `<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>`,
+    debt: `<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>`,
+  };
+  function acctTypeIconSvg(id, size) {
+    return svgIconLucide(ACCT_SVG_INNER[id] || ACCT_SVG_INNER.salary, size);
+  }
+
+  const WIZ_STRUGGLE_INNER = {
+    spend_track: `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><line x1="1" y1="1" x2="23" y2="23"/>`,
+    save: `<path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16"/><polyline points="17 21 17 13 7 13 7 21"/><line x1="12" y1="7" x2="12" y2="3"/><line x1="8" y1="5" x2="16" y2="5"/>`,
+    debt: ACCT_SVG_INNER.credit_card,
+    avoid: `<circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>`,
+    insight: `<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>`,
+  };
+  const WIZ_GOAL_INNER = `<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>`;
+  const WIZ_MODE_INNER = {
+    plan: `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>`,
+    track: `<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>`,
+  };
+  const WIZ_LEVEL_INNER = {
+    beginner: `<circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>`,
+    intermediate: `<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>`,
+    advanced: `<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>`,
+  };
+  const WIZ_COMMIT_INNER = {
+    allin: `<path d="M8.5 14.5A2.5 2.5 0 0 0 12 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>`,
+    mod: `<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>`,
+    casual: `<path d="M2 12h20"/><path d="M6 8l-4 4 4 4"/><path d="M18 16l4-4-4-4"/>`,
+  };
 
   const TYPE_MAP = Object.fromEntries(ACCOUNT_TYPES.map(t => [t.id, t]));
   function getAcctType(id) { return TYPE_MAP[id] || ACCOUNT_TYPES[0]; }
@@ -90,12 +143,14 @@
     goalEditId:        null,
     goalSelectedColor: "#F59E0B",
     goalDetailId:      null,
+    dataHydrated:      false,
+    expenseDeleteConfirmId: null,
   };
 
   const GOAL_COLORS = [
     { hex: "#F59E0B" },
     { hex: "#34D399" },
-    { hex: "#60A5FA" },
+    { hex: "#818CF8" },
     { hex: "#FB7185" },
     { hex: "#A78BFA" },
     { hex: "#2DD4BF" },
@@ -184,7 +239,7 @@
       const setupSnap = await budgetMetaCol().doc("setup").get();
       state.setupDone = !!(setupSnap.exists && setupSnap.data()?.done);
     } catch (err) {
-      console.warn("[Hbit] budgetMeta:", err?.message);
+      /* silent */
     }
   }
 
@@ -211,7 +266,7 @@
         return ta - tb;
       });
     } catch (err) {
-      console.warn("[Hbit] savingsGoals:", err?.message);
+      /* silent */
       state.savingsGoals = [];
     }
   }
@@ -279,8 +334,13 @@
   }
 
   /* ── i18n helper ──────────────────────────────────────────────────── */
-  function t(key) {
-    return (typeof HBIT?.i18n?.t === "function" ? HBIT.i18n.t(key) : null) || key;
+  function t(key, fallback, params) {
+    try {
+      const out = typeof HBIT?.i18n?.t === "function" ? HBIT.i18n.t(key, fallback, params) : null;
+      return out != null && out !== "" ? out : (fallback != null ? fallback : key);
+    } catch (_) {
+      return fallback != null ? fallback : key;
+    }
   }
 
   /* ── Firestore — accounts ─────────────────────────────────────────── */
@@ -295,7 +355,7 @@
       const snap = await acctCol().orderBy("createdAt", "asc").get();
       state.accounts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     } catch (err) {
-      console.warn("[Hbit] Budget loadAccounts:", err?.code, err?.message);
+      /* silent */
       try {
         const snap = await acctCol().get();
         state.accounts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -305,7 +365,7 @@
           return ta - tb;
         });
       } catch (err2) {
-        console.warn("[Hbit] Budget loadAccounts fallback:", err2?.code, err2?.message);
+        /* silent */
         state.accounts = [];
       }
     }
@@ -335,7 +395,7 @@
   /* ── Firestore — expenses ─────────────────────────────────────────── */
   async function loadEntries() {
     try { state.entries = await HBIT.db.budgetEntries.forMonth(state.month); }
-    catch (err) { console.warn("[Hbit] Budget loadEntries:", err?.code, err?.message); state.entries = []; }
+    catch (err) { /* silent */ state.entries = []; }
   }
 
   async function persistExpense(data) {
@@ -365,20 +425,20 @@
       const doc = await HBIT.db.budgetPlan.get(state.month);
       state.plan = doc?.byCategory || {};
     } catch (err) {
-      console.warn("[Hbit] Budget loadPlan:", err?.message);
+      /* silent */
       state.plan = {};
     }
   }
 
   async function savePlan() {
     try { await HBIT.db.budgetPlan.set(state.month, state.plan); }
-    catch (err) { console.warn("[Hbit] Budget savePlan:", err?.message); }
+    catch (err) { /* silent */ }
   }
 
   /* ── Firestore — bills ────────────────────────────────────────────── */
   async function loadBills() {
     try { state.bills = await HBIT.db.budgetBills.list(); }
-    catch (err) { console.warn("[Hbit] Budget loadBills:", err?.message); state.bills = []; }
+    catch (err) { /* silent */ state.bills = []; }
   }
 
   async function saveBill(data) {
@@ -426,7 +486,7 @@
       await HBIT.db.budgetMonths.set(month, {
         incomeTotal, expenseTotal, remaining: incomeTotal - expenseTotal, byCategory,
       });
-    } catch (err) { console.warn("[Hbit] Budget aggregate:", err?.message); }
+    } catch (err) { /* silent */ }
   }
 
   /* ── Computed values ──────────────────────────────────────────────── */
@@ -728,64 +788,53 @@
   function renderActivityCalendar() {
     const wrap = $("bgCalendarWrap");
     if (!wrap) return;
-    const byDay = {};
+    const parts = (state.month || "").split("-");
+    const y = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10);
+    if (!Number.isFinite(y) || !Number.isFinite(m) || m < 1 || m > 12) {
+      wrap.innerHTML = "";
+      return;
+    }
+    const lastDay = new Date(y, m, 0).getDate();
+    const prefix = `${y}-${String(m).padStart(2, "0")}-`;
+    const byDayNum = {};
+    for (let d = 1; d <= lastDay; d++) byDayNum[d] = { sum: 0, n: 0 };
     state.entries.forEach(e => {
       if (e._pending) return;
       const dk = e.dateKey || e.date || "";
-      if (!dk) return;
-      if (!byDay[dk]) byDay[dk] = { sum: 0, n: 0 };
-      byDay[dk].sum += Math.abs(e.amount || 0);
-      byDay[dk].n += 1;
+      if (!dk || dk.slice(0, 7) !== state.month) return;
+      const dayNum = parseInt(dk.slice(8, 10), 10);
+      if (!Number.isFinite(dayNum) || dayNum < 1 || dayNum > lastDay) return;
+      byDayNum[dayNum].sum += Math.abs(e.amount || 0);
+      byDayNum[dayNum].n += 1;
     });
-    const plan = totalMonthlyPlan();
-    const inc = computeIncome();
-    const dailyAvg = plan > 0 ? plan / 30 : (inc > 0 ? inc / 30 : 1);
-    const today = new Date();
-    today.setHours(12, 0, 0, 0);
-    const start = new Date(today);
-    start.setDate(start.getDate() - 83);
-    const monday0 = new Date(start);
-    const dow = (monday0.getDay() + 6) % 7;
-    monday0.setDate(monday0.getDate() - dow);
-
-    let html = `<div class="bg-cal-corner"></div>`;
-    for (let w = 0; w < 12; w++) {
-      const monday = new Date(monday0);
-      monday.setDate(monday.getDate() + w * 7);
-      const lbl = monday.toLocaleDateString(undefined, { month: "short" });
-      html += `<div class="bg-cal-month-lbl" style="grid-column:${w + 2};grid-row:1">${escHtml(lbl)}</div>`;
+    const totals = Object.values(byDayNum).map(v => v.sum);
+    const maxSpent = Math.max(1, ...totals);
+    const monthTitle = new Date(y, m - 1, 1).toLocaleDateString(undefined, { month: "long", year: "numeric" });
+    let bars = "";
+    for (let d = 1; d <= lastDay; d++) {
+      const info = byDayNum[d];
+      const pct = Math.round((info.sum / maxSpent) * 100);
+      const dkFull = `${prefix}${String(d).padStart(2, "0")}`;
+      const tip = `${dkFull} · ${fmtMoney(info.sum)} · ${info.n} transaction${info.n === 1 ? "" : "s"}`;
+      const showLbl = d === 1 || d === lastDay || d % 5 === 0;
+      bars += `<div class="bg-activity-bar-col" title="${escHtml(tip)}">
+        <div class="bg-activity-bar-fill-wrap" aria-hidden="true">
+          <div class="bg-activity-bar-fill" style="height:${pct}%"></div>
+        </div>
+        <span class="bg-activity-bar-day${showLbl ? " bg-activity-bar-day--show" : ""}">${d}</span>
+      </div>`;
     }
-    const dayLblRows = [1, 3, 5];
-    const dayLetters = ["M", "W", "F"];
-    for (let i = 0; i < 3; i++) {
-      html += `<div class="bg-cal-day-lbl" style="grid-column:1;grid-row:${dayLblRows[i] + 1}">${dayLetters[i]}</div>`;
-    }
-    for (let w = 0; w < 12; w++) {
-      for (let r = 0; r < 7; r++) {
-        const d = new Date(monday0);
-        d.setDate(d.getDate() + w * 7 + r);
-        const dk = [
-          d.getFullYear(),
-          String(d.getMonth() + 1).padStart(2, "0"),
-          String(d.getDate()).padStart(2, "0"),
-        ].join("-");
-        const isFuture = d > today;
-        const info = byDay[dk];
-        const spent = info ? info.sum : 0;
-        let bg = "rgba(255,255,255,0.05)";
-        if (spent > 0 && dailyAvg > 0) {
-          const ratio = spent / dailyAvg;
-          if (spent > dailyAvg * 1.15) bg = "#F87171";
-          else if (ratio < 0.25) bg = "rgba(245,158,11,0.2)";
-          else if (ratio <= 0.75) bg = "rgba(245,158,11,0.5)";
-          else bg = "rgba(245,158,11,0.85)";
-        }
-        const tip = `${d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })} · ${fmtMoney(spent)} spent · ${info ? info.n : 0} transaction${(info?.n || 0) === 1 ? "" : "s"}`;
-        const futCls = isFuture ? " future" : "";
-        html += `<div class="bg-cal-cell${futCls}" style="grid-column:${w + 2};grid-row:${r + 2};background:${bg}" data-tip="${escHtml(tip)}" tabindex="0" role="img" aria-label="${escHtml(tip)}"></div>`;
-      }
-    }
-    wrap.innerHTML = html;
+    wrap.innerHTML = `
+      <div class="bg-activity-chart" role="region" aria-label="Daily spending ${escHtml(monthTitle)}">
+        <div class="bg-activity-chart-head">
+          <span class="bg-activity-chart-title">Daily spending</span>
+          <span class="bg-activity-chart-sub">${escHtml(monthTitle)}</span>
+        </div>
+        <div class="bg-activity-chart-scroll">
+          <div class="bg-activity-chart-bars" role="list">${bars}</div>
+        </div>
+      </div>`;
   }
 
   /* ── Full re-render ───────────────────────────────────────────────── */
@@ -825,18 +874,82 @@
 
   /* ── KPI cards ────────────────────────────────────────────────────── */
   function renderKpis() {
+    const incEl = $("sumIncome");
+    const expEl = $("sumExpenses");
+    const remEl = $("sumRemaining");
+    if (!state.dataHydrated) {
+      [incEl, expEl, remEl].forEach((el) => {
+        if (!el) return;
+        el.classList.add("skeleton");
+        el.textContent = "\u00a0";
+      });
+      return;
+    }
+    [incEl, expEl, remEl].forEach((el) => el && el.classList.remove("skeleton"));
     const income    = computeIncome();
     const expenses  = computeExpenses();
     const remaining = income - expenses;
     setText("sumIncome",    fmtMoney(income));
     setText("sumExpenses",  fmtMoney(expenses));
     setText("sumRemaining", fmtMoney(remaining));
-    const remEl = $("sumRemaining");
     if (remEl) remEl.style.color = remaining < 0 ? "var(--bgt-red)" : remaining > 0 && income > 0 ? "var(--bgt-green)" : "";
+
+    const prevMonth = monthShift(state.month, -1);
+    const prevExpenses = state.entries
+      .filter((e) => (e.month || "").slice(0, 7) === prevMonth)
+      .reduce((s, e) => s + Math.abs(Number(e.amount) || 0), 0);
+    const prevIncome = income;
+    const prevRemaining = prevIncome - prevExpenses;
+    const fmtTrend = (curr, prev) => {
+      if (!Number.isFinite(prev) || Math.abs(prev) < 0.01) return "—";
+      const delta = ((curr - prev) / Math.abs(prev)) * 100;
+      const arrow = delta > 0 ? "^" : delta < 0 ? "v" : "-";
+      return `${arrow} ${Math.abs(delta).toFixed(0)}%`;
+    };
+    const trendIncomeEl = $("sumIncomeTrend");
+    const trendSpentEl = $("sumExpensesTrend");
+    const trendRemainingEl = $("sumRemainingTrend");
+    if (trendIncomeEl) {
+      trendIncomeEl.textContent = fmtTrend(income, prevIncome);
+      trendIncomeEl.className = "bg-kpi-trend bg-kpi-trend--neutral";
+    }
+    if (trendSpentEl) {
+      trendSpentEl.textContent = fmtTrend(expenses, prevExpenses);
+      const up = expenses > prevExpenses;
+      trendSpentEl.className = `bg-kpi-trend ${up ? "bg-kpi-trend--neg" : "bg-kpi-trend--pos"}`;
+    }
+    if (trendRemainingEl) {
+      trendRemainingEl.textContent = fmtTrend(remaining, prevRemaining);
+      const pos = remaining >= prevRemaining;
+      trendRemainingEl.className = `bg-kpi-trend ${pos ? "bg-kpi-trend--pos" : "bg-kpi-trend--neg"}`;
+    }
   }
 
   /* ── Overview donut + net worth ───────────────────────────────────── */
   function renderOverviewDonut() {
+    const ovIds = ["ovIncome", "ovSpent", "ovDebt", "ovRemaining"];
+    if (!state.dataHydrated) {
+      ovIds.forEach((id) => {
+        const el = $(id);
+        if (el) {
+          el.classList.add("skeleton");
+          el.textContent = "\u00a0";
+        }
+      });
+      const chip = $("netWorthChip");
+      if (chip) {
+        chip.classList.add("skeleton");
+        chip.textContent = "\u00a0";
+      }
+      return;
+    }
+    ovIds.forEach((id) => {
+      const el = $(id);
+      if (el) el.classList.remove("skeleton");
+    });
+    const nw = $("netWorthChip");
+    if (nw) nw.classList.remove("skeleton");
+
     const income    = computeIncome();
     const spent     = computeExpenses();
     const debt      = computeDebt();
@@ -868,7 +981,7 @@
 
     const segs = [
       { frac: spent / total,     color: "#F59E0B" },
-      { frac: remaining / total, color: "#60A5FA" },
+      { frac: remaining / total, color: "#818CF8" },
       { frac: debt / total,      color: "#F87171" },
     ].filter(s => s.frac > 0.001);
 
@@ -940,14 +1053,19 @@
         const v = state.plannerDraft[row.id] != null ? state.plannerDraft[row.id] : (state.plan[row.id] || "");
         const val = v === "" || v == null ? "" : String(v);
         return `
-        <div class="bg-planner-row bg-planner-row--plan" data-cat="${row.id}" role="listitem">
-          <div class="bg-planner-icon" style="background:${row.color}22;color:${row.color}">${escHtml(row.icon)}</div>
-          <div class="bg-planner-info">
-            <div class="bg-planner-name">${escHtml(row.label)}</div>
-            <input class="bg-planner-plan-input" type="number" min="0" step="1" data-plan-cat="${row.id}"
-                   value="${escHtml(val)}" placeholder="0" aria-label="Limit for ${escHtml(row.label)}" />
-            <div class="bg-planner-plan-hint"></div>
+        <div class="bg-planner-row bg-planner-row--plan bg-planner-plan-card" data-cat="${row.id}" role="listitem">
+          <div class="bg-planner-plan-card-top">
+            <div class="bg-planner-icon" style="background:${row.color}22;color:${row.color}">${catIconSvg(row.id, 20)}</div>
+            <div class="bg-planner-plan-head">
+              <div class="bg-planner-name">${escHtml(row.label)}</div>
+              <div class="bg-planner-plan-field">
+                <label class="bg-planner-plan-lbl" for="planInp-${row.id}">Monthly limit</label>
+                <input id="planInp-${row.id}" class="bg-planner-plan-input" type="number" min="0" step="1" data-plan-cat="${row.id}"
+                       value="${escHtml(val)}" placeholder="0" aria-label="Limit for ${escHtml(row.label)}" />
+              </div>
+            </div>
           </div>
+          <div class="bg-planner-plan-hint"></div>
         </div>`;
       }).join("");
       updatePlannerPlanHints(list);
@@ -988,7 +1106,7 @@
         return `
         <div class="bg-planner-row bg-planner-row--track${hasLimit ? "" : " bg-planner-row--nolimit"}" data-cat="${row.id}" data-mode="track" data-has-limit="${hasLimit ? "1" : "0"}" role="listitem" tabindex="0"
              aria-label="Budget ${escHtml(row.label)}">
-          <div class="bg-planner-icon" style="background:${row.color}22;color:${row.color}">${escHtml(row.icon)}</div>
+          <div class="bg-planner-icon" style="background:${row.color}22;color:${row.color}">${catIconSvg(row.id, 20)}</div>
           <div class="bg-planner-info">
             <div class="bg-planner-name">${escHtml(row.label)}</div>
             <div class="bg-planner-bar-wrap">
@@ -1070,7 +1188,7 @@
       return `
         <div class="bg-bill-card ${isPaid ? "paid" : ""}" data-bill-id="${bill.id}" role="listitem">
           <span class="bg-bill-status ${status}" aria-hidden="true"></span>
-          <div class="bg-bill-icon" style="background:${cat.color}22;color:${cat.color}">${escHtml(cat.icon)}</div>
+          <div class="bg-bill-icon" style="background:${cat.color}22;color:${cat.color}">${catIconSvg(cat.id, 18)}</div>
           <div class="bg-bill-info">
             <div class="bg-bill-name">${escHtml(bill.name)}</div>
             <div class="bg-bill-meta">
@@ -1106,7 +1224,7 @@
 
   function billDueText(bill, status) {
     const day  = bill.dueDay || 1;
-    const text = t("budget.bills.dueOn").replace("{day}", String(day));
+    const text = t("budget.bills.dueOn", "Due {day}", { day: String(day) });
     if (status === "overdue")  return `${text} · ${t("budget.bills.overdue")}`;
     if (status === "upcoming") return `${text} · ${t("budget.bills.upcoming")}`;
     return text;
@@ -1117,6 +1235,12 @@
     const list = $("accountsList");
     if (!list) return;
     list.innerHTML = "";
+
+    if (!state.dataHydrated) {
+      list.innerHTML = `<div class="bg-account-card skeleton" style="min-height:100px" aria-hidden="true"></div>
+        <div class="bg-account-card skeleton" style="min-height:100px" aria-hidden="true"></div>`;
+      return;
+    }
 
     if (state.accounts.length === 0) {
       const hint = document.createElement("div");
@@ -1137,9 +1261,16 @@
     state.accounts.forEach(acct => {
       const t2   = getAcctType(acct.type);
       const slug = acct.type === "credit_card" ? "credit" : acct.type;
+      const accentByType = {
+        salary: "var(--habit, #34D399)",
+        cash: "var(--budget, #F59E0B)",
+        credit: "var(--sleep, #818CF8)",
+        debt: "var(--brand, #E63946)",
+      };
+      const accent = accentByType[slug] || "var(--bgt-accent)";
       const card = document.createElement("div");
       card.className = "bg-account-card";
-      card.style.background = `var(--bgt-${slug}-bg)`;
+      card.style.setProperty("--acct-accent", accent);
       card.setAttribute("role", "listitem");
 
       /* Credit utilization bar */
@@ -1158,11 +1289,13 @@
       }
 
       card.innerHTML = `
-        <div class="bg-acct-type">${escHtml(t2.icon)}&nbsp;${escHtml(t2.label)}</div>
-        <div class="bg-acct-name">${escHtml(acct.name)}</div>
-        <div class="bg-acct-balance" style="color:${t2.color}">${fmtMoney(acct.balance || 0)}</div>
+        <div class="bg-acct-head">
+          <div class="bg-acct-name">${escHtml(acct.name)}</div>
+          <span class="bg-acct-type-pill">${escHtml(t2.label)}</span>
+        </div>
+        <div class="bg-acct-balance">${fmtMoney(acct.balance || 0)}</div>
         ${utilBar}
-        ${acct.note ? `<div class="bg-acct-note">${escHtml(acct.note)}</div>` : ""}
+        ${acct.note ? `<div class="bg-acct-note">${escHtml(acct.note)}</div>` : `<div class="bg-acct-note">${escHtml(t("budget.accounts.noRecent", "No recent change"))}</div>`}
         <button class="bg-acct-edit" data-id="${acct.id}" type="button"
                 aria-label="Edit ${escHtml(acct.name)}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -1265,7 +1398,7 @@
         <div class="bg-leg-row${state.focusedCat === s.id ? " focused" : ""}" data-cat="${s.id}" role="listitem">
           <span class="bg-leg-dot" style="background:${s.color}"></span>
           <div class="bg-leg-info">
-            <span class="bg-leg-name">${escHtml(s.icon)}&nbsp;${escHtml(s.label)}</span>
+            <span class="bg-leg-name"><span class="bg-leg-cat-ico">${catIconSvg(s.id, 14)}</span>${escHtml(s.label)}</span>
             <span class="bg-leg-pct">${Math.round(s.frac * 100)}%</span>
           </div>
           <div class="bg-leg-amt">${fmtMoney(s.amount)}</div>
@@ -1280,6 +1413,20 @@
     const badge   = $("entriesBadge");
     if (!list) return;
 
+    if (state.expenseDeleteConfirmId && !state.entries.some(e => e.id === state.expenseDeleteConfirmId)) {
+      state.expenseDeleteConfirmId = null;
+    }
+
+    if (!state.dataHydrated) {
+      list.style.display = "";
+      if (emptyEl) emptyEl.style.display = "none";
+      if (badge) badge.textContent = "";
+      list.innerHTML = Array.from({ length: 5 }, () =>
+        '<div class="skeleton" style="min-height:52px;margin-bottom:10px;border-radius:12px" aria-hidden="true"></div>'
+      ).join("");
+      return;
+    }
+
     /* Filter by search query */
     const q = state.searchQuery.trim().toLowerCase();
     const filtered = state.entries.filter(e => {
@@ -1290,6 +1437,10 @@
         cat.label.toLowerCase().includes(q)
       );
     });
+
+    if (state.expenseDeleteConfirmId && !filtered.some(e => e.id === state.expenseDeleteConfirmId)) {
+      state.expenseDeleteConfirmId = null;
+    }
 
     const sorted = [...filtered].sort((a, b) =>
       (b.dateKey || b.date || "").localeCompare(a.dateKey || a.date || "")
@@ -1332,10 +1483,28 @@
 
   function renderEntryCard(e) {
     const cat = getCat(e.category);
+    const confirming = state.expenseDeleteConfirmId === e.id;
+    const rightBlock = confirming
+      ? `<div class="bg-entry-del-confirm" role="group" aria-label="${escHtml(t("budget.delete.confirm", "Delete this expense?"))}">
+           <span class="bg-entry-del-msg">${escHtml(t("budget.delete.confirm", "Delete this expense?"))}</span>
+           <button type="button" class="bg-entry-del-yes" data-action="confirm-exp-del" data-id="${e.id}">${escHtml(t("common.confirm", "Confirm"))}</button>
+           <button type="button" class="bg-entry-del-no" data-action="cancel-exp-del" data-id="${e.id}">${escHtml(t("common.cancel", "Cancel"))}</button>
+         </div>`
+      : `<div class="bg-entry-amt" style="color:${cat.color}">&minus;${fmtMoney(Math.abs(e.amount))}</div>
+          <button class="bg-entry-del" data-action="start-exp-del" data-id="${e.id}" type="button" aria-label="${escHtml(t("budget.delete.aria", "Delete expense"))}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+            </svg>
+          </button>`;
+    const swipeLabel = confirming
+      ? escHtml(t("common.confirm", "Confirm"))
+      : escHtml(t("budget.delete.short", "Delete"));
     return `
       <div class="bg-entry-card" data-id="${e.id}"
            ${e._pending ? 'data-pending="true"' : ""} role="listitem">
-        <div class="bg-entry-icon" style="background:${cat.color}22;color:${cat.color}" aria-hidden="true">${escHtml(cat.icon)}</div>
+        <div class="bg-entry-icon" style="background:${cat.color}22;color:${cat.color}" aria-hidden="true">${catIconSvg(cat.id, 18)}</div>
         <div class="bg-entry-info">
           <div class="bg-entry-desc">${escHtml(e.description || cat.label)}</div>
           <div class="bg-entry-meta">
@@ -1343,16 +1512,9 @@
           </div>
         </div>
         <div class="bg-entry-right">
-          <div class="bg-entry-amt" style="color:${cat.color}">&minus;${fmtMoney(Math.abs(e.amount))}</div>
-          <button class="bg-entry-del" data-id="${e.id}" type="button" aria-label="Delete expense">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-            </svg>
-          </button>
+          ${rightBlock}
         </div>
-        <div class="bg-entry-swipe-del" data-del="${e.id}">Delete</div>
+        <div class="bg-entry-swipe-del" data-action="${confirming ? "confirm-exp-del" : "start-exp-del"}" data-del="${e.id}">${swipeLabel}</div>
       </div>`;
   }
 
@@ -1390,11 +1552,7 @@
      ACCOUNT SHEET
      ════════════════════════════════════════════════════════════ */
   function flowStepLabel(current, total) {
-    const tpl = t("budget.flow.stepOf");
-    if (tpl && tpl.includes("{")) {
-      return tpl.replace("{current}", String(current)).replace("{total}", String(total));
-    }
-    return `Step ${current} of ${total}`;
+    return t("budget.flow.stepOf", "Step {current} of {total}", { current, total });
   }
 
   function syncAcctFlowUI() {
@@ -1523,7 +1681,7 @@
     row.innerHTML = ACCOUNT_TYPES.map(t2 => `
       <button class="bg-type-btn${t2.id === sel ? " active" : ""}"
               data-acct-type="${t2.id}" type="button">
-        <span class="bg-type-icon">${escHtml(t2.icon)}</span>
+        <span class="bg-type-icon">${acctTypeIconSvg(t2.id, 20)}</span>
         <span>${escHtml(t2.label)}</span>
       </button>`).join("");
   }
@@ -1555,7 +1713,7 @@
       renderAll();
       updateBudgetMonthAggregate(state.month).catch(() => {});
     } catch (err) {
-      console.warn("[Hbit] Save account:", err?.code, err?.message);
+      /* silent */
       const code = err?.code || "";
       const detail = err?.message || "Save failed";
       const short = code === "permission-denied"
@@ -1565,6 +1723,7 @@
       showSheetError("acctSave", btnMsg);
       showToast(short.length > 120 ? short.slice(0, 117) + "…" : short);
     } finally {
+      clearBodyScrollUnlessOverlayOpen();
       setBusy("acctSave", false, t("budget.sheet.save"));
     }
   }
@@ -1578,7 +1737,7 @@
       renderAll();
       updateBudgetMonthAggregate(state.month).catch(() => {});
     } catch (err) {
-      console.warn("[Hbit] Delete account:", err?.code, err?.message);
+      /* silent */
       const code = err?.code || "";
       const msg = code === "permission-denied" ? "Permission denied" : (code ? `${code}: ` : "") + (err?.message || "Error");
       showSheetError("acctDelete", msg.length > 52 ? msg.slice(0, 49) + "…" : msg);
@@ -1616,7 +1775,7 @@
       <button class="bg-cat-chip${c.id === sel ? " active" : ""}"
               data-cat-id="${c.id}" data-grid="${gridId}" type="button"
               style="--cat-color:${c.color}">
-        <span class="bg-cat-icon">${escHtml(c.icon)}</span>
+        <span class="bg-cat-icon">${catIconSvg(c.id, 18)}</span>
         <span class="bg-cat-name">${escHtml(c.label)}</span>
       </button>`).join("");
   }
@@ -1648,7 +1807,7 @@
       renderAll();
       updateBudgetMonthAggregate(month).catch(() => {});
     } catch (err) {
-      console.warn("[Hbit] Save expense:", err?.message);
+      /* silent */
       state.entries = prev;
       renderAll();
       openExpenseSheet({ id: editId, amount, category: cat, description: desc, dateKey });
@@ -1668,7 +1827,7 @@
       state.allEntriesCache = null;
       updateBudgetMonthAggregate(state.month).catch(() => {});
     } catch (err) {
-      console.warn("[Hbit] Delete expense:", err?.message);
+      /* silent */
       if (removed) state.entries = [...state.entries, removed];
       renderAll();
     } finally {
@@ -1720,7 +1879,7 @@
       await loadBills();
       renderAll();
     } catch (err) {
-      console.warn("[Hbit] Save bill:", err?.message);
+      /* silent */
       showSheetError("billSave", "Save failed — retry");
     } finally {
       clearBodyScrollUnlessOverlayOpen();
@@ -1736,7 +1895,7 @@
       state.bills = state.bills.filter(b => b.id !== id);
       renderAll();
     } catch (err) {
-      console.warn("[Hbit] Delete bill:", err?.message);
+      /* silent */
       showSheetError("billDelete", "Error — retry");
     } finally {
       clearBodyScrollUnlessOverlayOpen();
@@ -1753,7 +1912,7 @@
     const current = state.plan[catId] || 0;
     setText("limitTitle", t("budget.limit.title"));
     const info = $("limitCatInfo");
-    if (info) info.innerHTML = `<span style="font-size:18px">${escHtml(cat.icon)}</span><span>${escHtml(cat.label)}</span>`;
+    if (info) info.innerHTML = `<span class="bg-limit-cat-ico">${catIconSvg(cat.id, 20)}</span><span>${escHtml(cat.label)}</span>`;
     setVal("limitAmount", current > 0 ? String(current) : "");
     const sym = $("limitCurrencySym");
     if (sym) sym.textContent = currencySymbol();
@@ -1816,27 +1975,28 @@
     BUDGET_OVERLAY_IDS.forEach((oid) => {
       if (oid !== id) {
         const o = $(oid);
-        if (o && (o.classList.contains("open") || o.style.display === "flex")) {
+        if (o && o.classList.contains("open")) {
           closeOverlay(oid);
         }
       }
     });
     const el = $(id);
     if (!el) return;
-    el.style.display = "flex";
-    el.style.visibility = "visible";
-    void el.offsetWidth;
+    el.style.display = "flex";          // 1. Force display:flex so transition can play
+    el.style.removeProperty("visibility");
+    void el.offsetWidth;                // 2. Force reflow — allows opacity 0→1 transition
     el.setAttribute("aria-hidden", "false");
-    el.classList.add("open");
+    el.classList.add("open");           // 3. Triggers CSS opacity transition
     document.body.style.overflow = "hidden";
   }
 
   function closeOverlay(id) {
     const el = $(id);
     if (!el) return;
-    el.classList.remove("open");
+    el.classList.remove("open");        // Triggers opacity 1→0 transition
     el.setAttribute("aria-hidden", "true");
-    el.style.visibility = "";
+    el.style.removeProperty("visibility");
+    // Hide after transition completes
     const onEnd = (e) => {
       if (e.target !== el) return;
       if (!el.classList.contains("open")) {
@@ -1845,28 +2005,21 @@
       el.removeEventListener("transitionend", onEnd);
     };
     el.addEventListener("transitionend", onEnd);
+    // Fallback in case transitionend doesn't fire
     setTimeout(() => {
       if (!el.classList.contains("open")) {
         el.style.display = "none";
       }
       el.removeEventListener("transitionend", onEnd);
-    }, 360);
+    }, 350);
     clearBodyScrollUnlessOverlayOpen();
   }
 
-  /* ── Help tour ───────────────────────────────────────────────────── */
-  const HELP_STEPS = [
-    { titleKey: "budget.help.step1.title", bodyKey: "budget.help.step1.body" },
-    { titleKey: "budget.help.step2.title", bodyKey: "budget.help.step2.body" },
-    { titleKey: "budget.help.step3.title", bodyKey: "budget.help.step3.body" },
-    { titleKey: "budget.help.step4.title", bodyKey: "budget.help.step4.body" },
-  ];
-  let helpStepIndex = 0;
-
+  /* ── Help modal (single page, i18n-driven) ─────────────────────── */
   function openHelp() {
-    helpStepIndex = 0;
     updateHelpContent();
     openOverlay("helpOverlay");
+    requestAnimationFrame(() => $("helpClose")?.focus?.());
   }
 
   function closeHelp() {
@@ -1874,29 +2027,8 @@
   }
 
   function updateHelpContent() {
-    setText("helpTitle", t("budget.help.title"));
-    const step = HELP_STEPS[helpStepIndex];
-    if (step) { setText("helpStepTitle", t(step.titleKey)); setText("helpStepBody", t(step.bodyKey)); }
-    const backBtn = $("helpBack");
-    const nextBtn = $("helpNext");
-    if (backBtn) { backBtn.textContent = t("budget.help.back"); backBtn.style.display = helpStepIndex === 0 ? "none" : ""; }
-    if (nextBtn) { nextBtn.textContent = helpStepIndex === HELP_STEPS.length - 1 ? t("budget.help.close") : t("budget.help.next"); }
-    const dotsEl = $("helpDots");
-    if (dotsEl) {
-      dotsEl.innerHTML = HELP_STEPS.map((_, i) =>
-        `<span class="${i === helpStepIndex ? "active" : ""}" aria-hidden="true"></span>`).join("");
-    }
-  }
-
-  function helpNext() {
-    if (helpStepIndex >= HELP_STEPS.length - 1) { closeHelp(); return; }
-    helpStepIndex++;
-    updateHelpContent();
-  }
-  function helpBack() {
-    if (helpStepIndex <= 0) return;
-    helpStepIndex--;
-    updateHelpContent();
+    const root = $("helpOverlay");
+    if (root && HBIT.i18n?.apply) HBIT.i18n.apply(root);
   }
 
   /* ── Micro helpers ───────────────────────────────────────────────── */
@@ -1936,7 +2068,7 @@
   /* ── Wizard ──────────────────────────────────────────────────────── */
   function spawnWizardConfetti(card) {
     if (!card) return;
-    const colors = ["#F59E0B", "#34D399", "#60A5FA", "#FB7185", "#ffffff"];
+    const colors = ["#F59E0B", "#34D399", "#818CF8", "#FB7185", "#ffffff"];
     for (let i = 0; i < 30; i++) {
       const p = document.createElement("span");
       p.className = "bg-confetti-piece";
@@ -1961,39 +2093,40 @@
 
     if (n === 0) {
       slide.innerHTML = `
-        <div class="bg-wiz-welcome-icon" aria-hidden="true">👛</div>
-        <h2 class="bg-wiz-title">Let's understand how you manage money</h2>
-        <p class="bg-wiz-sub">8 quick questions. No judgment. We'll set things up your way.</p>`;
+        <div class="bg-wiz-welcome-icon" aria-hidden="true">${svgIconLucide(`<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>`, 40)}</div>
+        <h2 class="bg-wiz-title">Build your money system in 60 seconds</h2>
+        <p class="bg-wiz-sub">Answer 8 quick questions and Hbit will personalize your budget flow.</p>`;
     } else if (n === 1) {
       const opts = [
-        { id: "spend_track", icon: "😅", t: "I spend without tracking", d: "Money disappears and I don't know where" },
-        { id: "save", icon: "😰", t: "I never save enough", d: "Month ends and savings is zero" },
-        { id: "debt", icon: "💳", t: "Debt stress", d: "Credit cards or loans weighing on me" },
-        { id: "avoid", icon: "🙈", t: "Avoiding my finances", d: "I'd rather not look" },
-        { id: "insight", icon: "📊", t: "I track but want better insights", d: "I use spreadsheets, want something smarter" },
+        { id: "spend_track", t: "I lose track of spending", d: "I want clear visibility every week" },
+        { id: "save", t: "Saving feels impossible", d: "I end the month with little left" },
+        { id: "debt", t: "Debt creates pressure", d: "Cards or loans are hard to control" },
+        { id: "avoid", t: "I avoid checking finances", d: "I need a simpler, lower-stress flow" },
+        { id: "insight", t: "I need better insights", d: "I track already, but want smarter guidance" },
       ];
-      slide.innerHTML = `<h2 class="bg-wiz-title">What's your biggest challenge with money right now?</h2>
+      slide.innerHTML = `<h2 class="bg-wiz-title">What is your main money challenge right now?</h2>
         ${opts.map((o, i) => `
           <button type="button" class="bg-wiz-option${wizardAnswers.struggle === o.id ? " selected" : ""}" data-struggle="${o.id}" style="--i:${i}">
             <svg class="bg-wiz-check-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>
-            <span><span class="bg-wiz-option-label">${o.icon} ${escHtml(o.t)}</span><span class="bg-wiz-option-desc">${escHtml(o.d)}</span></span>
+            <span class="bg-wiz-option-lead">${svgIconLucide(WIZ_STRUGGLE_INNER[o.id] || WIZ_STRUGGLE_INNER.insight, 22)}</span>
+            <span><span class="bg-wiz-option-label">${escHtml(o.t)}</span><span class="bg-wiz-option-desc">${escHtml(o.d)}</span></span>
           </button>`).join("")}`;
     } else if (n === 2) {
       const opts = [
-        { id: "save_more", icon: "🎯", t: "Save more each month" },
-        { id: "debt_pay", icon: "💳", t: "Pay off debt faster" },
-        { id: "know", icon: "📊", t: "Know where my money goes" },
-        { id: "big", icon: "🏠", t: "Save for a big purchase" },
-        { id: "impulse", icon: "🧾", t: "Stop impulse spending" },
-        { id: "emergency", icon: "🚀", t: "Build an emergency fund" },
+        { id: "save_more", t: "Save more each month" },
+        { id: "debt_pay", t: "Pay off debt faster" },
+        { id: "know", t: "Know where my money goes" },
+        { id: "big", t: "Save for a big purchase" },
+        { id: "impulse", t: "Stop impulse spending" },
+        { id: "emergency", t: "Build an emergency fund" },
       ];
-      slide.innerHTML = `<h2 class="bg-wiz-title">What do you want to achieve? Pick up to 3.</h2>
+      slide.innerHTML = `<h2 class="bg-wiz-title">What outcomes matter most? Pick up to 3.</h2>
         <div class="bg-wiz-goals-grid">
         ${opts.map((o, i) => `
-          <button type="button" class="bg-wiz-goal-chip${wizardAnswers.goals.includes(o.id) ? " selected" : ""}" data-goal="${o.id}" style="--i:${i}">${o.icon} ${escHtml(o.t)}</button>`).join("")}
+          <button type="button" class="bg-wiz-goal-chip${wizardAnswers.goals.includes(o.id) ? " selected" : ""}" data-goal="${o.id}" style="--i:${i}">${svgIconLucide(WIZ_GOAL_INNER, 16)}<span>${escHtml(o.t)}</span></button>`).join("")}
         </div>`;
     } else if (n === 3) {
-      slide.innerHTML = `<h2 class="bg-wiz-title">How often do you get paid?</h2>
+      slide.innerHTML = `<h2 class="bg-wiz-title">How often do you receive income?</h2>
         <div class="bg-wiz-pay-row">
           ${["weekly", "biweekly", "monthly"].map((id, i) => {
             const labels = { weekly: "Weekly", biweekly: "Bi-weekly", monthly: "Monthly" };
@@ -2001,44 +2134,51 @@
           }).join("")}
         </div>`;
     } else if (n === 4) {
-      slide.innerHTML = `<h2 class="bg-wiz-title">How do you like to budget?</h2>
+      slide.innerHTML = `<h2 class="bg-wiz-title">Choose your budgeting style</h2>
         <div class="bg-wiz-mode-row">
           <button type="button" class="bg-wiz-mode-card${wizardAnswers.mode === "plan" ? " selected" : ""}" data-mode="plan">
-            <span class="bg-wiz-option-label">📋 Plan first</span><span class="bg-wiz-option-desc">I want to set limits before the month starts. Keep me accountable.</span>
+            <span class="bg-wiz-mode-ico">${svgIconLucide(WIZ_MODE_INNER.plan, 24)}</span>
+            <span class="bg-wiz-option-label">Plan</span><span class="bg-wiz-option-desc">Set category limits upfront and follow a clear monthly plan.</span>
           </button>
           <button type="button" class="bg-wiz-mode-card${wizardAnswers.mode === "reactive" ? " selected" : ""}" data-mode="reactive">
-            <span class="bg-wiz-option-label">📝 Track as I go</span><span class="bg-wiz-option-desc">I'll log spending and see where I land. No pressure.</span>
+            <span class="bg-wiz-mode-ico">${svgIconLucide(WIZ_MODE_INNER.track, 24)}</span>
+            <span class="bg-wiz-option-label">Track</span><span class="bg-wiz-option-desc">Log expenses as you go and adjust in real time.</span>
           </button>
         </div>`;
     } else if (n === 5) {
-      slide.innerHTML = `<h2 class="bg-wiz-title">Where does most of your money go?</h2>
+      slide.innerHTML = `<h2 class="bg-wiz-title">Which category is your biggest focus?</h2>
         <div class="bg-wiz-cat-scroll">
           ${CATEGORIES.map((c, i) => `
-            <button type="button" class="bg-wiz-cat-chip${wizardAnswers.topCategory === c.id ? " selected" : ""}" data-topcat="${c.id}" style="--i:${i}">${escHtml(c.icon)} ${escHtml(c.label)}</button>`).join("")}
+            <button type="button" class="bg-wiz-cat-chip${wizardAnswers.topCategory === c.id ? " selected" : ""}" data-topcat="${c.id}" style="--i:${i}">${catIconSvg(c.id, 16)}<span>${escHtml(c.label)}</span></button>`).join("")}
         </div>`;
     } else if (n === 6) {
       const lv = [
-        { id: "beginner", icon: "🌱", t: "Beginner", d: "Just getting started" },
-        { id: "intermediate", icon: "🌿", t: "Intermediate", d: "I track sometimes" },
-        { id: "advanced", icon: "🌳", t: "Advanced", d: "I know my numbers" },
+        { id: "beginner", t: "Beginner", d: "Just getting started" },
+        { id: "intermediate", t: "Intermediate", d: "I track sometimes" },
+        { id: "advanced", t: "Advanced", d: "I know my numbers" },
       ];
-      slide.innerHTML = `<h2 class="bg-wiz-title">How comfortable are you with budgeting?</h2>
+      slide.innerHTML = `<h2 class="bg-wiz-title">What is your budgeting level?</h2>
         <div class="bg-wiz-level-row">
           ${lv.map((o, i) => `
             <button type="button" class="bg-wiz-level-card${wizardAnswers.level === o.id ? " selected" : ""}" data-level="${o.id}" style="--i:${i}">
-              <span class="bg-wiz-option-label">${o.icon} ${escHtml(o.t)}</span><span class="bg-wiz-option-desc">${escHtml(o.d)}</span>
+              <span class="bg-wiz-level-ico">${svgIconLucide(WIZ_LEVEL_INNER[o.id] || WIZ_LEVEL_INNER.beginner, 22)}</span>
+              <span class="bg-wiz-option-label">${escHtml(o.t)}</span><span class="bg-wiz-option-desc">${escHtml(o.d)}</span>
             </button>`).join("")}
         </div>`;
     } else {
       const cm = [
-        { id: "allin", icon: "🔥", t: "All in", d: "Check in daily, set goals, push me" },
-        { id: "mod", icon: "⚡", t: "Moderate", d: "Weekly check-ins, gentle nudges" },
-        { id: "casual", icon: "🌊", t: "Casual", d: "Just track, no pressure" },
+        { id: "allin", t: "Daily", d: "I want strong momentum and daily check-ins" },
+        { id: "mod", t: "Weekly", d: "A balanced rhythm with weekly review prompts" },
+        { id: "casual", t: "Flexible", d: "Light guidance and simple tracking only" },
       ];
-      slide.innerHTML = `<h2 class="bg-wiz-title">How committed are you to improving your finances?</h2>
+      slide.innerHTML = `<h2 class="bg-wiz-title">How often should Hbit check in with you?</h2>
         ${cm.map((o, i) => `
           <button type="button" class="bg-wiz-commit-card${wizardAnswers.commitment === o.id ? " selected" : ""}" data-commit="${o.id}" style="--i:${i}">
-            <span class="bg-wiz-option-label">${o.icon} ${escHtml(o.t)}</span><span class="bg-wiz-option-desc">${escHtml(o.d)}</span>
+            <span class="bg-wiz-commit-ico">${svgIconLucide(WIZ_COMMIT_INNER[o.id] || WIZ_COMMIT_INNER.mod, 22)}</span>
+            <span class="bg-wiz-commit-text">
+              <span class="bg-wiz-option-label">${escHtml(o.t)}</span>
+              <span class="bg-wiz-option-desc">${escHtml(o.d)}</span>
+            </span>
           </button>`).join("")}`;
     }
 
@@ -2158,7 +2298,7 @@
         showToast("Skipped — you can always revisit settings later.");
       });
     } catch (err) {
-      console.warn("[Hbit] skipWizard:", err?.code, err?.message);
+      /* silent */
       showToast(`Could not save: ${err?.code || err?.message || "error"}`);
     }
   }
@@ -2178,7 +2318,7 @@
         commitment: wizardAnswers.commitment,
       }, true);
     } catch (err) {
-      console.warn("[Hbit] finishWizard:", err?.code, err?.message);
+      /* silent */
       showToast(`Could not save: ${err?.code || err?.message || "error"}`);
       return;
     }
@@ -2216,7 +2356,7 @@
       return;
     }
     if (wizardSlideIndex >= 7) {
-      finishWizard().catch(err => console.warn(err));
+      finishWizard().catch(() => { /* silent */ });
       return;
     }
     transitionWizardSlide(wizardSlideIndex, wizardSlideIndex + 1, 1);
@@ -2349,7 +2489,7 @@
     const tooltipId = "bgTrendTip";
     let svg = `<svg class="bg-trend-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" aria-label="Spending trend chart">`;
     svg += bars;
-    svg += `<path d="${linePts.trim()}" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+    svg += `<path d="${linePts.trim()}" fill="none" stroke="#818CF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
     months.forEach((m, i) => {
       const cx = padL + i * groupW + groupW / 2;
       const tip = `${m.label} · Income ${fmtMoney(income)} · Spent ${fmtMoney(spentArr[i] || 0)} · Saved ${fmtMoney(savings[i])}`;
@@ -2425,7 +2565,9 @@
       a.download = `hbit-budget-${state.month}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-    }).catch(err => console.warn("[Hbit] CSV export:", err));
+    }).catch(() => {
+      HBIT.toast?.show?.(HBIT.i18n?.t?.("budget.export.error", "Export failed"), "error");
+    });
   }
 
   /* ── Savings goals CRUD ─────────────────────────────────────────── */
@@ -2512,7 +2654,7 @@
       renderGoalsSection();
       renderSetupChecklist();
     } catch (err) {
-      console.warn("[Hbit] goal save:", err);
+      /* silent */
       const msg = err?.message || "Could not save goal — check connection and try again.";
       showToast(msg.length > 140 ? msg.slice(0, 137) + "…" : msg);
     }
@@ -2557,7 +2699,7 @@
       closeOverlay("goalDetailOverlay");
       await loadSavingsGoals();
       renderGoalsSection();
-    } catch (err) { console.warn(err); }
+    } catch (err) { /* silent */ }
   }
 
   async function deleteGoal() {
@@ -2569,7 +2711,7 @@
       await loadSavingsGoals();
       renderGoalsSection();
       renderSetupChecklist();
-    } catch (err) { console.warn(err); }
+    } catch (err) { /* silent */ }
   }
 
   /* ── Event delegation ────────────────────────────────────────────── */
@@ -2593,8 +2735,6 @@
     /* Help */
     ($("bgHelpBtn") || {}).onclick = openHelp;
     ($("helpClose") || {}).onclick = closeHelp;
-    ($("helpBack")  || {}).onclick = helpBack;
-    ($("helpNext")  || {}).onclick = helpNext;
     ($("helpOverlay") || {}).addEventListener?.("click", e => { if (e.target.id === "helpOverlay") closeHelp(); });
 
     /* Currency */
@@ -2971,19 +3111,51 @@
 
       /* Click entry card → edit */
       const card = e.target.closest(".bg-entry-card");
-      if (card && !e.target.closest(".bg-entry-del") && !e.target.closest(".bg-entry-swipe-del")) {
+      if (card && !e.target.closest(".bg-entry-del") && !e.target.closest(".bg-entry-swipe-del")
+          && !e.target.closest(".bg-entry-del-confirm")) {
         const entry = state.entries.find(x => x.id === card.dataset.id);
         if (entry && !entry._pending) openExpenseSheet(entry);
         return;
       }
 
-      /* Delete button */
-      const delBtn = e.target.closest(".bg-entry-del");
-      if (delBtn) { submitDeleteExpense(delBtn.dataset.id); return; }
+      const confirmExp = e.target.closest("[data-action='confirm-exp-del']");
+      if (confirmExp) {
+        const id = confirmExp.getAttribute("data-id") || confirmExp.dataset.del;
+        if (id) {
+          state.expenseDeleteConfirmId = null;
+          submitDeleteExpense(id);
+        }
+        return;
+      }
+      const cancelExp = e.target.closest("[data-action='cancel-exp-del']");
+      if (cancelExp) {
+        state.expenseDeleteConfirmId = null;
+        renderEntries();
+        return;
+      }
 
-      /* Swipe delete */
+      /* Delete button — first step */
+      const delBtn = e.target.closest(".bg-entry-del[data-action='start-exp-del']");
+      if (delBtn) {
+        state.expenseDeleteConfirmId = delBtn.dataset.id;
+        renderEntries();
+        return;
+      }
+
+      /* Swipe strip */
       const swipeDel = e.target.closest(".bg-entry-swipe-del");
-      if (swipeDel) { submitDeleteExpense(swipeDel.dataset.del); return; }
+      if (swipeDel) {
+        const id = swipeDel.dataset.del;
+        const action = swipeDel.getAttribute("data-action");
+        if (action === "confirm-exp-del" && id) {
+          state.expenseDeleteConfirmId = null;
+          submitDeleteExpense(id);
+        } else if (action === "start-exp-del" && id) {
+          state.expenseDeleteConfirmId = id;
+          renderEntries();
+        }
+        return;
+      }
 
       /* Pie slice */
       const pieSlice = e.target.closest(".bg-pie-slice");
@@ -3038,7 +3210,7 @@
       localStorage.removeItem(LS_EXPENSES);
       await loadEntries();
       renderAll();
-    } catch (err) { console.warn("[Hbit] Budget migration:", err?.message); }
+    } catch (err) { /* silent */ }
   }
 
   function openBudgetDetailsSection(id) {
@@ -3091,6 +3263,7 @@
         await Promise.all([loadAccounts(), loadEntries(), loadPlan(), loadBills(), loadSavingsGoals()]);
         state.plannerDraft = { ...state.plan };
         migrateLocalStorage().catch(() => {});
+        state.dataHydrated = true;
         const needsWizard = !state.wizardMeta || state.wizardMeta.completed !== true;
         if (needsWizard) openWizard();
         applyBudgetDetailsDefaults();

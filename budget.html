@@ -3,9 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Hbit — Budget</title>
+  <title data-i18n="budget.documentTitle">Hbit — Budget</title>
   <meta name="description" content="Track income, expenses, bills and accounts with Hbit Budget." />
   <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23E63946'/><text x='50%25' y='68%25' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='900' font-size='20' fill='white'>H</text></svg>">
+  <meta name="theme-color" content="#070B14">
+  <meta name="color-scheme" content="dark light" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" /></noscript>
 
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="css/core/nav.css" />
@@ -19,9 +26,11 @@
 
   <!-- Core -->
   <script defer src="js/core/utils.js"></script>
+  <script defer src="js/core/toast.js"></script>
   <script defer src="js/core/storage.js"></script>
   <script defer src="js/core/theme.js"></script>
   <script defer src="js/core/i18n.js"></script>
+  <script defer src="js/core/sidebar.js"></script>
   <script defer src="js/core/firebase-init.js"></script>
   <script defer src="js/core/db.js"></script>
   <script defer src="js/core/core.js"></script>
@@ -33,6 +42,8 @@
 </head>
 
 <body id="budgetPage">
+
+  <a href="#main-content" class="skip-link" data-i18n="a11y.skipToContent">Skip to main content</a>
 
   <!-- ══ Budget wizard (first visit) ════════════════════════ -->
   <div id="bg-wizard-overlay" class="bg-wizard-overlay" role="dialog" aria-modal="true"
@@ -55,75 +66,9 @@
     </div>
   </div>
 
-  <!-- ══ Sidebar ═══════════════════════════════════════════ -->
+    <!-- ══ Sidebar (injected by sidebar.js) ══════════════════ -->
   <div class="sb-overlay"></div>
-  <nav class="sb" aria-hidden="true" aria-label="Main navigation">
-    <div class="sb-head">
-      <div class="sb-brand">
-        <div class="sb-mark">H</div>
-        <span class="sb-title">Hbit</span>
-      </div>
-      <button class="sb-close" aria-label="Close menu">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-      <button class="sb-collapse" aria-label="Collapse sidebar">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><polyline points="15 9 12 12 15 15"/></svg>
-      </button>
-    </div>
-    <div class="sb-sep"></div>
-    <div class="sb-content">
-      <div class="sb-group">
-        <div class="sb-group-label" data-i18n="nav.menuLabel">Menu</div>
-        <ul class="sb-menu">
-          <li><a class="sb-item" href="home.html" data-page="home.html">
-            <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
-            <span class="sb-item-label" data-i18n="nav.overview">Overview</span>
-          </a></li>
-          <li><a class="sb-item" href="habits.html" data-page="habits.html">
-            <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
-            <span class="sb-item-label" data-i18n="nav.habits">Habits</span>
-          </a></li>
-          <li><a class="sb-item" href="budget.html" data-page="budget.html">
-            <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
-            <span class="sb-item-label" data-i18n="nav.budget">Budget</span>
-          </a></li>
-          <li><a class="sb-item" href="sleep.html" data-page="sleep.html">
-            <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
-            <span class="sb-item-label" data-i18n="nav.sleep">Sleep</span>
-          </a></li>
-          <li><a class="sb-item" href="mood.html" data-page="mood.html">
-            <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></span>
-            <span class="sb-item-label" data-i18n="nav.mood">State of Mind</span>
-          </a></li>
-          <li><a class="sb-item" href="focus.html" data-page="focus.html">
-            <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
-            <span class="sb-item-label" data-i18n="nav.focus">Focus</span>
-          </a></li>
-          <li><a class="sb-item" href="plan.html" data-page="plan.html">
-            <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
-            <span class="sb-item-label" data-i18n="nav.plan">Planner</span>
-          </a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="sb-foot">
-      <a class="sb-item" href="profile.html" data-page="profile.html">
-        <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
-        <span class="sb-item-label" data-i18n="nav.profile">Profile</span>
-      </a>
-      <button class="sb-item sb-item--logout" id="sbLogout" type="button">
-        <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
-        <span class="sb-item-label" data-i18n="nav.logout">Sign out</span>
-      </button>
-    </div>
-  </nav>
-
-  <!-- ══ Sidebar trigger ═══════════════════════════════════ -->
-  <button class="sb-trigger" aria-label="Open menu" aria-expanded="false">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="10" width="7" height="7" rx="1"/><rect x="3" y="13" width="7" height="4" rx="1"/></svg>
-  </button>
+  <nav class="sb" aria-hidden="true" aria-label="Main navigation"></nav>
 
   <!-- ══ Compact sticky header ════════════════════════════ -->
   <header class="bg-header">
@@ -133,7 +78,7 @@
     </div>
     <div class="bg-hdr-right">
       <div class="bg-export-wrap bg-export-wrap--header" id="bgExportWrapHeader">
-        <button class="bg-hdr-btn" id="bgExportBtn" type="button" aria-label="Export data" aria-expanded="false" aria-haspopup="true">
+        <button class="bg-hdr-btn hdr-btn" id="bgExportBtn" type="button" aria-label="Export data" aria-expanded="false" aria-haspopup="true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -141,15 +86,15 @@
           </svg>
         </button>
         <div class="bg-export-dropdown" id="bgExportDropdown" role="menu" aria-hidden="true" hidden>
-          <div class="bg-export-dropdown-title">Export as CSV</div>
-          <label class="bg-export-opt"><input type="radio" name="bgExportRange" value="month" checked /> Current month</label>
-          <label class="bg-export-opt"><input type="radio" name="bgExportRange" value="3" /> Last 3 months</label>
-          <label class="bg-export-opt"><input type="radio" name="bgExportRange" value="6" /> Last 6 months</label>
-          <label class="bg-export-opt"><input type="radio" name="bgExportRange" value="all" /> All time</label>
+          <div class="bg-export-dropdown-title" data-i18n="budget.exportCSV">Export as CSV</div>
+          <label class="bg-export-opt"><input type="radio" name="bgExportRange" value="month" checked /> <span data-i18n="budget.export.currentMonth">Current month</span></label>
+          <label class="bg-export-opt"><input type="radio" name="bgExportRange" value="3" /> <span data-i18n="budget.export.last3">Last 3 months</span></label>
+          <label class="bg-export-opt"><input type="radio" name="bgExportRange" value="6" /> <span data-i18n="budget.export.last6">Last 6 months</span></label>
+          <label class="bg-export-opt"><input type="radio" name="bgExportRange" value="all" /> <span data-i18n="budget.export.allTime">All time</span></label>
           <button type="button" class="bg-btn-primary bg-export-run" id="bgExportRun">Export</button>
         </div>
       </div>
-      <button class="bg-hdr-btn" id="bgHelpBtn" type="button" aria-label="How Budget works">
+      <button class="bg-hdr-btn hdr-btn" id="bgHelpBtn" type="button" data-i18n-aria-label="budget.help.modal.title">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="10"/>
@@ -157,10 +102,10 @@
           <line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
       </button>
-      <button class="bg-hdr-btn" id="langToggle" type="button" aria-label="Switch language">
+      <button class="bg-hdr-btn hdr-btn" id="langToggle" type="button" aria-label="Switch language">
         <span id="langLabel">FR</span>
       </button>
-      <button class="bg-hdr-btn" id="themeToggle" type="button" aria-label="Toggle theme">
+      <button class="bg-hdr-btn hdr-btn" id="themeToggle" type="button" aria-label="Toggle theme">
         <svg class="hm-theme-dark" width="16" height="16" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
@@ -176,12 +121,12 @@
           <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
         </svg>
       </button>
-      <a class="bg-avatar" id="bgAvatar" href="profile.html" aria-label="Profile">H</a>
+      <a class="bg-avatar hdr-avatar" id="bgAvatar" href="profile.html" aria-label="Profile">H</a>
     </div>
   </header>
 
   <!-- ══ Main scrollable area ══════════════════════════════ -->
-  <main class="bg-main" id="bgMain">
+  <main class="bg-main" id="main-content">
 
     <!-- Month nav + daily chip + currency -->
     <div class="bg-top-row">
@@ -219,17 +164,20 @@
 
     <!-- KPI summary cards -->
     <div class="bg-kpi-row">
-      <div class="bg-kpi bg-kpi--income">
+        <div class="bg-kpi bg-kpi--income">
         <div class="bg-kpi-val" id="sumIncome">—</div>
         <div class="bg-kpi-lbl" data-i18n="budget.income">Income</div>
+          <div class="bg-kpi-trend" id="sumIncomeTrend">—</div>
       </div>
       <div class="bg-kpi bg-kpi--spent">
         <div class="bg-kpi-val" id="sumExpenses">—</div>
         <div class="bg-kpi-lbl" data-i18n="budget.spent">Spent</div>
+          <div class="bg-kpi-trend" id="sumExpensesTrend">—</div>
       </div>
       <div class="bg-kpi bg-kpi--remaining">
         <div class="bg-kpi-val" id="sumRemaining">—</div>
         <div class="bg-kpi-lbl" data-i18n="budget.remaining">Remaining</div>
+          <div class="bg-kpi-trend" id="sumRemainingTrend">—</div>
       </div>
     </div>
     <button type="button" class="bg-income-hint bg-income-hint--action" id="btnIncomeHintAdd" data-i18n="budget.incomeHint">
@@ -466,7 +414,7 @@
 
     <!-- Footer -->
     <footer class="bg-page-footer">
-      <span>&copy; 2025 Hbit</span>
+      <span data-i18n="footer.copyright">&copy; 2026 Hbit</span>
       &nbsp;&middot;&nbsp;
       <a href="privacy.html" data-i18n="landing.footer.privacy">Privacy Policy</a>
       &nbsp;&middot;&nbsp;
@@ -612,7 +560,7 @@
   </div>
 
   <!-- ══ Bill flow (wizard when adding) ════════════════════════════ -->
-  <div class="bg-overlay bg-overlay--flow" id="billOverlay" aria-hidden="true">
+  <div class="bg-overlay bg-overlay--flow" id="billOverlay" aria-hidden="true" style="display:none">
     <div class="bg-sheet bg-sheet--flow" id="billSheet" role="dialog" aria-modal="true" aria-labelledby="billTitle">
       <div class="bg-sheet-drag" aria-hidden="true"></div>
       <div class="bg-sheet-head">
@@ -696,7 +644,7 @@
   </div>
 
   <!-- ══ Savings goal sheets ═════════════════════════════ -->
-  <div class="bg-overlay" id="goalOverlay" aria-hidden="true">
+  <div class="bg-overlay" id="goalOverlay" aria-hidden="true" style="display:none">
     <div class="bg-sheet" id="goalSheet" role="dialog" aria-modal="true" aria-labelledby="goalSheetTitle">
       <div class="bg-sheet-drag" aria-hidden="true"></div>
       <div class="bg-sheet-head">
@@ -771,27 +719,23 @@
     </div>
   </div>
 
-  <!-- ══ Help tour overlay ═══════════════════════════════ -->
+  <!-- ══ Help (single modal — wizard steps removed from ? button) ═══════ -->
   <div class="bg-overlay" id="helpOverlay" aria-hidden="true" style="display:none">
-    <div class="bg-help-popup" id="helpPopup" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
-      <div class="bg-help-head">
-        <h3 class="bg-help-title" id="helpTitle" data-i18n="budget.help.title">How Budget works</h3>
-        <button class="bg-sheet-close" id="helpClose" type="button" aria-label="Close">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-      </div>
-      <div class="bg-help-body">
-        <p class="bg-help-step-title" id="helpStepTitle"></p>
-        <p class="bg-help-step-body" id="helpStepBody"></p>
-      </div>
-      <div class="bg-help-footer">
-        <button class="bg-help-btn back" id="helpBack" type="button" data-i18n="budget.help.back">Back</button>
-        <span class="bg-help-dots" id="helpDots"></span>
-        <button class="bg-help-btn next" id="helpNext" type="button" data-i18n="budget.help.next">Next</button>
-      </div>
+    <div class="hbit-help-card" id="helpPopup" role="dialog" aria-modal="true" aria-labelledby="budgetHelpTitle">
+      <button class="hbit-help-close" id="helpClose" type="button" data-i18n-aria-label="help.close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <h3 class="hbit-help-title" id="budgetHelpTitle" data-i18n="budget.help.modal.title">How Budget works</h3>
+      <p class="hbit-help-intro" data-i18n="budget.help.modal.intro">Budget ties accounts, monthly limits, bills, and transactions into one view.</p>
+      <ol class="hbit-help-steps">
+        <li data-i18n="budget.help.modal.accounts">Accounts</li>
+        <li data-i18n="budget.help.modal.transactions">Transactions</li>
+        <li data-i18n="budget.help.modal.categories">Categories</li>
+      </ol>
+      <p class="hbit-help-footer" data-i18n="budget.help.modal.footer">Pay calculator and exports help you plan take-home pay.</p>
     </div>
   </div>
 

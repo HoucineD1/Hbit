@@ -7,7 +7,7 @@
 :root {
   --hc-habits:   #34D399;
   --hc-budget:   #F59E0B;
-  --hc-sleep:    #60A5FA;
+  --hc-sleep:    #818CF8;
   --hc-mood:     #A78BFA;
   --hc-plan:     #22D3EE;
   --hc-focus:    #F97316;
@@ -171,10 +171,10 @@ html[data-theme="light"] .hm-theme-light { display: block; }
 
 /* Header icon buttons — min 44px hit area */
 .hm-hdr-btn {
-  min-width: 44px;
-  min-height: 44px;
-  width: 44px;
-  height: 44px;
+  min-width: 40px;
+  min-height: 40px;
+  width: 40px;
+  height: 40px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -205,10 +205,10 @@ html[data-theme="light"] .hm-theme-light { display: block; }
 
 /* Profile avatar */
 .hm-avatar {
-  min-width: 44px;
-  min-height: 44px;
-  width: 44px;
-  height: 44px;
+  min-width: 40px;
+  min-height: 40px;
+  width: 40px;
+  height: 40px;
   border-radius: 12px;
   background: var(--hc-brand);
   color: #fff;
@@ -236,7 +236,7 @@ html[data-theme="light"] .hm-theme-light { display: block; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 var(--space-5);
   border-bottom: 1px solid rgba(255, 255, 255, 0.055);
   position: relative;
   z-index: 1;
@@ -276,7 +276,7 @@ html[data-theme="light"] .hm-theme-light { display: block; }
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
-  padding: 16px 14px;
+  padding: var(--space-4) 14px;
   padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
   position: relative;
   z-index: 1;
@@ -316,21 +316,47 @@ a.hc-card:active {
   box-shadow: none;
 }
 
-/* Mood card wrapper: transparent grid child, stretches to row */
-.hc-card--mood-wrap {
+/* Mood: one grid cell — outer shell is the card; primary area is the link */
+.hc-card--mood-compound {
+  padding: 0;
+  gap: 0;
+  cursor: default;
+}
+.hc-card-mood-primary {
+  flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 10px;
+  padding: 18px 18px 12px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
   min-height: 0;
+  border-radius: 20px 20px 0 0;
+  transition: transform 0.18s ease, border-color 0.18s, background 0.18s, box-shadow 0.18s;
 }
-.hc-card--mood-wrap .hc-card--link {
-  flex: 1;
+.hc-card--mood-compound:has(.hc-card-mood-primary:hover) {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+.hc-card--mood-compound:has(.hc-card-mood-primary:active) {
+  transform: scale(0.985);
+  box-shadow: none;
+}
+html[data-theme="light"] .hc-card--mood-compound:has(.hc-card-mood-primary:hover) {
+  border-color: rgba(15, 23, 42, 0.12);
+  background: #fff;
+  box-shadow: var(--shadow-md);
 }
 .hc-mood-suggestions {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  padding: 0 4px 4px;
+  padding: 8px 14px 14px;
+  border-top: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
 }
 .hc-mood-sugg-lbl {
   font-size: 10px;
@@ -559,7 +585,39 @@ a.hc-card:hover .hc-chevron {
 .hc-wr-fill {
   fill: none;
   stroke-linecap: round;
-  transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: stroke-dashoffset 0.5s var(--ease-smooth);
+}
+
+/* First dashboard load: skeleton feel + pulsing weekly rings */
+#homePage main.hm-grid.hm-dashboard--loading .hc-card {
+  opacity: 0.38;
+  transition: opacity 0.2s ease;
+}
+#homePage main.hm-grid.hm-dashboard--ready .hc-card {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+@keyframes hmWeeklyRingPulse {
+  0%, 100% { opacity: 0.32; }
+  50% { opacity: 0.78; }
+}
+#homePage main.hm-grid.hm-dashboard--loading .hc-weekly-donut .hc-wr-fill {
+  animation: hmWeeklyRingPulse 1.15s ease-in-out infinite;
+}
+
+@keyframes hmMetricIn {
+  from {
+    opacity: 0.45;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+#homePage main.hm-grid.hm-dashboard--ready .hc-card .hc-value {
+  animation: hmMetricIn 0.55s var(--ease-spring) both;
 }
 .hc-weekly-donut .hc-wr-fill:nth-child(2)  { stroke-width: 5;   stroke: var(--hc-habits);
   filter: drop-shadow(0 0 4px color-mix(in srgb, var(--hc-habits) 55%, transparent)); }
@@ -729,14 +787,14 @@ a.hc-card:hover .hc-chevron {
 .hc-card--featured { grid-column: 1 / -1; }
 
 /* ════════════════════════════════════════════════════════════
-   TABLET + DESKTOP  (≥ 600px) — 3 columns, uniform cards
+   TABLET (768px–899px) — 2 columns
    ════════════════════════════════════════════════════════════ */
-@media (min-width: 600px) {
+@media (min-width: 768px) and (max-width: 899px) {
   .hm-header   { padding-right: 28px; }
   .hm-greeting { padding: 0 28px; }
   .hm-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    padding: 20px 24px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: var(--space-5) var(--space-6);
     padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
     gap: 18px;
   }
@@ -747,7 +805,7 @@ a.hc-card:hover .hc-chevron {
 }
 
 /* ════════════════════════════════════════════════════════════
-   DESKTOP  (≥ 900px) — more spacing, taller cards
+   DESKTOP  (≥ 900px) — 3 columns, taller cards
    ════════════════════════════════════════════════════════════ */
 @media (min-width: 900px) {
   .hm-header   { height: 68px; padding-right: 40px; }
@@ -758,7 +816,7 @@ a.hc-card:hover .hc-chevron {
     padding-bottom: calc(36px + env(safe-area-inset-bottom, 0px));
     gap: 22px;
   }
-  .hc-card        { border-radius: 22px; padding: 20px 22px 16px; min-height: 168px; }
+  .hc-card        { border-radius: 22px; padding: var(--space-5) 22px var(--space-4); min-height: 168px; }
   .hc-value       { font-size: 30px; }
   .hc-donut       { width: 74px; height: 74px; }
   .hc-summary-chart,
@@ -809,7 +867,7 @@ a.hc-card:hover .hc-chevron {
 .hm-page-footer {
   flex-shrink: 0;
   text-align: center;
-  padding: 20px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+  padding: var(--space-5) var(--space-5) calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
   font-size: 11.5px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.22);

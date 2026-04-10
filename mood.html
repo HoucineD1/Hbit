@@ -6,8 +6,15 @@
   <title>Hbit — State of Mind</title>
   <meta name="description" content="Track your mood, stress, energy and focus." />
   <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23E63946'/><text x='50%25' y='68%25' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='900' font-size='20' fill='white'>H</text></svg>">
+  <meta name="theme-color" content="#070B14">
 
-  <link rel="stylesheet" href="styles.css" />
+    <meta name="color-scheme" content="dark light" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" /></noscript>
+<link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="css/core/nav.css" />
   <link rel="stylesheet" href="css/pages/mood.css" />
 
@@ -17,9 +24,11 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 
   <script defer src="js/core/utils.js"></script>
+  <script defer src="js/core/toast.js"></script>
   <script defer src="js/core/storage.js"></script>
   <script defer src="js/core/theme.js"></script>
   <script defer src="js/core/i18n.js"></script>
+  <script defer src="js/core/sidebar.js"></script>
   <script defer src="js/core/firebase-init.js"></script>
   <script defer src="js/core/db.js"></script>
   <script defer src="js/core/core.js"></script>
@@ -30,75 +39,11 @@
 
 <body id="moodPage" data-accent="mood">
 
-  <!-- ══ Sidebar ═══════════════════════════════════════════ -->
-  <div class="sb-overlay"></div>
-  <nav class="sb" aria-hidden="true" aria-label="Main navigation">
-    <div class="sb-head">
-      <div class="sb-brand">
-        <div class="sb-mark">H</div>
-        <span class="sb-title">Hbit</span>
-      </div>
-      <button class="sb-close" aria-label="Close menu">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-      <button class="sb-collapse" aria-label="Collapse sidebar">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><polyline points="15 9 12 12 15 15"/></svg>
-      </button>
-    </div>
-    <div class="sb-sep"></div>
-    <div class="sb-content">
-      <div class="sb-group">
-        <div class="sb-group-label" data-i18n="nav.menuLabel">Menu</div>
-        <ul class="sb-menu">
-          <li><a class="sb-item" href="home.html" data-page="home.html">
-            <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
-            <span class="sb-item-label" data-i18n="nav.overview">Overview</span>
-          </a></li>
-          <li><a class="sb-item" href="habits.html" data-page="habits.html">
-            <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
-            <span class="sb-item-label" data-i18n="nav.habits">Habits</span>
-          </a></li>
-          <li><a class="sb-item" href="budget.html" data-page="budget.html">
-            <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
-            <span class="sb-item-label" data-i18n="nav.budget">Budget</span>
-          </a></li>
-          <li><a class="sb-item" href="sleep.html" data-page="sleep.html">
-            <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
-            <span class="sb-item-label" data-i18n="nav.sleep">Sleep</span>
-          </a></li>
-          <li><a class="sb-item" href="mood.html" data-page="mood.html">
-            <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></span>
-            <span class="sb-item-label" data-i18n="nav.mood">State of Mind</span>
-          </a></li>
-          <li><a class="sb-item" href="focus.html" data-page="focus.html">
-            <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
-            <span class="sb-item-label" data-i18n="nav.focus">Focus</span>
-          </a></li>
-          <li><a class="sb-item" href="plan.html" data-page="plan.html">
-            <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
-            <span class="sb-item-label" data-i18n="nav.plan">Planner</span>
-          </a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="sb-foot">
-      <a class="sb-item" href="profile.html" data-page="profile.html">
-        <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
-        <span class="sb-item-label" data-i18n="nav.profile">Profile</span>
-      </a>
-      <button class="sb-item sb-item--logout" id="sbLogout" type="button">
-        <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
-        <span class="sb-item-label" data-i18n="nav.logout">Sign out</span>
-      </button>
-    </div>
-  </nav>
+  <a href="#main-content" class="skip-link" data-i18n="a11y.skipToContent">Skip to main content</a>
 
-  <!-- ══ Sidebar trigger (hamburger) ═══════════════════════ -->
-  <button class="sb-trigger" aria-label="Open menu" aria-expanded="false">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="10" width="7" height="7" rx="1"/><rect x="3" y="13" width="7" height="4" rx="1"/></svg>
-  </button>
+    <!-- ══ Sidebar (injected by sidebar.js) ══════════════════ -->
+  <div class="sb-overlay"></div>
+  <nav class="sb" aria-hidden="true" aria-label="Main navigation"></nav>
 
   <header class="md-header">
     <div class="md-hdr-left">
@@ -106,6 +51,13 @@
       <h1 class="md-hdr-title" data-i18n="mood.title">State of Mind</h1>
     </div>
     <div class="md-hdr-right">
+      <button class="md-hdr-btn" id="mdHelpBtn" type="button" data-i18n-aria-label="mood.help.title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </button>
       <button class="md-hdr-btn" id="langToggle" type="button" aria-label="Switch language">
         <span id="langLabel">FR</span>
       </button>
@@ -129,7 +81,7 @@
     </div>
   </header>
 
-  <main class="md-main">
+  <main class="md-main" id="main-content">
     <div class="md-sleep-banner md-sleep-banner--hidden" id="mdSleepBanner" role="status" hidden>
       <span class="md-sleep-icon" aria-hidden="true">🌙</span>
       <span class="md-sleep-text" id="mdSleepText"></span>
@@ -201,23 +153,23 @@
               <div class="md-depth-bands md-depth-bands--hidden" id="mdDepthBands" hidden></div>
               <div class="md-subdim-grid">
                 <div class="md-subdim-row">
-                  <span class="md-subdim-label" data-i18n="mood.energy">Energy</span>
-                  <input type="range" class="md-subdim-range" id="mdRngEnergy" min="1" max="5" value="3" aria-valuemin="1" aria-valuemax="5" />
+                  <label class="md-subdim-label" for="mdRngEnergy" data-i18n="mood.energy">Energy</label>
+                  <input type="range" class="md-subdim-range" id="mdRngEnergy" name="mdRngEnergy" min="1" max="5" value="3" aria-valuemin="1" aria-valuemax="5" />
                   <span class="md-subdim-val" id="mdCapEnergy">—</span>
                 </div>
                 <div class="md-subdim-row">
-                  <span class="md-subdim-label" data-i18n="mood.stress">Stress</span>
-                  <input type="range" class="md-subdim-range" id="mdRngStress" min="1" max="5" value="3" aria-valuemin="1" aria-valuemax="5" />
+                  <label class="md-subdim-label" for="mdRngStress" data-i18n="mood.stress">Stress</label>
+                  <input type="range" class="md-subdim-range" id="mdRngStress" name="mdRngStress" min="1" max="5" value="3" aria-valuemin="1" aria-valuemax="5" />
                   <span class="md-subdim-val" id="mdCapStress">—</span>
                 </div>
                 <div class="md-subdim-row">
-                  <span class="md-subdim-label" data-i18n="mood.focus">Focus</span>
-                  <input type="range" class="md-subdim-range" id="mdRngFocus" min="1" max="5" value="3" aria-valuemin="1" aria-valuemax="5" />
+                  <label class="md-subdim-label" for="mdRngFocus" data-i18n="mood.focus">Focus</label>
+                  <input type="range" class="md-subdim-range" id="mdRngFocus" name="mdRngFocus" min="1" max="5" value="3" aria-valuemin="1" aria-valuemax="5" />
                   <span class="md-subdim-val" id="mdCapFocus">—</span>
                 </div>
                 <div class="md-subdim-row">
-                  <span class="md-subdim-label" data-i18n="mood.social">Social</span>
-                  <input type="range" class="md-subdim-range" id="mdRngSocial" min="1" max="5" value="3" aria-valuemin="1" aria-valuemax="5" />
+                  <label class="md-subdim-label" for="mdRngSocial" data-i18n="mood.social">Social</label>
+                  <input type="range" class="md-subdim-range" id="mdRngSocial" name="mdRngSocial" min="1" max="5" value="3" aria-valuemin="1" aria-valuemax="5" />
                   <span class="md-subdim-val" id="mdCapSocial">—</span>
                 </div>
               </div>
@@ -257,7 +209,7 @@
           </div>
           <p class="md-insight-text" id="mdInsightText"></p>
           <div class="md-mini-bars-labels" id="mdMiniBarLabels" aria-hidden="true"></div>
-          <div class="md-mini-bars" id="mdMiniBars" role="img" aria-label="Last 7 days"></div>
+          <div class="md-mini-bars" id="mdMiniBars" role="img" data-i18n-aria-label="mood.chart.weeklyAria"></div>
           <!-- FUTURE: resource suggestions based on weekly mood -->
         </section>
 
@@ -273,6 +225,26 @@
 
     <div class="md-toast" id="mdToast" role="status" aria-live="polite"></div>
   </main>
+
+  <button type="button" class="hbit-scroll-top" id="hbitScrollTop" hidden data-i18n="common.scrollTop" aria-label="Back to top">↑</button>
+
+  <div class="hbit-help-overlay" id="mdHelpOverlay" aria-hidden="true">
+    <div class="hbit-help-card" role="dialog" aria-modal="true" aria-labelledby="mdHelpTitle">
+      <button class="hbit-help-close" id="mdHelpClose" type="button" data-i18n-aria-label="help.close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <h3 class="hbit-help-title" id="mdHelpTitle" data-i18n="mood.help.title">State of Mind</h3>
+      <p class="hbit-help-intro" data-i18n="mood.help.intro">Quick daily check-ins.</p>
+      <ol class="hbit-help-steps">
+        <li data-i18n="mood.help.step1">Pick a band</li>
+        <li data-i18n="mood.help.step2">Notes</li>
+        <li data-i18n="mood.help.step3">Charts</li>
+      </ol>
+      <p class="hbit-help-footer" data-i18n="mood.help.footer">Entries stay private.</p>
+    </div>
+  </div>
 
 </body>
 </html>

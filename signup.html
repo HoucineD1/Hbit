@@ -9,7 +9,12 @@
   <meta property="og:title" content="Join Hbit — Your Personal Growth Dashboard" />
   <meta property="og:description" content="Track habits, sleep, budget, mood and focus. Free forever." />
 
-  <link rel="stylesheet" href="styles.css" />
+    <meta name="color-scheme" content="dark light" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" /></noscript>
+<link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="css/pages/auth.css" />
 
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -19,6 +24,7 @@
 
   <script defer src="js/core/utils.js"></script>
   <script defer src="js/core/storage.js"></script>
+  <script defer src="js/core/theme.js"></script>
   <script defer src="js/core/i18n.js"></script>
   <script defer src="js/core/firebase-init.js"></script>
   <script defer src="js/core/db.js"></script>
@@ -26,6 +32,8 @@
 </head>
 
 <body id="signupPage">
+
+  <a href="#main-content" class="skip-link" data-i18n="a11y.skipToContent">Skip to main content</a>
 
   <!-- ══ Ambient background ══════════════════════════════ -->
   <div class="au-ambient au-ambient--tr" aria-hidden="true"></div>
@@ -127,7 +135,7 @@
       </header>
 
       <!-- Main -->
-      <main class="au-main">
+      <main class="au-main" id="main-content">
         <div class="au-wrap">
 
           <!-- Mobile showcase (hidden on desktop) -->

@@ -44,7 +44,6 @@ window.HBIT.clearLocalData = function () {
   keys.forEach(k => {
     try { localStorage.removeItem(k); } catch {}
   });
-  console.log("[Hbit] Local module data cleared.");
 };
 
 /* ─────────────────────────────────────────────────────────
@@ -140,7 +139,8 @@ window.HBIT.createUserProfile = async function (user, provider = "password", ext
         longestStreak:   0,
         budgetEntries:   0,
         sleepLogs:       0,
-        moodLogs:        0
+        moodLogs:        0,
+        focusSessions:   0
       },
 
       createdAt: now,
@@ -149,7 +149,6 @@ window.HBIT.createUserProfile = async function (user, provider = "password", ext
 
     try {
       await ref.set(doc);
-      console.log("[Hbit] ✓ User profile created in Firestore:", user.uid);
     } catch (err) {
       console.error("[Hbit] Firestore write error:", err.code, err.message);
       console.error("[Hbit] → Check Firestore security rules in the Firebase Console.");
@@ -161,7 +160,7 @@ window.HBIT.createUserProfile = async function (user, provider = "password", ext
     try {
       await ref.update({ updatedAt: now });
     } catch (err) {
-      console.warn("[Hbit] Could not update lastLoginAt:", err.message);
+      /* silent */
       /* Non-blocking — don't throw */
     }
   }

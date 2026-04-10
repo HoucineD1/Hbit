@@ -1,18 +1,18 @@
-/* Premium fonts — Bricolage Grotesque (display) + Plus Jakarta Sans (body) */
-@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap");
-
 :root{
-  /* Typography — premium UI */
-  --font-display: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-body:    "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-size-xs: 0.75rem;   /* 12px */
-  --font-size-sm: 0.8125rem; /* 13px */
-  --font-size-base: 0.9375rem; /* 15px */
-  --font-size-md: 1rem;      /* 16px */
-  --font-size-lg: 1.125rem;  /* 18px */
-  --font-size-xl: 1.25rem;   /* 20px */
-  --font-size-2xl: 1.5rem;   /* 24px */
+  color-scheme: dark light;
+  /* Same stack as Habits (var(--font-sans)) for all UI text and figures */
+  --font-display: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body:    "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans:    "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:    "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+  --font-size-xs: 0.6875rem;
+  --font-size-sm: 0.75rem;
+  --font-size-base: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+  --font-size-2xl: 1.75rem;
+  --font-size-3xl: 2.25rem;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
@@ -22,40 +22,73 @@
   --leading-normal: 1.5;
   --tracking-tight: -0.02em;
 
-  /* Brand */
-  --brand: #ff4d4d;      /* Hbit scarlet */
-  --radius: 20px;
-  --radius-sm: 12px;
-  --radius-lg: 24px;
-  --shadow: 0 16px 44px color-mix(in srgb, #000 20%, transparent);
+  --brand: #E63946;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+  --radius-1: 10px;
+  --radius-2: 16px;
+  --radius-3: 24px;
 
-  /* Dark theme (default) */
-  --bg: #0b0f16;
-  --panel: #121827;
-  --panel2:#161f33;
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 48px;
+  --space-9: 64px;
 
-  --text: rgba(255,255,255,0.92);
-  --muted: rgba(255,255,255,0.62);
-  --border: rgba(255,255,255,0.12);
+  /* Easing */
+  --ease-spring:  cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-smooth:  cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-snappy:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out:     cubic-bezier(0, 0, 0.2, 1);
 
-  /* Module accents */
-  --habit: #00e676;
-  --budget:#ff4d4d;
-  --sleep: #3aa0ff;
-  --mind:  #7c4dff;
-  --schedule:#00d4ff;
-  --focus: #ffcc00;
-  --quit:  #ff5252;
+  --bg: #070B14;
+  --panel: #0D1117;
+  --panel2: #111827;
+  --surface: rgba(255,255,255,0.04);
+  --text: rgba(248, 250, 252, 0.95);
+  --muted: rgba(148, 163, 184, 0.85);
+  --border: rgba(255,255,255,0.08);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.55);
+  --shadow-accent: 0 0 24px rgba(99, 102, 241, 0.25);
+  --shadow: var(--shadow-xl);
+
+  --habit: #34D399;
+  --budget: #F59E0B;
+  --sleep: #818CF8;
+  --mind: #A78BFA;
+  --schedule: #22D3EE;
+  --focus: #F97316;
+  --quit: #ff5252;
 }
 
 html[data-theme="light"]{
-  --bg: #ebe8e3;
-  --panel: #fffcf8;
-  --panel2: #f7f4ef;
+  color-scheme: light;
+  --bg: #F8FAFC;
+  --panel: #FFFFFF;
+  --panel2: #F1F5F9;
+  --text: rgba(15, 23, 42, 0.95);
+  --muted: rgba(71, 85, 105, 0.85);
+  --border: rgba(15, 23, 42, 0.08);
 
-  --text: rgba(18, 20, 26, 0.92);
-  --muted: rgba(18, 20, 26, 0.55);
-  --border: rgba(18, 20, 26, 0.09);
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-2: 0 2px 4px rgba(0,0,0,0.08), 0 4px 6px rgba(0,0,0,0.04);
+  --shadow-3: 0 4px 8px rgba(0,0,0,0.10), 0 8px 16px rgba(0,0,0,0.06);
+  --shadow-accent: 0 4px 14px color-mix(in srgb, var(--brand) 20%, transparent);
 
-  --shadow: 0 12px 40px color-mix(in srgb, #1a1208 8%, transparent);
+  --shadow-sm: var(--shadow-1);
+  --shadow-md: var(--shadow-2);
+  --shadow-lg: var(--shadow-3);
+  --shadow-xl: var(--shadow-3);
+  --shadow: var(--shadow-3);
 }

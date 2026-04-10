@@ -158,6 +158,7 @@
        isActive      boolean  (legacy compat — mirrors !archived)
        createdAt     Timestamp
        updatedAt     Timestamp
+       milestonesShown number[]  streak tiers already celebrated (e.g. 7, 30, 100)
      ═══════════════════════════════════════════════════════════════ */
   const habits = {
     _col() { return userSubcollectionRef(getUidOrThrow(), "habits"); },
@@ -466,7 +467,7 @@
         const snap = await this._col().orderBy("createdAt", "asc").get();
         return snap.docs.map(d => ({ id: d.id, ...d.data() }));
       } catch (err) {
-        console.warn("[Hbit] budgetAccounts.list:", err?.message);
+        /* silent */
         return [];
       }
     }
@@ -495,7 +496,7 @@
         const doc = await this._col().doc(month).get();
         return snap2obj(doc);
       } catch (err) {
-        console.warn("[Hbit] budgetMonths.get:", err?.message);
+        /* silent */
         return null;
       }
     },
@@ -511,7 +512,7 @@
           updatedAt:    now(),
         }, { merge: true });
       } catch (err) {
-        console.warn("[Hbit] budgetMonths.set:", err?.message);
+        /* silent */
       }
     }
   };
@@ -535,7 +536,7 @@
         const doc = await this._col().doc(month).get();
         return snap2obj(doc);
       } catch (err) {
-        console.warn("[Hbit] budgetPlan.get:", err?.message);
+        /* silent */
         return null;
       }
     },
@@ -583,7 +584,7 @@
         const snap = await this._col().orderBy("createdAt", "asc").get();
         return snap.docs.map(d => ({ id: d.id, ...d.data() }));
       } catch (err) {
-        console.warn("[Hbit] budgetBills.list:", err?.message);
+        /* silent */
         return [];
       }
     },

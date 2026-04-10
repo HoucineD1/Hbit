@@ -19,16 +19,24 @@
     user: null,
     profile: null,
     listenersBound: false,
+    firstDashboardPaint: false,
   };
+
+  function dashboardGrid() {
+    return document.querySelector("#homePage main.hm-grid");
+  }
+
 
   function getLang() {
     return HBIT.i18n?.getLang?.() || document.documentElement.lang || "en";
   }
 
   function tr(key, fallback, vars) {
-    let text = HBIT.i18n?.t ? HBIT.i18n.t(key, fallback, getLang()) : fallback;
-    if (!vars || typeof text !== "string") return text;
-    return text.replace(/\{(\w+)\}/g, (_, name) => String(vars[name] ?? ""));
+    if (!HBIT.i18n?.t) return fallback;
+    if (vars && typeof vars === "object" && Object.keys(vars).length) {
+      return HBIT.i18n.t(key, fallback, vars);
+    }
+    return HBIT.i18n.t(key, fallback, getLang());
   }
 
   function shortDate(date) {
@@ -143,6 +151,57 @@
     if (!el) return;
     const clamped = Math.max(0, Math.min(1, pct || 0));
     el.style.strokeDashoffset = String(circ * (1 - clamped));
+  }
+
+  function setDashboardSkeleton(on) {
+    const metricIds = [
+      "habitsMetric",
+      "budgetMetric",
+      "sleepMetric",
+      "moodMetric",
+      "planMetric",
+      "focusMetric",
+    ];
+    const wkIds = ["wkHabitsText", "wkBudgetText", "wkSleepText", "wkMoodText"];
+
+    if (on) {
+      metricIds.forEach((id) => {
+        const el = $(id);
+        if (el) el.classList.add("skeleton");
+      });
+      wkIds.forEach((id) => {
+        const el = $(id);
+        if (el) el.classList.add("skeleton");
+      });
+      document.querySelectorAll("#homePage main.hm-grid .hc-chart").forEach((el) => {
+        el.classList.add("skeleton");
+      });
+      const sumChart = document.querySelector(".hc-summary-chart");
+      if (sumChart) sumChart.classList.add("skeleton");
+    } else {
+      const fadeFn = HBIT.utils?.hideSkeletons;
+      if (fadeFn) {
+        const targets = [];
+        metricIds.concat(wkIds).forEach((id) => {
+          const el = $(id);
+          if (el) targets.push(el);
+        });
+        document.querySelectorAll("#homePage main.hm-grid .hc-chart").forEach((el) => targets.push(el));
+        const sumChart = document.querySelector(".hc-summary-chart");
+        if (sumChart) targets.push(sumChart);
+        fadeFn(targets);
+      } else {
+        metricIds.concat(wkIds).forEach((id) => {
+          const el = $(id);
+          if (el) el.classList.remove("skeleton");
+        });
+        document.querySelectorAll("#homePage main.hm-grid .hc-chart").forEach((el) => {
+          el.classList.remove("skeleton");
+        });
+        const sumChart = document.querySelector(".hc-summary-chart");
+        if (sumChart) sumChart.classList.remove("skeleton");
+      }
+    }
   }
 
   function setWeeklySummaryStats({ habitsPct, budgetPct, sleepAvg, moodAvg }) {
@@ -261,7 +320,7 @@
     setBudgetSubline("");
 
     setMetricHtml("sleepMetric", "—", tr("home.sleep.unit", "hrs"));
-    renderSleepBars("sleepBarsChart", [0, 0, 0, 0, 0, 0, 0], "#60A5FA");
+    renderSleepBars("sleepBarsChart", [0, 0, 0, 0, 0, 0, 0], "#818CF8");
     setFooter("sleepFooter", tr("home.sleep.footer.empty", "No sleep logged · Log last night"));
 
     if ($("moodMetric")) $("moodMetric").textContent = "—";
@@ -382,7 +441,7 @@
           ? tr("home.sleep.footer.great", "Great night! · View history")
           : tr("home.sleep.footer.low", "Below target · View details")
     );
-    renderSleepBars("sleepBarsChart", sleep.recentHours || [], "#60A5FA");
+    renderSleepBars("sleepBarsChart", sleep.recentHours || [], "#818CF8");
 
     const score = mind.score != null ? Number(mind.score) : null;
     if ($("moodMetric")) {
@@ -455,8 +514,15 @@
   }
 
   async function refreshDashboard(user = state.user) {
+    const grid = dashboardGrid();
     if (!user) {
       renderEmpty();
+      setDashboardSkeleton(false);
+      if (!state.firstDashboardPaint && grid) {
+        state.firstDashboardPaint = true;
+        grid.classList.remove("hm-dashboard--loading");
+        grid.classList.add("hm-dashboard--ready");
+      }
       return;
     }
 
@@ -465,6 +531,13 @@
       renderFromDashboard(data);
     } catch {
       renderEmpty();
+    } finally {
+      setDashboardSkeleton(false);
+      if (!state.firstDashboardPaint && grid) {
+        state.firstDashboardPaint = true;
+        grid.classList.remove("hm-dashboard--loading");
+        grid.classList.add("hm-dashboard--ready");
+      }
     }
   }
 
@@ -540,10 +613,14 @@
     if (document.body.dataset.homeInit) return;
     document.body.dataset.homeInit = "1";
 
+    window.addEventListener("hbit:streak-milestone", () => {});
+
     bindRefreshListeners();
     initLogout();
     renderHeader();
     renderEmpty();
+    dashboardGrid()?.classList.add("hm-dashboard--loading");
+    setDashboardSkeleton(true);
 
     if (!window.firebase || !firebase.auth) return;
 

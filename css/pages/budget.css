@@ -9,7 +9,7 @@
   --bgt-accent2:  #FBBF24;
   --bgt-green:    #34D399;
   --bgt-red:      #F87171;
-  --bgt-blue:     #60A5FA;
+  --bgt-blue:     #818CF8;
   --bgt-purple:   #A78BFA;
   --bgt-cyan:     #22D3EE;
   --bgt-orange:   #FB923C;
@@ -68,11 +68,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   color: var(--muted, #a0a0aa);
   cursor: pointer;
   transition: background .15s, color .15s;
@@ -82,8 +82,8 @@
 #budgetPage .bg-hdr-btn:hover { background: var(--surface, rgba(255,255,255,0.06)); color: var(--text,#f2f2f5); }
 
 #budgetPage .bg-avatar {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: var(--bgt-accent);
   color: #000;
@@ -100,8 +100,8 @@
 /* dark/light theme icon visibility */
 #budgetPage .hm-theme-dark  { display: block; }
 #budgetPage .hm-theme-light { display: none;  }
-.theme-light #budgetPage .hm-theme-dark  { display: none;  }
-.theme-light #budgetPage .hm-theme-light { display: block; }
+html[data-theme="light"] #budgetPage .hm-theme-dark  { display: none;  }
+html[data-theme="light"] #budgetPage .hm-theme-light { display: block; }
 
 /* ── Main area ───────────────────────────────────────────── */
 #budgetPage .bg-main {
@@ -1027,6 +1027,39 @@
 #budgetPage .bg-entry-card:hover .bg-entry-del { opacity: 1; }
 #budgetPage .bg-entry-del:hover { background: rgba(248,113,113,0.15); color: var(--bgt-red); }
 
+#budgetPage .bg-entry-del-confirm {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  max-width: 220px;
+}
+#budgetPage .bg-entry-del-msg {
+  font-size: 11px;
+  color: var(--muted, #a0a0aa);
+  text-align: right;
+  line-height: 1.3;
+}
+#budgetPage .bg-entry-del-yes,
+#budgetPage .bg-entry-del-no {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border, rgba(255,255,255,0.08));
+  cursor: pointer;
+  font-family: inherit;
+}
+#budgetPage .bg-entry-del-yes {
+  background: rgba(248,113,113,0.18);
+  color: var(--bgt-red);
+  border-color: rgba(248,113,113,0.35);
+}
+#budgetPage .bg-entry-del-no {
+  background: transparent;
+  color: var(--muted, #a0a0aa);
+}
+
 /* Swipe-reveal delete zone */
 #budgetPage .bg-entry-swipe-del {
   position: absolute;
@@ -1220,7 +1253,7 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
   background: rgba(0,0,0,.55);
   z-index: 10000;
-  display: none;
+  display: none;                    /* hidden by default; JS sets display:flex before adding .open */
   align-items: flex-end;
   justify-content: center;
   opacity: 0;
@@ -1265,8 +1298,8 @@
 #budgetPage .bg-overlay--flow {
   align-items: center;
   justify-content: center;
-  padding: max(12px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px))
-    max(12px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  padding: max(16px, env(safe-area-inset-top, 12px)) 16px
+           max(16px, env(safe-area-inset-bottom, 12px)) 16px;
 }
 
 #budgetPage .bg-overlay--flow .bg-sheet--flow {
@@ -1276,11 +1309,12 @@
   width: 100%;
   max-width: 460px;
   margin: 0 auto;
+  min-height: 320px;
   max-height: min(88vh, calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 24px));
   overflow: hidden;
   padding-bottom: 0;
   transform: scale(0.96) translateY(10px);
-  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.32s var(--ease-spring);
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
 }
 
@@ -1310,15 +1344,24 @@
 }
 
 #budgetPage .bg-flow-footer .bg-btn-primary {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto !important;
+  max-width: none;
+  margin-top: 0 !important;
 }
 
+/* Ghost buttons are width:100% globally — that breaks the two-button flow footer */
 #budgetPage .bg-flow-footer .bg-btn-ghost {
+  width: auto !important;
+  max-width: none;
+  flex: 0 0 auto;
   min-width: 96px;
-  flex-shrink: 0;
+  margin-top: 0 !important;
 }
 
 #budgetPage .bg-flow-progress {
+  flex-shrink: 0;
   text-align: center;
   font-size: 11px;
   font-weight: 700;
@@ -1349,12 +1392,12 @@
   margin: 0 0 14px;
 }
 
-.theme-light #budgetPage .bg-flow-footer {
+html[data-theme="light"] #budgetPage .bg-flow-footer {
   background: #fff;
   border-top-color: rgba(0, 0, 0, 0.08);
 }
 
-.theme-light #budgetPage .bg-overlay--flow .bg-sheet--flow {
+html[data-theme="light"] #budgetPage .bg-overlay--flow .bg-sheet--flow {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
 }
 
@@ -1446,6 +1489,7 @@
 }
 
 #budgetPage .bg-currency-sym {
+  font-family: var(--font-sans);
   font-size: 20px;
   font-weight: 700;
   color: var(--muted, #a0a0aa);
@@ -1454,14 +1498,17 @@
 
 #budgetPage .bg-amount-input {
   flex: 1;
+  min-width: 0;
   background: transparent;
   border: none;
   outline: none;
+  font-family: var(--font-sans);
   font-size: 28px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--text, #f2f2f5);
   padding: 14px 0;
   letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
   -moz-appearance: textfield;
 }
 #budgetPage .bg-amount-input::-webkit-inner-spin-button,
@@ -1599,17 +1646,19 @@
 }
 
 /* ── Help tour ────────────────────────────────────────────── */
-#budgetPage .bg-help-popup {
+#budgetPage .bg-help-popup,
+#budgetPage .hbit-help-card {
   background: var(--panel, #1a1a23);
   border-radius: 20px;
   width: min(340px, 92vw);
   max-height: 70vh;
   transform: scale(.92) translateY(20px);
   opacity: 0;
-  transition: transform .3s cubic-bezier(.22,1,.36,1), opacity .3s;
+  transition: transform .3s var(--ease-spring), opacity .3s;
   overflow: hidden;
 }
-#budgetPage .bg-overlay.open .bg-help-popup {
+#budgetPage .bg-overlay.open .bg-help-popup,
+#budgetPage .bg-overlay.open .hbit-help-card {
   transform: scale(1) translateY(0);
   opacity: 1;
 }
@@ -1707,22 +1756,22 @@
 #budgetPage .bg-page-footer a:hover { color: var(--text, #f2f2f5); }
 
 /* ── Light theme overrides ───────────────────────────────── */
-.theme-light #budgetPage .bg-header  { background: #fff; }
-.theme-light #budgetPage .bg-sec     { background: #fff; border-color: #e8e8ef; }
-.theme-light #budgetPage .bg-kpi     { background: #fff; border-color: #e8e8ef; }
-.theme-light #budgetPage .bg-account-card  { border-color: rgba(0,0,0,0.1); }
-.theme-light #budgetPage .bg-account-add  { border-color: rgba(245,158,11,0.3); }
-.theme-light #budgetPage .bg-entry-card   { background: #f9f9fc; border-color: #e8e8ef; }
-.theme-light #budgetPage .bg-entry-card:hover { background: #f2f2f8; }
-.theme-light #budgetPage .bg-bill-card    { background: #f9f9fc; border-color: #e8e8ef; }
-.theme-light #budgetPage .bg-input  { background: #f4f4f8; border-color: #ddd; color: #1a1a2e; }
-.theme-light #budgetPage .bg-amount-wrap { background: #f4f4f8; border-color: #ddd; }
-.theme-light #budgetPage .bg-cat-chip    { background: #f4f4f8; border-color: #ddd; }
-.theme-light #budgetPage .bg-type-btn    { background: #f4f4f8; border-color: #ddd; }
-.theme-light #budgetPage .bg-sheet   { background: #fff; }
-.theme-light #budgetPage .bg-help-popup { background: #fff; }
-.theme-light #budgetPage .bg-ov-row[data-type="spent"] .bg-ov-val  { color: var(--bgt-accent); }
-.theme-light #budgetPage .bg-overview-donut circle[fill="var(--panel,#111117)"] { fill: #fff; }
+html[data-theme="light"] #budgetPage .bg-header  { background: #fff; }
+html[data-theme="light"] #budgetPage .bg-sec     { background: #fff; border-color: #e8e8ef; }
+html[data-theme="light"] #budgetPage .bg-kpi     { background: #fff; border-color: #e8e8ef; }
+html[data-theme="light"] #budgetPage .bg-account-card  { border-color: rgba(0,0,0,0.1); }
+html[data-theme="light"] #budgetPage .bg-account-add  { border-color: rgba(245,158,11,0.3); }
+html[data-theme="light"] #budgetPage .bg-entry-card   { background: #f9f9fc; border-color: #e8e8ef; }
+html[data-theme="light"] #budgetPage .bg-entry-card:hover { background: #f2f2f8; }
+html[data-theme="light"] #budgetPage .bg-bill-card    { background: #f9f9fc; border-color: #e8e8ef; }
+html[data-theme="light"] #budgetPage .bg-input  { background: #f4f4f8; border-color: #ddd; color: #1a1a2e; }
+html[data-theme="light"] #budgetPage .bg-amount-wrap { background: #f4f4f8; border-color: #ddd; }
+html[data-theme="light"] #budgetPage .bg-cat-chip    { background: #f4f4f8; border-color: #ddd; }
+html[data-theme="light"] #budgetPage .bg-type-btn    { background: #f4f4f8; border-color: #ddd; }
+html[data-theme="light"] #budgetPage .bg-sheet   { background: #fff; }
+html[data-theme="light"] #budgetPage .bg-help-popup { background: #fff; }
+html[data-theme="light"] #budgetPage .bg-ov-row[data-type="spent"] .bg-ov-val  { color: var(--bgt-accent); }
+html[data-theme="light"] #budgetPage .bg-overview-donut circle[fill="var(--panel,#111117)"] { fill: #fff; }
 
 /* ── Top row: month + daily chip ───────────────────────── */
 #budgetPage .bg-top-left-col {
@@ -2868,12 +2917,12 @@
   border-color: rgba(245, 158, 11, 0.55);
   color: var(--text, #f2f2f5);
 }
-.theme-light #budgetPage .bg-income-hint--action {
+html[data-theme="light"] #budgetPage .bg-income-hint--action {
   background: rgba(0, 0, 0, 0.03);
   border-color: rgba(245, 158, 11, 0.4);
   color: var(--muted, #5c5c66);
 }
-.theme-light #budgetPage .bg-income-hint--action:hover {
+html[data-theme="light"] #budgetPage .bg-income-hint--action:hover {
   background: rgba(245, 158, 11, 0.1);
   color: var(--text, #111);
 }
@@ -2950,4 +2999,834 @@
 /* ── Responsive — large 1280px+ ─────────────────────────── */
 @media (min-width: 1280px) {
   #budgetPage .bg-main { padding: 28px 40px 80px; }
+}
+
+/* =========================================================
+   Premium redesign overrides (Revolut/Stripe style)
+   ========================================================= */
+#budgetPage {
+  font-family: var(--font-sans);
+  --bgt-accent: #6366F1;
+  --bgt-accent2: #818CF8;
+  --bgt-green: #10B981;
+  --bgt-red: #EF4444;
+  --bgt-yellow: #F59E0B;
+  --bgt-blue: #3B82F6;
+  --bgt-purple: #8B5CF6;
+  --bgt-cyan: #06B6D4;
+  --bgt-orange: #F97316;
+  --bgt-muted: rgba(148, 163, 184, 0.6);
+  --bgt-salary-bg: linear-gradient(135deg, #064E3B 0%, #065F46 100%);
+  --bgt-cash-bg: linear-gradient(135deg, #1C1917 0%, #292524 100%);
+  --bgt-credit-bg: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+  --bgt-debt-bg: linear-gradient(135deg, #450A0A 0%, #7F1D1D 100%);
+}
+
+#budgetPage .bg-header {
+  background: rgba(7, 11, 20, 0.9);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 0 24px;
+  height: 58px;
+}
+#budgetPage .bg-hdr-title { font-family: var(--font-display); font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
+#budgetPage .bg-hdr-btn { width: 40px; height: 40px; border-radius: 10px; border: 1px solid transparent; }
+#budgetPage .bg-avatar { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, var(--bgt-accent), var(--bgt-purple)); color: #fff; box-shadow: 0 2px 8px rgba(99,102,241,0.3); }
+
+#budgetPage .bg-main { padding: 24px 28px 120px; max-width: 1000px; }
+#budgetPage .bg-sec {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), var(--shadow-sm);
+}
+#budgetPage .bg-sec-head { margin-bottom: 16px; gap: 12px; }
+#budgetPage .bg-sec-title {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+#budgetPage .bg-kpi-row { gap: 12px; margin-bottom: 24px; }
+#budgetPage .bg-kpi {
+  border-radius: var(--radius);
+  padding: 20px;
+  border: 1px solid var(--border);
+  transition: border-color 0.2s, transform 0.2s;
+}
+#budgetPage .bg-kpi:hover { border-color: rgba(255,255,255,0.14); transform: translateY(-1px); }
+#budgetPage .bg-kpi--income::before { height: 2px; background: linear-gradient(90deg, var(--bgt-green), transparent); opacity: 1; }
+#budgetPage .bg-kpi--spent::before { height: 2px; background: linear-gradient(90deg, var(--bgt-accent), transparent); opacity: 1; }
+#budgetPage .bg-kpi--remaining::before { height: 2px; background: linear-gradient(90deg, var(--bgt-blue), transparent); opacity: 1; }
+#budgetPage .bg-kpi-val {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3vw, 32px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+#budgetPage .bg-kpi-lbl, #budgetPage .bg-kpi-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+
+#budgetPage .bg-btn-primary {
+  padding: 11px 20px;
+  border-radius: 10px;
+  background: var(--bgt-accent);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+}
+#budgetPage .bg-btn-primary:hover { background: var(--bgt-accent2); box-shadow: 0 4px 16px rgba(99,102,241,0.4); }
+#budgetPage .bg-btn-ghost { border-radius: 10px; border: 1px solid var(--border); color: var(--muted); }
+#budgetPage .bg-btn-ghost:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15); color: var(--text); }
+#budgetPage .bg-btn-danger { border-radius: 10px; background: rgba(239,68,68,0.08); color: var(--bgt-red); border: 1px solid rgba(239,68,68,0.2); }
+#budgetPage .bg-sheet-action { background: var(--bgt-accent); color: #fff; border-radius: 8px; box-shadow: 0 2px 6px rgba(99,102,241,0.25); }
+#budgetPage .bg-sheet-action:hover { background: var(--bgt-accent2); }
+
+#budgetPage .bg-overlay { background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+#budgetPage .bg-sheet {
+  background: #0D1117;
+  border-radius: 24px 24px 0 0;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+}
+#budgetPage .bg-sheet-head { background: #0D1117; border-bottom: 1px solid rgba(255,255,255,0.05); }
+#budgetPage .bg-sheet-title { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+#budgetPage .bg-sheet-close { border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.06); }
+#budgetPage .bg-overlay--flow .bg-sheet--flow {
+  border-radius: 20px;
+  max-width: 480px;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
+}
+
+#budgetPage .bg-label { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; }
+#budgetPage .bg-input {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 11px 14px;
+}
+#budgetPage .bg-input:focus { border-color: var(--bgt-accent); background: rgba(99,102,241,0.05); box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+#budgetPage .bg-amount-wrap { border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
+#budgetPage .bg-currency-sym { font-family: var(--font-sans); font-weight: 700; }
+#budgetPage .bg-amount-input {
+  font-family: var(--font-sans);
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+#budgetPage .bg-fab-wrap { bottom: 28px; right: 28px; z-index: 9000; }
+#budgetPage .bg-fab {
+  width: 56px; height: 56px; border-radius: 16px;
+  background: var(--bgt-accent); color: #fff;
+  box-shadow: 0 4px 20px rgba(99,102,241,0.5), 0 2px 8px rgba(0,0,0,0.4);
+}
+#budgetPage .bg-fab:hover { background: var(--bgt-accent2); transform: scale(1.07); }
+#budgetPage .bg-fab.open { background: #374151; }
+#budgetPage .bg-fab-sub {
+  height: 44px;
+  border-radius: 12px;
+  background: #111827;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text);
+}
+
+#budgetPage .bg-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+#budgetPage .bg-cat-chip {
+  flex-direction: column;
+  border-radius: 10px;
+  border: 1.5px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.04);
+  color: var(--muted);
+}
+#budgetPage .bg-cat-chip.active { background: rgba(99,102,241,0.12); border-color: rgba(99,102,241,0.5); color: #818CF8; }
+
+#budgetPage .bg-type-btn {
+  border-radius: 10px;
+  border: 1.5px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.04);
+  color: var(--muted);
+}
+#budgetPage .bg-type-btn.active { background: rgba(99,102,241,0.12); border-color: rgba(99,102,241,0.5); color: var(--bgt-accent2); }
+
+#budgetPage .bg-wizard-overlay { background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+#budgetPage .bg-wizard-card {
+  background: #0D1117;
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 24px;
+  max-width: 520px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04);
+}
+#budgetPage .bg-wiz-progress-track { height: 2px; }
+#budgetPage .bg-wiz-progress-fill { background: linear-gradient(90deg, var(--bgt-accent), var(--bgt-accent2)); }
+#budgetPage .bg-wiz-stage { padding: 40px 32px 24px; min-height: 340px; }
+#budgetPage .bg-wiz-title { font-family: var(--font-display); font-size: 24px; font-weight: 800; }
+#budgetPage .bg-wiz-sub, #budgetPage .bg-wiz-subtitle { font-size: 14px; color: var(--muted); }
+#budgetPage .bg-wiz-nav { padding: 16px 32px 24px; border-top: 1px solid rgba(255,255,255,0.05); }
+#budgetPage .bg-wiz-next { border-radius: 12px; background: var(--bgt-accent); color: #fff; box-shadow: 0 4px 16px rgba(99,102,241,0.4); }
+#budgetPage .bg-wiz-next:hover { background: var(--bgt-accent2); }
+#budgetPage .bg-wiz-back { border: 1px solid var(--border); border-radius: 12px; }
+#budgetPage .bg-wiz-option { border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.03); }
+#budgetPage .bg-wiz-option.selected { background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.4); }
+
+#budgetPage .bg-account-card { border-radius: var(--radius); padding: 20px; min-width: 200px; border: 1px solid var(--border); }
+#budgetPage .bg-acct-balance { font-family: var(--font-display); font-size: 26px; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
+
+#budgetPage .bg-bill-card { border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+#budgetPage .bg-bill-card.paid { opacity: 0.6; border-color: rgba(16,185,129,0.2); }
+#budgetPage .bg-bill-card.paid .bg-bill-amount { color: var(--bgt-green); text-decoration: line-through; text-decoration-color: rgba(16,185,129,0.4); }
+#budgetPage .bg-bill-due-badge {
+  font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 20px;
+  background: rgba(249,115,22,0.12); color: var(--bgt-orange); border: 1px solid rgba(249,115,22,0.2);
+}
+
+#budgetPage .bg-planner-row { border-bottom: 1px solid rgba(255,255,255,0.04); border-radius: 8px; }
+#budgetPage .bg-planner-bar-track, #budgetPage .bg-planner-bar-wrap {
+  height: 5px; background: rgba(255,255,255,0.07); border-radius: 999px; overflow: hidden;
+}
+#budgetPage .bg-planner-bar-fill { border-radius: 999px; transition: width 0.6s var(--ease-spring); }
+#budgetPage .bg-planner-bar-fill.under, #budgetPage .bg-planner-bar-fill.good { background: var(--bgt-green); }
+#budgetPage .bg-planner-bar-fill.warn { background: var(--bgt-yellow); }
+#budgetPage .bg-planner-bar-fill.over { background: var(--bgt-red); }
+
+#budgetPage .bg-overview-body, #budgetPage .bg-ov-section { gap: 28px; }
+#budgetPage .bg-networth-chip, #budgetPage .bg-nw-chip {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: rgba(99,102,241,0.1);
+  border: 1px solid rgba(99,102,241,0.25);
+  color: var(--bgt-accent2);
+}
+#budgetPage .bg-ov-val { font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; font-size: 15px; }
+
+#budgetPage .bg-setup-checklist {
+  position: relative;
+  background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.08));
+  border: 1px solid rgba(99,102,241,0.2);
+  border-radius: var(--radius);
+}
+#budgetPage .bg-setup-checklist::before {
+  content: "";
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(99,102,241,0.15), transparent 70%);
+  pointer-events: none;
+}
+#budgetPage .bg-setup-title { font-family: var(--font-display); font-size: 16px; font-weight: 800; }
+
+#budgetPage .bg-entry-card { border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); }
+#budgetPage .bg-entry-amount, #budgetPage .bg-entry-amt { font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 640px) {
+  #budgetPage .bg-main { padding: 16px 14px 100px; }
+  #budgetPage .bg-kpi-row { gap: 8px; }
+  #budgetPage .bg-kpi { padding: 14px; }
+  #budgetPage .bg-kpi-val { font-size: clamp(18px, 5vw, 24px); }
+  #budgetPage .bg-sheet--flow { width: 100%; margin: 12px; border-radius: 20px; }
+  #budgetPage .bg-fab-wrap { bottom: 20px; right: 16px; }
+  #budgetPage .bg-wiz-stage { padding: 32px 20px 16px; min-height: 280px; }
+  #budgetPage .bg-wiz-title { font-size: 20px; }
+}
+
+html[data-theme="light"] #budgetPage .bg-sheet,
+html[data-theme="light"] #budgetPage .bg-overlay--flow .bg-sheet--flow { background: #FFFFFF; }
+html[data-theme="light"] #budgetPage .bg-sheet-head { background: #FFFFFF; border-color: rgba(0,0,0,0.07); }
+html[data-theme="light"] #budgetPage .bg-input { background: #F8FAFC; border-color: rgba(0,0,0,0.12); color: rgba(15,23,42,0.95); }
+html[data-theme="light"] #budgetPage .bg-amount-wrap { background: #F8FAFC; border-color: rgba(0,0,0,0.12); }
+html[data-theme="light"] #budgetPage .bg-cat-chip { background: #F1F5F9; border-color: rgba(0,0,0,0.1); color: rgba(71,85,105,0.9); }
+html[data-theme="light"] #budgetPage .bg-type-btn { background: #F1F5F9; border-color: rgba(0,0,0,0.1); }
+html[data-theme="light"] #budgetPage .bg-wizard-card,
+html[data-theme="light"] #budgetPage .bg-wiz-option { background: #FFFFFF; }
+html[data-theme="light"] #budgetPage .bg-wiz-option { border-color: rgba(0,0,0,0.08); }
+html[data-theme="light"] #budgetPage .bg-entry-card { background: #FFFFFF; border-color: rgba(0,0,0,0.07); }
+html[data-theme="light"] #budgetPage .bg-bill-card { background: #F8FAFC; border-color: rgba(0,0,0,0.07); }
+
+/* =========================================================
+   Plan build: sheets UX, activity bars, planner cards, icons
+   ========================================================= */
+
+/* SVG icons (Lucide-style) */
+#budgetPage .bg-icon-svg {
+  display: block;
+  flex-shrink: 0;
+}
+#budgetPage .bg-cat-icon,
+#budgetPage .bg-entry-icon,
+#budgetPage .bg-bill-icon,
+#budgetPage .bg-planner-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#budgetPage .bg-acct-type {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#budgetPage .bg-acct-type-ico {
+  display: inline-flex;
+  opacity: 0.9;
+}
+#budgetPage .bg-leg-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+}
+#budgetPage .bg-leg-cat-ico {
+  display: inline-flex;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+#budgetPage .bg-limit-cat-info {
+  gap: 12px;
+}
+#budgetPage .bg-limit-cat-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Sheets: flex column + scroll (mobile + desktop) */
+#budgetPage .bg-sheet {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  max-height: min(96dvh, calc(100dvh - env(safe-area-inset-top, 0px) - 8px));
+}
+#budgetPage .bg-sheet-head {
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+#budgetPage .bg-sheet-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+#budgetPage .bg-sheet--flow {
+  display: flex;
+  flex-direction: column;
+  max-height: min(94dvh, calc(100dvh - env(safe-area-inset-top, 0px) - 16px));
+}
+#budgetPage .bg-overlay--flow .bg-sheet--flow .bg-flow-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+}
+/* Augment flow footer (display/gap live in earlier rule) */
+#budgetPage .bg-flow-footer {
+  position: relative;
+  z-index: 3;
+  flex-wrap: nowrap;
+}
+
+@media (min-width: 900px) {
+  #budgetPage .bg-overlay--flow {
+    padding: 24px;
+    align-items: center;
+  }
+  #budgetPage .bg-overlay--flow .bg-sheet--flow {
+    width: 100%;
+    max-width: min(640px, 92vw);
+    min-height: min(520px, 85dvh);
+    border-radius: 24px;
+    max-height: min(90dvh, 900px);
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* Standard overlays (expense, goals, limit): centered modal on desktop */
+@media (min-width: 960px) {
+  #budgetPage .bg-overlay:not(.bg-overlay--flow) {
+    align-items: center !important;
+    justify-content: center;
+    padding: max(16px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom));
+  }
+  #budgetPage .bg-overlay:not(.bg-overlay--flow) .bg-sheet {
+    width: 100%;
+    max-width: 560px;
+    border-radius: 24px !important;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    max-height: min(88dvh, 840px);
+    transform: translateY(16px) scale(0.98);
+    opacity: 0;
+    transition: transform 0.35s var(--ease-spring), opacity 0.28s ease;
+  }
+  #budgetPage .bg-overlay:not(.bg-overlay--flow).open .bg-sheet {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  #budgetPage .bg-overlay:not(.bg-overlay--flow) .bg-sheet-drag {
+    display: none;
+  }
+}
+
+/* Spending activity — daily bar chart (replaces heatmap grid) */
+#budgetPage .bg-calendar-scroll {
+  margin: 0;
+  padding: 0;
+}
+#budgetPage .bg-calendar-wrap {
+  min-width: 0;
+  width: 100%;
+}
+#budgetPage .bg-activity-chart {
+  width: 100%;
+}
+#budgetPage .bg-activity-chart-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+#budgetPage .bg-activity-chart-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+#budgetPage .bg-activity-chart-sub {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+#budgetPage .bg-activity-chart-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -6px;
+  padding: 0 6px 4px;
+  scrollbar-width: thin;
+}
+#budgetPage .bg-activity-chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  min-height: 132px;
+  padding: 10px 2px 0;
+}
+#budgetPage .bg-activity-bar-col {
+  flex: 1 1 0;
+  min-width: 6px;
+  max-width: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+#budgetPage .bg-activity-bar-fill-wrap {
+  width: 100%;
+  flex: 1;
+  min-height: 104px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px 6px 4px 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+#budgetPage .bg-activity-bar-fill {
+  width: 100%;
+  min-height: 2px;
+  border-radius: 4px 4px 0 0;
+  background: linear-gradient(180deg, var(--bgt-accent2), var(--bgt-accent));
+  transition: height 0.45s var(--ease-spring);
+}
+#budgetPage .bg-activity-bar-day {
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--muted);
+  line-height: 1;
+  opacity: 0;
+  font-variant-numeric: tabular-nums;
+}
+#budgetPage .bg-activity-bar-day--show {
+  opacity: 0.9;
+}
+
+html[data-theme="light"] #budgetPage .bg-activity-bar-fill-wrap {
+  background: rgba(15, 23, 42, 0.06);
+  border-color: rgba(15, 23, 42, 0.06);
+}
+
+/* Planner — Plan mode cards */
+#budgetPage .bg-planner-plan-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+#budgetPage .bg-planner-plan-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+#budgetPage .bg-planner-plan-head {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+#budgetPage .bg-planner-plan-field {
+  width: 100%;
+}
+#budgetPage .bg-planner-plan-lbl {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+#budgetPage .bg-planner-plan-card .bg-planner-plan-input {
+  width: 100%;
+  max-width: none;
+  padding: 12px 14px;
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.25);
+}
+#budgetPage .bg-planner-plan-card .bg-planner-plan-hint {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  font-style: normal;
+}
+
+@media (min-width: 640px) {
+  #budgetPage .bg-planner-plan-head {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  #budgetPage .bg-planner-plan-field {
+    width: auto;
+    min-width: 180px;
+    max-width: 220px;
+  }
+}
+
+/* Planner — Track mode row polish */
+#budgetPage .bg-planner-row--track {
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+#budgetPage .bg-planner-row--track:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+#budgetPage .bg-planner-spent,
+#budgetPage .bg-planner-limit {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Category grid — comfortable touch targets */
+#budgetPage .bg-cat-grid {
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+}
+#budgetPage .bg-cat-chip {
+  min-height: 72px;
+  justify-content: center;
+  padding: 12px 8px;
+}
+
+/* Wizard — option layout with lead icon */
+#budgetPage .bg-wiz-option {
+  align-items: center;
+}
+#budgetPage .bg-wiz-option > span:last-of-type {
+  flex: 1;
+  min-width: 0;
+}
+#budgetPage .bg-wiz-option-lead {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--bgt-accent2);
+  border: 1px solid rgba(99, 102, 241, 0.22);
+}
+#budgetPage .bg-wiz-goal-chip {
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  min-height: 88px;
+  padding: 12px 10px;
+}
+#budgetPage .bg-wiz-goal-chip span:last-child {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+}
+#budgetPage .bg-wiz-cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+#budgetPage .bg-wiz-cat-chip span {
+  font-weight: 700;
+}
+#budgetPage .bg-wiz-mode-card {
+  align-items: flex-start;
+}
+#budgetPage .bg-wiz-mode-ico {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--bgt-accent2);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  margin-bottom: 4px;
+}
+#budgetPage .bg-wiz-level-card {
+  align-items: center;
+  text-align: center;
+  padding-top: 14px;
+}
+#budgetPage .bg-wiz-level-ico {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--bgt-accent2);
+  border: 1px solid rgba(99, 102, 241, 0.18);
+  margin-bottom: 4px;
+}
+#budgetPage .bg-wiz-commit-card {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14px;
+  text-align: left;
+}
+#budgetPage .bg-wiz-commit-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+#budgetPage .bg-wiz-commit-ico {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--bgt-accent2);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+#budgetPage .bg-wiz-welcome-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0;
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.28);
+}
+
+html[data-theme="light"] #budgetPage .bg-planner-plan-card .bg-planner-plan-input {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.12);
+  color: rgba(15, 23, 42, 0.95);
+}
+html[data-theme="light"] #budgetPage .bg-wiz-option-lead,
+html[data-theme="light"] #budgetPage .bg-wiz-mode-ico,
+html[data-theme="light"] #budgetPage .bg-wiz-level-ico,
+html[data-theme="light"] #budgetPage .bg-wiz-commit-ico {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.15);
+}
+
+/* Light theme — pastel account gradients + readable balances */
+html[data-theme="light"] #budgetPage {
+  --bgt-salary-bg: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  --bgt-cash-bg: linear-gradient(135deg, #fffbeb 0%, #fde68a 100%);
+  --bgt-credit-bg: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+  --bgt-debt-bg: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+}
+html[data-theme="light"] #budgetPage .bg-account-card {
+  border-color: rgba(15, 23, 42, 0.1);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+}
+html[data-theme="light"] #budgetPage .bg-account-card:hover {
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+}
+html[data-theme="light"] #budgetPage .bg-acct-type {
+  color: rgba(15, 23, 42, 0.55);
+}
+html[data-theme="light"] #budgetPage .bg-acct-name {
+  color: rgba(15, 23, 42, 0.92);
+}
+html[data-theme="light"] #budgetPage .bg-acct-balance {
+  color: rgba(15, 23, 42, 0.95);
+}
+html[data-theme="light"] #budgetPage .bg-acct-util-bar {
+  background: rgba(15, 23, 42, 0.1);
+}
+html[data-theme="light"] #budgetPage .bg-acct-util-label,
+html[data-theme="light"] #budgetPage .bg-acct-limit,
+html[data-theme="light"] #budgetPage .bg-acct-note {
+  color: rgba(71, 85, 105, 0.8);
+}
+html[data-theme="light"] #budgetPage .bg-acct-edit {
+  background: rgba(15, 23, 42, 0.08);
+  color: rgba(15, 23, 42, 0.55);
+}
+html[data-theme="light"] #budgetPage .bg-acct-edit:hover {
+  background: rgba(15, 23, 42, 0.14);
+  color: #0f172a;
+}
+html[data-theme="light"] #budgetPage .bg-chart-layout {
+  background: transparent;
+}
+html[data-theme="light"] #budgetPage .bg-activity-chart {
+  background: var(--panel, #fff);
+  border: 1px solid var(--border, rgba(15, 23, 42, 0.08));
+  border-radius: var(--radius, 16px);
+}
+
+/* Prompt 2 Phase 3 finishing overrides */
+#budgetPage .bg-kpi-trend {
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+}
+#budgetPage .bg-kpi-trend--pos { color: var(--bgt-green); }
+#budgetPage .bg-kpi-trend--neg { color: var(--bgt-red); }
+#budgetPage .bg-kpi-trend--neutral { color: var(--muted); }
+
+#budgetPage .bg-accounts-row {
+  scroll-snap-type: x mandatory;
+}
+#budgetPage .bg-account-card,
+#budgetPage .bg-account-add {
+  width: clamp(220px, 72vw, 280px);
+  min-width: 220px;
+  max-width: 280px;
+  scroll-snap-align: start;
+}
+#budgetPage .bg-account-card {
+  background: var(--panel);
+  border-left: 4px solid var(--acct-accent, var(--bgt-accent));
+}
+#budgetPage .bg-acct-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+#budgetPage .bg-acct-type-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--acct-accent, var(--bgt-accent));
+  border: 1px solid color-mix(in srgb, var(--acct-accent, var(--bgt-accent)) 35%, transparent);
+  background: color-mix(in srgb, var(--acct-accent, var(--bgt-accent)) 12%, transparent);
+  white-space: nowrap;
+}
+#budgetPage .bg-acct-balance {
+  color: var(--text) !important;
+}
+#budgetPage .bg-acct-note {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  #budgetPage .bg-accounts-wrap {
+    overflow: visible;
+    margin: 0;
+    padding: 0;
+  }
+  #budgetPage .bg-accounts-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+    max-width: 100%;
+    scroll-snap-type: none;
+  }
+  #budgetPage .bg-account-card,
+  #budgetPage .bg-account-add {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
 }

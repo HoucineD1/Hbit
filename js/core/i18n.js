@@ -16,11 +16,22 @@
       "btn.save": "Save",
       "btn.clear": "Clear",
       "btn.showMore": "Show more",
-      "btn.save": "Save",
-      "btn.clear": "Clear",
       "common.cancel": "Cancel",
+      "common.scrollTop": "Back to top",
       "common.save": "Save",
       "common.close": "Close",
+      "help.close": "Close help",
+      "a11y.skipToContent": "Skip to main content",
+      "a11y.langSwitchAction": "Switch language",
+      "i18n.switchToFR": "FR",
+      "i18n.switchToEN": "EN",
+      "a11y.themeToggle": "Toggle color theme",
+      "a11y.profileLink": "Open profile",
+      "a11y.openMenu": "Open navigation menu",
+      "a11y.settingsGear": "Settings",
+      "home.chart.weeklyAria": "Weekly activity rings showing habits, sleep, mood, budget, and focus completion.",
+      "mood.chart.weeklyAria": "Bar chart of mood levels for the last seven days.",
+      "sleep.chart.weekAria": "Sleep hours for each day of the current week.",
       "nav.overview": "Overview",
       "nav.habits": "Habits",
       "nav.budget": "Budget",
@@ -33,6 +44,178 @@
       "nav.profile": "Profile",
       "nav.menuLabel": "Menu",
       "nav.logout": "Sign out",
+      "profile.documentTitle": "Hbit — Profile",
+      "profile.pageTitle": "Profile",
+      "profile.saveTop": "Save",
+      "profile.section.personal": "Personal Info",
+      "profile.label.fullName": "Full Name",
+      "profile.label.username": "Username",
+      "profile.label.age": "Age",
+      "profile.label.gender": "Gender",
+      "profile.label.bio": "Bio",
+      "profile.placeholder.name": "John Doe",
+      "profile.placeholder.username": "johndoe",
+      "profile.bio.placeholder": "Tell us a little about yourself…",
+      "profile.section.progress": "Your Progress",
+      "profile.stat.habits": "Habits",
+      "profile.stat.streak": "Day Streak",
+      "profile.stat.sleepLogs": "Sleep Logs",
+      "profile.stat.moodLogs": "Mood Logs",
+      "profile.stat.transactions": "Transactions",
+      "profile.section.account": "Account",
+      "profile.label.email": "Email",
+      "profile.label.signInMethod": "Sign-in method",
+      "profile.label.memberSince": "Member since",
+      "profile.provider.google": "Google",
+      "profile.provider.apple": "Apple",
+      "profile.provider.password": "Email / Password",
+      "profile.btn.save": "Save Changes",
+      "profile.btn.logout": "Log Out",
+      "profile.error.fullName": "Full name is required.",
+      "profile.saved": "Profile saved ✓",
+      "profile.saveError": "Could not save. Check your connection.",
+      "profile.logoutError": "Could not log out.",
+      "profile.gender.preferNot": "Prefer not to say",
+      "profile.gender.male": "Male",
+      "profile.gender.female": "Female",
+      "profile.gender.nonBinary": "Non-binary",
+      "profile.gender.other": "Other",
+      "profile.hero.kicker": "Your Space",
+      "profile.hero.edit": "Edit profile",
+      "profile.section.achievements": "Achievements",
+      "profile.stat.habitsTracked": "Habits tracked",
+      "profile.stat.longestStreak": "Longest streak (days)",
+      "profile.stat.focusSessions": "Focus sessions",
+      "profile.personal.toggle": "Personal information",
+      "profile.account.changePassword": "Send password reset email",
+      "profile.account.delete": "Delete account",
+      "profile.account.pwdSent": "Password reset email sent.",
+      "profile.account.pwdErr": "Could not send reset email.",
+      "profile.delete.confirmTitle": "Delete your account?",
+      "profile.delete.confirmBody": "This cannot be undone. Your data will be removed.",
+      "profile.delete.confirm": "Delete permanently",
+      "profile.delete.reauth": "Please sign in again, then try deleting your account.",
+      "habits.help.title": "How Habits works",
+      "habits.help.intro": "Build streaks by checking off habits each day. Your heatmap shows consistency at a glance.",
+      "habits.help.step1": "Add habits with the + button. Choose a color and schedule.",
+      "habits.help.step2": "Tap a card to mark today done. Streaks grow when you complete habits on consecutive days.",
+      "habits.help.step3": "Use the calendar heatmap to review past weeks. Edit or archive habits anytime.",
+      "habits.help.footer": "Celebrations and milestones sync across your devices when you are online.",
+      "budget.help.modal.title": "How Budget works",
+      "budget.help.modal.intro": "Budget ties accounts, monthly limits, bills, and transactions into one view.",
+      "budget.help.modal.accounts": "Accounts: add salary, cash, credit, or debt. Income flows from positive balances on salary and cash accounts.",
+      "budget.help.modal.transactions": "Transactions: log spending for the month. Tap to edit or swipe to remove.",
+      "budget.help.modal.categories": "Category breakdown: set monthly limits per category. Bars show how much of each limit you have used.",
+      "budget.help.modal.footer": "Pay calculator and exports help you plan take-home pay and keep records.",
+      "mood.help.title": "How State of Mind works",
+      "mood.help.intro": "Quick daily check-ins build a picture of mood, stress, energy, and focus over time.",
+      "mood.help.step1": "Pick the band that matches your day, then refine emotions and impacts.",
+      "mood.help.step2": "Notes are optional but help you spot patterns in the history view.",
+      "mood.help.step3": "Weekly charts summarize trends so you can compare weeks at a glance.",
+      "mood.help.footer": "Entries stay private to your account and appear on the Home overview when enabled.",
+      "focus.help.title": "How Focus works",
+      "focus.help.intro": "The Zen timer alternates focused work and restorative breaks with optional breathing guidance.",
+      "focus.help.step1": "Set work length, break length, and a daily session goal in settings.",
+      "focus.help.step2": "Start the timer for a work block; when it ends, take the guided break before the next block.",
+      "focus.help.step3": "Completion chimes respect mute and reduced-motion preferences.",
+      "focus.help.footer": "Sessions count toward your profile stats when you finish a work phase.",
+      "plan.help.title": "How Planner works",
+      "plan.help.intro": "Planner is a simple day timeline for tasks and events.",
+      "plan.help.step1": "Swipe the week strip or use arrows to pick a day.",
+      "plan.help.step2": "Tap + to add an item with time, duration, and priority.",
+      "plan.help.step3": "Carry unfinished items forward with one tap when you open a new day.",
+      "plan.help.footer": "Your itinerary is stored in the cloud when you are signed in.",
+      "focus.documentTitle": "Hbit — Focus",
+      "focus.header.zen": "Zen Timer",
+      "focus.header.ready": "Ready to Focus",
+      "focus.label.breathingLong": "Break Breathing Pattern (Haptic Guidance)",
+      "focus.settings.title": "Timer Settings",
+      "focus.label.workMins": "Work Duration (mins)",
+      "focus.label.breakMins": "Break Duration (mins)",
+      "focus.label.dailyGoal": "Daily Goal (sessions)",
+      "focus.label.breathingPattern": "Breathing Pattern",
+      "focus.breathing.box": "Box (4-4-4-4)",
+      "focus.breathing.478": "4-7-8 (Calming)",
+      "focus.breathing.sigh": "Physiological Sigh (Quick reset)",
+      "focus.breathing.energize": "Energize (6-2)",
+      "focus.hint.breathing": "During your break, device vibrations will guide your rhythm screen-free.",
+      "focus.btn.savePrefs": "Save Preferences",
+      "focus.sessions.completed": "completed",
+      "focus.sessions.today": "{n} sessions today",
+      "focus.goal.target": "goal: {n}",
+      "focus.phase.work": "Work",
+      "focus.phase.breathe": "Breathe",
+      "focus.sub.focusTime": "Focus Time",
+      "focus.sub.breakRecover": "Break & Recover",
+      "focus.breath.inhale": "Inhale",
+      "focus.breath.exhale": "Exhale",
+      "focus.breath.hold": "Hold",
+      "focus.toast.sessionGreat": "Great focus session! Let's breathe.",
+      "focus.toast.breakDone": "Break complete. Back to work.",
+      "focus.sound.ariaOn": "Timer sounds on",
+      "focus.sound.ariaOff": "Timer sounds muted",
+      "focus.tab.timer": "Timer",
+      "focus.tab.sessions": "Sessions",
+      "focus.sessions.totalToday": "Sessions today",
+      "focus.sessions.focusTimeToday": "Focus time",
+      "focus.sessions.streakDays": "Streak days",
+      "focus.sessions.weeklyChart": "Weekly focus",
+      "focus.sessions.todayList": "Today's sessions",
+      "focus.sessions.empty": "Start your first session to see your stats",
+      "plan.documentTitle": "Hbit — Planner",
+      "plan.modal.title": "Schedule Event",
+      "plan.label.startTime": "Start Time",
+      "plan.label.duration": "Duration (mins)",
+      "plan.label.priority": "Priority",
+      "plan.label.notes": "Notes & Links",
+      "plan.btn.addItinerary": "Add to Itinerary",
+      "plan.carry.text": "You have unfinished tasks from previous days.",
+      "plan.carry.btn": "Bring to today",
+      "plan.empty.title": "Clear Schedule",
+      "plan.empty.sub": "Tap the + to add an event to your itinerary.",
+      "plan.placeholder.title": "What are you doing?",
+      "plan.placeholder.notes": "Add detailed notes here...",
+      "plan.priority.normal": "Normal",
+      "plan.priority.high": "High (!)",
+      "plan.time.anytime": "Anytime",
+      "plan.calendar.stripLabel": "Week view — pick a day",
+      "plan.empty.premium.title": "Plan your perfect day",
+      "plan.empty.premium.sub": "Add your first task and build your ideal schedule",
+      "plan.empty.premium.cta": "Add your first task",
+      "plan.empty.tip1": "Set priorities to focus on what matters most",
+      "plan.empty.tip2": "Unfinished tasks carry over to the next day",
+      "plan.empty.tip3": "Tap the calendar to plan ahead",
+      "plan.conflict.warning": "This overlaps with '{title}' at {time}",
+      "sleep.breath.sec": "{n} sec",
+      "sleep.breath.remaining": "{time} remaining",
+      "sleep.integrations.kicker": "Integrations coming soon",
+      "sleep.integrations.copy": "Planned wearables and apps will sync sleep data automatically — no manual logging.",
+      "sleep.integrations.tag.oura": "Oura Ring",
+      "sleep.integrations.tag.apple": "Apple Watch",
+      "sleep.integrations.tag.fitbit": "Fitbit",
+      "sleep.integrations.tag.garmin": "Garmin",
+      "sleep.help.title": "How Sleep works",
+      "sleep.help.intro": "Hbit Sleep is designed to feel like Apple Health / Oura: simple entries, smart suggestions, and a calm overview.",
+      "sleep.help.step1.title": "Log last night",
+      "sleep.help.step1.body": "Open History and tap any day to enter bed time, wake time, quality and notes.",
+      "sleep.help.step2.title": "Plan your sleep",
+      "sleep.help.step2.body": "Use the cycle calculator to pick a bedtime, then set tonight's plan. Wind-down helps you prepare.",
+      "sleep.help.step3.title": "Stay consistent",
+      "sleep.help.step3.body": "Use your weekly schedule to keep a stable routine, with a softer variation on weekends.",
+      "sleep.cta.title": "How are you feeling?",
+      "sleep.documentTitle": "Hbit — Sleep",
+      "sleep.help.footer": "Your entries sync with the Home overview so your sleep ring and weekly stats stay up to date.",
+      "sleep.footer.privacy": "Privacy",
+      "sleep.footer.terms": "Terms",
+      "toast.offline": "You're offline — changes will sync when you reconnect.",
+      "toast.online": "Back online — syncing your data.",
+      "common.confirm": "Confirm",
+      "plan.delete.confirm": "Are you sure?",
+      "budget.delete.confirm": "Delete this expense?",
+      "budget.delete.aria": "Delete expense",
+      "budget.delete.short": "Delete",
+      "habits.heatmap.aria": "Habit activity over the last {weeks} weeks. {days} active days.",
+      "habits.delete.aria": "Delete habit permanently",
       "mood.title": "State of mind",
       "mood.today": "Today",
       "mood.leadin": "Track your state of mind with simple levels. Log your day in one tap.",
@@ -53,6 +236,18 @@
       "mood.q.impact": "What impacted your day the most?",
       "mood.q.trigger": "Main trigger?",
       "mood.q.action": "One action you can take now?",
+      "mood.yesterday": "Yesterday",
+      "mood.showMore": "Show more",
+      "mood.showLess": "Show less",
+      "mood.loggedAt": "Logged at {time}",
+      "mood.streak": "{n}-day streak",
+      "mood.insightNeedMore": "Log a few more days for insights.",
+      "mood.edit": "Edit",
+      "mood.sleepBanner": "Last night you slept {hours}.",
+      "mood.savedToast": "Mood saved ✓",
+      "mood.saveError": "Could not save. Check your connection.",
+      "mood.savedFullToast": "Saved ✓",
+      "habits.heatmap.tooltip": "{n} done · {date}",
       "budget.currency": "Currency",
       "budget.currency.choose": "Choose currency",
       "budget.section.pay": "Pay calculator",
@@ -75,6 +270,13 @@
       "budget.summary": "Summary",
       "budget.spent": "Spent",
       "budget.income": "Income",
+      "budget.documentTitle": "Hbit — Budget",
+      "budget.exportCSV": "Export as CSV",
+      "budget.export.currentMonth": "Current month",
+      "budget.export.last3": "Last 3 months",
+      "budget.export.last6": "Last 6 months",
+      "budget.export.allTime": "All time",
+      "budget.accounts.noRecent": "No recent change",
       "budget.help.title": "How Budget works",
       "budget.help.close": "Close",
       "budget.help.next": "Next",
@@ -177,6 +379,12 @@
       "habits.det.confirmDelete":"Delete this habit permanently?",
       "habits.empty.archived":"No archived habits","habits.empty.archivedSub":"Habits you archive will appear here.",
       "habits.today.label":"Today","habits.today.done":"done",
+      "habits.confetti.allDone":"All habits complete! 🎉",
+      "habits.milestone.title":"{n}-day streak!",
+      "habits.milestone.sub7":"One week strong — consistency is building.",
+      "habits.milestone.sub30":"A full month of showing up.",
+      "habits.milestone.sub100":"Legendary dedication.",
+      "habits.milestone.cta":"Keep going!",
       "habits.wz.continue":"Continue","habits.wz.create":"Create habit","habits.wz.saving":"Saving\u2026",
       "habits.wz.step1.sub":"Choose your direction to get started.",
       "habits.wz.step2.sub":"Pick the domain that fits your habit.",
@@ -421,6 +629,8 @@
       "login.error.empty": "Please fill in all fields.",
       "login.error.email": "Please enter a valid email address.",
       "login.error.invalid": "Invalid email or password.",
+      "login.error.google": "Google sign-in failed. Please try again.",
+      "login.error.apple": "Apple sign-in failed. Please try again.",
       "login.no-account": "Don't have an account?",
       "auth.login.headline": "Welcome back.\n<span>Keep building.</span>",
       "auth.login.sub": "Your habits, sleep, budget, mood and focus are all here — exactly where you left them.",
@@ -486,7 +696,8 @@
       "signup.terms.pp": "Privacy Policy",
       "signup.error.terms": "Please accept the Terms of Service to continue.",
       "auth.proof": "JOIN 10K+ HABIT TRACKERS",
-      "footer.copyright": "\u00a9 Hbit",
+      "footer.copyright": "\u00a9 {year} Hbit",
+      "budget.export.error": "Could not export data.",
       "home.weekly":    "Weekly Summary",
       "home.thisweek":  "This week",
       "home.empty.title": "No data yet",
@@ -639,11 +850,22 @@
       "btn.save": "Enregistrer",
       "btn.clear": "Effacer",
       "btn.showMore": "Afficher plus",
-      "btn.save": "Enregistrer",
-      "btn.clear": "Effacer",
       "common.cancel": "Annuler",
+      "common.scrollTop": "Haut de page",
       "common.save": "Enregistrer",
       "common.close": "Fermer",
+      "help.close": "Fermer l'aide",
+      "a11y.skipToContent": "Aller au contenu principal",
+      "a11y.langSwitchAction": "Changer de langue",
+      "i18n.switchToFR": "FR",
+      "i18n.switchToEN": "EN",
+      "a11y.themeToggle": "Changer le thème de couleur",
+      "a11y.profileLink": "Ouvrir le profil",
+      "a11y.openMenu": "Ouvrir le menu de navigation",
+      "a11y.settingsGear": "Réglages",
+      "home.chart.weeklyAria": "Anneaux d'activité hebdomadaires : habitudes, sommeil, humeur, budget et focus.",
+      "mood.chart.weeklyAria": "Diagramme à barres des niveaux d'humeur sur les sept derniers jours.",
+      "sleep.chart.weekAria": "Heures de sommeil pour chaque jour de la semaine en cours.",
       "nav.overview": "Aperçu",
       "nav.habits": "Habitudes",
       "nav.budget": "Budget",
@@ -656,6 +878,178 @@
       "nav.profile": "Profil",
       "nav.menuLabel": "Menu",
       "nav.logout": "Se déconnecter",
+      "profile.documentTitle": "Hbit — Profil",
+      "profile.pageTitle": "Profil",
+      "profile.saveTop": "Enregistrer",
+      "profile.section.personal": "Infos personnelles",
+      "profile.label.fullName": "Nom complet",
+      "profile.label.username": "Nom d'utilisateur",
+      "profile.label.age": "Âge",
+      "profile.label.gender": "Genre",
+      "profile.label.bio": "Bio",
+      "profile.placeholder.name": "Jean Dupont",
+      "profile.placeholder.username": "pseudonyme",
+      "profile.bio.placeholder": "Parlez-nous un peu de vous…",
+      "profile.section.progress": "Vos progrès",
+      "profile.stat.habits": "Habitudes",
+      "profile.stat.streak": "Série de jours",
+      "profile.stat.sleepLogs": "Journaux de sommeil",
+      "profile.stat.moodLogs": "Journaux d'humeur",
+      "profile.stat.transactions": "Transactions",
+      "profile.section.account": "Compte",
+      "profile.label.email": "Courriel",
+      "profile.label.signInMethod": "Méthode de connexion",
+      "profile.label.memberSince": "Membre depuis",
+      "profile.provider.google": "Google",
+      "profile.provider.apple": "Apple",
+      "profile.provider.password": "Courriel / mot de passe",
+      "profile.btn.save": "Enregistrer",
+      "profile.btn.logout": "Se déconnecter",
+      "profile.error.fullName": "Le nom complet est requis.",
+      "profile.saved": "Profil enregistré ✓",
+      "profile.saveError": "Enregistrement impossible. Vérifiez votre connexion.",
+      "profile.logoutError": "Déconnexion impossible.",
+      "profile.gender.preferNot": "Préfère ne pas dire",
+      "profile.gender.male": "Homme",
+      "profile.gender.female": "Femme",
+      "profile.gender.nonBinary": "Non binaire",
+      "profile.gender.other": "Autre",
+      "profile.hero.kicker": "Votre espace",
+      "profile.hero.edit": "Modifier le profil",
+      "profile.section.achievements": "Réussites",
+      "profile.stat.habitsTracked": "Habitudes suivies",
+      "profile.stat.longestStreak": "Plus longue série (jours)",
+      "profile.stat.focusSessions": "Sessions de focus",
+      "profile.personal.toggle": "Informations personnelles",
+      "profile.account.changePassword": "Envoyer un courriel de réinitialisation",
+      "profile.account.delete": "Supprimer le compte",
+      "profile.account.pwdSent": "Courriel de réinitialisation envoyé.",
+      "profile.account.pwdErr": "Impossible d'envoyer le courriel.",
+      "profile.delete.confirmTitle": "Supprimer votre compte ?",
+      "profile.delete.confirmBody": "Cette action est définitive. Vos données seront effacées.",
+      "profile.delete.confirm": "Supprimer définitivement",
+      "profile.delete.reauth": "Reconnectez-vous, puis réessayez de supprimer le compte.",
+      "habits.help.title": "Fonctionnement Habitudes",
+      "habits.help.intro": "Cochez chaque jour pour bâtir des séries. La grille montre votre régularité.",
+      "habits.help.step1": "Ajoutez des habitudes avec +. Choisissez une couleur et un horaire.",
+      "habits.help.step2": "Touchez une carte pour marquer le jour. Les séries grandissent avec des jours consécutifs.",
+      "habits.help.step3": "La grille calendrier résume les semaines passées. Modifiez ou archivez à tout moment.",
+      "habits.help.footer": "Les célébrations se synchronisent entre vos appareils lorsque vous êtes en ligne.",
+      "budget.help.modal.title": "Fonctionnement Budget",
+      "budget.help.modal.intro": "Budget regroupe comptes, plafonds mensuels, factures et transactions.",
+      "budget.help.modal.accounts": "Comptes : ajoutez salaire, espèces, crédit ou dette. Le revenu provient des soldes positifs salaire et espèces.",
+      "budget.help.modal.transactions": "Transactions : saisissez les dépenses du mois. Touchez pour modifier ou faites glisser pour supprimer.",
+      "budget.help.modal.categories": "Répartition par catégorie : fixez des plafonds mensuels. Les barres montrent l'utilisation.",
+      "budget.help.modal.footer": "La calculatrice de paie et les exports aident à planifier le net et garder des traces.",
+      "mood.help.title": "Fonctionnement État d'esprit",
+      "mood.help.intro": "De courts bilans quotidiens dessinent l'évolution de l'humeur, du stress, de l'énergie et du focus.",
+      "mood.help.step1": "Choisissez la plage du jour, puis affinez émotions et facteurs.",
+      "mood.help.step2": "Les notes sont facultatives mais utiles pour repérer des motifs dans l'historique.",
+      "mood.help.step3": "Les graphiques hebdomadaires résument les tendances pour comparer les semaines.",
+      "mood.help.footer": "Les entrées restent privées et peuvent apparaître sur l'aperçu si vous l'activez.",
+      "focus.help.title": "Fonctionnement Focus",
+      "focus.help.intro": "Le minuteur zen alterne travail concentré et pauses réparatrices avec respiration guidée en option.",
+      "focus.help.step1": "Réglez durée de travail, pause et objectif quotidien dans les réglages.",
+      "focus.help.step2": "Lancez le minuteur pour un bloc travail ; à la fin, prenez la pause guidée avant le suivant.",
+      "focus.help.step3": "Les sons de fin respectent la sourdine et les préférences de mouvement réduit.",
+      "focus.help.footer": "Les sessions complètes comptent dans les stats du profil.",
+      "plan.help.title": "Fonctionnement Planificateur",
+      "plan.help.intro": "Le planificateur est une frise simple pour vos tâches et événements.",
+      "plan.help.step1": "Faites défiler la semaine ou utilisez les flèches pour choisir un jour.",
+      "plan.help.step2": "Touchez + pour ajouter un élément avec heure, durée et priorité.",
+      "plan.help.step3": "Reportez les tâches inachevées d'un tap lorsque vous changez de jour.",
+      "plan.help.footer": "Votre itinéraire est stocké dans le cloud lorsque vous êtes connecté.",
+      "focus.documentTitle": "Hbit — Focus",
+      "focus.header.zen": "Minuteur zen",
+      "focus.header.ready": "Prêt à vous concentrer",
+      "focus.label.breathingLong": "Respiration guidée (vibrations)",
+      "focus.settings.title": "Réglages du minuteur",
+      "focus.label.workMins": "Durée de travail (min)",
+      "focus.label.breakMins": "Durée de pause (min)",
+      "focus.label.dailyGoal": "Objectif quotidien (sessions)",
+      "focus.label.breathingPattern": "Respiration",
+      "focus.breathing.box": "Carrée (4-4-4-4)",
+      "focus.breathing.478": "4-7-8 (Apaisante)",
+      "focus.breathing.sigh": "Soupir physiologique (Reset rapide)",
+      "focus.breathing.energize": "Énergie (6-2)",
+      "focus.hint.breathing": "En pause, les vibrations guident votre rythme sans regarder l'écran.",
+      "focus.btn.savePrefs": "Enregistrer les préférences",
+      "focus.sessions.completed": "terminées",
+      "focus.sessions.today": "{n} sessions aujourd'hui",
+      "focus.goal.target": "objectif : {n}",
+      "focus.phase.work": "Travail",
+      "focus.phase.breathe": "Respiration",
+      "focus.sub.focusTime": "Temps de concentration",
+      "focus.sub.breakRecover": "Pause et récupération",
+      "focus.breath.inhale": "Inspiration",
+      "focus.breath.exhale": "Expiration",
+      "focus.breath.hold": "Retenir",
+      "focus.toast.sessionGreat": "Super session de focus ! On respire.",
+      "focus.toast.breakDone": "Pause terminée. Au travail.",
+      "focus.sound.ariaOn": "Sons du minuteur activés",
+      "focus.sound.ariaOff": "Sons du minuteur désactivés",
+      "focus.tab.timer": "Minuteur",
+      "focus.tab.sessions": "Sessions",
+      "focus.sessions.totalToday": "Sessions aujourd'hui",
+      "focus.sessions.focusTimeToday": "Temps de concentration",
+      "focus.sessions.streakDays": "Jours de série",
+      "focus.sessions.weeklyChart": "Focus hebdomadaire",
+      "focus.sessions.todayList": "Sessions d'aujourd'hui",
+      "focus.sessions.empty": "Lance ta première session pour voir tes stats",
+      "plan.documentTitle": "Hbit — Planificateur",
+      "plan.modal.title": "Planifier un événement",
+      "plan.label.startTime": "Heure de début",
+      "plan.label.duration": "Durée (min)",
+      "plan.label.priority": "Priorité",
+      "plan.label.notes": "Notes et liens",
+      "plan.btn.addItinerary": "Ajouter à l'itinéraire",
+      "plan.carry.text": "Vous avez des tâches inachevées des jours précédents.",
+      "plan.carry.btn": "Ramener à aujourd'hui",
+      "plan.empty.title": "Agenda vide",
+      "plan.empty.sub": "Appuyez sur + pour ajouter un événement.",
+      "plan.placeholder.title": "Que faites-vous ?",
+      "plan.placeholder.notes": "Notes détaillées…",
+      "plan.priority.normal": "Normale",
+      "plan.priority.high": "Haute (!)",
+      "plan.time.anytime": "N'importe quand",
+      "plan.calendar.stripLabel": "Vue semaine — choisis un jour",
+      "plan.empty.premium.title": "Planifie ta journée idéale",
+      "plan.empty.premium.sub": "Ajoute ta première tâche et construis ton planning parfait",
+      "plan.empty.premium.cta": "Ajouter ta première tâche",
+      "plan.empty.tip1": "Définis les priorités pour te concentrer sur l'essentiel",
+      "plan.empty.tip2": "Les tâches non terminées se reportent au jour suivant",
+      "plan.empty.tip3": "Touchez le calendrier pour planifier à l'avance",
+      "plan.conflict.warning": "Chevauchement avec '{title}' à {time}",
+      "sleep.breath.sec": "{n} s",
+      "sleep.breath.remaining": "{time} restantes",
+      "sleep.integrations.kicker": "Intégrations à venir",
+      "sleep.integrations.copy": "Montres et apps prévues synchroniseront le sommeil automatiquement — sans saisie manuelle.",
+      "sleep.integrations.tag.oura": "Oura Ring",
+      "sleep.integrations.tag.apple": "Apple Watch",
+      "sleep.integrations.tag.fitbit": "Fitbit",
+      "sleep.integrations.tag.garmin": "Garmin",
+      "sleep.help.title": "Fonctionnement Sommeil",
+      "sleep.help.intro": "Hbit Sommeil s'inspire d'Apple Health / Oura : saisie simple, suggestions utiles, vue d'ensemble calme.",
+      "sleep.help.step1.title": "Enregistrer la nuit",
+      "sleep.help.step1.body": "Ouvrez Historique et touchez un jour pour saisir coucher, réveil, qualité et notes.",
+      "sleep.help.step2.title": "Planifier le sommeil",
+      "sleep.help.step2.body": "Utilisez le calculateur de cycle pour l'heure du coucher, puis le plan de ce soir. La routine du soir vous aide à préparer.",
+      "sleep.help.step3.title": "Rester régulier",
+      "sleep.help.step3.body": "Utilisez l'horaire hebdomadaire pour une routine stable, avec une variation plus douce le week-end.",
+      "sleep.cta.title": "Comment vous sentez-vous ?",
+      "sleep.documentTitle": "Hbit — Sommeil",
+      "sleep.help.footer": "Vos entrées se synchronisent avec l'aperçu pour que l'anneau sommeil et les stats hebdo restent à jour.",
+      "sleep.footer.privacy": "Confidentialité",
+      "sleep.footer.terms": "Conditions",
+      "toast.offline": "Hors ligne — les changements se synchroniseront à la reconnexion.",
+      "toast.online": "De nouveau en ligne — synchronisation en cours.",
+      "common.confirm": "Confirmer",
+      "plan.delete.confirm": "Êtes-vous sûr ?",
+      "budget.delete.confirm": "Supprimer cette dépense ?",
+      "budget.delete.aria": "Supprimer la dépense",
+      "budget.delete.short": "Supprimer",
+      "habits.heatmap.aria": "Activité des habitudes sur les {weeks} dernières semaines. {days} jours actifs.",
+      "habits.delete.aria": "Supprimer l'habitude définitivement",
       "mood.title": "État d’esprit",
       "mood.today": "Aujourd’hui",
       "mood.leadin": "Note ton état d’esprit avec des niveaux simples. Enregistre ta journée en un tap.",
@@ -676,6 +1070,18 @@
       "mood.q.impact": "Qu’est-ce qui a le plus impacté ta journée ?",
       "mood.q.trigger": "Déclencheur principal ?",
       "mood.q.action": "Une action que tu peux faire maintenant ?",
+      "mood.yesterday": "Hier",
+      "mood.showMore": "Voir plus",
+      "mood.showLess": "Voir moins",
+      "mood.loggedAt": "Enregistré à {time}",
+      "mood.streak": "Série de {n} jours",
+      "mood.insightNeedMore": "Enregistre encore quelques jours pour des tendances.",
+      "mood.edit": "Modifier",
+      "mood.sleepBanner": "Cette nuit tu as dormi {hours}.",
+      "mood.savedToast": "Humeur enregistrée ✓",
+      "mood.saveError": "Enregistrement impossible. Vérifie ta connexion.",
+      "mood.savedFullToast": "Enregistré ✓",
+      "habits.heatmap.tooltip": "{n} fait · {date}",
       "budget.currency": "Devise",
       "budget.currency.choose": "Choisir la devise",
       "budget.section.pay": "Calcul salaire",
@@ -698,6 +1104,13 @@
       "budget.summary": "Résumé",
       "budget.spent": "Dépensé",
       "budget.income": "Revenu",
+      "budget.documentTitle": "Hbit — Budget",
+      "budget.exportCSV": "Exporter en CSV",
+      "budget.export.currentMonth": "Mois en cours",
+      "budget.export.last3": "3 derniers mois",
+      "budget.export.last6": "6 derniers mois",
+      "budget.export.allTime": "Tout",
+      "budget.accounts.noRecent": "Aucun changement récent",
       "budget.help.title": "Comment fonctionne le Budget",
       "budget.help.close": "Fermer",
       "budget.help.next": "Suivant",
@@ -800,6 +1213,12 @@
       "habits.det.confirmDelete":"Supprimer cette habitude définitivement ?",
       "habits.empty.archived":"Aucune habitude archivée","habits.empty.archivedSub":"Les habitudes archivées apparaîtront ici.",
       "habits.today.label":"Aujourd'hui","habits.today.done":"fait",
+      "habits.confetti.allDone":"Toutes les habitudes sont faites ! 🎉",
+      "habits.milestone.title":"Série de {n} jours !",
+      "habits.milestone.sub7":"Une semaine solide — la constance se construit.",
+      "habits.milestone.sub30":"Un mois complet à tenir le rythme.",
+      "habits.milestone.sub100":"Un engagement de niveau légendaire.",
+      "habits.milestone.cta":"Continue !",
       "habits.wz.continue":"Continuer","habits.wz.create":"Créer l'habitude","habits.wz.saving":"Sauvegarde\u2026",
       "habits.wz.step1.sub":"Choisis ta direction pour commencer.",
       "habits.wz.step2.sub":"Choisis le domaine qui correspond à ton habitude.",
@@ -919,7 +1338,9 @@
       "home.spark.mood": "Humeur",
       "home.spark.water": "Litres",
       "home.kpi.na": "\u2014",
-      "footer.copyright": "\u00a9 Hbit",      "home.empty.title": "Aucune donnée",
+      "footer.copyright": "\u00a9 {year} Hbit",
+      "budget.export.error": "Impossible d'exporter les données.",
+      "home.empty.title": "Aucune donnée",
       "home.empty.sub": "Choisis un module pour commencer.",
       "home.open": "Ouvrir",
       "home.habits.sub": "Construire • Maintenir • Stopper",
@@ -1061,6 +1482,8 @@
       "login.error.empty": "Merci de remplir tous les champs.",
       "login.error.email": "Adresse email invalide.",
       "login.error.invalid": "Email ou mot de passe incorrect.",
+      "login.error.google": "Connexion Google impossible. Réessaie.",
+      "login.error.apple": "Connexion Apple impossible. Réessaie.",
       "login.no-account": "Pas encore de compte ?",
       "auth.login.headline": "Bon retour.\n<span>Continue d'avancer.</span>",
       "auth.login.sub": "Tes habitudes, ton sommeil, ton budget, ton humeur et ton focus t'attendent au même endroit.",
@@ -1277,12 +1700,53 @@
     window.dispatchEvent(new CustomEvent("hbit:lang-changed", { detail: { lang: l } }));
   }
 
-  function t(key, fallbackText, langOverride) {
+  function parseI18nParams(el) {
+    if (!el || typeof el.getAttribute !== "function") return null;
+    const raw = el.getAttribute("data-i18n-params");
+    if (!raw || !String(raw).trim()) return null;
+    try {
+      const o = JSON.parse(raw);
+      return o && typeof o === "object" && !Array.isArray(o) ? o : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function tAttr(key, fallback, lang, el) {
+    const p = parseI18nParams(el);
+    if (p && Object.keys(p).length) return t(key, fallback, p);
+    return t(key, fallback, lang);
+  }
+
+  function t(key, fallbackOrParams, langOverrideOrParams) {
+    // Signature: t(key), t(key, params), t(key, fallbackText), t(key, fallbackText, params), t(key, fallbackText, langOverride)
+    // Detect params object in either position
+    let fallbackText, langOverride, params = {};
+
+    if (typeof fallbackOrParams === "object" && fallbackOrParams !== null && !Array.isArray(fallbackOrParams)) {
+      params = fallbackOrParams;
+      fallbackText = undefined;
+      langOverride = undefined;
+    } else {
+      fallbackText = fallbackOrParams;
+      if (typeof langOverrideOrParams === "object" && langOverrideOrParams !== null && !Array.isArray(langOverrideOrParams)) {
+        params = langOverrideOrParams;
+        langOverride = undefined;
+      } else {
+        langOverride = langOverrideOrParams;
+      }
+    }
+
     const lang = normalizeLang(langOverride || getLang());
     const v = DICT?.[lang]?.[key];
-    if (typeof v === "string") return v;
-    // ✅ If missing translation: keep existing text (fallbackText)
-    return typeof fallbackText === "string" ? fallbackText : key;
+    let result = typeof v === "string" ? v : (typeof fallbackText === "string" ? fallbackText : key);
+
+    // Interpolate {placeholder} tokens
+    if (params && typeof result === "string") {
+      result = result.replace(/\{(\w+)\}/g, (_, k) => params[k] != null ? String(params[k]) : `{${k}}`);
+    }
+
+    return result;
   }
 
   function applyLang(root = document, langOverride) {
@@ -1298,7 +1762,7 @@
         el.dataset.i18nFallback = el.textContent || "";
       }
 
-      const translated = t(key, el.dataset.i18nFallback, lang);
+      const translated = tAttr(key, el.dataset.i18nFallback, lang, el);
       if (translated.includes("\n")) {
         el.innerHTML = translated.replace(/\n/g, "<br>");
       } else {
@@ -1313,7 +1777,7 @@
       if (!el.dataset.i18nPlaceholderFallback) {
         el.dataset.i18nPlaceholderFallback = el.getAttribute("placeholder") || "";
       }
-      const translated = t(key, el.dataset.i18nPlaceholderFallback, lang);
+      const translated = tAttr(key, el.dataset.i18nPlaceholderFallback, lang, el);
       el.setAttribute("placeholder", translated);
     });
     qsa("[data-i18n-title]", root).forEach((el) => {
@@ -1322,8 +1786,39 @@
       if (!el.dataset.i18nTitleFallback) {
         el.dataset.i18nTitleFallback = el.getAttribute("title") || "";
       }
-      const translated = t(key, el.dataset.i18nTitleFallback, lang);
+      const translated = tAttr(key, el.dataset.i18nTitleFallback, lang, el);
       el.setAttribute("title", translated);
+    });
+    qsa("[data-i18n-aria-label]", root).forEach((el) => {
+      const key = el.getAttribute("data-i18n-aria-label");
+      if (!key) return;
+      if (!el.dataset.i18nAriaLabelFallback) {
+        el.dataset.i18nAriaLabelFallback = el.getAttribute("aria-label") || "";
+      }
+      const translated = tAttr(key, el.dataset.i18nAriaLabelFallback, lang, el);
+      el.setAttribute("aria-label", translated);
+    });
+
+    const titleEl =
+      root === document || root.nodeType === 9
+        ? document.head.querySelector("title[data-i18n]")
+        : null;
+    if (titleEl) {
+      const tk = titleEl.getAttribute("data-i18n");
+      if (tk) {
+        if (!titleEl.dataset.i18nFallback) {
+          titleEl.dataset.i18nFallback = document.title || "";
+        }
+        const titleParams = parseI18nParams(titleEl);
+        document.title = titleParams && Object.keys(titleParams).length
+          ? t(tk, titleEl.dataset.i18nFallback, titleParams)
+          : t(tk, titleEl.dataset.i18nFallback, lang);
+      }
+    }
+
+    const yr = String(new Date().getFullYear());
+    qsa('[data-i18n="footer.copyright"]', root).forEach((el) => {
+      el.textContent = t("footer.copyright", "\u00a9 " + yr + " Hbit", { year: yr });
     });
 
     updateToggle();
@@ -1334,8 +1829,15 @@
     const label = document.getElementById("langLabel");
     const btn   = document.getElementById("langToggle");
     // Show the OTHER language as the action (common UX)
-    if (label) label.textContent = lang === "en" ? "FR" : "EN";
-    if (btn) btn.setAttribute("data-lang", lang);
+    if (label) label.textContent = lang === "en" ? t("i18n.switchToFR", "FR") : t("i18n.switchToEN", "EN");
+    if (btn) {
+      btn.setAttribute("data-lang", lang);
+      btn.setAttribute("aria-label", t("a11y.langSwitchAction", "Switch language"));
+    }
+    const themeBtn = document.getElementById("themeToggle");
+    if (themeBtn) {
+      themeBtn.setAttribute("aria-label", t("a11y.themeToggle", "Toggle theme"));
+    }
   }
 
   function toggle() {
@@ -1360,6 +1862,6 @@
     bind();
   }
 
-  HBIT.i18n = { init, bind, apply: applyLang, applyLang, getLang, setLang, toggle, t };
+  HBIT.i18n = { init, bind, apply: applyLang, applyLang, getLang, setLang, toggle, t, updateToggle };
 })();
 

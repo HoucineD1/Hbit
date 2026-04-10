@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Hbit Dev Server (Live Server)",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["live-server", "--port=5501", "--no-browser"],
+      "port": 5501
+    },
+    {
+      "name": "Hbit Static Server (http-server)",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "-p", "8080", "-c-1"],
+      "port": 8080
+    }
+  ]
+}

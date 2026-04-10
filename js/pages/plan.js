@@ -2,63 +2,220 @@
   "use strict";
 
   const HBIT = (window.HBIT = window.HBIT || {});
-  const KEY = "hbit:plan:items";
   const $ = (id) => document.getElementById(id);
 
-  const state = {
+  let state = {
     user: null,
-    profile: null,
+    selectedDate: getTodayStr(), 
+    tasks: [], 
+    allPastUndone: [], 
+    unsubscribe: null,
+    tasksSnapReady: false,
+    planDeleteConfirmId: null,
+    weekOffset: 0,
+    taskMapByDate: {},
   };
 
-  function getLang() {
-    return HBIT.i18n?.getLang?.() || document.documentElement.lang || "en";
+  // ======================================================================
+  // HELPERS
+  // ======================================================================
+  function getLang() { return HBIT.i18n?.getLang?.() || "en"; }
+  function tr(key, fallback, params) {
+    return HBIT.i18n?.t ? HBIT.i18n.t(key, fallback, params) : (fallback != null ? fallback : key);
   }
 
-  function tr(key, fallback) {
-    return HBIT.i18n?.t ? HBIT.i18n.t(key, fallback, getLang()) : fallback;
+  function getTodayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
+  function dateToStr(d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
+  function strToDate(s) {
+    const [y, m, d] = s.split("-").map(Number);
+    return new Date(y, m - 1, d);
+  }
+  function getWeekDays() {
+    const today = new Date();
+    today.setDate(today.getDate() + (state.weekOffset || 0) * 7);
+    const days = [];
+    for (let i = -3; i <= 3; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      days.push(d);
+    }
+    return days;
+  }
+  function formatTimeDisp(timeStr) {
+    if (!timeStr) return tr("plan.time.anytime", "Anytime");
+    const [h, m] = String(timeStr).split(":").map(Number);
+    const d = new Date();
+    d.setHours(h || 0, m || 0, 0, 0);
+    const loc = getLang() === "fr" ? "fr-CA" : "en-CA";
+    return new Intl.DateTimeFormat(loc, { hour: "numeric", minute: "2-digit" }).format(d);
   }
 
-  function shortDate(date) {
-    try {
-      return new Intl.DateTimeFormat(getLang() === "fr" ? "fr-CA" : "en-CA", {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-      }).format(date);
-    } catch {
-      return "";
+  // ======================================================================
+  // DATA
+  // ======================================================================
+  function isFs() { return window.firebase && firebase.firestore && state.user; }
+  function ref() { return firebase.firestore().collection("users").doc(state.user.uid).collection("tasks"); }
+
+  async function loadTasks() {
+    if (isFs()) {
+      if (state.unsubscribe) state.unsubscribe();
+      state.tasksSnapReady = false;
+      state.unsubscribe = ref().where("date", "==", state.selectedDate).onSnapshot(snap => {
+        state.tasks = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        state.tasksSnapReady = true;
+        sortRender();
+      });
+
+      ref().where("done", "==", false).get().then(snap => {
+        const today = getTodayStr();
+        const mapped = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        state.allPastUndone = mapped.filter(t => t.date < today);
+        const map = {};
+        mapped.forEach((t) => {
+          if (!t.date) return;
+          map[t.date] = (map[t.date] || 0) + 1;
+        });
+        state.taskMapByDate = map;
+        if ($("plCarryOver")) $("plCarryOver").hidden = state.allPastUndone.length === 0 || state.selectedDate !== today;
+        renderCalendar();
+      }).catch(()=>{});
+
+    } else {
+      const raw = localStorage.getItem("hbit:plan:tasks");
+      const allTasks = raw ? JSON.parse(raw) : [];
+      state.tasks = allTasks.filter(t => t.date === state.selectedDate);
+      const today = getTodayStr();
+      state.allPastUndone = allTasks.filter(t => t.done === false && t.date < today);
+      const map = {};
+      allTasks.forEach((t) => {
+        if (!t.date) return;
+        map[t.date] = (map[t.date] || 0) + 1;
+      });
+      state.taskMapByDate = map;
+      if ($("plCarryOver")) $("plCarryOver").hidden = state.allPastUndone.length === 0 || state.selectedDate !== today;
+      state.tasksSnapReady = true;
+      sortRender();
     }
   }
 
-  function escapeHtml(text) {
-    return String(text)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
+  function sortRender() {
+    // Sort by time: objects without time go to end, then sort by localeCompare
+    state.tasks.sort((a,b) => {
+      const ta = a.time || "24:00";
+      const tb = b.time || "24:00";
+      if (ta === tb) return b.createdAt - a.createdAt;
+      return ta.localeCompare(tb);
+    });
+    renderList();
+    renderCalendar();
   }
 
-  function readItems() {
-    try {
-      const raw = localStorage.getItem(KEY);
-      const items = raw ? JSON.parse(raw) : [];
-      return Array.isArray(items) ? items : [];
-    } catch {
-      return [];
+  async function addTask(data) {
+    const t = { ...data, done: false, date: state.selectedDate, createdAt: Date.now() };
+    if (isFs()) { await ref().add(t); } 
+    else {
+      const all = JSON.parse(localStorage.getItem("hbit:plan:tasks") || "[]");
+      t.id = String(Date.now());
+      all.push(t);
+      localStorage.setItem("hbit:plan:tasks", JSON.stringify(all));
+      loadTasks();
     }
   }
 
-  function writeItems(items) {
-    localStorage.setItem(KEY, JSON.stringify(items));
-    window.dispatchEvent(new CustomEvent("hbit:data-changed", { detail: { area: "plan" } }));
+  async function toggleTask(id, currentDone) {
+    if (isFs()) { await ref().doc(id).update({ done: !currentDone }); } 
+    else {
+      let all = JSON.parse(localStorage.getItem("hbit:plan:tasks") || "[]");
+      all = all.map(t => t.id === id ? { ...t, done: !currentDone } : t);
+      localStorage.setItem("hbit:plan:tasks", JSON.stringify(all));
+      loadTasks();
+    }
   }
+
+  async function deleteTask(id) {
+    if (isFs()) { await ref().doc(id).delete(); } 
+    else {
+      let all = JSON.parse(localStorage.getItem("hbit:plan:tasks") || "[]");
+      all = all.filter(t => t.id !== id);
+      localStorage.setItem("hbit:plan:tasks", JSON.stringify(all));
+      loadTasks();
+    }
+  }
+
+  async function carryOver() {
+    if (!state.allPastUndone.length) return;
+    const today = getTodayStr();
+    if (isFs()) {
+      const batch = firebase.firestore().batch();
+      state.allPastUndone.forEach(t => {
+        batch.update(ref().doc(t.id), { date: today, createdAt: Date.now() });
+      });
+      await batch.commit();
+    } else {
+      let all = JSON.parse(localStorage.getItem("hbit:plan:tasks") || "[]");
+      state.allPastUndone.forEach(pt => {
+        const idx = all.findIndex(t => t.id === pt.id);
+        if (idx !== -1) { all[idx].date = today; all[idx].createdAt = Date.now(); }
+      });
+      localStorage.setItem("hbit:plan:tasks", JSON.stringify(all));
+      loadTasks();
+    }
+  }
+
+  // ======================================================================
+  // RENDER
+  // ======================================================================
+  function escapeHtml(t) { return String(t||"").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
   function renderHeader() {
-    if ($("planDate")) $("planDate").textContent = shortDate(new Date()).toUpperCase();
-    const currentUser = window.firebase?.auth ? firebase.auth().currentUser : null;
-    const name = state.profile?.fullName || currentUser?.displayName || "H";
-    if ($("planAvatar")) $("planAvatar").textContent = (name.charAt(0) || "H").toUpperCase();
+    const lbl = $("plSelDateLabel");
+    if (!lbl) return;
+    const today = getTodayStr();
+    if (state.selectedDate === today) lbl.textContent = tr("mood.today", "Today");
+    else {
+      lbl.textContent = new Intl.DateTimeFormat(getLang() === "fr" ? "fr-CA" : "en-CA", { weekday: "short", month: "short", day: "numeric" }).format(strToDate(state.selectedDate));
+    }
+  }
+
+  function renderCalendar() {
+    const track = $("plCalTrack");
+    if (!track) return;
+    const days = getWeekDays();
+    const loc = getLang() === "fr" ? "fr-CA" : "en-CA";
+    const formatterDay = new Intl.DateTimeFormat(loc, { weekday: "short" });
+    const formatterNum = new Intl.DateTimeFormat(loc, { day: "numeric" });
+    const formatterLong = new Intl.DateTimeFormat(loc, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+    const monthLabel = $("plCalMonthLabel");
+    if (monthLabel) {
+      monthLabel.textContent = new Intl.DateTimeFormat(loc, { month: "long", year: "numeric" }).format(days[3]);
+    }
+    const today = getTodayStr();
+
+    track.setAttribute("role", "group");
+    track.setAttribute("aria-label", tr("plan.calendar.stripLabel", "Week view — pick a day"));
+
+    track.innerHTML = days.map(d => {
+      const dStr = dateToStr(d);
+      const isActive = dStr === state.selectedDate;
+      const hasTasks = (state.taskMapByDate[dStr] || 0) > 0;
+      const isToday = dStr === today;
+      const label = formatterLong.format(d);
+      return `
+        <button class="pl-cal-day ${isActive ? "active" : ""} ${hasTasks ? "has-tasks" : ""} ${isToday ? "today" : ""}" data-date="${dStr}" type="button"
+                aria-label="${escapeHtml(label)}" aria-pressed="${isActive ? "true" : "false"}">
+          <span class="pl-cal-weekday">${formatterDay.format(d)}</span>
+          <span class="pl-cal-date">${formatterNum.format(d)}</span>
+          <span class="pl-cal-dot"></span>
+        </button>
+      `;
+    }).join("");
+    
+    setTimeout(() => { track.querySelector(".active, .today")?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); }, 50);
   }
 
   function renderList() {
@@ -66,134 +223,225 @@
     const empty = $("planEmpty");
     if (!list || !empty) return;
 
-    const items = readItems();
-    empty.style.display = items.length ? "none" : "grid";
-    list.innerHTML = items.map((item) => `
-      <article class="pl-item ${item.done ? "is-done" : ""}" data-id="${item.id}">
-        <button class="pl-check" type="button" data-action="toggle" aria-label="${item.done ? tr("plan.status.done", "Done") : tr("plan.status.open", "Open")}">
-          <span class="pl-check-dot"></span>
-        </button>
-        <div class="pl-item-copy">
-          <div class="pl-item-text">${escapeHtml(item.text)}</div>
-          <div class="pl-item-meta">${item.done ? tr("plan.status.done", "Done") : tr("plan.status.open", "Open")}</div>
+    /* Firebase auth not resolved yet — show skeleton instead of a blank hidden empty state */
+    if (window.firebase?.auth && window.firebase?.firestore && !state.user) {
+      empty.hidden = true;
+      list.innerHTML = [1, 2, 3].map(() =>
+        `<article class="pl-item skeleton" aria-hidden="true"><div class="pl-card" style="min-height:72px"></div></article>`
+      ).join("");
+      return;
+    }
+
+    if (state.user && window.firebase && firebase.firestore && !state.tasksSnapReady) {
+      empty.hidden = true;
+      list.innerHTML = [1, 2, 3].map(() =>
+        `<article class="pl-item skeleton" aria-hidden="true"><div class="pl-card" style="min-height:72px"></div></article>`
+      ).join("");
+      return;
+    }
+
+    empty.hidden = state.tasks.length > 0;
+    
+    const now = new Date();
+    const today = getTodayStr();
+    let currentMarked = false;
+    list.innerHTML = state.tasks.map(item => {
+      let timeMinutes = 9999;
+      if (item.time) {
+        const [hh, mm] = String(item.time).split(":").map(Number);
+        timeMinutes = (hh || 0) * 60 + (mm || 0);
+      }
+      const nowMinutes = now.getHours() * 60 + now.getMinutes();
+      const isCurrent = !item.done && item.date === today && !currentMarked && timeMinutes >= nowMinutes;
+      if (isCurrent) currentMarked = true;
+      const isUpcoming = !item.done && item.date >= today;
+      const confirming = state.planDeleteConfirmId === item.id;
+      const actionsHtml = confirming
+        ? `<div class="pl-del-confirm" role="group" aria-label="${escapeHtml(tr("plan.delete.confirm", "Are you sure?"))}">
+            <span class="pl-del-msg">${escapeHtml(tr("plan.delete.confirm", "Are you sure?"))}</span>
+            <button class="pl-act-btn is-confirm" data-action="confirm-delete" type="button">${escapeHtml(tr("common.confirm", "Confirm"))}</button>
+            <button class="pl-act-btn is-cancel" data-action="cancel-delete" type="button">${escapeHtml(tr("common.cancel", "Cancel"))}</button>
+          </div>`
+        : `<button class="pl-act-btn is-delete" data-action="delete" type="button" aria-label="Delete">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          <button class="pl-act-btn is-check" data-action="toggle" type="button" aria-label="Done">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>`;
+      return `
+      <article class="pl-item ${item.done ? "is-done" : ""} ${isUpcoming ? "is-upcoming" : ""} ${isCurrent ? "is-current" : ""}" data-id="${item.id}" data-pty="${item.priority || "none"}">
+        <div class="pl-item-head">
+          <div class="pl-time-col">
+            <span class="pl-time-display">${formatTimeDisp(item.time)}</span>
+            ${item.duration ? `<span class="pl-dur-display">${item.duration}m</span>` : ''}
+          </div>
+          <div class="pl-card" tabindex="0">
+            <div class="pl-card-top">
+              <h3 class="pl-item-title">${escapeHtml(item.title || item.text)}</h3>
+              <div class="pl-card-actions">
+                ${actionsHtml}
+              </div>
+            </div>
+            ${item.notes ? `<div class="pl-notes-area">${escapeHtml(item.notes)}</div>` : ''}
+          </div>
         </div>
-        <button class="pl-delete" type="button" data-action="delete" aria-label="Delete task">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-            <path d="M10 11v6"/>
-            <path d="M14 11v6"/>
-            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-          </svg>
-        </button>
-      </article>
-    `).join("");
+      </article>`;
+    }).join("");
   }
 
-  function addItem(text) {
-    const value = text.trim();
-    if (!value) return;
-    const items = readItems();
-    items.unshift({ id: `${Date.now()}`, text: value, done: false, createdAt: Date.now() });
-    writeItems(items);
-    renderList();
-  }
-
-  function toggleItem(id) {
-    const items = readItems().map((item) => item.id === id ? { ...item, done: !item.done } : item);
-    writeItems(items);
-    renderList();
-  }
-
-  function deleteItem(id) {
-    writeItems(readItems().filter((item) => item.id !== id));
-    renderList();
-  }
-
+  // ======================================================================
+  // UI LOGIC
+  // ======================================================================
   function bindUi() {
-    const form = $("planForm");
-    const input = $("planInput");
-    const list = $("planList");
-    const logout = $("logoutBtn");
-
-    form?.addEventListener("submit", (e) => {
-      e.preventDefault();
-      addItem(input?.value || "");
-      if (input) input.value = "";
-      input?.focus();
+    $("plCalTrack")?.addEventListener("click", (e) => {
+      const btn = e.target.closest(".pl-cal-day");
+      if (!btn) return;
+      const dStr = btn.getAttribute("data-date");
+      if (dStr !== state.selectedDate) {
+        state.planDeleteConfirmId = null;
+        state.selectedDate = dStr;
+        renderHeader();
+        loadTasks();
+      }
+    });
+    $("plWeekPrev")?.addEventListener("click", () => {
+      state.weekOffset -= 1;
+      renderCalendar();
+    });
+    $("plWeekNext")?.addEventListener("click", () => {
+      state.weekOffset += 1;
+      renderCalendar();
     });
 
-    list?.addEventListener("click", (e) => {
+    $("planList")?.addEventListener("click", (e) => {
       const actionEl = e.target.closest("[data-action]");
       const item = e.target.closest(".pl-item");
       if (!actionEl || !item) return;
+      
       const id = item.getAttribute("data-id");
       const action = actionEl.getAttribute("data-action");
-      if (action === "toggle") toggleItem(id);
-      if (action === "delete") deleteItem(id);
-    });
-
-    logout?.addEventListener("click", async () => {
-      logout.disabled = true;
-      try {
-        await firebase.auth().signOut();
-        window.location.replace("index.html");
-      } catch {
-        logout.disabled = false;
+      if (action === "toggle") {
+        state.planDeleteConfirmId = null;
+        toggleTask(id, item.classList.contains("is-done"));
+      }
+      if (action === "delete") {
+        state.planDeleteConfirmId = id;
+        renderList();
+      }
+      if (action === "confirm-delete") {
+        state.planDeleteConfirmId = null;
+        deleteTask(id);
+      }
+      if (action === "cancel-delete") {
+        state.planDeleteConfirmId = null;
+        renderList();
       }
     });
-  }
 
-  async function loadProfile(user) {
-    try {
-      state.profile = await HBIT.getCurrentUserProfile?.();
-      if (!state.profile && HBIT.createUserProfile) {
-        const provider = user.providerData?.[0]?.providerId || "password";
-        await HBIT.createUserProfile(user, provider);
-        state.profile = await HBIT.getCurrentUserProfile?.();
-      }
-    } catch {
-      state.profile = null;
-    }
-  }
+    $("plCarryBtn")?.addEventListener("click", carryOver);
+    $("plEmptyCta")?.addEventListener("click", () => $("plFabBtn")?.click());
 
-  function init() {
-    if (document.body.id !== "planPage") return;
-    if (document.body.dataset.planInit) return;
-    document.body.dataset.planInit = "1";
-
-    renderHeader();
-    renderList();
-    bindUi();
-
-    window.addEventListener("hbit:lang-changed", () => {
-      renderHeader();
-      renderList();
-    });
-
-    if (!window.firebase || !firebase.auth) return;
-
-    firebase.auth().onAuthStateChanged(async (user) => {
-      if (!user) {
-        state.user = null;
-        state.profile = null;
-        window.location.replace("login.html");
+    // Modal
+    const modal = $("plModal");
+    function checkConflict() {
+      const msg = $("plConflictMsg");
+      if (!msg) return;
+      const timeVal = $("plInputTime")?.value || "";
+      const dur = Math.max(1, parseInt($("plInputDur")?.value, 10) || 1);
+      if (!timeVal) {
+        msg.hidden = true;
+        msg.textContent = "";
         return;
       }
+      const [sh, sm] = timeVal.split(":").map(Number);
+      const start = (sh || 0) * 60 + (sm || 0);
+      const end = start + dur;
+      const overlap = state.tasks.find((t) => {
+        if (!t.time) return false;
+        const [th, tm] = String(t.time).split(":").map(Number);
+        const ts = (th || 0) * 60 + (tm || 0);
+        const te = ts + Math.max(1, parseInt(t.duration, 10) || 1);
+        return start < te && end > ts;
+      });
+      if (!overlap) {
+        msg.hidden = true;
+        msg.textContent = "";
+        return;
+      }
+      msg.hidden = false;
+      msg.textContent = tr("plan.conflict.warning", "This overlaps with '{title}' at {time}", {
+        title: overlap.title || overlap.text || "task",
+        time: formatTimeDisp(overlap.time),
+      });
+    }
+    $("plFabBtn")?.addEventListener("click", () => {
+      // pre-fill time to now rounded to next 30m if empty
+      const d = new Date();
+      d.setMinutes(Math.ceil(d.getMinutes() / 30) * 30);
+      const tzStr = String(d.getHours()).padStart(2,'0') + ":" + String(d.getMinutes()).padStart(2,'0');
+      if(!$("plInputTime").value) $("plInputTime").value = tzStr;
+      
+      modal.hidden = false;
+      $("plInputTitle")?.focus();
+      checkConflict();
+    });
+    
+    $("plModalClose")?.addEventListener("click", () => modal.hidden = true );
+    
+    $("planForm")?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const title = $("plInputTitle").value.trim();
+      if (!title) return;
+      
+      addTask({
+        title,
+        time: $("plInputTime").value,
+        duration: $("plInputDur").value,
+        priority: $("plInputPty").value,
+        notes: $("plInputNotes").value.trim()
+      });
+      
+      $("planForm").reset();
+      const msg = $("plConflictMsg");
+      if (msg) { msg.hidden = true; msg.textContent = ""; }
+      modal.hidden = true;
+    });
+    $("plInputTime")?.addEventListener("input", checkConflict);
+    $("plInputDur")?.addEventListener("input", checkConflict);
+  }
 
-      state.user = user;
-      await loadProfile(user);
-      renderHeader();
-      renderList();
+  // ======================================================================
+  // BOOT
+  // ======================================================================
+  let planHelpModalBound = false;
+
+  async function init() {
+    if (document.body.id !== "planPage") return;
+    renderHeader(); renderCalendar(); bindUi();
+    renderList();
+
+    if (!planHelpModalBound && HBIT.utils?.initHelpModal) {
+      HBIT.utils.initHelpModal({
+        openBtn: "plHelpBtn",
+        overlay: "plHelpOverlay",
+        closeBtn: "plHelpClose",
+      });
+      planHelpModalBound = true;
+    }
+
+    window.addEventListener("hbit:lang-changed", () => { renderHeader(); renderCalendar(); renderList(); });
+
+    if (!window.firebase || !firebase.auth) { loadTasks(); return; }
+
+    firebase.auth().onAuthStateChanged(u => {
+      if (u) {
+        state.user = u; loadTasks();
+        if ($("planAvatar")) $("planAvatar").textContent = (u.displayName || "H").charAt(0).toUpperCase();
+      } else window.location.replace("login.html");
     });
   }
 
-  HBIT.pages = HBIT.pages || {};
-  HBIT.pages.plan = { init };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
 })();

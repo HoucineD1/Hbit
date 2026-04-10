@@ -5,7 +5,7 @@
 
 #sleepPage {
   --sl-accent:      #818CF8;
-  --sl-accent2:     #60A5FA;
+  --sl-accent2:     #818CF8;
   --sl-soft:        rgba(129, 140, 248, 0.14);
   --sl-soft2:       rgba(129, 140, 248, 0.07);
   --sl-green:       #34D399;
@@ -70,7 +70,7 @@
 }
 #sleepPage .sl-hdr-title {
   font-size: 20px;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.3px;
   color: var(--sl-text);
   line-height: 1.15;
@@ -87,7 +87,8 @@
   align-items: center;
   justify-content: center;
   min-width: 40px;
-  min-height: 36px;
+  min-height: 40px;
+  height: 40px;
   padding: 0 10px;
   border: 1px solid color-mix(in srgb, var(--sl-border) 70%, transparent);
   border-radius: 999px;
@@ -106,14 +107,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   border-radius: 999px;
   border: 1.5px solid color-mix(in srgb, var(--sl-accent) 50%, transparent);
   background: color-mix(in srgb, var(--sl-accent) 12%, var(--sl-panel));
   color: var(--sl-accent);
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 800;
   text-decoration: none;
   transition: transform 0.12s, box-shadow 0.12s;
 }
@@ -267,7 +268,7 @@ html[data-theme="light"] #sleepPage .sl-hero-v2 {
 #sleepPage .sl-hero-wake-ico { font-size: 22px; line-height: 1; }
 #sleepPage .sl-hero-bedtime {
   font-size: clamp(28px, 8vw, 40px);
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -1px;
   color: var(--sl-accent);
   line-height: 1;
@@ -344,7 +345,7 @@ html[data-theme="light"] #sleepPage .sl-hero-v2 {
 }
 #sleepPage .sl-debt-val {
   font-size: 26px;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.5px;
   color: var(--sl-text);
   line-height: 1;
@@ -566,7 +567,7 @@ html[data-theme="light"] #sleepPage .sl-hero-v2 {
 }
 #sleepPage .sl-cycle-time {
   font-size: 18px;
-  font-weight: 900;
+  font-weight: 800;
   color: var(--sl-text);
   letter-spacing: -0.3px;
 }
@@ -825,37 +826,75 @@ html[data-theme="light"] #sleepPage .sl-hero-v2 {
   color: var(--sl-muted);
 }
 
-/* ── Devices ────────────────────────────────────────────────────── */
-#sleepPage .sl-device-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+/* ── Device integrations card ───────────────────────────────────── */
+#sleepPage .sl-device-card {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 18px 18px 20px;
+  border-radius: 18px;
+  border: 1px dashed color-mix(in srgb, var(--sl-accent) 38%, var(--sl-border));
+  background: color-mix(in srgb, var(--sl-panel) 88%, transparent);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--sl-border) 40%, transparent);
 }
-#sleepPage .sl-device-btn {
-  position: relative;
+#sleepPage .sl-device-card-icon {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sl-accent);
+  background: var(--sl-soft);
+  border: 1px solid color-mix(in srgb, var(--sl-accent) 22%, transparent);
+}
+#sleepPage .sl-device-card-body {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 16px 12px;
-  border-radius: 16px;
-  border: 1px solid color-mix(in srgb, var(--sl-border) 55%, transparent);
-  background: color-mix(in srgb, var(--sl-panel2) 80%, transparent);
-  cursor: pointer;
-  font: inherit;
-  color: var(--sl-text);
-  transition: border-color 0.15s, background 0.15s;
+  gap: 6px;
 }
-#sleepPage .sl-device-btn:hover {
-  border-color: color-mix(in srgb, var(--sl-accent) 40%, transparent);
-}
-#sleepPage .sl-device-svg { color: var(--sl-accent); }
-#sleepPage .sl-device-soon {
-  font-size: 10px;
+#sleepPage .sl-device-card-kicker {
+  margin: 0;
+  font-size: 11px;
   font-weight: 800;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
   color: var(--sl-muted);
+}
+#sleepPage .sl-device-card-lead {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  color: var(--sl-text);
+}
+#sleepPage .sl-device-card-copy {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--sl-muted);
+}
+#sleepPage .sl-device-tags {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+#sleepPage .sl-device-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sl-muted);
+  background: color-mix(in srgb, var(--sl-panel2) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sl-border) 55%, transparent);
 }
 #sleepPage .sl-device-tooltip {
   position: fixed;
@@ -1238,7 +1277,7 @@ html[data-theme="light"] #sleepPage .sl-hero-v2 {
 }
 #sleepPage .sl-quality-val {
   font-size: 16px;
-  font-weight: 900;
+  font-weight: 800;
   color: var(--sl-accent);
   min-width: 24px;
   text-align: center;
@@ -1427,20 +1466,73 @@ html[data-theme="light"] #sleepPage .sl-hero-v2 {
 
 html[data-theme="light"] #sleepPage {
   --sl-soft: rgba(129, 140, 248, 0.11);
+  --sl-accent-glow: rgba(129, 140, 248, 0.18);
 }
 html[data-theme="light"] #sleepPage .sl-card,
 html[data-theme="light"] #sleepPage .sl-week-row,
 html[data-theme="light"] #sleepPage .sl-cal-day {
-  background: rgba(255, 255, 255, 0.85);
-  border-color: rgba(0, 0, 0, 0.08);
+  background: var(--panel, #ffffff);
+  border-color: var(--border, rgba(15, 23, 42, 0.1));
+  color: var(--text);
 }
 html[data-theme="light"] #sleepPage .sl-input {
   background: #fff;
   border-color: rgba(0, 0, 0, 0.12);
-  color: #111;
+  color: #0f172a;
 }
 html[data-theme="light"] #sleepPage .sl-sheet {
   background: #fafafa;
+}
+html[data-theme="light"] #sleepPage .sl-winddown {
+  background: var(--panel2, #f1f5f9);
+  border-color: var(--border, rgba(15, 23, 42, 0.1));
+}
+html[data-theme="light"] #sleepPage .sl-winddown-item {
+  background: var(--panel, #ffffff);
+  border-color: var(--border, rgba(15, 23, 42, 0.1));
+}
+html[data-theme="light"] #sleepPage .sl-winddown-item.checked .sl-winddown-check {
+  box-shadow: inset 0 0 0 3px var(--panel, #fff);
+}
+html[data-theme="light"] #sleepPage .sl-hero-debt-block {
+  border-top-color: color-mix(in srgb, var(--sl-accent) 28%, transparent);
+  border-left-color: color-mix(in srgb, var(--sl-accent) 28%, transparent);
+}
+html[data-theme="light"] #sleepPage .sl-debt-val {
+  color: var(--text, #0f172a);
+}
+html[data-theme="light"] #sleepPage .sl-device-card {
+  background: var(--panel2, #f8fafc);
+  border-color: color-mix(in srgb, var(--sl-accent) 25%, rgba(15, 23, 42, 0.12));
+}
+html[data-theme="light"] #sleepPage .sl-device-tag {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(15, 23, 42, 0.1);
+  color: rgba(71, 85, 105, 0.95);
+}
+html[data-theme="light"] #sleepPage .sl-cta-card {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--sl-accent) 14%, #fff) 0%,
+    color-mix(in srgb, var(--sl-accent2) 10%, #fff) 100%
+  );
+  border-color: color-mix(in srgb, var(--sl-accent) 22%, transparent);
+}
+html[data-theme="light"] #sleepPage .sl-device-tooltip,
+html[data-theme="light"] #sleepPage .sl-toast {
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.12);
+}
+html[data-theme="light"] #sleepPage .sl-help-title {
+  color: var(--text, #0f172a);
+}
+html[data-theme="light"] #sleepPage .sl-help-card {
+  background: var(--panel, #fff);
+  border-color: var(--border, rgba(15, 23, 42, 0.1));
+  color: var(--text);
+}
+html[data-theme="light"] #sleepPage .sl-help-intro,
+html[data-theme="light"] #sleepPage .sl-help-steps span {
+  color: var(--muted, #475569);
 }
 
 @media (max-width: 639px) {

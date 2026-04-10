@@ -41,7 +41,7 @@
   border-radius: 12px;
   display: grid;
   place-items: center;
-  font-weight: 1000;
+  font-weight: 800;
   font-size: 18px;
   letter-spacing: 0.3px;
   background: color-mix(in srgb, var(--brand) 18%, var(--panel));
@@ -61,7 +61,7 @@
 }
 
 .brand .t {
-  font-weight: 1000;
+  font-weight: 800;
   letter-spacing: 0.2px;
   line-height: 1.05;
 }
@@ -70,12 +70,12 @@
   margin-top: 2px;
   color: var(--muted);
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 800;
 }
 
 /* ── Center title ─────────────────────────────────── */
 .title {
-  font-weight: 1000;
+  font-weight: 800;
   letter-spacing: 0.2px;
   color: color-mix(in srgb, var(--text) 90%, transparent);
   text-align: center;
@@ -103,7 +103,7 @@
   border: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
   background: color-mix(in srgb, var(--panel) 92%, transparent);
   color: var(--text);
-  font-weight: 1000;
+  font-weight: 800;
   font-size: 14px;
   cursor: pointer;
 }
@@ -116,7 +116,7 @@
 .hint-mini {
   color: var(--muted);
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 800;
 }
 
 /* ── Avatar ───────────────────────────────────────── */
@@ -126,7 +126,7 @@
   border-radius: 999px;
   display: grid;
   place-items: center;
-  font-weight: 1000;
+  font-weight: 800;
   font-size: 15px;
   border: 1.5px solid color-mix(in srgb, var(--border) 80%, transparent);
   background: color-mix(in srgb, var(--panel2) 92%, transparent);

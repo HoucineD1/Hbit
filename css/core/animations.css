@@ -4,7 +4,7 @@
 
 /* ── Keyframes ────────────────────────────────────── */
 @keyframes hbitFadeUp {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -19,8 +19,25 @@
 }
 
 @keyframes hbitScaleIn {
-  from { opacity: 0; transform: scale(0.94); }
+  from { opacity: 0; transform: scale(0.96); }
   to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 0%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
 }
 
 @keyframes hbitProgressFill {
@@ -28,34 +45,34 @@
 }
 
 /* ── Easing shorthand ─────────────────────────────── */
-/* cubic-bezier(0.22, 1, 0.36, 1) = spring-like ease-out */
+/* var(--ease-spring) = spring-like ease-out */
 
 /* ── Topbar entrance ──────────────────────────────── */
 .topbar {
-  animation: hbitSlideDown 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: hbitSlideDown 0.4s var(--ease-spring) both;
 }
 
 /* ── Main content area entrance ───────────────────── */
 .container {
-  animation: hbitFadeUp 0.45s 0.06s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: hbitFadeUp 0.45s 0.06s var(--ease-spring) both;
 }
 
 /* ── Grid cards — staggered entrance ──────────────── */
-.grid > *:nth-child(1)  { animation: hbitFadeUp 0.4s 0.07s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.grid > *:nth-child(2)  { animation: hbitFadeUp 0.4s 0.12s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.grid > *:nth-child(3)  { animation: hbitFadeUp 0.4s 0.17s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.grid > *:nth-child(4)  { animation: hbitFadeUp 0.4s 0.22s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.grid > *:nth-child(5)  { animation: hbitFadeUp 0.4s 0.27s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.grid > *:nth-child(6)  { animation: hbitFadeUp 0.4s 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.grid > *:nth-child(7)  { animation: hbitFadeUp 0.4s 0.37s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.grid > *:nth-child(8)  { animation: hbitFadeUp 0.4s 0.40s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.grid > *:nth-child(n+9){ animation: hbitFadeUp 0.4s 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.grid > *:nth-child(1)  { animation: hbitFadeUp 0.4s 0.07s var(--ease-spring) both; }
+.grid > *:nth-child(2)  { animation: hbitFadeUp 0.4s 0.12s var(--ease-spring) both; }
+.grid > *:nth-child(3)  { animation: hbitFadeUp 0.4s 0.17s var(--ease-spring) both; }
+.grid > *:nth-child(4)  { animation: hbitFadeUp 0.4s 0.22s var(--ease-spring) both; }
+.grid > *:nth-child(5)  { animation: hbitFadeUp 0.4s 0.27s var(--ease-spring) both; }
+.grid > *:nth-child(6)  { animation: hbitFadeUp 0.4s 0.32s var(--ease-spring) both; }
+.grid > *:nth-child(7)  { animation: hbitFadeUp 0.4s 0.37s var(--ease-spring) both; }
+.grid > *:nth-child(8)  { animation: hbitFadeUp 0.4s 0.40s var(--ease-spring) both; }
+.grid > *:nth-child(n+9){ animation: hbitFadeUp 0.4s 0.42s var(--ease-spring) both; }
 
 /* ── Card hover lift ──────────────────────────────── */
 .card {
   transition:
-    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.2s var(--ease-spring),
+    box-shadow 0.2s var(--ease-spring),
     border-color 0.18s ease,
     background 0.18s ease;
   will-change: transform;
@@ -118,19 +135,19 @@
 }
 
 .wlc-main {
-  animation: hbitFadeUp 0.5s 0.05s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: hbitFadeUp 0.5s 0.05s var(--ease-spring) both;
 }
 
 .wlc-illo-card {
-  animation: hbitScaleIn 0.5s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: hbitScaleIn 0.5s 0.1s var(--ease-spring) both;
 }
 
 .wlc-content {
-  animation: hbitFadeUp 0.45s 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: hbitFadeUp 0.45s 0.28s var(--ease-spring) both;
 }
 
 .wlc-actions {
-  animation: hbitFadeUp 0.4s 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: hbitFadeUp 0.4s 0.38s var(--ease-spring) both;
 }
 
 .wlc-footer {
@@ -139,21 +156,21 @@
 
 /* ── Auth page animations ─────────────────────────── */
 .auth-topbar {
-  animation: hbitSlideDown 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: hbitSlideDown 0.35s var(--ease-spring) both;
 }
 
 .auth-hero {
-  animation: hbitFadeUp 0.42s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: hbitFadeUp 0.42s 0.1s var(--ease-spring) both;
 }
 
 #loginForm,
 #signupForm {
-  animation: hbitFadeUp 0.42s 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: hbitFadeUp 0.42s 0.18s var(--ease-spring) both;
 }
 
 .auth-divider,
 .auth-social {
-  animation: hbitFadeUp 0.38s 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: hbitFadeUp 0.38s 0.26s var(--ease-spring) both;
 }
 
 .auth-bottom-link,
@@ -169,13 +186,13 @@
 
 /* ── Progress bar fill ────────────────────────────── */
 .progress-bar > i {
-  animation: hbitProgressFill 1s 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: hbitProgressFill 1s 0.5s var(--ease-spring) both;
 }
 
 /* ── Habit card hover ─────────────────────────────── */
 .habit-card {
   transition:
-    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.18s var(--ease-spring),
     box-shadow 0.18s ease,
     border-color 0.15s ease,
     background 0.15s ease;

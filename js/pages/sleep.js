@@ -27,7 +27,7 @@
   const CYCLE_MIN = 90;
   const ONSET_MIN = 14;
   const BREATH_PHASES = [
-    { labelKey: "sleep.inhale", label: "Inhale", secs: 4, scale: 1.4, color: "#60A5FA" },
+    { labelKey: "sleep.inhale", label: "Inhale", secs: 4, scale: 1.4, color: "#818CF8" },
     { labelKey: "sleep.hold", label: "Hold", secs: 7, scale: 1.4, color: "#818CF8" },
     { labelKey: "sleep.exhale", label: "Exhale", secs: 8, scale: 1.0, color: "#1e1b4b" },
   ];
@@ -200,6 +200,7 @@
     statsSnapshot: null,
     saveSettingsTimer: null,
     deviceTooltipTimer: null,
+    sleepDataReady: false,
   };
 
   function lang() {
@@ -381,7 +382,7 @@
     try {
       await HBIT.db.sleepSettings.set(fields);
     } catch (e) {
-      console.warn("[sleep] saveSettings", e?.message);
+      /* silent */
     }
   }
 
@@ -463,7 +464,7 @@
         .get();
       return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     } catch (err) {
-      console.warn("[sleep] loadPlans:", err);
+      /* silent */
       return [];
     }
   }
@@ -498,7 +499,7 @@
       });
       await renderSavedPlans();
     } catch (err) {
-      console.warn("[sleep] completePlan:", err);
+      /* silent */
     }
   }
 
@@ -508,7 +509,7 @@
       await sleepPlansCol().doc(planId).delete();
       await renderSavedPlans();
     } catch (err) {
-      console.warn("[sleep] deletePlan:", err);
+      /* silent */
     }
   }
 
@@ -527,7 +528,7 @@
       });
       if (n) await batch.commit();
     } catch (err) {
-      console.warn("[sleep] deleteTodayPlannedPlans:", err);
+      /* silent */
     }
   }
 
@@ -676,6 +677,32 @@
     const badgeEl = $("slHeroBadge");
     const countEl = $("slHeroCountdown");
     const debtBlock = $("slHeroDebtBlock");
+
+    if (!state.sleepDataReady) {
+      [bedLarge, wakeEl, badgeEl].forEach((el) => {
+        if (el) {
+          el.classList.add("skeleton");
+          el.textContent = "\u00a0";
+        }
+      });
+      const dv = $("slDebtVal");
+      const ds = $("slDebtSub");
+      if (dv) {
+        dv.classList.add("skeleton");
+        dv.textContent = "\u00a0";
+      }
+      if (ds) {
+        ds.classList.add("skeleton");
+        ds.textContent = "\u00a0";
+      }
+      return;
+    }
+    const _sleepSkEls = [bedLarge, wakeEl, badgeEl, $("slDebtVal"), $("slDebtSub")].filter(Boolean);
+    if (HBIT.utils?.hideSkeletons) {
+      HBIT.utils.hideSkeletons(_sleepSkEls);
+    } else {
+      _sleepSkEls.forEach((el) => el.classList.remove("skeleton"));
+    }
 
     const disp = plan
       ? {
@@ -1048,7 +1075,10 @@
       const left = Math.max(0, 180 - total);
       const mm = Math.floor(left / 60);
       const ss = left % 60;
-      remEl.textContent = `${mm}:${pad2(ss)} remaining`;
+      const timeStr = `${mm}:${pad2(ss)}`;
+      remEl.textContent = typeof HBIT.i18n?.t === "function"
+        ? HBIT.i18n.t("sleep.breath.remaining", "{time} remaining", { time: timeStr })
+        : `${timeStr} remaining`;
     }
     const posInCycle = total % BREATH_CYCLE_SECS;
     let acc = 0;
@@ -1069,7 +1099,11 @@
     const secEl = $("slBreathSecs");
     const circle = $("slBreathCircle");
     if (labelEl) labelEl.textContent = tsleep(phase.labelKey);
-    if (secEl) secEl.textContent = `${secsLeft} sec`;
+    if (secEl) {
+      secEl.textContent = typeof HBIT.i18n?.t === "function"
+        ? HBIT.i18n.t("sleep.breath.sec", "{n} sec", { n: String(secsLeft) })
+        : `${secsLeft} sec`;
+    }
     if (circle) {
       circle.style.background = phase.color;
       circle.style.transform = `scale(${phase.scale})`;
@@ -1272,24 +1306,7 @@
   }
 
   function initDevicePlaceholders() {
-    document.querySelectorAll(".sl-device-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        let tip = document.querySelector(".sl-device-tooltip");
-        if (!tip) {
-          tip = document.createElement("div");
-          tip.className = "sl-device-tooltip";
-          document.body.appendChild(tip);
-        }
-        const r = btn.getBoundingClientRect();
-        tip.textContent = tsleep("sleep.comingSoonMsg");
-        tip.style.left = `${Math.max(8, r.left + r.width / 2 - 100)}px`;
-        tip.style.top = `${r.top - 8}px`;
-        tip.style.transform = "translateY(-100%)";
-        tip.classList.add("visible");
-        clearTimeout(state.deviceTooltipTimer);
-        state.deviceTooltipTimer = setTimeout(() => tip.classList.remove("visible"), 2000);
-      });
-    });
+    /* Device section is informational only (integrations card). */
   }
 
   function populateDurationSelect() {
@@ -1470,7 +1487,7 @@
       exposeSleepSummary();
       handleWarnBanner();
     } catch (err) {
-      console.warn("[Hbit] Sleep delete:", err?.message);
+      /* silent */
     }
   }
 
@@ -1502,7 +1519,7 @@
       exposeSleepSummary();
       handleWarnBanner();
     } catch (err) {
-      console.warn("[Hbit] Sleep save:", err?.message);
+      /* silent */
       if (saveBtn) {
         saveBtn.textContent = "Error — retry";
         saveBtn.style.background = "var(--sl-red,#F87171)";
@@ -1697,6 +1714,19 @@
     HBIT.i18n?.apply?.(document);
   }
 
+  function initScrollTopBtn() {
+    const btn = document.getElementById("hbitScrollTop");
+    if (!btn) return;
+    const sync = () => {
+      const show = window.scrollY > 400;
+      btn.hidden = !show;
+      btn.classList.toggle("is-visible", show);
+    };
+    window.addEventListener("scroll", sync, { passive: true });
+    sync();
+    btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  }
+
   function init() {
     if (document.body.id !== "sleepPage") return;
     if (document.body.dataset.sleepInit) return;
@@ -1704,6 +1734,7 @@
 
     state.calMonth = todayKey().slice(0, 7);
     bindEvents();
+    initScrollTopBtn();
     initTabs();
     initDevicePlaceholders();
     populateDurationSelect();
@@ -1739,6 +1770,7 @@
       state.tonightPlan = plans.find((p) => p.date === todayKey() && p.status === "planned") || null;
 
       exposeSleepSummary();
+      state.sleepDataReady = true;
       renderAll();
 
       if (state.tonightPlan) {

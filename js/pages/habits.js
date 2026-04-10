@@ -19,11 +19,12 @@
     const d = new Date();
     return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
   }
-  function t(key, fallback) {
+  function t(key, fallback, params) {
     try {
-      const v = window.HBIT?.i18n?.t?.(key);
-      return (v && v !== key) ? v : (fallback || key);
-    } catch (_) { return fallback || key; }
+      return window.HBIT?.i18n?.t?.(key, fallback, params) ?? fallback ?? key;
+    } catch (_) {
+      return fallback ?? key;
+    }
   }
 
   /* Ring geometry */
@@ -215,9 +216,7 @@
   }
 
   function heatmapTooltipText(count, dateKey) {
-    return t("habits.heatmap.tooltip", "{n} done · {date}")
-      .replace("{n}", String(count))
-      .replace("{date}", dateKey);
+    return t("habits.heatmap.tooltip", "{n} done · {date}", { n: count, date: dateKey });
   }
 
   const MOTIVATION_CHIPS = ["Health", "Energy", "Confidence", "Stress relief", "Focus", "Family", "Career", "Growth", "Discipline", "Happiness", "Self-esteem", "Productivity", "Longevity", "Mental clarity", "Financial freedom"];
@@ -230,6 +229,7 @@
     habits: [],
     todayLogs: {},
     allLogs: [],
+    habitLogsHydrated: false,
     activeFilter: "all",
     detailId: null,
     detailMonth: null,
@@ -246,6 +246,9 @@
      DATA LOADING
      ══════════════════════════════════════════════════════════ */
   async function loadData() {
+    state.habitLogsHydrated = false;
+    renderHeatmap();
+
     try {
       const [habitsSnap, logsSnap] = await Promise.all([
         habitsCol().get(),
@@ -269,11 +272,12 @@
         }
       });
     } catch (err) {
-      console.warn("[habits] loadData:", err);
+      /* silent */
       state.habits = [];
       state.todayLogs = {};
       state.allLogs = [];
     }
+    state.habitLogsHydrated = true;
     renderAll();
   }
 
@@ -353,6 +357,26 @@
     const monthsEl = $("hbHeatmapMonths");
     if (!grid) return;
 
+    if (!state.habitLogsHydrated) {
+      const totalWeeks = 16;
+      const totalDays = totalWeeks * 7;
+      grid.innerHTML = "";
+      grid.style.gridTemplateColumns = `repeat(${totalWeeks}, 1fr)`;
+      grid.setAttribute("role", "img");
+      grid.setAttribute("aria-label", t("habits.heatmap.aria", "Habit activity over the last {weeks} weeks. {days} active days.", { weeks: String(totalWeeks), days: "…" }));
+      for (let i = 0; i < totalDays; i++) {
+        const el = document.createElement("span");
+        el.className = "hb-heatmap-cell hb-heatmap-cell--skeleton";
+        el.setAttribute("aria-hidden", "true");
+        grid.appendChild(el);
+      }
+      if (monthsEl) {
+        monthsEl.innerHTML = "";
+        monthsEl.style.height = "14px";
+      }
+      return;
+    }
+
     const dayMap = {};
     state.allLogs.forEach(l => {
       if (l.status === "done") {
@@ -389,11 +413,21 @@
       cells.push({ key, level: isFuture ? 0 : level, count, isFuture });
     }
 
+    const activeDays = cells.filter(c => !c.isFuture && c.count > 0).length;
     grid.innerHTML = "";
     grid.style.gridTemplateColumns = `repeat(${totalWeeks}, 1fr)`;
+    grid.setAttribute("role", "img");
+    grid.setAttribute(
+      "aria-label",
+      t("habits.heatmap.aria", "Habit activity over the last {weeks} weeks. {days} active days.", {
+        weeks: String(totalWeeks),
+        days: String(activeDays),
+      })
+    );
     cells.forEach(c => {
       const el = document.createElement("span");
       el.className = "hb-heatmap-cell";
+      el.setAttribute("aria-hidden", "true");
       el.dataset.level = c.isFuture ? "0" : String(c.level);
       if (!c.isFuture && c.count > 0) {
         el.dataset.tooltip = heatmapTooltipText(c.count, c.key);
@@ -430,7 +464,19 @@
     const active = state.habits.filter(h => !h.archived);
     const done = active.filter(h => state.todayLogs[h.id]?.status === "done").length;
     const el = $("hbTodayText");
-    if (el) el.textContent = `${t("habits.today.label", "Today")}: ${done} / ${active.length} ${t("habits.today.done", "done")}`;
+    const strip = document.querySelector(".hb-today-strip");
+    if (el) {
+      const prev = el.dataset.prevDone;
+      const next = String(done);
+      el.textContent = `${t("habits.today.label", "Today")}: ${done} / ${active.length} ${t("habits.today.done", "done")}`;
+      if (prev !== undefined && prev !== next && strip) {
+        strip.classList.remove("hb-today-bump");
+        void strip.offsetWidth;
+        strip.classList.add("hb-today-bump");
+        strip.addEventListener("animationend", () => strip.classList.remove("hb-today-bump"), { once: true });
+      }
+      el.dataset.prevDone = next;
+    }
   }
 
   function renderList() {
@@ -450,6 +496,17 @@
     list.setAttribute("role", "list");
 
     if (!filtered.length) {
+      if (!state.habitLogsHydrated && state.uid && filter !== "archived") {
+        if (empty) empty.style.display = "none";
+        for (let i = 0; i < 3; i++) {
+          const sk = document.createElement("div");
+          sk.className = "hb-card skeleton";
+          sk.setAttribute("aria-hidden", "true");
+          sk.style.minHeight = "132px";
+          list.appendChild(sk);
+        }
+        return;
+      }
       if (empty) {
         empty.style.display = "flex";
         const title = qs(".hb-empty-title", empty);
@@ -562,10 +619,33 @@
   /* ══════════════════════════════════════════════════════════
      LOGGING
      ══════════════════════════════════════════════════════════ */
+  function countActiveDoneToday() {
+    const active = state.habits.filter(h => !h.archived);
+    if (!active.length) return { active: 0, done: 0 };
+    const done = active.filter(h => state.todayLogs[h.id]?.status === "done").length;
+    return { active: active.length, done };
+  }
+
+  function maybeCelebrateAllHabitsDone(wasAllDoneBefore) {
+    const { active, done } = countActiveDoneToday();
+    if (!active || done !== active || wasAllDoneBefore) return;
+    try {
+      const key = `hbit_confetti_${todayKey()}`;
+      if (localStorage.getItem(key)) return;
+      localStorage.setItem(key, "1");
+    } catch (_) {}
+    const msg = t("habits.confetti.allDone", "All habits complete! 🎉");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!reduced) window.HBIT?.confetti?.burst?.({ duration: 1500, count: 60 });
+    window.HBIT?.toast?.success?.(msg);
+  }
+
   async function logHabit(habitId, newStatus) {
     if (!state.uid) return;
     const existing = state.todayLogs[habitId];
     const today = todayKey();
+    const { active: nActive, done: doneBefore } = countActiveDoneToday();
+    const wasAllDoneBefore = nActive > 0 && doneBefore === nActive;
 
     if (newStatus === "done" && existing?.status === "done") {
       try {
@@ -578,12 +658,13 @@
         if (h) h.doneDays = Math.max(0, (h.doneDays || 0) - 1);
         state.allLogs = state.allLogs.filter(l => l.id !== existing.id);
         delete state.todayLogs[habitId];
-      } catch (err) { console.warn("[habits] undo done:", err); }
+      } catch (err) { /* silent */ }
       renderAll();
       window.dispatchEvent(new Event("hbit:data-changed"));
       return;
     }
 
+    let logOk = false;
     try {
       let logId;
       if (existing) {
@@ -628,10 +709,83 @@
         state.allLogs.unshift(newLog);
       }
       state.todayLogs[habitId] = { id: logId, habitId, dateKey: today, status: newStatus };
-    } catch (err) { console.warn("[habits] logHabit:", err); }
+      logOk = true;
+    } catch (err) { /* silent */ }
 
     renderAll();
+    maybeCelebrateAllHabitsDone(wasAllDoneBefore);
+    if (logOk && newStatus === "done") {
+      const cardEl = document.querySelector('.hb-card[data-id="' + String(habitId).replace(/"/g, "") + '"]');
+      if (cardEl) {
+        cardEl.classList.remove("hb-card--done-pulse");
+        void cardEl.offsetWidth;
+        cardEl.classList.add("hb-card--done-pulse");
+        cardEl.addEventListener("animationend", () => cardEl.classList.remove("hb-card--done-pulse"), { once: true });
+      }
+      void maybeStreakMilestone(habitId);
+    }
     window.dispatchEvent(new Event("hbit:data-changed"));
+  }
+
+  function closeMilestoneModal() {
+    const el = $("hbMilestoneOverlay");
+    if (!el) return;
+    el.classList.remove("open");
+    el.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  async function maybeStreakMilestone(habitId) {
+    if (!habitId || !db) return;
+    const st = computeStreak(habitId);
+    const tier = [7, 30, 100].find((n) => n === st.current);
+    if (!tier) return;
+    const h = state.habits.find((x) => x.id === habitId);
+    if (!h) return;
+    const prev = Array.isArray(h.milestonesShown) ? h.milestonesShown : [];
+    if (prev.includes(tier)) return;
+    try {
+      await habitsCol().doc(habitId).update({
+        milestonesShown: firebase.firestore.FieldValue.arrayUnion(tier),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+      h.milestonesShown = [...prev, tier];
+    } catch (e) {
+      /* silent */
+      return;
+    }
+    showMilestoneModal(tier, st.current);
+  }
+
+  function showMilestoneModal(tier, n) {
+    const el = $("hbMilestoneOverlay");
+    if (!el) return;
+    const icon = $("hbMsIcon");
+    const titleEl = $("hbMsTitle");
+    const subEl = $("hbMsSub");
+    const emoji = tier === 7 ? "\u{1F525}" : tier === 30 ? "\u{26A1}" : "\u{1F451}";
+    if (icon) icon.textContent = emoji;
+    if (titleEl) {
+      titleEl.textContent = t("habits.milestone.title", "{n}-day streak!").replace(/\{n\}/g, String(n));
+    }
+    const subKey =
+      tier === 7 ? "habits.milestone.sub7" : tier === 30 ? "habits.milestone.sub30" : "habits.milestone.sub100";
+    const subFb =
+      tier === 7
+        ? "One week strong — consistency is building."
+        : tier === 30
+          ? "A full month of showing up."
+          : "Legendary dedication.";
+    if (subEl) subEl.textContent = t(subKey, subFb);
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!reduced) window.HBIT?.confetti?.burst?.({ duration: 1500, count: 60 });
+
+    el.classList.add("open");
+    el.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    $("hbMsClose")?.focus();
+    window.dispatchEvent(new CustomEvent("hbit:streak-milestone", { detail: { tier, n } }));
   }
 
   /* ══════════════════════════════════════════════════════════
@@ -1334,7 +1488,7 @@
       await habitsCol().doc(habitId).update({ archived: true, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
       const h = state.habits.find(x => x.id === habitId);
       if (h) h.archived = true;
-    } catch (err) { console.warn("[habits] archive:", err); }
+    } catch (err) { /* silent */ }
     closeDetail(); renderAll();
     window.dispatchEvent(new Event("hbit:data-changed"));
   }
@@ -1346,7 +1500,7 @@
       await habitsCol().doc(habitId).delete();
       state.habits = state.habits.filter(x => x.id !== habitId);
       delete state.todayLogs[habitId];
-    } catch (err) { console.warn("[habits] delete:", err); }
+    } catch (err) { /* silent */ }
     closeDetail(); renderAll();
     window.dispatchEvent(new Event("hbit:data-changed"));
   }
@@ -1357,7 +1511,7 @@
       await habitsCol().doc(habitId).update({ archived: false, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
       const h = state.habits.find(x => x.id === habitId);
       if (h) h.archived = false;
-    } catch (err) { console.warn("[habits] restore:", err); }
+    } catch (err) { /* silent */ }
     renderAll();
   }
 
@@ -1367,7 +1521,7 @@
       await habitsCol().doc(habitId).update({ paused: true, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
       const h = state.habits.find(x => x.id === habitId);
       if (h) h.paused = true;
-    } catch (err) { console.warn("[habits] pause:", err); }
+    } catch (err) { /* silent */ }
     closeDetail(); renderAll();
   }
 
@@ -1377,7 +1531,7 @@
       await habitsCol().doc(habitId).update({ paused: false, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
       const h = state.habits.find(x => x.id === habitId);
       if (h) h.paused = false;
-    } catch (err) { console.warn("[habits] resume:", err); }
+    } catch (err) { /* silent */ }
     closeDetail(); renderAll();
   }
 
@@ -1485,6 +1639,7 @@
      INIT
      ══════════════════════════════════════════════════════════ */
   let _eventsBound = false;
+  let _helpModalBound = false;
 
   function init() {
     if (typeof firebase === "undefined") {
@@ -1503,6 +1658,14 @@
 
       loadData();
       if (!_eventsBound) { bindEvents(); _eventsBound = true; }
+      if (!_helpModalBound && window.HBIT?.utils?.initHelpModal) {
+        HBIT.utils.initHelpModal({
+          openBtn: "hbHelpBtn",
+          overlay: "hbHelpOverlay",
+          closeBtn: "hbHelpClose",
+        });
+        _helpModalBound = true;
+      }
     });
   }
 

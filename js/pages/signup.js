@@ -4,6 +4,7 @@
    ========================= */
 
 document.addEventListener("DOMContentLoaded", () => {
+  window.HBIT?.theme?.apply?.();
   window.HBIT?.i18n?.init?.();
 
   /* ── Panel keyword cycling ──────────────────────── */

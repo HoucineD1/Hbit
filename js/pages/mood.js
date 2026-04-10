@@ -45,10 +45,10 @@
     return HBIT.i18n?.getLang?.() === "fr" ? "fr" : "en";
   }
 
-  function t(key, fb) {
+  function t(key, fb, params) {
     try {
-      const v = HBIT.i18n?.t?.(key, fb);
-      return v && v !== key ? v : fb;
+      const v = HBIT.i18n?.t?.(key, fb, params);
+      return v != null && v !== key ? v : fb;
     } catch (_) {
       return fb;
     }
@@ -141,7 +141,8 @@
     emotionPick: "",
     impactPick: "",
     sliderTouched: { energy: false, stress: false, focus: false, social: false },
-    eventsBound: false
+    eventsBound: false,
+    moodDataReady: false,
   };
 
   async function migrateLegacyData() {
@@ -173,9 +174,8 @@
       }
       localStorage.removeItem(KEY_HIST);
       localStorage.removeItem(KEY_TODAY);
-      console.log("[Hbit mood] Migrated", arr.length, "legacy entries to Firestore");
     } catch (e) {
-      console.warn("[Hbit mood] Migration skipped:", e?.message || e);
+      /* silent */
     }
   }
 
@@ -558,7 +558,7 @@
     const b = inferMoodBand(log);
     const lang = getLang();
     const time = formatLogTime(log);
-    const logged = t("mood.loggedAt", "Logged at {time}").replace("{time}", time);
+    const logged = t("mood.loggedAt", "Logged at {time}", { time });
     el.innerHTML = `
       <span class="md-today-summary-swatch" style="--entry-band:var(--md-band-${b})"></span>
       <div class="md-today-summary-text">
@@ -581,6 +581,14 @@
   function renderStreak(logs) {
     const el = $("mdStreak");
     if (!el) return;
+    if (!state.moodDataReady) {
+      el.classList.remove("md-streak--hidden");
+      el.hidden = false;
+      el.classList.add("skeleton");
+      el.textContent = "\u00a0";
+      return;
+    }
+    el.classList.remove("skeleton");
     const n = calcStreak(logs);
     state.streak = n;
     if (n < 2) {
@@ -590,7 +598,7 @@
     }
     el.classList.remove("md-streak--hidden");
     el.hidden = false;
-    const text = t("mood.streak", "{n}-day streak").replace("{n}", String(n));
+    const text = t("mood.streak", "{n}-day streak", { n });
     el.textContent = "🔥 " + text;
   }
 
@@ -599,6 +607,19 @@
     const labelsEl = $("mdMiniBarLabels");
     const barsEl = $("mdMiniBars");
     if (!textEl || !barsEl) return;
+
+    if (!state.moodDataReady) {
+      textEl.classList.add("skeleton");
+      textEl.textContent = "\u00a0";
+      if (labelsEl) labelsEl.innerHTML = "";
+      barsEl.innerHTML = "";
+      barsEl.classList.add("skeleton");
+      barsEl.style.minHeight = "48px";
+      return;
+    }
+    textEl.classList.remove("skeleton");
+    barsEl.classList.remove("skeleton");
+    barsEl.style.minHeight = "";
 
     if (logs.length < 3) {
       textEl.textContent = t("mood.insightNeedMore", "Log a few more days for insights.");
@@ -710,7 +731,9 @@
       return;
     }
     const hours = sum.displayHours || sum.hoursLabel || sum.hoursFormatted || "—";
-    textEl.innerHTML = t("mood.sleepBanner", "Last night you slept {hours}.").replace("{hours}", `<strong>${hours}</strong>`);
+    textEl.innerHTML = t("mood.sleepBanner", "Last night you slept {hours}.", {
+      hours: `<strong>${hours}</strong>`,
+    });
     banner.classList.remove("md-sleep-banner--hidden");
     banner.hidden = false;
   }
@@ -818,8 +841,8 @@
         showToast(t("mood.savedToast", "Mood saved ✓"));
         window.dispatchEvent(new CustomEvent("hbit:data-changed", { detail: { area: "mood" } }));
       } catch (e) {
-        console.warn(e);
-        showToast(getLang() === "fr" ? "Erreur d'enregistrement" : "Could not save");
+        /* silent */
+        showToast(t("mood.saveError", "Could not save. Check your connection."));
       }
     });
 
@@ -852,11 +875,11 @@
         state.recentLogs = await loadRecentLogs();
         state.selectedBand = null;
         renderAll();
-        showToast(getLang() === "fr" ? "Enregistré ✓" : "Saved ✓");
+        showToast(t("mood.savedFullToast", "Saved ✓"));
         window.dispatchEvent(new CustomEvent("hbit:data-changed", { detail: { area: "mood" } }));
       } catch (e) {
-        console.warn(e);
-        showToast(getLang() === "fr" ? "Erreur d'enregistrement" : "Could not save");
+        /* silent */
+        showToast(t("mood.saveError", "Could not save. Check your connection."));
       }
     });
 
@@ -902,6 +925,8 @@
     });
   }
 
+  let _moodHelpModalBound = false;
+
   async function start(user) {
     state.uid = user.uid;
     await migrateLegacyData();
@@ -909,25 +934,48 @@
     state.todayLog = todayLog;
     state.recentLogs = recentLogs;
     state.weekInsight = generateWeeklyInsight(recentLogs);
+    state.moodDataReady = true;
     bindEvents();
     renderAll();
     handleSleepBanner();
+    initScrollTopBtn();
+    if (!_moodHelpModalBound && HBIT.utils?.initHelpModal) {
+      HBIT.utils.initHelpModal({
+        openBtn: "mdHelpBtn",
+        overlay: "mdHelpOverlay",
+        closeBtn: "mdHelpClose",
+      });
+      _moodHelpModalBound = true;
+    }
+  }
+
+  function initScrollTopBtn() {
+    const btn = document.getElementById("hbitScrollTop");
+    if (!btn) return;
+    const sync = () => {
+      const show = window.scrollY > 400;
+      btn.hidden = !show;
+      btn.classList.toggle("is-visible", show);
+    };
+    window.addEventListener("scroll", sync, { passive: true });
+    sync();
+    btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
   }
 
   function init() {
     if (!window.firebase?.auth) {
-      console.warn("[mood] Firebase Auth not available");
+      /* silent */
       return;
     }
     const auth = firebase.auth();
     if (auth.currentUser) {
-      start(auth.currentUser).catch((e) => console.warn("[mood]", e?.message || e));
+      start(auth.currentUser).catch(() => {});
       return;
     }
     const unsub = auth.onAuthStateChanged((user) => {
       if (user) {
         unsub();
-        start(user).catch((e) => console.warn("[mood]", e?.message || e));
+        start(user).catch(() => {});
       }
     });
   }
