@@ -35,13 +35,13 @@
       });
     });
 
-    // Auto-dismiss after 4 s
+    // Auto-dismiss after 3 s
     setTimeout(function () {
       el.classList.remove("hbit-toast--show");
       el.addEventListener("transitionend", function () { el.remove(); }, { once: true });
       // Fallback remove in case transition doesn't fire
       setTimeout(function () { el.remove(); }, 400);
-    }, 4000);
+    }, 3000);
   }
 
   /* ── Offline / online banner ─────────────────────────── */
@@ -82,6 +82,7 @@
 
   /* ── Public API ──────────────────────────────────────── */
   HBIT.toast = {
+    show    : toast,
     success : function (msg) { toast(msg, "success"); },
     error   : function (msg) { toast(msg, "error");   },
     info    : function (msg) { toast(msg, "info");    },

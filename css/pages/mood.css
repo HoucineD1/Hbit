@@ -87,7 +87,7 @@
 /* ── Main + page tint ───────────────────────────────────── */
 .md-main {
   flex: 1;
-  padding: 24px 18px 120px;
+  padding: var(--space-6) 18px 120px;
   max-width: 960px;
   margin: 0 auto;
   transition: background-color 0.4s ease, box-shadow 0.4s ease;
@@ -724,3 +724,10 @@ html[data-theme="light"] #moodPage .md-insight-text { color: rgba(0, 0, 0, 0.88)
 html[data-theme="light"] #moodPage .md-entry-note { color: rgba(0, 0, 0, 0.65); }
 html[data-theme="light"] #moodPage .hm-theme-dark { display: none; }
 html[data-theme="light"] #moodPage .hm-theme-light { display: block; }
+
+.md-band-item:active,
+.md-chip:active,
+.md-btn-primary:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}

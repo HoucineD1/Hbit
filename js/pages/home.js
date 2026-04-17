@@ -32,7 +32,13 @@
   }
 
   function tr(key, fallback, vars) {
-    if (!HBIT.i18n?.t) return fallback;
+    if (!HBIT.i18n?.t) {
+      let s = fallback != null ? fallback : key;
+      if (vars && typeof vars === "object" && typeof s === "string") {
+        s = s.replace(/\{(\w+)\}/g, (_, k) => vars[k] !== undefined ? String(vars[k]) : `{${k}}`);
+      }
+      return s;
+    }
     if (vars && typeof vars === "object" && Object.keys(vars).length) {
       return HBIT.i18n.t(key, fallback, vars);
     }

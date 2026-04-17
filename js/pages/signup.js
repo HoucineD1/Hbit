@@ -148,6 +148,8 @@ document.addEventListener("DOMContentLoaded", () => {
   })();
 
   async function setSessionPersistence() {
+    // TODO: Change to LOCAL persistence before public launch.
+    // SESSION is intentional during beta testing so the dev can test signup repeatedly.
     await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
   }
 
@@ -169,6 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const emailInput    = document.getElementById("emailInput");
   const passInput     = document.getElementById("passwordInput");
   const confirmInput  = document.getElementById("confirmInput");
+  const confirmHint   = document.getElementById("confirmHint");
   const termsCheck    = document.getElementById("termsCheck");
   const errorBox      = document.getElementById("signupError");
   const submitBtn     = document.getElementById("signupSubmit");
@@ -176,8 +179,36 @@ document.addEventListener("DOMContentLoaded", () => {
   const spinner       = document.getElementById("signupSpinner");
   const arrowIcon     = document.getElementById("signupArrow");
   const eyeBtn        = document.getElementById("togglePassword");
+  const confirmEyeBtn = document.getElementById("toggleConfirmPassword");
+
+  /* ── Real-time password match validation ──────────────── */
+  function validatePasswordMatch() {
+    const pw      = passInput?.value  ?? "";
+    const confirm = confirmInput?.value ?? "";
+
+    if (!confirm) {
+      confirmHint?.classList.add("hidden");
+      confirmInput?.classList.remove("valid", "error");
+      return;
+    }
+
+    if (pw === confirm) {
+      if (confirmHint) confirmHint.textContent = "";
+      confirmHint?.classList.add("hidden");
+      confirmInput?.classList.add("valid");
+      confirmInput?.classList.remove("error");
+    } else {
+      if (confirmHint) confirmHint.textContent = t("signup.confirm.mismatch", "Passwords do not match");
+      confirmHint?.classList.remove("hidden");
+      confirmInput?.classList.add("error");
+      confirmInput?.classList.remove("valid");
+    }
+  }
 
   const t = (key, fb) => window.HBIT?.i18n?.t(key) || fb;
+
+  confirmInput?.addEventListener("input", validatePasswordMatch);
+  passInput?.addEventListener("input", validatePasswordMatch);
 
   /* ── Password visibility toggle ──────────────────── */
   if (eyeBtn && passInput) {
@@ -186,6 +217,22 @@ document.addEventListener("DOMContentLoaded", () => {
       passInput.type = showing ? "password" : "text";
       eyeBtn.setAttribute("aria-label", showing ? "Show password" : "Hide password");
       const icon = eyeBtn.querySelector(".eye-icon");
+      if (icon) {
+        icon.innerHTML = showing
+          ? `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`
+          : `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+             <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+             <line x1="1" y1="1" x2="23" y2="23"/>`;
+      }
+    });
+  }
+
+  if (confirmEyeBtn && confirmInput) {
+    confirmEyeBtn.addEventListener("click", () => {
+      const showing = confirmInput.type === "text";
+      confirmInput.type = showing ? "password" : "text";
+      confirmEyeBtn.setAttribute("aria-label", showing ? "Show confirm password" : "Hide confirm password");
+      const icon = confirmEyeBtn.querySelector(".eye-icon");
       if (icon) {
         icon.innerHTML = showing
           ? `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`
@@ -306,7 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
           console.error("[Hbit] → Paste the rules from firestore.rules in Firebase Console > Firestore > Rules");
         }
 
-        window.location.replace("home.html");
+        window.location.replace("welcome.html");
 
       } catch (err) {
         _inProgress = false;
@@ -337,7 +384,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const provider = new firebase.auth.GoogleAuthProvider();
         const cred     = await firebase.auth().signInWithPopup(provider);
         await window.HBIT.createUserProfile(cred.user, "google.com");
-        window.location.replace("home.html");
+        window.location.replace("welcome.html");
       } catch (err) {
         _inProgress = false;
         if (err.code !== "auth/popup-closed-by-user") {
@@ -357,7 +404,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const provider = new firebase.auth.OAuthProvider("apple.com");
         const cred     = await firebase.auth().signInWithPopup(provider);
         await window.HBIT.createUserProfile(cred.user, "apple.com");
-        window.location.replace("home.html");
+        window.location.replace("welcome.html");
       } catch (err) {
         _inProgress = false;
         if (err.code !== "auth/popup-closed-by-user") {

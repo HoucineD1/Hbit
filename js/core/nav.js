@@ -268,5 +268,18 @@
     handleResize();
   }
 
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("a[href]");
+    if (!a) return;
+    var href = a.getAttribute("href");
+    if (!href || href.charAt(0) === "#" || href.indexOf("http") === 0 || href.indexOf("mailto:") === 0) return;
+    if (a.target && a.target !== "_self") return;
+    if (!document.startViewTransition) return;
+    e.preventDefault();
+    document.startViewTransition(function () {
+      window.location.href = href;
+    });
+  });
+
   HBIT.nav = { init: init, setActive: setActive, open: open, close: close, toggle: toggle };
 })();

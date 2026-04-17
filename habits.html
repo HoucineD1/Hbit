@@ -1,9 +1,9 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Hbit — Habits</title>
+  <title>Hbit â€” Habits</title>
   <meta name="description" content="Build and track daily habits with Hbit." />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23E63946'/><text x='50%25' y='68%25' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='900' font-size='20' fill='white'>H</text></svg>">
@@ -41,20 +41,24 @@
 
   <!-- App (last) -->
   <script defer src="js/app.js"></script>
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta name="theme-color" content="#E63946" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 </head>
 
 <body id="habitsPage">
 
   <a href="#main-content" class="skip-link" data-i18n="a11y.skipToContent">Skip to main content</a>
 
-    <!-- ══ Sidebar (injected by sidebar.js) ══════════════════ -->
+    <!-- â•â• Sidebar (injected by sidebar.js) â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="sb-overlay"></div>
   <nav class="sb" aria-hidden="true" aria-label="Main navigation"></nav>
 
-  <!-- ══ Compact sticky header ════════════════════════════ -->
+  <!-- â•â• Compact sticky header â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <header class="hb-header">
     <div class="hb-hdr-left">
-      <span class="hb-hdr-date" id="hbDate">—</span>
+      <span class="hb-hdr-date" id="hbDate">â€”</span>
       <h1 class="hb-hdr-title" data-i18n="nav.habits">Habits</h1>
     </div>
     <div class="hb-hdr-right">
@@ -95,7 +99,7 @@
     </div>
   </header>
 
-  <!-- ══ Today strip ══════════════════════════════════════ -->
+  <!-- â•â• Today strip â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="hb-today-strip" id="hbTodayStrip">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -105,7 +109,7 @@
     <span class="hb-today-hint" data-i18n="habits.today.hint">&middot; Tap a habit to mark</span>
   </div>
 
-  <!-- ══ Filter chips ═══════════════════════════════════════ -->
+  <!-- â•â• Filter chips â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="hb-chips" id="hbChips" role="tablist">
     <button class="hb-chip active" data-filter="all" role="tab" aria-selected="true"
             data-i18n="habits.chip.all">All</button>
@@ -121,10 +125,10 @@
             data-i18n="habits.chip.archived">Archived</button>
   </div>
 
-  <!-- ══ Main scrollable area ══════════════════════════════ -->
+  <!-- â•â• Main scrollable area â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <main class="hb-main" id="main-content">
 
-    <!-- ── Contribution heatmap ──────────────────────────── -->
+    <!-- â”€â”€ Contribution heatmap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <section class="hb-heatmap-section" id="hbHeatmapSection">
       <button class="hb-heatmap-toggle" id="hbHeatmapToggle" type="button" aria-expanded="true">
         <span data-i18n="habits.heatmap.title">Activity</span>
@@ -170,7 +174,7 @@
 
     <!-- Page footer -->
     <footer class="hb-page-footer">
-      <span data-i18n="footer.copyright">&copy; 2025 Hbit</span>
+      <span data-i18n="footer.copyright">&copy; 2026 Hbit</span>
       &nbsp;&middot;&nbsp;
       <a href="privacy.html" data-i18n="landing.footer.privacy">Privacy Policy</a>
       &nbsp;&middot;&nbsp;
@@ -180,7 +184,7 @@
   </main><!-- /hb-main -->
 
 
-  <!-- ══ Wizard modal ══════════════════════════════════════ -->
+  <!-- â•â• Wizard modal â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="hb-wizard-overlay" id="wizardModal" aria-hidden="true" role="dialog"
        aria-modal="true" aria-labelledby="wzTitle">
 
@@ -237,7 +241,7 @@
   </div><!-- /wizardModal -->
 
 
-  <!-- ══ Detail modal ══════════════════════════════════════ -->
+  <!-- â•â• Detail modal â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="hb-detail-overlay" id="detailModal" aria-hidden="true" role="dialog"
        aria-modal="true" aria-labelledby="detailTitle">
     <div class="hb-detail-backdrop" id="detailBackdrop"></div>
@@ -291,8 +295,10 @@
   <div class="hb-ms-overlay" id="hbMilestoneOverlay" aria-hidden="true">
     <div class="hb-ms-backdrop" id="hbMilestoneBackdrop"></div>
     <div class="hb-ms-card hbitFadeUp" role="dialog" aria-modal="true" aria-labelledby="hbMsTitle">
-      <div class="hb-ms-icon" id="hbMsIcon" aria-hidden="true">🔥</div>
-      <h2 class="hb-ms-title" id="hbMsTitle">—</h2>
+      <div class="hb-ms-icon" id="hbMsIcon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+      </div>
+      <h2 class="hb-ms-title" id="hbMsTitle">â€”</h2>
       <p class="hb-ms-sub" id="hbMsSub"></p>
       <button type="button" class="hb-ms-cta" id="hbMsClose" data-i18n="habits.milestone.cta">Keep going!</button>
     </div>

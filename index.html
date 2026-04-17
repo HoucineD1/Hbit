@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -16,14 +16,14 @@
   <meta property="og:url"         content="https://hbit-d62a6.web.app/" />
   <meta property="og:title"       content="Hbit — Build Better Habits Every Day" />
   <meta property="og:description" content="Track habits, budget, sleep and mood in one beautiful dashboard." />
-  <meta property="og:image"       content="https://hbit-d62a6.web.app/assets/og-cover.png" />
+  <meta property="og:image"       content="https://hbit-d62a6.web.app/assets/og-cover.svg" />
 
   <!-- ── Twitter Card ──────────────────────────────────── -->
   <meta name="twitter:card"        content="summary_large_image" />
   <meta name="twitter:url"         content="https://hbit-d62a6.web.app/" />
   <meta name="twitter:title"       content="Hbit — Build Better Habits Every Day" />
   <meta name="twitter:description" content="Track habits, budget, sleep and mood in one beautiful dashboard." />
-  <meta name="twitter:image"       content="https://hbit-d62a6.web.app/assets/og-cover.png" />
+  <meta name="twitter:image"       content="https://hbit-d62a6.web.app/assets/og-cover.svg" />
 
   <!-- ── Schema.org WebApplication ────────────────────── -->
   <script type="application/ld+json">
@@ -33,7 +33,7 @@
     "name": "Hbit",
     "url": "https://hbit-d62a6.web.app/",
     "description": "All-in-one personal dashboard for habits, budget, sleep and mood tracking.",
-    "applicationCategory": "LifestyleApplication",
+    "applicationCategory": "HealthApplication",
     "operatingSystem": "Web",
     "offers": {
       "@type": "Offer",
@@ -51,6 +51,10 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" /></noscript>
 <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="css/pages/landing.css" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta name="theme-color" content="#E63946" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 </head>
 
 <body id="landingPage">
@@ -105,29 +109,16 @@
           <span data-i18n="landing.eyebrow">Your life. One dashboard.</span>
         </p>
 
-        <!-- ── Social proof ─────────────────────────────────── -->
-        <div class="ld-social-proof">
-          <div class="ld-avatars">
-            <span class="ld-avatar" style="background:#3ecf7f;" aria-hidden="true">A</span>
-            <span class="ld-avatar" style="background:#60a5fa;" aria-hidden="true">M</span>
-            <span class="ld-avatar" style="background:#a78bfa;" aria-hidden="true">S</span>
-            <span class="ld-avatar" style="background:#fbbf24;" aria-hidden="true">J</span>
-          </div>
-          <div class="ld-proof-text">
-            <span class="ld-proof-count">Trusted by <strong>10,000+</strong> users</span>
-            <span class="ld-proof-stars" aria-label="Rated 4.8 out of 5">★★★★★ <em>4.8</em></span>
-          </div>
-        </div>
-
         <!-- Headline -->
         <h1 class="ld-h1">
-          <span data-i18n="landing.h1.line1">Everything that makes you</span><br>
-          <span class="ld-h1-accent" data-i18n="landing.h1.line2">better. Right here.</span>
+          <span data-i18n="landing.h1.line1">Track Everything That Matters.</span>
         </h1>
+        <h2 class="ld-h2" data-i18n="landing.h1.line2">Track everything. Improve everything.</h2>
 
         <!-- Subtitle -->
         <p class="ld-sub" data-i18n="landing.sub">
-          Six powerful trackers in one seamless dashboard — habits, budget, sleep, mood, focus, and planner. Built for people serious about becoming better.
+          Habits. Sleep. Budget. Mood. Focus. Planning.
+          One app. Every part of your life — in one beautiful dashboard.
         </p>
 
         <!-- Feature chip nav -->
@@ -162,42 +153,49 @@
         <!-- CTA buttons -->
         <div class="ld-cta-row" role="group" aria-label="Get started">
           <a class="ld-cta-primary" href="signup.html" data-i18n="landing.cta.signup">
-            Start for free
+            Get Started Free
           </a>
-          <a class="ld-cta-secondary" href="login.html">
-            <span data-i18n="landing.cta.signin">Sign in</span>
-            <span class="ld-cta-arrow" aria-hidden="true">
-              <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-                <path d="M2.5 7.5h10M8.5 3.5l4 4-4 4"
-                  stroke="currentColor" stroke-width="1.7"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
+          <a class="ld-cta-secondary" href="login.html" data-i18n="landing.cta.secondary">
+            Sign in
           </a>
         </div>
 
-        <!-- Stats row -->
-        <div class="ld-stats-row" aria-label="Key statistics">
-          <div class="ld-stat">
-            <span class="ld-stat-value ld-count-up" data-target="10" data-suffix="K+" aria-label="Over 10,000 users worldwide">0K+</span>
-            <span class="ld-stat-label" data-i18n="landing.stat.users">People growing daily</span>
-          </div>
-          <div class="ld-stats-sep" aria-hidden="true"></div>
-          <div class="ld-stat">
-            <span class="ld-stat-value ld-count-up" data-target="6" data-suffix=" modules" aria-label="6 tracking modules">0</span>
-            <span class="ld-stat-label" data-i18n="landing.stat.modules">All in one place</span>
-          </div>
-          <div class="ld-stats-sep" aria-hidden="true"></div>
-          <div class="ld-stat">
-            <span class="ld-stat-value" data-i18n="landing.stat.free.value">Free</span>
-            <span class="ld-stat-label" data-i18n="landing.stat.free.label">No credit card</span>
-          </div>
+        <!-- Beta badge -->
+        <div class="ld-beta-badge">
+          <span class="ld-beta-dot"></span>
+          <span>Beta v1.0 — Early Access</span>
         </div>
 
       </div><!-- /ld-hero-left -->
 
       <!-- Right: carousel visual ─────────────────────────── -->
       <div class="ld-hero-right">
+        <div class="ld-preview-deck" aria-hidden="true" hidden>
+          <article class="ld-preview-card ld-preview-card--habits">
+            <div class="ld-preview-card-head">
+              <span>Habits</span>
+              <span>14 day streak</span>
+            </div>
+            <div class="ld-preview-ring">
+              <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="44"/><circle cx="60" cy="60" r="44" pathLength="100"/></svg>
+              <strong>86%</strong>
+            </div>
+          </article>
+          <article class="ld-preview-card ld-preview-card--sleep">
+            <div class="ld-preview-card-head">
+              <span>Sleep</span>
+              <span>7h 23m</span>
+            </div>
+            <div class="ld-preview-bars"><span style="height:42%"></span><span style="height:68%"></span><span style="height:54%"></span><span style="height:82%"></span><span style="height:73%"></span></div>
+          </article>
+          <article class="ld-preview-card ld-preview-card--mood">
+            <div class="ld-preview-card-head">
+              <span>Mood</span>
+              <span>Good</span>
+            </div>
+            <div class="ld-preview-mood"><span></span><span></span><span class="active"></span><span></span><span></span></div>
+          </article>
+        </div>
 
         <div class="ld-carousel-wrapper">
           <button class="ld-carousel-btn ld-carousel-btn--prev" id="carouselPrev" type="button" aria-label="Previous slide">
@@ -814,7 +812,8 @@
     </div>
 
     <!-- ── FEATURE CARDS ────────────────────────────────── -->
-    <section class="ld-features" aria-label="Features">
+    <section class="ld-features" id="features" aria-label="Features">
+      <h2 class="ld-features-title" data-i18n="landing.features.title">Everything you need. Nothing you don't.</h2>
       <div class="ld-feat-grid">
 
         <!-- Habits -->

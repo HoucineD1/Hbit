@@ -856,6 +856,52 @@
     }
   };
 
+  /* ════════════════════════════════════════════════════════════════════════
+     TASKS   /users/{uid}/tasks/{taskId}
+     ════════════════════════════════════════════════════════════════════════ */
+  const tasks = {
+    _col() { return userSubcollectionRef(getUidOrThrow(), "tasks"); },
+
+    async list(date) {
+      try {
+        const qs = await this._col().where("date", "==", date).get();
+        return query2arr(qs);
+      } catch (err) { return logAndThrow("tasks.list", err); }
+    },
+
+    async listAll() {
+      try {
+        const qs = await this._col().get();
+        return query2arr(qs);
+      } catch (err) { return logAndThrow("tasks.listAll", err); }
+    },
+
+    async add(task) {
+      try {
+        const ref = await this._col().add({ ...task, createdAt: now(), updatedAt: now() });
+        return ref.id;
+      } catch (err) { return logAndThrow("tasks.add", err); }
+    },
+
+    async update(taskId, fields) {
+      try {
+        await this._col().doc(taskId).update({ ...fields, updatedAt: now() });
+      } catch (err) { return logAndThrow("tasks.update", err); }
+    },
+
+    async delete(taskId) {
+      try {
+        await this._col().doc(taskId).delete();
+      } catch (err) { return logAndThrow("tasks.delete", err); }
+    },
+
+    onSnapshot(date, callback) {
+      return this._col().where("date", "==", date).onSnapshot(snap => {
+        callback(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      });
+    }
+  };
+
   /* ═══════════════════════════════════════════════════════════════
      PUBLIC EXPORTS
      ═══════════════════════════════════════════════════════════════ */
@@ -882,6 +928,7 @@
     sleepLogs,
     sleepSettings,
     moodLogs,
+    tasks,
 
     /** Today's date as YYYY-MM-DD (local time). */
     today() {

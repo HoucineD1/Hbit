@@ -415,11 +415,11 @@
 
 /* Light Theme */
 html[data-theme="light"] #focusPage {
-  --fc-bg: color-mix(in srgb, var(--bg, #f8fafc) 96%, #f97316 4%);
-  --fc-surface: var(--panel, #ffffff);
-  --fc-border: var(--border, rgba(15, 23, 42, 0.1));
-  --fc-text: rgba(31, 41, 55, 0.96);
-  --fc-muted: var(--muted, rgba(71, 85, 105, 0.85));
+  --fc-bg: #F8F9FC;
+  --fc-surface: rgba(255,255,255,0.95);
+  --fc-border: rgba(0,0,0,0.08);
+  --fc-text: rgba(15,23,42,0.92);
+  --fc-muted: rgba(71,85,105,0.75);
   --fc-accent-glow: rgba(249, 115, 22, 0.06);
   --fc-break-glow: rgba(96, 165, 250, 0.06);
   --fc-accent-lo: rgba(249, 115, 22, 0.12);
@@ -435,8 +435,16 @@ html[data-theme="light"] #focusPage.is-break {
   --fc-bg: color-mix(in srgb, var(--bg, #f8fafc) 96%, #60a5fa 4%);
 }
 html[data-theme="light"] .fc-header {
-  background: color-mix(in srgb, var(--fc-bg) 92%, transparent);
-  border-bottom-color: var(--fc-border);
+  background: rgba(248,249,252,0.92);
+  border-bottom-color: rgba(0,0,0,0.07);
+}
+html[data-theme="light"] .fc-panel,
+html[data-theme="light"] .fc-timer-ring-wrap,
+html[data-theme="light"] .fc-timer-wrap,
+html[data-theme="light"] .fc-session-card {
+  background: #ffffff;
+  border-color: rgba(0,0,0,0.08);
+  color: rgba(15,23,42,0.92);
 }
 html[data-theme="light"] .fc-icon-btn {
   background: var(--fc-surface);
@@ -504,4 +512,74 @@ html[data-theme="light"] .fc-select option {
 @media (max-width: 720px) {
   .fc-sess-stats { grid-template-columns: 1fr; }
   .fc-week-row { grid-template-columns: 34px 1fr auto; }
+}
+
+#focusPage .fc-main {
+  width: min(760px, calc(100% - 28px));
+  padding-inline: 0;
+}
+
+#focusPage .fc-panel {
+  border-radius: 22px;
+  padding: clamp(18px, 4vw, 32px);
+  box-shadow: var(--shadow-md);
+}
+
+#focusPage .fc-timer-wrap {
+  width: clamp(260px, 68vw, 430px);
+  height: clamp(260px, 68vw, 430px);
+  margin-inline: auto;
+}
+
+#focusPage .fc-time-display {
+  font-size: clamp(48px, 13vw, 82px);
+  letter-spacing: 0;
+}
+
+#focusPage .fc-controls {
+  justify-content: center;
+  gap: clamp(14px, 4vw, 24px);
+}
+
+#focusPage .fc-ctrl-main {
+  width: 82px;
+  height: 82px;
+}
+
+#focusPage .fc-ctrl-reset,
+#focusPage .fc-ctrl-skip {
+  width: 54px;
+  height: 54px;
+}
+
+#focusPage .fc-tabs {
+  position: sticky;
+  top: 72px;
+  z-index: 50;
+}
+
+@media (max-width: 520px) {
+  #focusPage .fc-header {
+    padding-left: 56px;
+    min-height: 64px;
+  }
+
+  #focusPage .fc-header-label {
+    font-size: 16px;
+  }
+
+  #focusPage .fc-icon-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  #focusPage .fc-panel {
+    padding: 18px 14px 24px;
+  }
+}
+
+.fc-play-btn:active,
+.fc-session-card:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
 }

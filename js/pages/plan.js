@@ -14,6 +14,9 @@
     planDeleteConfirmId: null,
     weekOffset: 0,
     taskMapByDate: {},
+    habits: [],
+    habitLogs: {},
+    priorityFilter: "all",
   };
 
   // ======================================================================
@@ -21,7 +24,12 @@
   // ======================================================================
   function getLang() { return HBIT.i18n?.getLang?.() || "en"; }
   function tr(key, fallback, params) {
-    return HBIT.i18n?.t ? HBIT.i18n.t(key, fallback, params) : (fallback != null ? fallback : key);
+    if (HBIT.i18n?.t) return HBIT.i18n.t(key, fallback, params);
+    let s = fallback != null ? fallback : key;
+    if (params && typeof params === "object" && typeof s === "string") {
+      s = s.replace(/\{(\w+)\}/g, (_, k) => params[k] !== undefined ? String(params[k]) : `{${k}}`);
+    }
+    return s;
   }
 
   function getTodayStr() {
@@ -58,22 +66,61 @@
   // ======================================================================
   // DATA
   // ======================================================================
-  function isFs() { return window.firebase && firebase.firestore && state.user; }
-  function ref() { return firebase.firestore().collection("users").doc(state.user.uid).collection("tasks"); }
+  function isFs() { return !!(window.firebase && firebase.firestore && state.user && HBIT.db?.tasks); }
+  function createdMs(task) {
+    const v = task?.createdAt;
+    if (typeof v === "number") return v;
+    if (typeof v?.toMillis === "function") return v.toMillis();
+    return 0;
+  }
+
+  function habitScheduledForDate(habit, dateKey) {
+    const date = strToDate(dateKey);
+    const day = date.getDay();
+    if (habit.frequency === "weekdays") return day >= 1 && day <= 5;
+    if (habit.frequency === "custom") {
+      const names = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+      return (habit.customDays || []).includes(names[day]) || (habit.customDays || []).includes(day);
+    }
+    return true;
+  }
+
+  async function loadTodaysHabits() {
+    if (!isFs() || !HBIT.db?.habits || !HBIT.db?.habitLogs) {
+      state.habits = [];
+      state.habitLogs = {};
+      renderHabits();
+      return;
+    }
+    try {
+      const habits = (await HBIT.db.habits.list()).filter((habit) => habitScheduledForDate(habit, state.selectedDate));
+      const logs = {};
+      await Promise.all(habits.map(async (habit) => {
+        logs[habit.id] = await HBIT.db.habitLogs.get(habit.id, state.selectedDate).catch(() => null);
+      }));
+      state.habits = habits;
+      state.habitLogs = logs;
+      renderHabits();
+    } catch (_) {
+      state.habits = [];
+      state.habitLogs = {};
+      renderHabits();
+    }
+  }
 
   async function loadTasks() {
     if (isFs()) {
       if (state.unsubscribe) state.unsubscribe();
       state.tasksSnapReady = false;
-      state.unsubscribe = ref().where("date", "==", state.selectedDate).onSnapshot(snap => {
-        state.tasks = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      state.unsubscribe = HBIT.db.tasks.onSnapshot(state.selectedDate, (tasks) => {
+        state.tasks = tasks;
         state.tasksSnapReady = true;
         sortRender();
       });
 
-      ref().where("done", "==", false).get().then(snap => {
+      HBIT.db.tasks.listAll().then(allTasks => {
         const today = getTodayStr();
-        const mapped = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const mapped = (allTasks || []).filter(t => t.done === false);
         state.allPastUndone = mapped.filter(t => t.date < today);
         const map = {};
         mapped.forEach((t) => {
@@ -84,6 +131,8 @@
         if ($("plCarryOver")) $("plCarryOver").hidden = state.allPastUndone.length === 0 || state.selectedDate !== today;
         renderCalendar();
       }).catch(()=>{});
+
+      loadTodaysHabits();
 
     } else {
       const raw = localStorage.getItem("hbit:plan:tasks");
@@ -99,6 +148,7 @@
       state.taskMapByDate = map;
       if ($("plCarryOver")) $("plCarryOver").hidden = state.allPastUndone.length === 0 || state.selectedDate !== today;
       state.tasksSnapReady = true;
+      loadTodaysHabits();
       sortRender();
     }
   }
@@ -106,9 +156,10 @@
   function sortRender() {
     // Sort by time: objects without time go to end, then sort by localeCompare
     state.tasks.sort((a,b) => {
+      if (!!a.done !== !!b.done) return a.done ? 1 : -1;
       const ta = a.time || "24:00";
       const tb = b.time || "24:00";
-      if (ta === tb) return b.createdAt - a.createdAt;
+      if (ta === tb) return createdMs(b) - createdMs(a);
       return ta.localeCompare(tb);
     });
     renderList();
@@ -117,7 +168,7 @@
 
   async function addTask(data) {
     const t = { ...data, done: false, date: state.selectedDate, createdAt: Date.now() };
-    if (isFs()) { await ref().add(t); } 
+    if (isFs()) { await HBIT.db.tasks.add(t); } 
     else {
       const all = JSON.parse(localStorage.getItem("hbit:plan:tasks") || "[]");
       t.id = String(Date.now());
@@ -128,7 +179,7 @@
   }
 
   async function toggleTask(id, currentDone) {
-    if (isFs()) { await ref().doc(id).update({ done: !currentDone }); } 
+    if (isFs()) { await HBIT.db.tasks.update(id, { done: !currentDone }); } 
     else {
       let all = JSON.parse(localStorage.getItem("hbit:plan:tasks") || "[]");
       all = all.map(t => t.id === id ? { ...t, done: !currentDone } : t);
@@ -138,7 +189,7 @@
   }
 
   async function deleteTask(id) {
-    if (isFs()) { await ref().doc(id).delete(); } 
+    if (isFs()) { await HBIT.db.tasks.delete(id); } 
     else {
       let all = JSON.parse(localStorage.getItem("hbit:plan:tasks") || "[]");
       all = all.filter(t => t.id !== id);
@@ -151,11 +202,9 @@
     if (!state.allPastUndone.length) return;
     const today = getTodayStr();
     if (isFs()) {
-      const batch = firebase.firestore().batch();
-      state.allPastUndone.forEach(t => {
-        batch.update(ref().doc(t.id), { date: today, createdAt: Date.now() });
-      });
-      await batch.commit();
+      await Promise.all(state.allPastUndone.map(t =>
+        HBIT.db.tasks.update(t.id, { date: today, createdAt: Date.now() })
+      ));
     } else {
       let all = JSON.parse(localStorage.getItem("hbit:plan:tasks") || "[]");
       state.allPastUndone.forEach(pt => {
@@ -240,12 +289,17 @@
       return;
     }
 
+    const filteredTasks = state.tasks.filter((task) => {
+      if (state.priorityFilter === "all") return true;
+      return (task.priority || "low") === state.priorityFilter;
+    });
+
     empty.hidden = state.tasks.length > 0;
     
     const now = new Date();
     const today = getTodayStr();
     let currentMarked = false;
-    list.innerHTML = state.tasks.map(item => {
+    const renderTask = (item) => {
       let timeMinutes = 9999;
       if (item.time) {
         const [hh, mm] = String(item.time).split(":").map(Number);
@@ -277,7 +331,7 @@
           </div>
           <div class="pl-card" tabindex="0">
             <div class="pl-card-top">
-              <h3 class="pl-item-title">${escapeHtml(item.title || item.text)}</h3>
+              <h3 class="pl-item-title"><span class="pl-priority-dot ${escapeHtml(item.priority || "low")}"></span><span class="pl-task-name">${escapeHtml(item.title || item.text)}</span></h3>
               <div class="pl-card-actions">
                 ${actionsHtml}
               </div>
@@ -286,6 +340,32 @@
           </div>
         </div>
       </article>`;
+    };
+
+    const scheduled = filteredTasks.filter((item) => item.time);
+    const anytime = filteredTasks.filter((item) => !item.time);
+    list.innerHTML = `
+      ${scheduled.length ? `<h2 class="pl-list-section-title">${escapeHtml(tr("plan.section.scheduled", "Scheduled"))}</h2>${scheduled.map(renderTask).join("")}` : ""}
+      ${anytime.length ? `<h2 class="pl-list-section-title">${escapeHtml(tr("plan.section.anytime", "Anytime"))}</h2>${anytime.map(renderTask).join("")}` : ""}
+      ${!filteredTasks.length && state.tasks.length ? `<p class="pl-filter-empty">${escapeHtml(tr("plan.filter.empty", "No tasks match this filter."))}</p>` : ""}
+    `;
+  }
+
+  function renderHabits() {
+    const section = $("plHabitsSection");
+    const list = $("plHabitList");
+    if (!section || !list) return;
+    section.hidden = !state.habits.length || state.selectedDate !== getTodayStr();
+    if (section.hidden) {
+      list.innerHTML = "";
+      return;
+    }
+    list.innerHTML = state.habits.map((habit) => {
+      const done = state.habitLogs[habit.id]?.status === "done";
+      return `<button class="pl-habit-row ${done ? "is-done" : ""}" type="button" data-habit-id="${escapeHtml(habit.id)}" aria-pressed="${done ? "true" : "false"}">
+        <span class="pl-habit-check" aria-hidden="true">${done ? "✓" : ""}</span>
+        <span>${escapeHtml(habit.name || habit.title || tr("plan.habit.untitled", "Habit"))}</span>
+      </button>`;
     }).join("");
   }
 
@@ -302,6 +382,7 @@
         state.selectedDate = dStr;
         renderHeader();
         loadTasks();
+        loadTodaysHabits();
       }
     });
     $("plWeekPrev")?.addEventListener("click", () => {
@@ -336,6 +417,27 @@
         state.planDeleteConfirmId = null;
         renderList();
       }
+    });
+
+    document.querySelector(".pl-priority-filter")?.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-priority-filter]");
+      if (!btn) return;
+      state.priorityFilter = btn.dataset.priorityFilter || "all";
+      document.querySelectorAll("[data-priority-filter]").forEach((el) => {
+        const active = el === btn;
+        el.classList.toggle("active", active);
+        el.setAttribute("aria-checked", active ? "true" : "false");
+      });
+      renderList();
+    });
+
+    $("plHabitList")?.addEventListener("click", async (e) => {
+      const row = e.target.closest("[data-habit-id]");
+      if (!row || !HBIT.db?.habitLogs) return;
+      const id = row.dataset.habitId;
+      await HBIT.db.habitLogs.set(id, state.selectedDate, "done");
+      state.habitLogs[id] = { status: "done" };
+      renderHabits();
     });
 
     $("plCarryBtn")?.addEventListener("click", carryOver);
@@ -375,12 +477,6 @@
       });
     }
     $("plFabBtn")?.addEventListener("click", () => {
-      // pre-fill time to now rounded to next 30m if empty
-      const d = new Date();
-      d.setMinutes(Math.ceil(d.getMinutes() / 30) * 30);
-      const tzStr = String(d.getHours()).padStart(2,'0') + ":" + String(d.getMinutes()).padStart(2,'0');
-      if(!$("plInputTime").value) $("plInputTime").value = tzStr;
-      
       modal.hidden = false;
       $("plInputTitle")?.focus();
       checkConflict();

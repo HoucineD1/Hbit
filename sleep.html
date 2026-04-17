@@ -35,16 +35,20 @@
   <script defer src="js/core/nav.js"></script>
   <script defer src="js/pages/sleep.js"></script>
   <script defer src="js/app.js"></script>
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta name="theme-color" content="#E63946" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 </head>
 <body id="sleepPage">
 
   <a href="#main-content" class="skip-link" data-i18n="a11y.skipToContent">Skip to main content</a>
 
-    <!-- ══ Sidebar (injected by sidebar.js) ══════════════════ -->
+    <!-- Sidebar (injected by sidebar.js) -->
   <div class="sb-overlay"></div>
   <nav class="sb" aria-hidden="true" aria-label="Main navigation"></nav>
 
-  <!-- ══ Header ════════════════════════════════════════════ -->
+  <!-- Header -->
   <header class="sl-header">
     <div class="sl-hdr-left">
       <span class="sl-hdr-date" id="slDate">—</span>
@@ -54,9 +58,9 @@
       <button class="sl-hdr-btn hdr-btn" id="slHelpBtn" type="button" aria-label="How Sleep works">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M9 18h6" />
-          <path d="M10 22h4" />
-          <path d="M7 9a5 5 0 0 1 10 0c0 2.485-2 3.5-2 5h-6c0-1.5-2-2.515-2-5z" />
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
       </button>
       <button class="sl-hdr-btn hdr-btn" id="langToggle" type="button" aria-label="Switch language">
@@ -85,19 +89,19 @@
   <main class="sl-main" id="main-content">
 
     <div class="sl-warn-banner" id="slWarnBanner" role="alert" hidden>
-      <span aria-hidden="true">🌙</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       <span id="slWarnText"></span>
-      <button class="sl-warn-dismiss" id="slWarnDismiss" type="button" aria-label="Dismiss">✕</button>
+      <button class="sl-warn-dismiss" id="slWarnDismiss" type="button" aria-label="Dismiss">×</button>
     </div>
 
     <div class="sl-page-inner">
       <div class="sl-tabs" role="tablist" aria-label="Sleep sections">
         <button class="sl-tab active" id="slTabTonight" type="button" role="tab" aria-selected="true" data-sl-tab="tonight">
-          <span aria-hidden="true">🌙</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
           <span data-i18n="sleep.tabTonight">Tonight</span>
         </button>
         <button class="sl-tab" id="slTabHistory" type="button" role="tab" aria-selected="false" data-sl-tab="history">
-          <span aria-hidden="true">📅</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           <span data-i18n="sleep.tabHistory">History</span>
         </button>
       </div>
@@ -111,14 +115,14 @@
                 <div class="sl-hero-plan" id="slHeroPlanBlock">
                   <p class="sl-hero-plan-kicker" data-i18n="sleep.tonightsPlan">Tonight's plan</p>
                   <div class="sl-hero-bedtime-row">
-                    <span class="sl-hero-bedtime-ico" aria-hidden="true">🌙</span>
+                    <svg class="sl-hero-bedtime-ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                     <div>
                       <div class="sl-hero-bedtime" id="slHeroBedtimeLarge">—</div>
                       <div class="sl-hero-sublbl" data-i18n="sleep.sleepAt">Sleep at</div>
                     </div>
                   </div>
                   <div class="sl-hero-wake-row">
-                    <span class="sl-hero-wake-ico" aria-hidden="true">☀️</span>
+                    <svg class="sl-hero-wake-ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                     <div>
                       <div class="sl-hero-wake-time" id="slHeroWakeDisplay">—</div>
                       <div class="sl-hero-sublbl" data-i18n="sleep.wakeAt">Wake at</div>
@@ -155,14 +159,15 @@
                   <span class="sl-sec-sub sl-buffer-note" data-i18n="sleep.bufferNote">Includes 14 min to fall asleep</span>
                 </div>
               </div>
-              <div class="sl-card">
-                <div class="sl-cycle-wake-row">
-                  <label class="sl-label" for="cycleWakeInput" data-i18n="sleep.wakeGoal">I want to wake up at</label>
-                  <input id="cycleWakeInput" class="sl-input sl-input--time" type="time" value="07:00" />
-                </div>
-                <div class="sl-cycle-scroll" id="slCycleScroll">
-                  <div class="sl-cycle-cards" id="slCycleCards"></div>
-                </div>
+                <div class="sl-card">
+                  <div class="sl-cycle-wake-row">
+                    <label class="sl-label" for="cycleWakeInput" data-i18n="sleep.wakeGoal">I want to wake up at</label>
+                    <input id="cycleWakeInput" class="sl-input sl-input--time sl-time-native" type="time" value="07:00" />
+                    <div class="sl-time-picker" data-target="cycleWakeInput" aria-label="Wake-up time selector"></div>
+                  </div>
+                  <div class="sl-cycle-scroll" id="slCycleScroll">
+                    <div class="sl-cycle-cards" id="slCycleCards"></div>
+                  </div>
                 <p class="sl-cycle-preview" id="slCyclePreview" hidden></p>
                 <button type="button" class="sl-cycle-cta" id="slCycleCta" hidden></button>
               </div>
@@ -187,7 +192,10 @@
               </div>
               <div class="sl-winddown-done-msg" id="slWindDownDoneMsg" hidden></div>
               <div class="sl-winddown-list" id="slWindDownList"></div>
-              <button type="button" class="sl-ready-btn" id="slReadyBtn" data-i18n="sleep.readyToSleep">Ready to Sleep 🌙</button>
+              <button type="button" class="sl-ready-btn" id="slReadyBtn">
+                <span data-i18n="sleep.readyToSleep">Ready to Sleep</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              </button>
               <p class="sl-ready-disclaimer" data-i18n="sleep.alarmNote">Keep this tab open for the alarm. For reliability, also set your phone alarm.</p>
             </section>
 
@@ -211,7 +219,8 @@
                 <div class="sl-sched-controls">
                   <div class="sl-field sl-field--inline">
                     <label class="sl-label" for="planWake" data-i18n="sleep.planner.wake">Wake time</label>
-                    <input id="planWake" class="sl-input sl-input--time" type="time" value="07:00" />
+                    <input id="planWake" class="sl-input sl-input--time sl-time-native" type="time" value="07:00" />
+                    <div class="sl-time-picker" data-target="planWake" aria-label="Schedule wake time selector"></div>
                   </div>
                   <div class="sl-field sl-field--inline">
                     <label class="sl-label" for="planDuration" data-i18n="sleep.planner.duration">Sleep goal</label>
@@ -301,7 +310,7 @@
     </div>
 
     <footer class="sl-footer">
-      <span>&copy; 2025 Hbit</span>
+      <span>&copy; 2026 Hbit</span>
       <a href="privacy.html" data-i18n="sleep.footer.privacy">Privacy</a>
       <a href="terms.html" data-i18n="sleep.footer.terms">Terms</a>
     </footer>
@@ -401,7 +410,7 @@
 
   <div class="sl-breath-overlay" id="slBreathOverlay" aria-hidden="true">
     <div class="sl-breath-inner">
-      <button type="button" class="sl-breath-close" id="slBreathClose" aria-label="Close">✕</button>
+      <button type="button" class="sl-breath-close" id="slBreathClose" aria-label="Close">×</button>
       <div class="sl-breath-visual">
         <div class="sl-breath-circle" id="slBreathCircle"></div>
       </div>

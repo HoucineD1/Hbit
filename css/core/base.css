@@ -96,3 +96,21 @@ hr{
   transform: translateY(0);
   pointer-events: auto;
 }
+
+@view-transition { navigation: auto; }
+
+::view-transition-old(root) {
+  animation: 180ms ease-out both vt-out;
+}
+
+::view-transition-new(root) {
+  animation: 260ms cubic-bezier(0.34,1.56,0.64,1) both vt-in;
+}
+
+@keyframes vt-out {
+  to { opacity: 0; transform: translateY(-6px) scale(0.99); }
+}
+
+@keyframes vt-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.99); }
+}

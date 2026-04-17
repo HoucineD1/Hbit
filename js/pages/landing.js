@@ -180,41 +180,4 @@ document.addEventListener("DOMContentLoaded", () => {
     elements.forEach((element) => observer.observe(element));
   })();
 
-  (function initCountUp() {
-    const counters = document.querySelectorAll(".ld-count-up");
-    if (!counters.length) return;
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        animateStat(entry.target);
-        observer.unobserve(entry.target);
-      });
-    }, { threshold: 0.55 });
-
-    counters.forEach((counter) => observer.observe(counter));
-
-    function animateStat(element) {
-      const target = Number.parseFloat(element.dataset.target || "0");
-      const suffix = element.dataset.suffix || "";
-      const decimals = Number.parseInt(element.dataset.decimals || "0", 10);
-      const duration = prefersReducedMotion.matches ? 0 : 1200;
-
-      if (!duration) {
-        element.textContent = target.toFixed(decimals) + suffix;
-        return;
-      }
-
-      const start = performance.now();
-
-      function tick(now) {
-        const progress = Math.min((now - start) / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        element.textContent = (target * eased).toFixed(decimals) + suffix;
-        if (progress < 1) requestAnimationFrame(tick);
-      }
-
-      requestAnimationFrame(tick);
-    }
-  })();
 });

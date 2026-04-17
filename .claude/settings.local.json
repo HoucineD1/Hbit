@@ -29,7 +29,29 @@
       "WebFetch(domain:www.learningrobo.com)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Skill(update-config)",
+      "Bash(cmd.exe /c \"where npx\")",
+      "Bash(cmd.exe /c \"where npm\")",
+      "Bash(export PATH=\"$PATH:/c/Program Files/nodejs:/c/Users/demxa/AppData/Roaming/npm\")",
+      "Bash(npx --version)",
+      "Bash(\"/c/Program Files/nodejs/npx\" --version)",
+      "Bash(cmd.exe:*)",
+      "Bash(npx skills:*)",
+      "Bash(npx ui-skills:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(pip install:*)",
+      "Bash(py --version)",
+      "Bash(npm list:*)",
+      "Bash(npm install:*)",
+      "Bash(find:*)",
+      "Read(//tmp/**)",
+      "Bash(grep -l \"header\\\\|topbar\" C:/Users/demxa/Desktop/Hbit/*.html)",
+      "Bash(grep -h \"class=\\\\\".*header\\\\|class=\\\\\".*topbar\\\\|<header\" C:/Users/demxa/Desktop/Hbit/*.html)",
+      "Bash(grep -n \"\\\\.bg-header\\\\|\\\\.hm-header\\\\|\\\\.fc-header\\\\|\\\\.sl-header\\\\|\\\\.md-header\\\\|\\\\.pl-header\\\\|\\\\.hb-header\" C:/Users/demxa/Desktop/Hbit/css/pages/*.css)",
+      "Bash(grep -n \"au-topbar\\\\|wl-header\\\\|padding-left\" C:/Users/demxa/Desktop/Hbit/css/pages/*.css)",
+      "Bash(node -e \"require\\('fs'\\).readFileSync\\('c:/Users/demxa/Desktop/Hbit/js/pages/budget.js','utf8'\\);console.log\\('js ok'\\);require\\('fs'\\).readFileSync\\('c:/Users/demxa/Desktop/Hbit/css/pages/budget.css','utf8'\\);console.log\\('css ok'\\)\")"
     ]
-  }
+  },
+  "model": "claude-opus-4-7"
 }

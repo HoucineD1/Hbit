@@ -50,7 +50,11 @@
       const v = HBIT.i18n?.t?.(key, fb, params);
       return v != null && v !== key ? v : fb;
     } catch (_) {
-      return fb;
+      let s = fb != null ? fb : key;
+      if (params && typeof params === "object" && typeof s === "string") {
+        s = s.replace(/\{(\w+)\}/g, (_, k) => params[k] !== undefined ? String(params[k]) : `{${k}}`);
+      }
+      return s;
     }
   }
 

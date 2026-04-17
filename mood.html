@@ -1,9 +1,9 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Hbit — State of Mind</title>
+  <title>Hbit â€” State of Mind</title>
   <meta name="description" content="Track your mood, stress, energy and focus." />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23E63946'/><text x='50%25' y='68%25' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='900' font-size='20' fill='white'>H</text></svg>">
@@ -35,19 +35,23 @@
   <script defer src="js/core/nav.js"></script>
   <script defer src="js/pages/mood.js"></script>
   <script defer src="js/app.js"></script>
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta name="theme-color" content="#E63946" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 </head>
 
 <body id="moodPage" data-accent="mood">
 
   <a href="#main-content" class="skip-link" data-i18n="a11y.skipToContent">Skip to main content</a>
 
-    <!-- ══ Sidebar (injected by sidebar.js) ══════════════════ -->
+    <!-- â•â• Sidebar (injected by sidebar.js) â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="sb-overlay"></div>
   <nav class="sb" aria-hidden="true" aria-label="Main navigation"></nav>
 
   <header class="md-header">
     <div class="md-hdr-left">
-      <span class="md-hdr-date" id="moodDate">—</span>
+      <span class="md-hdr-date" id="moodDate">â€”</span>
       <h1 class="md-hdr-title" data-i18n="mood.title">State of Mind</h1>
     </div>
     <div class="md-hdr-right">
@@ -83,7 +87,7 @@
 
   <main class="md-main" id="main-content">
     <div class="md-sleep-banner md-sleep-banner--hidden" id="mdSleepBanner" role="status" hidden>
-      <span class="md-sleep-icon" aria-hidden="true">🌙</span>
+      <svg class="md-sleep-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       <span class="md-sleep-text" id="mdSleepText"></span>
       <button type="button" class="md-sleep-dismiss" id="mdSleepDismiss" data-i18n="mood.sleepBannerDismiss">Dismiss</button>
     </div>
@@ -140,7 +144,7 @@
 
             <div class="md-selector-actions md-selector-actions--hidden" id="mdSelectorActions" hidden>
               <button type="button" class="md-btn-save" id="mdSaveQuick" data-i18n="mood.save" disabled>Save</button>
-              <button type="button" class="md-btn-details" id="mdOpenDepth" data-i18n="mood.addDetails">Add details →</button>
+              <button type="button" class="md-btn-details" id="mdOpenDepth" data-i18n="mood.addDetails">Add details â†’</button>
             </div>
 
             <div class="md-edit-row md-edit-row--hidden" id="mdEditRow" hidden>
@@ -155,22 +159,22 @@
                 <div class="md-subdim-row">
                   <label class="md-subdim-label" for="mdRngEnergy" data-i18n="mood.energy">Energy</label>
                   <input type="range" class="md-subdim-range" id="mdRngEnergy" name="mdRngEnergy" min="1" max="5" value="3" aria-valuemin="1" aria-valuemax="5" />
-                  <span class="md-subdim-val" id="mdCapEnergy">—</span>
+                  <span class="md-subdim-val" id="mdCapEnergy">â€”</span>
                 </div>
                 <div class="md-subdim-row">
                   <label class="md-subdim-label" for="mdRngStress" data-i18n="mood.stress">Stress</label>
                   <input type="range" class="md-subdim-range" id="mdRngStress" name="mdRngStress" min="1" max="5" value="3" aria-valuemin="1" aria-valuemax="5" />
-                  <span class="md-subdim-val" id="mdCapStress">—</span>
+                  <span class="md-subdim-val" id="mdCapStress">â€”</span>
                 </div>
                 <div class="md-subdim-row">
                   <label class="md-subdim-label" for="mdRngFocus" data-i18n="mood.focus">Focus</label>
                   <input type="range" class="md-subdim-range" id="mdRngFocus" name="mdRngFocus" min="1" max="5" value="3" aria-valuemin="1" aria-valuemax="5" />
-                  <span class="md-subdim-val" id="mdCapFocus">—</span>
+                  <span class="md-subdim-val" id="mdCapFocus">â€”</span>
                 </div>
                 <div class="md-subdim-row">
                   <label class="md-subdim-label" for="mdRngSocial" data-i18n="mood.social">Social</label>
                   <input type="range" class="md-subdim-range" id="mdRngSocial" name="mdRngSocial" min="1" max="5" value="3" aria-valuemin="1" aria-valuemax="5" />
-                  <span class="md-subdim-val" id="mdCapSocial">—</span>
+                  <span class="md-subdim-val" id="mdCapSocial">â€”</span>
                 </div>
               </div>
 
@@ -205,7 +209,7 @@
 
         <section class="md-card md-insight-card" id="mdInsightCard" aria-labelledby="mdInsightHeading">
           <div class="md-card-head">
-            <h2 class="md-card-label" id="mdInsightHeading"><span aria-hidden="true">📊</span> <span data-i18n="mood.weekInsight">This week</span></h2>
+            <h2 class="md-card-label" id="mdInsightHeading"><span aria-hidden="true">ðŸ“Š</span> <span data-i18n="mood.weekInsight">This week</span></h2>
           </div>
           <p class="md-insight-text" id="mdInsightText"></p>
           <div class="md-mini-bars-labels" id="mdMiniBarLabels" aria-hidden="true"></div>
@@ -217,7 +221,7 @@
           <div class="md-card-head">
             <h2 class="md-card-label" id="mdEntriesHeading" data-i18n="mood.entries">Recent entries</h2>
           </div>
-          <p class="md-entries-empty" id="mdEntriesEmpty" data-i18n="mood.noEntries">No entries yet — log your first day above ↑</p>
+          <p class="md-entries-empty" id="mdEntriesEmpty" data-i18n="mood.noEntries">No entries yet â€” log your first day above â†‘</p>
           <div class="md-entries" id="mdEntries"></div>
         </section>
       </div>
@@ -226,7 +230,7 @@
     <div class="md-toast" id="mdToast" role="status" aria-live="polite"></div>
   </main>
 
-  <button type="button" class="hbit-scroll-top" id="hbitScrollTop" hidden data-i18n="common.scrollTop" aria-label="Back to top">↑</button>
+  <button type="button" class="hbit-scroll-top" id="hbitScrollTop" hidden data-i18n="common.scrollTop" aria-label="Back to top">â†‘</button>
 
   <div class="hbit-help-overlay" id="mdHelpOverlay" aria-hidden="true">
     <div class="hbit-help-card" role="dialog" aria-modal="true" aria-labelledby="mdHelpTitle">

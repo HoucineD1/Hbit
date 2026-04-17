@@ -1,9 +1,9 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title data-i18n="profile.documentTitle">Hbit — Profile</title>
+  <title data-i18n="profile.documentTitle">Hbit â€” Profile</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23E63946'/><text x='50%25' y='68%25' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='900' font-size='20' fill='white'>H</text></svg>">
   <meta name="theme-color" content="#070B14">
   <meta name="color-scheme" content="dark light" />
@@ -33,6 +33,10 @@
   <script defer src="js/core/nav.js"></script>
   <script defer src="js/pages/profile.js"></script>
   <script defer src="js/app.js"></script>
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta name="theme-color" content="#E63946" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 </head>
 
 <body id="profilePage">
@@ -48,27 +52,30 @@
 
   <header class="hm-header">
     <div class="hm-hdr-left">
-      <span class="hm-hdr-date" id="profileDate">—</span>
+      <span class="hm-hdr-date" id="profileDate">â€”</span>
       <h1 class="hm-hdr-title" data-i18n="nav.profile">Profile</h1>
     </div>
     <div class="hm-hdr-right">
       <button class="hm-hdr-btn" id="langToggle" type="button">
         <span id="langLabel">FR</span>
       </button>
-      <button class="hm-hdr-btn" id="themeToggle" type="button">
-        <svg class="hm-theme-dark" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-        </svg>
-        <svg class="hm-theme-light" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="5"/>
-          <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-        </svg>
-      </button>
+      <details class="palette-dropdown">
+        <summary class="hm-hdr-btn" aria-label="Choose color theme" title="Choose color theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 2a10 10 0 0 0 0 20 4 4 0 0 0 0-8h-1a3 3 0 0 1 0-6h1a4 4 0 0 0 0-6z"/>
+            <circle cx="8.5" cy="8.5" r=".5" fill="currentColor"/><circle cx="15.5" cy="15.5" r=".5" fill="currentColor"/>
+          </svg>
+        </summary>
+        <div class="palette-dropdown-menu">
+          <div class="palette-picker" role="radiogroup" aria-label="Choose color theme">
+            <button class="palette-chip" data-palette="midnight" aria-checked="true" type="button"><div class="palette-chip-preview"><div class="palette-chip-bg" style="background:#070B14"><div class="palette-chip-panel" style="background:#0D1117"></div></div></div><span class="palette-chip-name" data-i18n="palette.midnight">Midnight</span></button>
+            <button class="palette-chip" data-palette="obsidian" aria-checked="false" type="button"><div class="palette-chip-preview"><div class="palette-chip-bg" style="background:#0C0A1A"><div class="palette-chip-panel" style="background:#13101F"></div></div></div><span class="palette-chip-name" data-i18n="palette.obsidian">Obsidian</span></button>
+            <button class="palette-chip" data-palette="ivory" aria-checked="false" type="button"><div class="palette-chip-preview"><div class="palette-chip-bg" style="background:#F7F5F0"><div class="palette-chip-panel" style="background:#FFFFFF"></div></div></div><span class="palette-chip-name" data-i18n="palette.ivory">Ivory</span></button>
+            <button class="palette-chip" data-palette="arctic" aria-checked="false" type="button"><div class="palette-chip-preview"><div class="palette-chip-bg" style="background:#F8FAFC"><div class="palette-chip-panel" style="background:#FFFFFF"></div></div></div><span class="palette-chip-name" data-i18n="palette.arctic">Arctic</span></button>
+          </div>
+        </div>
+      </details>
       <a class="hm-avatar" id="profileBtn" href="profile.html" data-i18n-aria-label="a11y.profileLink" aria-label="Profile">H</a>
     </div>
   </header>
@@ -81,9 +88,9 @@
       </div>
       <div class="pf-hero-text">
         <p class="pf-hero-kicker" data-i18n="profile.hero.kicker">Your Space</p>
-        <h2 class="pf-hero-name" id="pfHeroName">—</h2>
-        <p class="pf-hero-meta" id="pfHeroMeta">—</p>
-        <p class="pf-hero-since"><span data-i18n="profile.label.memberSince">Member since</span> <span id="pfCreatedAtHero">—</span></p>
+        <h2 class="pf-hero-name" id="pfHeroName">â€”</h2>
+        <p class="pf-hero-meta" id="pfHeroMeta">â€”</p>
+        <p class="pf-hero-since"><span data-i18n="profile.label.memberSince">Member since</span> <span id="pfCreatedAtHero">â€”</span></p>
         <button type="button" class="pf-btn-secondary" id="pfEditHeroBtn" data-i18n="profile.hero.edit">Edit Profile</button>
       </div>
     </section>
@@ -92,32 +99,32 @@
       <h2 class="pf-visually-hidden" id="pfStatsHeading" data-i18n="profile.section.achievements">Achievements</h2>
       <div class="pf-stats-grid">
         <article class="pf-stat-card hc-card hbitFadeUp" data-module="habits">
-          <span class="pf-stat-emoji" aria-hidden="true">✓</span>
+          <svg class="pf-stat-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--habit)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
           <span class="pf-stat-value" id="psHabits">0</span>
           <span class="pf-stat-label" data-i18n="profile.stat.habitsTracked">Habits tracked</span>
         </article>
         <article class="pf-stat-card hc-card hbitFadeUp" data-module="habits">
-          <span class="pf-stat-emoji" aria-hidden="true">🔥</span>
+          <svg class="pf-stat-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--habit)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
           <span class="pf-stat-value" id="psLongest">0</span>
           <span class="pf-stat-label" data-i18n="profile.stat.longestStreak">Longest streak</span>
         </article>
         <article class="pf-stat-card hc-card hbitFadeUp" data-module="sleep">
-          <span class="pf-stat-emoji" aria-hidden="true">🌙</span>
+          <svg class="pf-stat-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--sleep)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
           <span class="pf-stat-value" id="psSleep">0</span>
           <span class="pf-stat-label" data-i18n="profile.stat.sleepLogs">Sleep logs</span>
         </article>
         <article class="pf-stat-card hc-card hbitFadeUp" data-module="mood">
-          <span class="pf-stat-emoji" aria-hidden="true">💜</span>
+          <svg class="pf-stat-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--mood)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
           <span class="pf-stat-value" id="psMood">0</span>
           <span class="pf-stat-label" data-i18n="profile.stat.moodLogs">Mood logs</span>
         </article>
         <article class="pf-stat-card hc-card hbitFadeUp" data-module="budget">
-          <span class="pf-stat-emoji" aria-hidden="true">💳</span>
+          <svg class="pf-stat-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--budget)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
           <span class="pf-stat-value" id="psBudget">0</span>
           <span class="pf-stat-label" data-i18n="profile.stat.transactions">Budget transactions</span>
         </article>
         <article class="pf-stat-card hc-card hbitFadeUp" data-module="focus">
-          <span class="pf-stat-emoji" aria-hidden="true">⏱</span>
+          <svg class="pf-stat-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--focus)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v5l3 2"/><path d="M9 2h6"/></svg>
           <span class="pf-stat-value" id="psFocus">0</span>
           <span class="pf-stat-label" data-i18n="profile.stat.focusSessions">Focus sessions</span>
         </article>
@@ -127,7 +134,7 @@
     <section class="pf-panel hbitFadeUp">
       <button type="button" class="pf-panel-toggle" id="pfTogglePersonal" aria-expanded="false" aria-controls="pfPersonalPanel">
         <span data-i18n="profile.personal.toggle">Edit personal info</span>
-        <span class="pf-chevron" aria-hidden="true">▾</span>
+        <span class="pf-chevron" aria-hidden="true">â–¾</span>
       </button>
       <div class="pf-panel-body" id="pfPersonalPanel" hidden>
         <div class="pf-field">
@@ -144,7 +151,7 @@
         <div class="pf-row-2">
           <div class="pf-field">
             <label class="pf-label" for="pfAge" data-i18n="profile.label.age">Age</label>
-            <input class="pf-input" id="pfAge" type="number" min="1" max="120" placeholder="—" />
+            <input class="pf-input" id="pfAge" type="number" min="1" max="120" placeholder="â€”" />
           </div>
           <div class="pf-field">
             <label class="pf-label" for="pfGender" data-i18n="profile.label.gender">Gender</label>
@@ -174,11 +181,11 @@
       <h2 class="pf-section-title" data-i18n="profile.section.account">Account</h2>
       <div class="pf-account-row">
         <span class="pf-account-key" data-i18n="profile.label.email">Email</span>
-        <span class="pf-account-val" id="pfEmailDisplay">—</span>
+        <span class="pf-account-val" id="pfEmailDisplay">â€”</span>
       </div>
       <div class="pf-account-row">
         <span class="pf-account-key" data-i18n="profile.label.signInMethod">Sign-in method</span>
-        <span class="pf-account-val" id="pfProviderDisplay">—</span>
+        <span class="pf-account-val" id="pfProviderDisplay">â€”</span>
       </div>
       <a class="pf-link" id="pfChangePwd" href="#" hidden data-i18n="profile.account.changePassword">Change password</a>
       <button type="button" class="pf-btn-danger-outline" id="pfDeleteAccount" data-i18n="profile.account.delete">Delete account</button>
@@ -190,6 +197,28 @@
         </svg>
         <span data-i18n="profile.btn.logout">Log out</span>
       </button>
+    </section>
+
+    <section class="pf-panel pf-account-block hbitFadeUp">
+      <h2 class="pf-section-title" data-i18n="profile.section.appearance">Appearance</h2>
+      <div class="palette-picker" role="radiogroup" aria-label="Choose color theme">
+        <button class="palette-chip" data-palette="midnight" aria-checked="true" type="button">
+          <div class="palette-chip-preview"><div class="palette-chip-bg" style="background:#070B14"><div class="palette-chip-panel" style="background:#0D1117"></div></div></div>
+          <span class="palette-chip-name" data-i18n="palette.midnight">Midnight</span>
+        </button>
+        <button class="palette-chip" data-palette="obsidian" aria-checked="false" type="button">
+          <div class="palette-chip-preview"><div class="palette-chip-bg" style="background:#0C0A1A"><div class="palette-chip-panel" style="background:#13101F"></div></div></div>
+          <span class="palette-chip-name" data-i18n="palette.obsidian">Obsidian</span>
+        </button>
+        <button class="palette-chip" data-palette="ivory" aria-checked="false" type="button">
+          <div class="palette-chip-preview"><div class="palette-chip-bg" style="background:#F7F5F0"><div class="palette-chip-panel" style="background:#FFFFFF"></div></div></div>
+          <span class="palette-chip-name" data-i18n="palette.ivory">Ivory</span>
+        </button>
+        <button class="palette-chip" data-palette="arctic" aria-checked="false" type="button">
+          <div class="palette-chip-preview"><div class="palette-chip-bg" style="background:#F8FAFC"><div class="palette-chip-panel" style="background:#FFFFFF"></div></div></div>
+          <span class="palette-chip-name" data-i18n="palette.arctic">Arctic</span>
+        </button>
+      </div>
     </section>
 
   </main>

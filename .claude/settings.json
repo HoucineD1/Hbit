@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --check \"c:/Users/demxa/Desktop/Hbit/js/pages/budget.js\")",
+      "Bash(python \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"personal finance budget tracker mobile-first dark premium\" --design-system -p \"Hbit Budget\" -f markdown)"
+    ]
+  }
+}

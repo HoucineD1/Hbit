@@ -40,8 +40,8 @@
       titleKey: "sleep.warmLight",
       subKey: "sleep.warmLightSub",
       links: [
-        { label: "iPhone →", href: "App-Prefs:DISPLAY&path=NIGHT_SHIFT", hint: "Settings → Display & Brightness → Night Shift" },
-        { label: "Android →", href: "intent://settings#Intent;action=android.settings.DISPLAY_SETTINGS;end", hint: "Settings → Display → Night light or comfort view" },
+        { label: "iPhone:", hint: "Settings → Display & Brightness → Night Shift" },
+        { label: "Android:", hint: "Settings → Display → Night Light (or Comfort View)" },
       ],
     },
     {
@@ -55,8 +55,8 @@
       titleKey: "sleep.grayscale",
       subKey: "sleep.grayscaleSub",
       links: [
-        { label: "iPhone →", href: "App-Prefs:ACCESSIBILITY&path=DISPLAY_AND_TEXT", hint: "Settings → Accessibility → Display & Text Size → Color Filters" },
-        { label: "Android →", href: "intent://settings#Intent;action=android.settings.ACCESSIBILITY_SETTINGS;end", hint: "Settings → Accessibility → Color inversion or color correction" },
+        { label: "iPhone:", hint: "Settings → Accessibility → Display & Text Size → Color Filters" },
+        { label: "Android:", hint: "Settings → Accessibility → Color inversion or color correction" },
       ],
     },
     {
@@ -74,11 +74,11 @@
       "sleep.wakeAt": "Wake at",
       "sleep.editPlan": "Edit plan",
       "sleep.sleepIn": "Sleep in {time}",
-      "sleep.bedtimeNow": "Bedtime now 🌙",
+      "sleep.bedtimeNow": "Bedtime now",
       "sleep.noDataHero": "No data yet — log your first night!",
       "sleep.sleepDebt": "7-day sleep debt",
       "sleep.debtBehind": "behind target",
-      "sleep.debtAhead": "on track 🌙",
+      "sleep.debtAhead": "on track",
       "sleep.lastNight": "Last night",
       "sleep.tabTonight": "Tonight",
       "sleep.tabHistory": "History",
@@ -103,7 +103,7 @@
       "sleep.breathingSub": "4-7-8 method: inhale 4s · hold 7s · exhale 8s",
       "sleep.startBreath": "Start 3-min guide →",
       "sleep.breathProgress": "{done} / {total} complete",
-      "sleep.readyToSleep": "Ready to Sleep 🌙",
+      "sleep.readyToSleep": "Ready to Sleep",
       "sleep.readyDone": "Sleep session started ✓",
       "sleep.alarmSet": "Alarm set for {time} ✓",
       "sleep.alarmDenied": "Enable notifications to get your wake-up alarm ⚙️",
@@ -111,7 +111,7 @@
       "sleep.inhale": "Inhale",
       "sleep.hold": "Hold",
       "sleep.exhale": "Exhale",
-      "sleep.breathDone": "Well done 🌙 Sleep well.",
+      "sleep.breathDone": "Well done. Sleep well.",
       "sleep.scheduleTitle": "Your sleep schedule",
       "sleep.warnBanner": "You slept {hours} last night — be gentle with yourself today.",
       "sleep.connectDevice": "Connect your device",
@@ -119,7 +119,7 @@
       "sleep.comingSoon": "Coming soon",
       "sleep.comingSoonMsg": "We're working on it! 🌙",
       "sleep.noRecentLog": "No recent log",
-      "sleep.winddownAllDone": "All done — sleep well! 🌙",
+      "sleep.winddownAllDone": "All done — sleep well!",
       "sleep.markDone": "Mark done",
       "sleep.notificationsUnsupported": "Notifications not supported on this browser",
     },
@@ -129,11 +129,11 @@
       "sleep.wakeAt": "Réveil à",
       "sleep.editPlan": "Modifier",
       "sleep.sleepIn": "Dans {time}",
-      "sleep.bedtimeNow": "C'est l'heure 🌙",
+      "sleep.bedtimeNow": "C'est l'heure",
       "sleep.noDataHero": "Pas encore de données — enregistre ta première nuit !",
       "sleep.sleepDebt": "Dette de sommeil (7j)",
       "sleep.debtBehind": "de retard",
-      "sleep.debtAhead": "dans les temps 🌙",
+      "sleep.debtAhead": "dans les temps",
       "sleep.lastNight": "La nuit dernière",
       "sleep.tabTonight": "Cette nuit",
       "sleep.tabHistory": "Historique",
@@ -158,7 +158,7 @@
       "sleep.breathingSub": "4-7-8 : inspirez 4s · retenez 7s · expirez 8s",
       "sleep.startBreath": "Démarrer le guide 3 min →",
       "sleep.breathProgress": "{done} / {total} complétés",
-      "sleep.readyToSleep": "Prêt à dormir 🌙",
+      "sleep.readyToSleep": "Prêt à dormir",
       "sleep.readyDone": "Session de sommeil lancée ✓",
       "sleep.alarmSet": "Alarme réglée pour {time} ✓",
       "sleep.alarmDenied": "Active les notifications pour ton alarme ⚙️",
@@ -166,7 +166,7 @@
       "sleep.inhale": "Inspirez",
       "sleep.hold": "Retenez",
       "sleep.exhale": "Expirez",
-      "sleep.breathDone": "Bravo 🌙 Bonne nuit.",
+      "sleep.breathDone": "Bravo. Bonne nuit.",
       "sleep.scheduleTitle": "Ton planning sommeil",
       "sleep.warnBanner": "Tu as dormi {hours} la nuit dernière — sois indulgent avec toi-même.",
       "sleep.connectDevice": "Connecter un appareil",
@@ -174,7 +174,7 @@
       "sleep.comingSoon": "Bientôt disponible",
       "sleep.comingSoonMsg": "On y travaille ! 🌙",
       "sleep.noRecentLog": "Pas de nuit récente",
-      "sleep.winddownAllDone": "Tout est prêt — bonne nuit ! 🌙",
+      "sleep.winddownAllDone": "Tout est prêt — bonne nuit !",
       "sleep.markDone": "Marquer fait",
       "sleep.notificationsUnsupported": "Notifications non prises en charge sur ce navigateur",
     },
@@ -252,6 +252,28 @@
     return d;
   }
 
+  function timeToParts(hhmm) {
+    const [hourRaw, minuteRaw] = String(hhmm || "").split(":");
+    const hour24 = parseInt(hourRaw, 10);
+    const minute = parseInt(minuteRaw, 10);
+    if (!Number.isFinite(hour24) || !Number.isFinite(minute)) return null;
+    return {
+      hour12: String(hour24 % 12 || 12),
+      minute: pad2(minute),
+      period: hour24 >= 12 ? "PM" : "AM",
+    };
+  }
+
+  function partsToTime(hour12Raw, minuteRaw, periodRaw) {
+    const hour12 = parseInt(hour12Raw, 10);
+    const minute = parseInt(minuteRaw, 10);
+    const period = String(periodRaw || "AM").toUpperCase();
+    if (!Number.isFinite(hour12) || !Number.isFinite(minute)) return "07:00";
+    let hour24 = hour12 % 12;
+    if (period === "PM") hour24 += 12;
+    return `${pad2(hour24)}:${pad2(minute)}`;
+  }
+
   function formatTime(d) {
     return d ? `${pad2(d.getHours())}:${pad2(d.getMinutes())}` : "—";
   }
@@ -301,7 +323,6 @@
         return { day, bedtime: "—", wake: "—", isWeekend, durLabel: "" };
       }
       const wakeD = new Date(w);
-      if (isWeekend) wakeD.setMinutes(wakeD.getMinutes() + 30);
       const bed = addMinutes(wakeD, -durationHoursVal * 60);
       return {
         day,
@@ -329,6 +350,68 @@
     if (h > 0 && m > 0) return `${h}h ${pad2(m)}m`;
     if (h > 0) return `${h}h`;
     return `${m}m`;
+  }
+
+  function syncTimePicker(targetId) {
+    const target = $(targetId);
+    const wrap = document.querySelector(`.sl-time-picker[data-target="${targetId}"]`);
+    if (!target || !wrap) return;
+    const parts = timeToParts(target.value || target.defaultValue || "07:00") || timeToParts("07:00");
+    const hour = wrap.querySelector('[data-part="hour"]');
+    const minute = wrap.querySelector('[data-part="minute"]');
+    const period = wrap.querySelector('[data-part="period"]');
+    if (hour) hour.value = parts.hour12;
+    if (minute) minute.value = parts.minute;
+    if (period) period.value = parts.period;
+  }
+
+  function initTimePickers() {
+    document.querySelectorAll(".sl-time-picker[data-target]").forEach((wrap) => {
+      if (wrap.dataset.ready === "1") return;
+      const targetId = wrap.dataset.target;
+      const target = $(targetId);
+      if (!target) return;
+      wrap.innerHTML = `
+        <select class="sl-time-picker-part sl-time-picker-part--hour" data-part="hour" aria-label="Hour"></select>
+        <span class="sl-time-picker-sep" aria-hidden="true">:</span>
+        <select class="sl-time-picker-part sl-time-picker-part--minute" data-part="minute" aria-label="Minute"></select>
+        <select class="sl-time-picker-part sl-time-picker-part--period" data-part="period" aria-label="AM or PM"></select>
+      `;
+      const hour = wrap.querySelector('[data-part="hour"]');
+      const minute = wrap.querySelector('[data-part="minute"]');
+      const period = wrap.querySelector('[data-part="period"]');
+      for (let h = 1; h <= 12; h += 1) {
+        const opt = document.createElement("option");
+        opt.value = String(h);
+        opt.textContent = String(h);
+        hour.appendChild(opt);
+      }
+      ["00", "15", "30", "45"].forEach((value) => {
+        const opt = document.createElement("option");
+        opt.value = value;
+        opt.textContent = value;
+        minute.appendChild(opt);
+      });
+      ["AM", "PM"].forEach((value) => {
+        const opt = document.createElement("option");
+        opt.value = value;
+        opt.textContent = value;
+        period.appendChild(opt);
+      });
+      const commit = () => {
+        target.value = partsToTime(hour.value, minute.value, period.value);
+        target.dispatchEvent(new Event("input", { bubbles: true }));
+        target.dispatchEvent(new Event("change", { bubbles: true }));
+      };
+      [hour, minute, period].forEach((el) => {
+        el.addEventListener("input", commit);
+        el.addEventListener("change", commit);
+      });
+      target.addEventListener("input", () => syncTimePicker(targetId));
+      target.addEventListener("change", () => syncTimePicker(targetId));
+      wrap.dataset.ready = "1";
+      syncTimePicker(targetId);
+    });
   }
 
   function effectiveSettings() {
@@ -930,7 +1013,7 @@
       if (item.links) {
         links = `<div class="sl-winddown-links">
           ${item.links.map((l) =>
-            `<button type="button" class="sl-winddown-link" data-href="${l.href}" data-hint="${l.hint.replace(/"/g, "&quot;")}">${l.label}</button>`
+            `<span class="sl-winddown-path"><b>${l.label}</b> ${l.hint.replace(/"/g, "&quot;")}</span>`
           ).join("")}
         </div>`;
       } else if (item.markKey) {
@@ -959,31 +1042,6 @@
         const t = e.target;
         if (t.closest(".sl-winddown-link")) return;
         toggleWindDownItem(row.dataset.wdId);
-      });
-    });
-    list.querySelectorAll(".sl-winddown-link[data-href]").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const href = btn.dataset.href;
-        const hint = btn.dataset.hint || "";
-        let navigated = false;
-        const onBlur = () => {
-          if (!navigated) showLinkTooltip(btn, hint);
-          window.removeEventListener("blur", onBlur);
-        };
-        window.addEventListener("blur", onBlur);
-        setTimeout(() => {
-          try {
-            window.location.href = href;
-            navigated = true;
-          } catch (_) {
-            showLinkTooltip(btn, hint);
-          }
-        }, 0);
-        setTimeout(() => {
-          if (document.hasFocus()) showLinkTooltip(btn, hint);
-          window.removeEventListener("blur", onBlur);
-        }, 900);
       });
     });
     list.querySelectorAll(".sl-winddown-link[data-mark]").forEach((btn) => {

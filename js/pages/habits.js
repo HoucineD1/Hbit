@@ -23,7 +23,11 @@
     try {
       return window.HBIT?.i18n?.t?.(key, fallback, params) ?? fallback ?? key;
     } catch (_) {
-      return fallback ?? key;
+      let s = fallback ?? key;
+      if (params && typeof params === "object" && typeof s === "string") {
+        s = s.replace(/\{(\w+)\}/g, (_, k) => params[k] !== undefined ? String(params[k]) : `{${k}}`);
+      }
+      return s;
     }
   }
 
