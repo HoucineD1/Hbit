@@ -36,6 +36,12 @@
   --sl-good-soft:    rgba(16, 185, 129, 0.12);
   --sl-bad:          #F87171;
 }
+/* AA-safe positive/muted colors on light theme */
+html[data-theme="light"] #sleepPage {
+  --sl-green: #059669;
+  --sl-good:  #059669;
+  --sl-muted: #4b5563;
+}
 
 /* ── Header ──────────────────────────────────────────────────────── */
 #sleepPage .sl-header {

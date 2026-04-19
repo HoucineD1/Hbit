@@ -20,28 +20,53 @@
   }
 
   /* ── Show a single toast ─────────────────────────────── */
-  function toast(msg, type) {
+  // opts: { action?: string, onAction?: () => void, duration?: number }
+  function toast(msg, type, opts) {
+    opts = opts || {};
     var host = getHost();
     var el = document.createElement("div");
     el.className = "hbit-toast hbit-toast--" + (type || "info");
-    el.setAttribute("role", "status");
-    el.textContent = msg;
+    el.setAttribute("role", type === "error" ? "alert" : "status");
+
+    var msgEl = document.createElement("span");
+    msgEl.className = "hbit-toast-msg";
+    msgEl.textContent = msg;
+    el.appendChild(msgEl);
+
+    var dismissTimer = null;
+    function dismiss() {
+      if (dismissTimer) { clearTimeout(dismissTimer); dismissTimer = null; }
+      el.classList.remove("hbit-toast--show");
+      el.addEventListener("transitionend", function () { el.remove(); }, { once: true });
+      setTimeout(function () { el.remove(); }, 400);
+    }
+
+    if (opts.action && typeof opts.onAction === "function") {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "hbit-toast-action";
+      btn.textContent = opts.action;
+      btn.addEventListener("click", function () {
+        try { opts.onAction(); } catch (_) {}
+        dismiss();
+      });
+      el.appendChild(btn);
+    }
     host.appendChild(el);
 
-    // Animate in on next frame
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
         el.classList.add("hbit-toast--show");
       });
     });
 
-    // Auto-dismiss after 3 s
-    setTimeout(function () {
-      el.classList.remove("hbit-toast--show");
-      el.addEventListener("transitionend", function () { el.remove(); }, { once: true });
-      // Fallback remove in case transition doesn't fire
-      setTimeout(function () { el.remove(); }, 400);
-    }, 3000);
+    var duration = typeof opts.duration === "number"
+      ? opts.duration
+      : (opts.action ? 6000 : 3000);
+    if (duration > 0) {
+      dismissTimer = setTimeout(dismiss, duration);
+    }
+    return { dismiss: dismiss, el: el };
   }
 
   /* ── Offline / online banner ─────────────────────────── */
@@ -83,9 +108,9 @@
   /* ── Public API ──────────────────────────────────────── */
   HBIT.toast = {
     show    : toast,
-    success : function (msg) { toast(msg, "success"); },
-    error   : function (msg) { toast(msg, "error");   },
-    info    : function (msg) { toast(msg, "info");    },
-    warn    : function (msg) { toast(msg, "warn");    },
+    success : function (msg, opts) { return toast(msg, "success", opts); },
+    error   : function (msg, opts) { return toast(msg, "error",   opts); },
+    info    : function (msg, opts) { return toast(msg, "info",    opts); },
+    warn    : function (msg, opts) { return toast(msg, "warn",    opts); },
   };
 })();

@@ -28,20 +28,21 @@
 
   /* ── Category definitions ─────────────────────────────────────────── */
   const CATEGORIES = [
-    { id: "housing",       color: "#818CF8", label: "Housing"       },
-    { id: "food",          color: "#34D399", label: "Food"          },
-    { id: "transport",     color: "#F59E0B", label: "Transport"     },
-    { id: "health",        color: "#F87171", label: "Health"        },
-    { id: "entertainment", color: "#A78BFA", label: "Fun"           },
-    { id: "subscriptions", color: "#22D3EE", label: "Subscriptions" },
-    { id: "shopping",      color: "#FB923C", label: "Shopping"      },
-    { id: "education",     color: "#818CF8", label: "Education"     },
-    { id: "savings",       color: "#4ADE80", label: "Savings"       },
-    { id: "other",         color: "#6B7280", label: "Other"         },
+    { id: "housing",       color: "var(--bgt-saved)", label: "Housing"       },
+    { id: "food",          color: "var(--bgt-income)", label: "Food"          },
+    { id: "transport",     color: "var(--bgt-accent)", label: "Transport"     },
+    { id: "health",        color: "var(--bgt-spent)", label: "Health"        },
+    { id: "entertainment", color: "var(--bgt-purple)", label: "Fun"           },
+    { id: "subscriptions", color: "var(--bgt-cyan)", label: "Subscriptions" },
+    { id: "shopping",      color: "var(--bgt-orange)", label: "Shopping"      },
+    { id: "education",     color: "var(--bgt-saved)", label: "Education"     },
+    { id: "savings",       color: "var(--bgt-success)", label: "Savings"       },
+    { id: "other",         color: "var(--bgt-text-3)", label: "Other"         },
   ];
 
   const CAT_MAP = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
   function getCat(id) { return CAT_MAP[id] || CATEGORIES[CATEGORIES.length - 1]; }
+  function softColor(color, pct = 14) { return `color-mix(in srgb, ${color} ${pct}%, transparent)`; }
 
   /* Lucide-style SVG icons (stroke currentColor) */
   function svgIconLucide(inner, size) {
@@ -66,10 +67,10 @@
 
   /* ── Account type definitions ─────────────────────────────────────── */
   const ACCOUNT_TYPES = [
-    { id: "salary",      label: "Salary",  color: "#34D399" },
-    { id: "cash",        label: "Cash",    color: "#F59E0B" },
-    { id: "credit_card", label: "Credit",  color: "#A78BFA" },
-    { id: "debt",        label: "Debt",    color: "#F87171" },
+    { id: "salary",      label: "Salary",  color: "var(--bgt-income)" },
+    { id: "cash",        label: "Cash",    color: "var(--bgt-accent)" },
+    { id: "credit_card", label: "Credit",  color: "var(--bgt-purple)" },
+    { id: "debt",        label: "Debt",    color: "var(--bgt-spent)" },
   ];
   const ACCT_SVG_INNER = {
     salary: `<rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>`,
@@ -112,6 +113,22 @@
   const LS_MONTH    = "hbit:budget:month";
   const LS_EXPENSES = "hbit:budget:expenses";
   const LS_PLANNER  = "hbit:budget:plannerMode";
+  const BASE_LAYOUT_SECTION_IDS = Object.freeze({
+    goals:        "bgGoalsSection",
+    overview:     "overviewSection",
+    planner:      "bgSecPlanner",
+    bills:        "bgSecBills",
+    accounts:     "bgSecAccounts",
+    chart:        "bgSecChart",
+    calendar:     "bgCalendarSection",
+    trend:        "bgTrendSection",
+    transactions: "bgSecTransactions",
+  });
+  const BASE_LAYOUT_ORDERS = Object.freeze({
+    default: Object.freeze(["overview", "chart", "transactions", "goals", "planner", "bills", "calendar", "trend", "accounts"]),
+    plan:    Object.freeze(["planner", "overview", "goals", "bills", "calendar", "accounts", "chart", "trend", "transactions"]),
+    track:   Object.freeze(["overview", "chart", "transactions", "goals", "planner", "bills", "calendar", "accounts", "trend"]),
+  });
 
   /* ── State ────────────────────────────────────────────────────────── */
   const state = {
@@ -143,7 +160,7 @@
     budgetAuthSubscribed: false,
     goalSheetMode:     "create",
     goalEditId:        null,
-    goalSelectedColor: "#F59E0B",
+    goalSelectedColor: "var(--bgt-accent)",
     goalDetailId:      null,
     dataHydrated:      false,
     expenseDeleteConfirmId: null,
@@ -152,12 +169,12 @@
   };
 
   const GOAL_COLORS = [
-    { hex: "#F59E0B" },
-    { hex: "#34D399" },
-    { hex: "#818CF8" },
-    { hex: "#FB7185" },
-    { hex: "#A78BFA" },
-    { hex: "#2DD4BF" },
+    { hex: "var(--bgt-accent)" },
+    { hex: "var(--bgt-income)" },
+    { hex: "var(--bgt-saved)" },
+    { hex: "var(--bgt-spent)" },
+    { hex: "var(--bgt-purple)" },
+    { hex: "var(--bgt-cyan)" },
   ];
 
   function budgetMetaCol() {
@@ -176,6 +193,10 @@
   let billFlowStep   = 1;
 
   let wizardSlideIndex = 0;
+  const entrySwipeState = new WeakMap();
+  let entrySwipeList = null;
+  const overlayTrapHandlers = new WeakMap();
+  let trendTooltipBoundSvg = null;
   const wizardAnswers = {
     goal:         null,   // step 1: spend_track | save | debt | optimize | insight
     mode:         null,   // step 2: plan | track
@@ -225,9 +246,20 @@
     return (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
   }
 
-  function showToast(msg) {
+  function showToast(msg, opts) {
+    // If caller provides an action (e.g. retry), route through the global
+    // toast system which supports action buttons. Otherwise keep the legacy
+    // page-local toast host for backwards compatibility.
+    if (opts && opts.action && typeof opts.onAction === "function"
+        && window.HBIT && HBIT.toast && typeof HBIT.toast.error === "function") {
+      HBIT.toast.error(msg, opts);
+      return;
+    }
     const host = $("bgToastHost");
-    if (!host) return;
+    if (!host) {
+      if (window.HBIT && HBIT.toast) HBIT.toast.error(msg);
+      return;
+    }
     const el = document.createElement("div");
     el.className = "bg-toast";
     el.textContent = msg;
@@ -237,6 +269,28 @@
       el.style.transition = "opacity 0.25s ease";
       setTimeout(() => el.remove(), 280);
     }, 3000);
+  }
+
+  // Build a translated retry label + "Save failed" fallback.
+  function fbErrMsg(err) {
+    const code = err?.code || "";
+    if (code === "permission-denied") {
+      return t("budget.toast.permissionDenied", "Permission denied \u2014 sign in and try again");
+    }
+    if (code === "unavailable" || code === "deadline-exceeded" || err?.name === "TypeError") {
+      return t("budget.toast.offlineSave", "Can\u2019t reach the server \u2014 check your connection");
+    }
+    const base = t("budget.toast.saveError", "Couldn\u2019t save \u2014 please retry");
+    return (code ? code + ": " : "") + (err?.message || base);
+  }
+  function fbErrRetry(err, retryFn) {
+    const msg = fbErrMsg(err);
+    const short = msg.length > 120 ? msg.slice(0, 117) + "\u2026" : msg;
+    if (typeof retryFn === "function") {
+      showToast(short, { action: t("budget.toast.retry", "Retry"), onAction: retryFn });
+    } else {
+      showToast(short);
+    }
   }
 
   async function loadBudgetMeta() {
@@ -313,6 +367,10 @@
     const i = arr.indexOf(key);
     if (i > 0) { arr.splice(i, 1); arr.unshift(key); }
   }
+  function cloneLayoutOrder(name) {
+    const base = BASE_LAYOUT_ORDERS[name] || BASE_LAYOUT_ORDERS.default;
+    return typeof structuredClone === "function" ? structuredClone(base) : [...base];
+  }
 
   function buildLayoutConfig() {
     const m          = state.wizardMeta || {};
@@ -323,28 +381,18 @@
     const challenges = Array.isArray(m.challenges) ? m.challenges : [];
 
     /* Section keys → HTML element IDs */
-    const SECTION_IDS = {
-      goals:        "bgGoalsSection",
-      overview:     "overviewSection",
-      planner:      "bgSecPlanner",
-      bills:        "bgSecBills",
-      accounts:     "bgSecAccounts",
-      chart:        "bgSecChart",
-      calendar:     "bgCalendarSection",
-      trend:        "bgTrendSection",
-      transactions: "bgSecTransactions",
-    };
+    const SECTION_IDS = BASE_LAYOUT_SECTION_IDS;
 
-    let order = ["overview","chart","transactions","goals","planner","bills","calendar","trend","accounts"];
+    let order = cloneLayoutOrder("default");
     const hidden   = new Set();
     const expanded = new Set(["overview"]);
 
     /* ── Mode rules ── */
     if (mode === "plan") {
-      order = ["planner","overview","goals","bills","calendar","accounts","chart","trend","transactions"];
+      order = cloneLayoutOrder("plan");
       expanded.add("planner");
     } else {
-      order = ["overview","chart","transactions","goals","planner","bills","calendar","accounts","trend"];
+      order = cloneLayoutOrder("track");
       expanded.add("chart");
       expanded.add("transactions");
     }
@@ -400,31 +448,6 @@
     if (challenges.includes("multiple_accounts"))  { expanded.add("accounts"); hidden.delete("accounts"); }
 
     /* Build final array — KPI row stays fixed at top, not included here */
-    hidden.clear();
-    expanded.clear();
-    expanded.add("overview");
-    if (goal === "save") {
-      order = ["goals","overview","planner","chart","transactions","bills","calendar","trend","accounts"];
-      expanded.add("goals");
-      expanded.add("planner");
-    } else if (goal === "debt") {
-      order = ["accounts","overview","planner","bills","chart","transactions","goals","calendar","trend"];
-      expanded.add("accounts");
-      state.accounts.sort((a, b) => (a.type === "debt" ? -1 : 0) - (b.type === "debt" ? -1 : 0));
-    } else if (goal === "spend_track") {
-      order = ["overview","chart","transactions","goals","planner","bills","calendar","trend","accounts"];
-      expanded.add("chart");
-      expanded.add("transactions");
-    } else if (goal === "insight") {
-      order = ["overview","trend","chart","transactions","planner","goals","bills","calendar","accounts"];
-      expanded.add("trend");
-      expanded.add("chart");
-    }
-    if (level === "beginner") hidden.add("trend");
-    if (commitment === "casual" || commitment === "minimal" || commitment === "light") {
-      order.slice(4).forEach(s => hidden.add(s));
-    }
-
     return order
       .filter(key => !hidden.has(key))
       .map(key => ({ key, id: SECTION_IDS[key], expanded: expanded.has(key) }));
@@ -450,7 +473,7 @@
     }
     if (hint) {
       hint.textContent = state.plannerMode === "plan"
-        ? "Set limits per category, then Save plan."
+        ? t("budget.planner.planHint", "Set limits per category, then Save plan.")
         : (typeof HBIT?.i18n?.t === "function" ? HBIT.i18n.t("budget.planner.tapToSet") : "Tap a category to adjust its limit.");
     }
     if (saveBtn) saveBtn.style.display = state.plannerMode === "plan" ? "" : "none";
@@ -491,13 +514,29 @@
 
   /* ── i18n helper ──────────────────────────────────────────────────── */
   function t(key, fallback, params) {
+    // 1. Ask the global i18n bundle (shared across the app). If the key is
+    //    registered there, use it.
     try {
       const out = typeof HBIT?.i18n?.t === "function" ? HBIT.i18n.t(key, fallback, params) : null;
-      if (out != null && out !== "") return out;
+      // The global t() returns the fallback (English) when the key is missing;
+      // detect that by comparing and fall through to BUDGET_COPY so FR keeps working.
+      if (out != null && out !== "" && out !== fallback) return out;
     } catch (_) {
       /* fallback below */
     }
-    let s = fallback != null ? fallback : key;
+    // 2. Page-local dictionary: if BUDGET_COPY has a translation for the
+    //    current language, use it (so calling t("budget.foo", "English") from
+    //    render code still reaches the FR copy).
+    let base = fallback;
+    try {
+      if (typeof BUDGET_COPY !== "undefined" && BUDGET_COPY[key]) {
+        const lang = (HBIT?.i18n?.getLang?.() || document.documentElement.lang || "en").slice(0, 2);
+        const local = BUDGET_COPY[key];
+        base = lang === "fr" ? local[1] : local[0];
+      }
+    } catch (_) { /* ignore */ }
+    // 3. Interpolate {placeholder} tokens.
+    let s = base != null ? base : (fallback != null ? fallback : key);
     if (params && typeof params === "object" && typeof s === "string") {
       s = s.replace(/\{(\w+)\}/g, (_, k) => params[k] !== undefined ? String(params[k]) : `{${k}}`);
     }
@@ -561,6 +600,149 @@
     "budget.monthend.quoteTight": ["A tight month still teaches useful patterns.", "Un mois serre revele quand meme des tendances utiles."],
     "budget.monthend.share": ["Share", "Partager"],
     "budget.monthend.close": ["Done", "Termine"],
+
+    /* KPI summary cards (also bound via data-bg-i18n="budget.income/spent/remaining") */
+    "budget.income": ["Income", "Revenu"],
+    "budget.spent": ["Spent", "Depense"],
+    "budget.remaining": ["Remaining", "Restant"],
+    "budget.kpi.income": ["Income", "Revenu"],
+    "budget.kpi.spent": ["Spent", "Depense"],
+    "budget.kpi.remaining": ["Remaining", "Restant"],
+
+    /* Accounts */
+    "budget.accounts.title": ["Accounts", "Comptes"],
+    "budget.accounts.add": ["Add account", "Ajouter un compte"],
+    "budget.accounts.addHint": ["Add your first account to track balances.", "Ajoute ton premier compte pour suivre les soldes."],
+    "budget.accounts.salary": ["Salary", "Salaire"],
+    "budget.accounts.cash": ["Cash", "Especes"],
+    "budget.accounts.credit": ["Credit card", "Carte de credit"],
+    "budget.accounts.debt": ["Debt", "Dette"],
+    "budget.accounts.noRecent": ["No recent change", "Pas de changement recent"],
+    "budget.accounts.edit": ["Edit account", "Modifier le compte"],
+    "budget.accounts.emptyHint": ["No accounts yet. Add your first account to start tracking your budget.", "Aucun compte pour l'instant. Ajoute ton premier compte pour suivre ton budget."],
+
+    /* Financial Health / networth */
+    "budget.health.sub": ["Details", "Details"],
+    "budget.networth": ["Net worth", "Valeur nette"],
+
+    /* Money Overview donut legend */
+    "budget.overview.title": ["Money Overview", "Apercu financier"],
+    "budget.overview.income": ["Income", "Revenu"],
+    "budget.overview.spent": ["Spent", "Depense"],
+    "budget.overview.debt": ["Debt", "Dette"],
+    "budget.overview.remaining": ["Remaining", "Restant"],
+
+    /* Spending by category */
+    "budget.pie.title": ["Spending by category", "Depenses par categorie"],
+    "budget.pie.total": ["total", "total"],
+    "budget.pie.empty": ["No expenses this month", "Aucune depense ce mois-ci"],
+
+    /* Transactions */
+    "budget.tx.title": ["Transactions", "Transactions"],
+    "budget.tx.search": ["Search transactions...", "Rechercher une transaction..."],
+    "budget.tx.all": ["All", "Tout"],
+    "budget.tx.income": ["Income", "Revenu"],
+    "budget.tx.expenses": ["Expenses", "Depenses"],
+    "budget.tx.empty": ["No transactions yet", "Aucune transaction"],
+    "budget.tx.emptySub": ["Log your first expense or income to get started.", "Enregistre une depense ou un revenu pour commencer."],
+    "budget.tx.logExpense": ["+ Log an expense", "+ Ajouter une depense"],
+    "budget.tx.defaultLabel": ["Transaction", "Transaction"],
+
+    /* Savings Goals */
+    "budget.goals.title": ["Savings Goals", "Objectifs d'epargne"],
+    "budget.goals.emptyTitle": ["Create a savings goal to stay motivated", "Cree un objectif d'epargne pour rester motive"],
+    "budget.goals.emptySub": ["Save for a vacation, emergency fund, or down payment.", "Epargne pour des vacances, un fonds d'urgence ou un acompte."],
+    "budget.goals.set": ["Set a Goal", "Definir un objectif"],
+    "budget.goals.new": ["+ New Goal", "+ Nouvel objectif"],
+    "budget.goals.defaultName": ["Goal", "Objectif"],
+    "budget.goals.savedOf": ["{saved} saved of {target}", "{saved} economises sur {target}"],
+    "budget.goals.byDate": ["By {date}", "D'ici {date}"],
+    "budget.goals.toStayOnTrack": ["+{amount} to stay on track", "+{amount} pour rester sur la bonne voie"],
+    "budget.goals.pastDue": ["Past due", "En retard"],
+    "budget.goals.onTrack": ["On track ✓", "Sur la bonne voie ✓"],
+    "budget.goals.behind": ["Behind ⚠", "En retard ⚠"],
+    "budget.goals.setMonthlyTarget": ["Set monthly target", "Definir une cible mensuelle"],
+
+    /* Budget Planner */
+    "budget.planner.title": ["Budget Planner", "Planification du budget"],
+    "budget.planner.sub": ["Tap to set a monthly limit", "Touche pour definir une limite mensuelle"],
+    "budget.planner.track": ["Track", "Suivre"],
+    "budget.planner.plan": ["Plan", "Planifier"],
+    "budget.planner.remaining": ["Remaining", "Restant"],
+    "budget.planner.noLimit": ["No limit set", "Aucune limite"],
+    "budget.planner.setLimit": ["Set limit", "Definir"],
+    "budget.planner.overBudget": ["Over budget", "Hors budget"],
+    "budget.planner.summary": ["Budgeted: {budgeted} - Spent: {spent} - Remaining: {remaining}", "Prevu: {budgeted} - Depense: {spent} - Restant: {remaining}"],
+
+    /* Category names */
+    "budget.cat.housing": ["Housing", "Logement"],
+    "budget.cat.food": ["Food", "Alimentation"],
+    "budget.cat.transport": ["Transport", "Transport"],
+    "budget.cat.health": ["Health", "Sante"],
+    "budget.cat.fun": ["Fun", "Loisirs"],
+    "budget.cat.subscriptions": ["Subscriptions", "Abonnements"],
+    "budget.cat.shopping": ["Shopping", "Achats"],
+    "budget.cat.education": ["Education", "Education"],
+    "budget.cat.savings": ["Savings", "Epargne"],
+    "budget.cat.other": ["Other", "Autre"],
+
+    /* Bills */
+    "budget.bills.title": ["Bills", "Factures"],
+    "budget.bills.add": ["Add bill", "Ajouter une facture"],
+    "budget.bills.paid": ["Paid", "Payees"],
+    "budget.bills.unpaid": ["Unpaid", "Non payees"],
+    "budget.bills.empty": ["No bills yet", "Aucune facture"],
+    "budget.bills.emptySub": ["Add recurring bills like rent, utilities or subscriptions.", "Ajoute des factures recurrentes : loyer, services, abonnements."],
+    "budget.bills.emptyDebtTitle": ["Add bills to track minimum payments", "Ajoute tes factures pour suivre les paiements minimums"],
+    "budget.bills.emptyDebtSub": ["Never miss a due date - critical for your debt payoff plan.", "Ne manque aucune echeance - essentiel pour ton plan de remboursement."],
+    "budget.bills.statusPaid": ["Paid", "Payée"],
+    "budget.bills.statusLate": ["Late", "En retard"],
+    "budget.bills.statusDue": ["Due", "À venir"],
+    "budget.bills.statusOverdue": ["Overdue", "En retard"],
+    "budget.bills.statusDueSoon": ["Due soon", "Bientot due"],
+    "budget.a11y.editRow": ["Edit", "Modifier"],
+
+    /* Spending Activity */
+    "budget.activity.title": ["Spending Activity", "Activite des depenses"],
+    "budget.activity.daily": ["Daily spending", "Depenses quotidiennes"],
+    "budget.activity.weekly": ["Weekly spending", "Depenses hebdomadaires"],
+
+    /* Setup checklist */
+    "budget.setup.title": ["Set up your budget", "Configure ton budget"],
+    "budget.setup.sub": ["Complete these to unlock the full dashboard.", "Termine ces etapes pour debloquer tout le tableau de bord."],
+    "budget.setup.count": ["{done} / {total} done", "{done} / {total} termine"],
+    "budget.setup.logIncome": ["Log your first income", "Enregistre ton premier revenu"],
+    "budget.setup.setPlan": ["Set your monthly plan", "Definis ton plan mensuel"],
+    "budget.setup.logExpense": ["Log your first expense", "Enregistre ta premiere depense"],
+    "budget.setup.addBill": ["Add a recurring bill", "Ajoute une facture recurrente"],
+    "budget.setup.createGoal": ["Create a savings goal", "Cree un objectif d'epargne"],
+    "budget.empty.goals.title": ["Create a savings goal to stay motivated", "Cree un objectif d'epargne pour rester motive"],
+    "budget.empty.goals.sub": ["Save for a vacation, emergency fund, or down payment.", "Epargne pour des vacances, un fonds d'urgence ou un acompte."],
+    "budget.empty.goals.cta": ["Set a Goal", "Definir un objectif"],
+    "budget.empty.planner.title": ["Set budget limits to take control", "Definis des limites pour prendre le controle"],
+    "budget.empty.planner.sub": ["Choose categories and set monthly targets.", "Choisis des categories et definis des cibles mensuelles."],
+    "budget.empty.planner.cta": ["Create a budget", "Creer un budget"],
+    "budget.empty.tx.title": ["Add your first transaction to start tracking", "Ajoute ta premiere transaction pour commencer le suivi"],
+    "budget.empty.tx.sub": ["Track cash, transfers, or anything missing from your bank.", "Suis l'argent comptant, les transferts ou ce qui manque a ta banque."],
+
+    /* Smart alerts */
+    "budget.alert.overCategory": ["You've exceeded your {category} budget by {amount} this month.", "Tu as depasse ton budget {category} de {amount} ce mois-ci."],
+    "budget.alert.incomeHint": ["Income uses Salary and Cash account balances. Add an account to set income.", "Le revenu utilise les soldes Salaire et Especes. Ajoute un compte pour definir ton revenu."],
+    "budget.alert.dismiss": ["Dismiss alert", "Fermer l'alerte"],
+    "budget.alert.setNow": ["Set it now", "Definir maintenant"],
+    "budget.alert.startPlanning": ["Start planning", "Commencer la planification"],
+
+    /* Add-expense modal */
+    "budget.modal.addExpense": ["Add expense", "Ajouter une depense"],
+    "budget.modal.addIncome": ["Add income", "Ajouter un revenu"],
+    "budget.modal.addBill": ["Add a bill", "Ajouter une facture"],
+    "budget.modal.addAccount": ["Add account", "Ajouter un compte"],
+    "budget.modal.addGoal": ["Add savings goal", "Ajouter un objectif d'epargne"],
+    "budget.modal.save": ["Save", "Enregistrer"],
+    "budget.modal.cancel": ["Cancel", "Annuler"],
+
+    /* Daily allowance chip */
+    "budget.daily.leftToday": ["{amount} left today", "{amount} restant aujourd'hui"],
   };
 
   function budgetCopy(key, fallback, params) {
@@ -571,8 +753,13 @@
   }
 
   function applyBudgetI18n(root = document) {
+    const yr = new Date().getFullYear();
     root.querySelectorAll?.("[data-bg-i18n]").forEach((el) => {
       const key = el.getAttribute("data-bg-i18n");
+      if (key === "footer.copyright") {
+        el.textContent = budgetCopy(key, "\u00a9 " + yr + " Hbit", { year: yr });
+        return;
+      }
       el.textContent = budgetCopy(key, el.textContent);
     });
     root.querySelectorAll?.("[data-bg-i18n-placeholder]").forEach((el) => {
@@ -643,7 +830,10 @@
   /* ── Firestore — entries ───────────────────────────────────────────── */
   async function loadEntries() {
     try { state.entries = await HBIT.db.budgetEntries.forMonth(state.month); }
-    catch (err) { /* silent */ state.entries = []; }
+    catch (err) {
+      state.entries = [];
+      fbErrRetry(err, () => loadEntries().then(renderAll));
+    }
   }
 
   async function persistEntry(data) {
@@ -677,20 +867,22 @@
       const doc = await HBIT.db.budgetPlan.get(state.month);
       state.plan = doc?.byCategory || {};
     } catch (err) {
-      /* silent */
       state.plan = {};
+      fbErrRetry(err, () => loadPlan().then(renderAll));
     }
   }
 
   async function savePlan() {
-    try { await HBIT.db.budgetPlan.set(state.month, state.plan); }
-    catch (err) { /* silent */ }
+    await HBIT.db.budgetPlan.set(state.month, state.plan);
   }
 
   /* ── Firestore — bills ────────────────────────────────────────────── */
   async function loadBills() {
     try { state.bills = await HBIT.db.budgetBills.list(); }
-    catch (err) { /* silent */ state.bills = []; }
+    catch (err) {
+      state.bills = [];
+      fbErrRetry(err, () => loadBills().then(renderAll));
+    }
   }
 
   async function saveBill(data) {
@@ -742,7 +934,9 @@
       await HBIT.db.budgetMonths.set(month, {
         incomeTotal, expenseTotal, remaining: incomeTotal - expenseTotal, byCategory,
       });
-    } catch (err) { /* silent */ }
+    } catch (err) {
+      fbErrRetry(err, () => updateBudgetMonthAggregate(month));
+    }
   }
 
   /* ── Computed values ──────────────────────────────────────────────── */
@@ -768,14 +962,16 @@
   }
 
   function computeNetWorth() {
+    // Net worth = Σ(asset account balances) − Σ(liability account balances)
+    // Return 0 when no accounts exist (instead of falling back to Income−Expenses,
+    // which was misleading because it equalled "Remaining").
     const assets = state.accounts
       .filter(a => a.type === "salary" || a.type === "cash")
       .reduce((s, a) => s + Math.max(0, a.balance || 0), 0);
     const liabilities = state.accounts
       .filter(a => a.type === "debt" || a.type === "credit_card")
       .reduce((s, a) => s + Math.abs(a.balance || 0), 0);
-    if (assets > 0 || liabilities > 0) return assets - liabilities;
-    return computeIncome() - computeExpenses();
+    return assets - liabilities;
   }
 
   function computeByCategory() {
@@ -818,19 +1014,19 @@
     }
     const st = setupChecklistStatus();
     const items = [
-      { key: "income", done: st.income, label: "Log your first income", action: "income" },
-      { key: "plan", done: st.plan, label: "Set your monthly plan", action: "planner" },
-      { key: "expense", done: st.expense, label: "Log your first expense", action: "expense" },
-      { key: "bill", done: st.bill, label: "Add a recurring bill", action: "bills" },
-      { key: "goal", done: st.goal, label: "Create a savings goal", action: "goals" },
+      { key: "income",  done: st.income,  label: t("budget.setup.logIncome",  "Log your first income"),  action: "income" },
+      { key: "plan",    done: st.plan,    label: t("budget.setup.setPlan",    "Set your monthly plan"),  action: "planner" },
+      { key: "expense", done: st.expense, label: t("budget.setup.logExpense", "Log your first expense"), action: "expense" },
+      { key: "bill",    done: st.bill,    label: t("budget.setup.addBill",    "Add a recurring bill"),   action: "bills" },
+      { key: "goal",    done: st.goal,    label: t("budget.setup.createGoal", "Create a savings goal"),  action: "goals" },
     ];
     const doneN = items.filter(i => i.done).length;
     if (doneN >= items.length) {
-      saveSetupDone().then(() => { box.style.display = "none"; }).catch(() => {});
+      saveSetupDone().then(() => { box.style.display = "none"; }).catch((err) => fbErrRetry(err, () => saveSetupDone()));
       return;
     }
     box.style.display = "";
-    setText("bgSetupCount", `${doneN} / ${items.length} done`);
+    setText("bgSetupCount", t("budget.setup.count", `${doneN} / ${items.length} done`, { done: doneN, total: items.length }));
     const pct = (doneN / items.length) * 100;
     const fill = $("bgSetupProgressFill");
     if (fill) fill.style.width = `${pct}%`;
@@ -942,9 +1138,9 @@
     host.innerHTML = `
       <div class="bg-alert-card ${cls}" data-alert-id="${escHtml(alert.id)}">
         <div class="bg-alert-msg">${alert.html}</div>
-        ${alert.link === "setplan" ? `<button type="button" class="bg-alert-link" data-alert-jump="planner">Set it now</button>` : ""}
-        ${alert.link === "nextmonth" ? `<button type="button" class="bg-alert-link" data-alert-jump="nextmonth">Start planning</button>` : ""}
-        <button type="button" class="bg-alert-dismiss" aria-label="Dismiss alert">×</button>
+        ${alert.link === "setplan" ? `<button type="button" class="bg-alert-link" data-alert-jump="planner">${escHtml(t("budget.alert.setNow", "Set it now"))}</button>` : ""}
+        ${alert.link === "nextmonth" ? `<button type="button" class="bg-alert-link" data-alert-jump="nextmonth">${escHtml(t("budget.alert.startPlanning", "Start planning"))}</button>` : ""}
+        <button type="button" class="bg-alert-dismiss" aria-label="${escHtml(t("budget.alert.dismiss", "Dismiss alert"))}">×</button>
       </div>`;
 
     if (alert.auto && alert.type !== "err" && alert.type !== "warn") {
@@ -981,15 +1177,15 @@
     const pct = Math.max(0, Math.min(100, (left / dailyBase) * 100));
     bar.style.width = `${pct}%`;
     if (left >= 0) {
-      tx.textContent = `💚 ${fmtMoney(left)} left today`;
+      tx.textContent = budgetCopy("budget.daily.leftToday", "{amount} left today", { amount: fmtMoney(left) });
       chip.classList.remove("bg-daily-chip--bad", "bg-daily-chip--mid");
       chip.classList.add(left / dailyBase > 0.35 ? "bg-daily-chip--ok" : "bg-daily-chip--mid");
-      bar.style.background = left / dailyBase > 0.35 ? "#34D399" : "#FBBF24";
+      bar.style.background = left / dailyBase > 0.35 ? "var(--bgt-income)" : "var(--bgt-warning)";
     } else {
-      tx.textContent = `🔴 ${fmtMoney(Math.abs(left))} over today`;
+      tx.textContent = budgetCopy("budget.daily.overToday", "{amount} over today", { amount: fmtMoney(Math.abs(left)) });
       chip.classList.remove("bg-daily-chip--ok", "bg-daily-chip--mid");
       chip.classList.add("bg-daily-chip--bad");
-      bar.style.background = "#F87171";
+      bar.style.background = "var(--bgt-spent)";
     }
   }
 
@@ -998,7 +1194,7 @@
     if (Number.isNaN(end.getTime())) return { text: "—", cls: "" };
     const today = new Date();
     today.setHours(12, 0, 0, 0);
-    if (end < today) return { text: "Past due", cls: "past" };
+    if (end < today) return { text: t("budget.goals.pastDue", "Past due"), cls: "past" };
     const monthsLeft = Math.max(1, monthsBetweenDates(today, end));
     const tgt = Number(g.targetAmount) || 0;
     const saved = Number(g.savedAmount) || 0;
@@ -1007,9 +1203,9 @@
     const mt = g.monthlyTarget != null && g.monthlyTarget !== "" ? Number(g.monthlyTarget) : null;
     if (mt != null && Number.isFinite(mt)) {
       const on = mt + 1e-6 >= neededPerMo;
-      return { text: on ? "On track ✓" : "Behind ⚠️", cls: on ? "on" : "behind" };
+      return { text: on ? t("budget.goals.onTrack", "On track ✓") : t("budget.goals.behind", "Behind ⚠"), cls: on ? "on" : "behind" };
     }
-    return { text: "Set monthly target", cls: "" };
+    return { text: t("budget.goals.setMonthlyTarget", "Set monthly target"), cls: "" };
   }
 
   function renderGoalsSection() {
@@ -1030,14 +1226,14 @@
         : "";
       const card = document.createElement("div");
       card.className = "bg-goal-card";
-      card.style.setProperty("--goal-accent", g.color || "#F59E0B");
+      card.style.setProperty("--goal-accent", g.color || "var(--bgt-accent)");
       card.dataset.goalId = g.id;
       card.setAttribute("role", "listitem");
       card.innerHTML = `
-        <div class="bg-goal-card-name"><span class="bg-goal-card-dot" style="background:${escHtml(g.color || "#F59E0B")}"></span>${escHtml(g.name || "Goal")}</div>
-        <div class="bg-goal-card-amt">${fmtMoney(saved)} saved of ${fmtMoney(tgt)}</div>
-        <div class="bg-goal-card-bar"><div class="bg-goal-card-bar-fill" style="width:${pct.toFixed(1)}%;background:${escHtml(g.color || "#F59E0B")}"></div></div>
-        <div class="bg-goal-card-meta">${pct.toFixed(0)}% · By ${escHtml(endStr)}${mt ? ` · +${escHtml(mt)} to stay on track` : ""}</div>
+          <div class="bg-goal-card-name"><span class="bg-goal-card-dot" style="background:${escHtml(g.color || "var(--bgt-accent)")}"></span>${escHtml(g.name || t("budget.goals.defaultName", "Goal"))}</div>
+        <div class="bg-goal-card-amt">${escHtml(t("budget.goals.savedOf", "{saved} saved of {target}", { saved: fmtMoney(saved), target: fmtMoney(tgt) }))}</div>
+          <div class="bg-goal-card-bar"><div class="bg-goal-card-bar-fill" style="width:${pct.toFixed(1)}%;background:${escHtml(g.color || "var(--bgt-accent)")}"></div></div>
+        <div class="bg-goal-card-meta">${pct.toFixed(0)}% - ${escHtml(t("budget.goals.byDate", "By {date}", { date: endStr }))}${mt ? ` - ${escHtml(t("budget.goals.toStayOnTrack", "+{amount} to stay on track", { amount: mt }))}` : ""}</div>
         <div class="bg-goal-card-status ${st.cls}">${escHtml(st.text)}</div>`;
       row.appendChild(card);
     });
@@ -1063,7 +1259,7 @@
     add.type = "button";
     add.className = "bg-goal-add-card";
     add.id = "bgGoalAddCard";
-    add.textContent = "+ New Goal";
+    add.textContent = t("budget.goals.new", "+ New Goal");
     row.appendChild(add);
   }
 
@@ -1112,9 +1308,9 @@
       </div>`;
     }
     wrap.innerHTML = `
-      <div class="bg-activity-chart" role="region" aria-label="Daily spending ${escHtml(monthTitle)}">
+      <div class="bg-activity-chart" role="region" aria-label="${escHtml(t("budget.activity.dailySpendingMonth", "Daily spending {month}", { month: monthTitle }))}">
         <div class="bg-activity-chart-head">
-          <span class="bg-activity-chart-title">Daily spending</span>
+          <span class="bg-activity-chart-title">${escHtml(t("budget.activity.dailySpending", "Daily spending"))}</span>
           <span class="bg-activity-chart-sub">${escHtml(monthTitle)}</span>
         </div>
         <div class="bg-activity-chart-scroll">
@@ -1198,10 +1394,10 @@
     if (scoreEl) scoreEl.textContent = String(score);
 
     let label, color;
-    if (score >= 80)      { label = t("budget.health.excellent", "Excellent"); color = "#4ADE80"; }
-    else if (score >= 60) { label = t("budget.health.good",      "Good");      color = "#F59E0B"; }
-    else if (score >= 40) { label = t("budget.health.fair",      "Fair");      color = "#FB923C"; }
-    else                  { label = t("budget.health.poor",      "Poor");      color = "#F87171"; }
+    if (score >= 80)      { label = t("budget.health.excellent", "Excellent"); color = "var(--bgt-success)"; }
+    else if (score >= 60) { label = t("budget.health.good",      "Good");      color = "var(--bgt-accent)"; }
+    else if (score >= 40) { label = t("budget.health.fair",      "Fair");      color = "var(--bgt-orange)"; }
+    else                  { label = t("budget.health.poor",      "Poor");      color = "var(--bgt-spent)"; }
 
     if (labelEl) { labelEl.textContent = label; labelEl.style.color = color; }
 
@@ -1262,7 +1458,7 @@
       else break;
     }
     if (streak === 0) { el.style.display = "none"; return; }
-    const color = streak >= 3 ? "#4ADE80" : "#F59E0B";
+    const color = streak >= 3 ? "var(--bgt-success)" : "var(--bgt-accent)";
     el.style.display = "";
     el.style.setProperty("--streak-color", color);
     el.textContent = `🔥 ${t("budget.streak.day", "Day {n} under budget", { n: streak })}`;
@@ -1271,21 +1467,6 @@
   /* ════════════════════════════════════════════════════════════
      BILLS SUMMARY META
      ════════════════════════════════════════════════════════════ */
-  function renderBillsSummary() {
-    const meta = $("bgBillsSummaryMeta");
-    if (!meta || state.bills.length === 0) {
-      if (meta) meta.textContent = "";
-      return;
-    }
-    const paid   = state.bills.filter(b => b.paidMonth === state.month).length;
-    const unpaid = state.bills.length - paid;
-    const total  = state.bills.reduce((s, b) => s + (Number(b.amount) || 0), 0);
-    meta.innerHTML =
-      `<span style="color:var(--bgt-green)">${paid} ${t("budget.bills.paid","paid")}</span>` +
-      ` · <span style="color:var(--bgt-warning)">${unpaid} ${t("budget.bills.unpaid","unpaid")}</span>` +
-      ` · ${fmtMoney(total)}`;
-  }
-
   /* ════════════════════════════════════════════════════════════
      50/30/20 AUTO-FILL
      ════════════════════════════════════════════════════════════ */
@@ -1303,11 +1484,11 @@
       const savings = income * 0.20;
       preview.innerHTML = `
         <div class="bg-autofill-info">${escHtml(t("budget.planner.autofillBased","Based on your income of"))} <strong>${fmtMoney(income)}</strong></div>
-        <div class="bg-autofill-row"><div class="bg-autofill-label"><span class="bg-autofill-dot" style="background:#818CF8"></span><span>Needs (50%)</span></div><span class="bg-autofill-amount">${fmtMoney(needs)}</span></div>
+        <div class="bg-autofill-row"><div class="bg-autofill-label"><span class="bg-autofill-dot" style="background:var(--bgt-saved)"></span><span>${escHtml(t("budget.planner.needs", "Needs (50%)"))}</span></div><span class="bg-autofill-amount">${fmtMoney(needs)}</span></div>
         <div class="bg-autofill-cats">Housing · Transport · Health · Subscriptions</div>
-        <div class="bg-autofill-row"><div class="bg-autofill-label"><span class="bg-autofill-dot" style="background:#F59E0B"></span><span>Wants (30%)</span></div><span class="bg-autofill-amount">${fmtMoney(wants)}</span></div>
+        <div class="bg-autofill-row"><div class="bg-autofill-label"><span class="bg-autofill-dot" style="background:var(--bgt-accent)"></span><span>${escHtml(t("budget.planner.wants", "Wants (30%)"))}</span></div><span class="bg-autofill-amount">${fmtMoney(wants)}</span></div>
         <div class="bg-autofill-cats">Food · Fun · Shopping</div>
-        <div class="bg-autofill-row"><div class="bg-autofill-label"><span class="bg-autofill-dot" style="background:#4ADE80"></span><span>Savings (20%)</span></div><span class="bg-autofill-amount">${fmtMoney(savings)}</span></div>
+        <div class="bg-autofill-row"><div class="bg-autofill-label"><span class="bg-autofill-dot" style="background:var(--bgt-success)"></span><span>${escHtml(t("budget.planner.savingsSplit", "Savings (20%)"))}</span></div><span class="bg-autofill-amount">${fmtMoney(savings)}</span></div>
         <div class="bg-autofill-cats">Savings · Education</div>`;
       if (applyBtn) applyBtn.style.display = "";
     }
@@ -1373,25 +1554,25 @@
 
     const billsEl = $("prBillsList");
     if (billsEl) {
-      billsEl.innerHTML = state.bills.length === 0 ? "<p>No bills.</p>" :
+      billsEl.innerHTML = state.bills.length === 0 ? `<p>${escHtml(t("budget.empty.bills", "No bills."))}</p>` :
         state.bills.map(b => {
           const paid = b.paidMonth === state.month;
-          return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0">
-            <span>${escHtml(b.name || "Bill")}</span>
-            <span>${sym + fmt(b.amount)} — ${paid ? "✓ Paid" : "✗ Unpaid"}</span>
+          return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bgt-border)">
+            <span>${escHtml(b.name || t("budget.pdf.billFallback", "Bill"))}</span>
+            <span>${sym + fmt(b.amount)} - ${escHtml(paid ? t("budget.bill.paid", "✓ Paid") : t("budget.bill.unpaid", "✗ Unpaid"))}</span>
           </div>`;
         }).join("");
     }
 
     const goalsEl = $("prGoalsList");
     if (goalsEl) {
-      goalsEl.innerHTML = state.savingsGoals.length === 0 ? "<p>No savings goals.</p>" :
+      goalsEl.innerHTML = state.savingsGoals.length === 0 ? `<p>${escHtml(t("budget.empty.goals", "No savings goals."))}</p>` :
         state.savingsGoals.map(g => {
           const curr   = Number(g.currentAmount) || 0;
           const target = Number(g.targetAmount)  || 0;
           const pct    = target > 0 ? Math.round((curr / target) * 100) : 0;
-          return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0">
-            <span>${escHtml(g.name || "Goal")}</span>
+          return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bgt-border)">
+            <span>${escHtml(g.name || t("budget.goal.title", "Goal"))}</span>
             <span>${sym + fmt(curr)} / ${sym + fmt(target)} (${pct}%)</span>
           </div>`;
         }).join("");
@@ -1901,9 +2082,9 @@
     const CIRC = 2 * Math.PI * R;
 
     const segs = [
-      { frac: spent / total,     color: "#F59E0B" },
-      { frac: remaining / total, color: "#818CF8" },
-      { frac: debt / total,      color: "#F87171" },
+      { frac: spent / total,     color: "var(--bgt-accent)" },
+      { frac: remaining / total, color: "var(--bgt-saved)" },
+      { frac: debt / total,      color: "var(--bgt-spent)" },
     ].filter(s => s.frac > 0.001);
 
     const track = `<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="${SW}"/>`;
@@ -1919,14 +2100,14 @@
     }).join("");
 
     /* Center: income label */
-    const hole = `<circle cx="${CX}" cy="${CY}" r="${R - SW / 2 - 2}" fill="var(--panel,#17171e)"/>`;
+    const hole = `<circle cx="${CX}" cy="${CY}" r="${R - SW / 2 - 2}" fill="var(--bgt-surface-2)"/>`;
     const centerAmt   = fmtMoney(income);
     const centerLabel = income > 0 ? "income" : "—";
     const textEls = `
       <text x="${CX}" y="${CY - 4}" text-anchor="middle" font-size="11" font-weight="800"
-            fill="var(--text,#f2f2f5)" font-family="system-ui,-apple-system,sans-serif">${escHtml(centerAmt)}</text>
+      fill="var(--bgt-text-1)" font-family="system-ui,-apple-system,sans-serif">${escHtml(centerAmt)}</text>
       <text x="${CX}" y="${CY + 10}" text-anchor="middle" font-size="8" font-weight="600"
-            fill="var(--muted,#a0a0aa)" font-family="system-ui,-apple-system,sans-serif">${centerLabel}</text>`;
+      fill="var(--bgt-text-3)" font-family="system-ui,-apple-system,sans-serif">${centerLabel}</text>`;
 
     svg.innerHTML = `<g>${track}${circles}</g>${hole}${textEls}`;
   }
@@ -1976,13 +2157,13 @@
         return `
         <div class="bg-planner-row bg-planner-row--plan bg-planner-plan-card" data-cat="${row.id}" role="listitem">
           <div class="bg-planner-plan-card-top">
-            <div class="bg-planner-icon" style="background:${row.color}22;color:${row.color}">${catIconSvg(row.id, 20)}</div>
+            <div class="bg-planner-icon" style="background:${softColor(row.color)};color:${row.color}">${catIconSvg(row.id, 20)}</div>
             <div class="bg-planner-plan-head">
               <div class="bg-planner-name">${escHtml(row.label)}</div>
               <div class="bg-planner-plan-field">
-                <label class="bg-planner-plan-lbl" for="planInp-${row.id}">Monthly limit</label>
+                <label class="bg-planner-plan-lbl" for="planInp-${row.id}">${escHtml(t("budget.limit.monthlyLimit", "Monthly limit"))}</label>
                 <input id="planInp-${row.id}" class="bg-planner-plan-input" type="number" min="0" step="1" data-plan-cat="${row.id}"
-                       value="${escHtml(val)}" placeholder="0" aria-label="Limit for ${escHtml(row.label)}" />
+                       value="${escHtml(val)}" placeholder="0" aria-label="${escHtml(t("budget.aria.limitFor", "Limit for {category}", { category: row.label }))}" />
               </div>
             </div>
           </div>
@@ -2012,13 +2193,13 @@
         const pctClamped = hasLimit ? Math.min((row.spent / row.limit) * 100, 100) : 0;
         const over = hasLimit && row.spent > row.limit;
         const warn = hasLimit && !over && pctClamped >= 80;
-        let barColor = "#6B7280";
+        let barColor = "var(--bgt-text-3)";
         if (hasLimit) {
-          if (over) barColor = "#F87171";
-          else if (warn) barColor = "#FBBF24";
-          else barColor = "#F59E0B";
+          if (over) barColor = "var(--bgt-spent)";
+          else if (warn) barColor = "var(--bgt-warning)";
+          else barColor = "var(--bgt-accent)";
         } else if (row.spent > 0) {
-          barColor = "#F59E0B";
+          barColor = "var(--bgt-accent)";
         }
         const barWidth = hasLimit
           ? `${Math.min(displayPct, 100)}%`
@@ -2026,8 +2207,8 @@
         const animClass = state.plannerInView ? "bg-planner-anim" : "";
         return `
         <div class="bg-planner-row bg-planner-row--track${hasLimit ? "" : " bg-planner-row--nolimit"}" data-cat="${row.id}" data-mode="track" data-has-limit="${hasLimit ? "1" : "0"}" role="listitem" tabindex="0"
-             aria-label="Budget ${escHtml(row.label)}">
-          <div class="bg-planner-icon" style="background:${row.color}22;color:${row.color}">${catIconSvg(row.id, 20)}</div>
+             aria-label="${escHtml(t("budget.aria.budgetFor", "Budget {category}", { category: row.label }))}">
+          <div class="bg-planner-icon" style="background:${softColor(row.color)};color:${row.color}">${catIconSvg(row.id, 20)}</div>
           <div class="bg-planner-info">
             <div class="bg-planner-name">${escHtml(row.label)}</div>
             <div class="bg-planner-bar-wrap">
@@ -2039,10 +2220,10 @@
               <span class="bg-planner-spent" style="color:${row.color}">${fmtMoney(row.spent)}</span>
               <span class="bg-planner-limit ${hasLimit ? "" : "no-limit"}">
                 ${hasLimit ? "/ " + fmtHtmlMoney(row.limit) : escHtml(t("budget.planner.noLimit"))}
-                ${!hasLimit ? `<button type="button" class="bg-planner-set-limit" data-set-plan-cat="${row.id}">+ Set limit</button>` : ""}
+                ${!hasLimit ? `<button type="button" class="bg-planner-set-limit" data-set-plan-cat="${row.id}">${escHtml(t("budget.planner.setLimitCta", "+ Set limit"))}</button>` : ""}
               </span>
               ${hasLimit ? `<span class="bg-planner-pct">${Math.round(Math.min((row.spent / row.limit) * 100, 999))}%</span>` : ""}
-              ${over ? `<span class="bg-planner-over-badge">OVER</span>` : ""}
+              ${over ? `<span class="bg-planner-over-badge">${escHtml(t("budget.status.overShort", "OVER"))}</span>` : ""}
             </div>
           </div>
         </div>`;
@@ -2090,12 +2271,32 @@
   }
 
   /* ── Bills section ────────────────────────────────────────────────── */
+  function billStatusGlyph(status) {
+    if (status === "paid") {
+      return `<span class="bg-bill-status bg-bill-status--paid" aria-label="${escHtml(t("budget.bills.statusPaid", "Paid"))}">✓</span>`;
+    }
+    if (status === "overdue") {
+      return `<span class="bg-bill-status bg-bill-status--late" aria-label="${escHtml(t("budget.bills.statusLate", "Late"))}">⚠</span>`;
+    }
+    return `<span class="bg-bill-status bg-bill-status--due" aria-label="${escHtml(t("budget.bills.statusDue", "Due"))}">•</span>`;
+  }
+
   function renderBills() {
     const list    = $("billsList");
     const emptyEl = $("billsEmpty");
     if (!list) return;
 
     const today = todayDay();
+    const tabs = $("bgBillsTabs");
+    tabs?.querySelectorAll("[data-bill-filter]").forEach(btn => {
+      const active = (btn.dataset.billFilter || "all") === state.billFilter;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-selected", active ? "true" : "false");
+    });
+    let bills = [...state.bills];
+    if (state.billFilter === "paid") bills = bills.filter(b => billStatus(b, today) === "paid");
+    if (state.billFilter === "unpaid") bills = bills.filter(b => billStatus(b, today) !== "paid");
+    if (state.billFilter === "subscriptions") bills = bills.filter(b => b.category === "subscriptions" || b.frequency === "monthly");
 
     if (state.bills.length === 0) {
       list.innerHTML = "";
@@ -2112,9 +2313,9 @@
                 <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>
               </svg>
             </div>
-            <p class="bg-empty-title">Add bills to track minimum payments</p>
-            <p class="bg-empty-sub">Never miss a due date — critical for your debt payoff plan.</p>
-            <button class="bg-btn-primary bg-empty-cta" id="btnAddBillEmptyDebt" type="button">+ Add a bill</button>`;
+            <p class="bg-empty-title">${escHtml(t("budget.bills.emptyDebtTitle", "Add bills to track minimum payments"))}</p>
+            <p class="bg-empty-sub">${escHtml(t("budget.bills.emptyDebtSub", "Never miss a due date - critical for your debt payoff plan."))}</p>
+            <button class="bg-btn-primary bg-empty-cta" id="btnAddBillEmptyDebt" type="button">+ ${escHtml(t("budget.bills.add", "Add bill"))}</button>`;
         }
         emptyEl.style.display = "";
       }
@@ -2122,13 +2323,13 @@
     }
 
     list.style.display = "";
-    if (emptyEl) emptyEl.style.display = "none";
+    if (emptyEl) emptyEl.style.display = bills.length ? "none" : "";
 
     /* Sort: unpaid overdue → unpaid upcoming → unpaid rest → paid */
-    const sorted = [...state.bills].sort((a, b) => {
+    const sorted = [...bills].sort((a, b) => {
       const aStatus = billStatus(a, today);
       const bStatus = billStatus(b, today);
-      const order = { overdue: 0, upcoming: 1, unpaid: 2, paid: 3 };
+      const order = { overdue: 0, "due-soon": 1, upcoming: 2, unpaid: 2, paid: 3 };
       const ao = order[aStatus] ?? 2;
       const bo = order[bStatus] ?? 2;
       if (ao !== bo) return ao - bo;
@@ -2141,24 +2342,24 @@
       const isPaid = status === "paid";
       const dueTxt = billDueText(bill, status);
       return `
-        <div class="bg-bill-card ${isPaid ? "paid" : ""}" data-bill-id="${bill.id}" role="listitem">
-          <span class="bg-bill-status ${status}" aria-hidden="true"></span>
-          <div class="bg-bill-icon" style="background:${cat.color}22;color:${cat.color}">${catIconSvg(cat.id, 18)}</div>
+        <div class="bg-bill-card ${escHtml(status)} ${isPaid ? "paid" : ""}" data-bill-id="${bill.id}" role="listitem">
+          ${billStatusGlyph(status)}
+          <div class="bg-bill-icon" style="background:${softColor(cat.color)};color:${cat.color}">${catIconSvg(cat.id, 18)}</div>
           <div class="bg-bill-info">
             <div class="bg-bill-name">${escHtml(bill.name)}</div>
             <div class="bg-bill-meta">
-              <span class="bg-bill-due ${status === "overdue" ? "overdue" : status === "upcoming" ? "upcoming" : ""}">${escHtml(dueTxt)}</span>
+              <span class="bg-bill-due ${status === "overdue" ? "overdue" : status === "due-soon" ? "upcoming" : status === "upcoming" ? "upcoming" : ""}">${escHtml(dueTxt)}</span>
               <span class="bg-bill-cat-tag">${escHtml(cat.label)}</span>
             </div>
           </div>
           <div class="bg-bill-right">
             <div class="bg-bill-amount">${fmtMoney(bill.amount)}</div>
-            <button class="bg-bill-pay-btn ${isPaid ? "paid-state" : "unpaid"}"
+            <button class="bg-bill-paid-btn ${isPaid ? "paid" : "unpaid"}"
                     data-pay="${bill.id}" type="button">
-              ${isPaid ? t("budget.bills.paid") : t("budget.bills.markPaid")}
+              ${isPaid ? t("budget.bills.paid", "Paid") : t("budget.bills.markPaid", "Mark paid")}
             </button>
           </div>
-          <button class="bg-bill-edit-btn" data-edit-bill="${bill.id}" type="button" aria-label="Edit bill">
+          <button class="bg-bill-edit-btn" data-edit-bill="${bill.id}" type="button" aria-label="${escHtml(t("budget.a11y.editRow", "Edit"))}">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -2201,13 +2402,13 @@
       const hint = document.createElement("div");
       hint.className = "bg-accounts-hint";
       hint.innerHTML = `
-        <p class="bg-accounts-hint-text">No accounts yet. Add your first account to start tracking your budget.</p>
+        <p class="bg-accounts-hint-text">${escHtml(t("budget.accounts.emptyHint", "No accounts yet. Add your first account to start tracking your budget."))}</p>
         <button class="bg-btn-primary" id="btnAddAccountHint" type="button">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          Add account
+          ${escHtml(t("budget.accounts.add", "Add account"))}
         </button>`;
       list.appendChild(hint);
       return;
@@ -2217,10 +2418,10 @@
       const t2   = getAcctType(acct.type);
       const slug = acct.type === "credit_card" ? "credit" : acct.type;
       const accentByType = {
-        salary: "var(--habit, #34D399)",
-        cash: "var(--budget, #F59E0B)",
-        credit: "var(--sleep, #818CF8)",
-        debt: "var(--brand, #E63946)",
+      salary: "var(--bgt-income)",
+      cash: "var(--bgt-accent)",
+      credit: "var(--bgt-saved)",
+      debt: "var(--bgt-spent)",
       };
       const accent = accentByType[slug] || "var(--bgt-accent)";
       const card = document.createElement("div");
@@ -2234,7 +2435,7 @@
       if (acct.type === "credit_card" && acct.limit) {
         const used    = Math.abs(acct.balance || 0);
         const pct     = Math.min((used / acct.limit) * 100, 100);
-        const barColor = pct >= 80 ? "#F87171" : pct >= 50 ? "#FB923C" : "#A78BFA";
+      const barColor = pct >= 80 ? "var(--bgt-spent)" : pct >= 50 ? "var(--bgt-orange)" : "var(--bgt-purple)";
         utilBar = `
           <div class="bg-acct-utilization-wrap">
             <div class="bg-acct-util-bar">
@@ -2253,7 +2454,7 @@
         ${utilBar}
         ${acct.note ? `<div class="bg-acct-note">${escHtml(acct.note)}</div>` : `<div class="bg-acct-note">${escHtml(t("budget.accounts.noRecent", "No recent change"))}</div>`}
         <button class="bg-acct-edit" data-id="${acct.id}" type="button"
-                aria-label="Edit ${escHtml(acct.name)}">
+                aria-label="${escHtml(t("budget.a11y.editRow", "Edit"))}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -2269,17 +2470,42 @@
     addCard.id         = "btnAddAccountCard";
     addCard.setAttribute("role", "button");
     addCard.setAttribute("tabindex", "0");
-    addCard.setAttribute("aria-label", "Add account");
+    addCard.setAttribute("aria-label", t("budget.accounts.add", "Add account"));
     addCard.innerHTML  = `
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
       </svg>
-      <span>Add account</span>`;
+      <span>${escHtml(t("budget.accounts.add", "Add account"))}</span>`;
     list.appendChild(addCard);
   }
 
   /* ── SVG Donut pie chart ──────────────────────────────────────────── */
+  function animateDonutSweep(svg) {
+    if (!svg) return;
+    svg.querySelectorAll(".bg-pie-slice").forEach((circle, idx) => {
+      const arc = Number(circle.dataset.arc || 0);
+      const circ = Number(circle.dataset.circ || 0);
+      const targetOffset = Number(circle.dataset.targetOffset || circle.getAttribute("stroke-dashoffset") || 0);
+      if (!Number.isFinite(arc) || !Number.isFinite(circ) || circ <= 0) return;
+      if (prefersReducedMotion()) {
+        circle.style.transition = "none";
+        circle.style.strokeDasharray = `${arc.toFixed(3)} ${circ.toFixed(3)}`;
+        circle.style.strokeDashoffset = `${targetOffset.toFixed(3)}`;
+        return;
+      }
+      circle.style.transition = "none";
+      circle.style.strokeDasharray = `0 ${circ.toFixed(3)}`;
+      circle.style.strokeDashoffset = `${circ.toFixed(3)}`;
+      requestAnimationFrame(() => {
+        circle.style.transition = "stroke-dasharray 600ms cubic-bezier(0.4,0,0.2,1), stroke-dashoffset 600ms cubic-bezier(0.4,0,0.2,1)";
+        circle.style.transitionDelay = `${idx * 100}ms`;
+        circle.style.strokeDasharray = `${arc.toFixed(3)} ${circ.toFixed(3)}`;
+        circle.style.strokeDashoffset = `${targetOffset.toFixed(3)}`;
+      });
+    });
+  }
+
   function renderPieChart() {
     const catMap = computeByCategory();
     const total  = Object.values(catMap).reduce((s, v) => s + v, 0);
@@ -2325,28 +2551,31 @@
         stroke-dasharray="${len.toFixed(3)} ${CIRC.toFixed(3)}"
         stroke-dashoffset="${offset.toFixed(3)}"
         transform="rotate(-90 ${CX} ${CY})"
-        opacity="${dim}" data-cat="${s.id}" class="bg-pie-slice"
-        style="cursor:pointer;transition:opacity .2s,stroke-dasharray .5s cubic-bezier(.34,1.56,.64,1);"/>`;
+        opacity="${dim}" data-cat="${s.id}" data-arc="${len.toFixed(3)}" data-circ="${CIRC.toFixed(3)}" data-target-offset="${offset.toFixed(3)}" class="bg-pie-slice"
+        style="cursor:pointer;transition:opacity .2s;"/>`;
     }).join("");
 
     const focused = state.focusedCat ? slices.find(s => s.id === state.focusedCat) : null;
     const cAmt    = fmtMoney(focused ? focused.amount : total);
     const cLabel  = escHtml(focused ? focused.label : "total");
     const cPct    = focused ? `${Math.round(focused.frac * 100)}%` : "";
-    const hole    = `<circle cx="${CX}" cy="${CY}" r="${R - SW / 2 - 2}" fill="var(--panel,#17171e)"/>`;
+    const hole    = `<circle cx="${CX}" cy="${CY}" r="${R - SW / 2 - 2}" fill="var(--bgt-surface-2)"/>`;
     const cy1 = focused ? CY - 11 : CY - 5;
     const cy2 = focused ? CY + 5  : CY + 10;
     const cy3 = CY + 19;
     const textEls = `
       <text x="${CX}" y="${cy1}" text-anchor="middle" font-size="12" font-weight="800"
-            fill="var(--text,#f2f2f5)" font-family="system-ui,-apple-system,sans-serif">${cAmt}</text>
+        fill="var(--bgt-text-1)" font-family="system-ui,-apple-system,sans-serif">${cAmt}</text>
       <text x="${CX}" y="${cy2}" text-anchor="middle" font-size="9" font-weight="600"
-            fill="var(--muted,#a0a0aa)" font-family="system-ui,-apple-system,sans-serif">${cLabel}</text>
+        fill="var(--bgt-text-3)" font-family="system-ui,-apple-system,sans-serif">${cLabel}</text>
       ${focused ? `<text x="${CX}" y="${cy3}" text-anchor="middle" font-size="8" font-weight="700"
-            fill="var(--muted,#a0a0aa)" font-family="system-ui,-apple-system,sans-serif">${cPct}</text>` : ""}`;
+        fill="var(--bgt-text-3)" font-family="system-ui,-apple-system,sans-serif">${cPct}</text>` : ""}`;
 
     const pieSVG = $("pieSVG");
-    if (pieSVG) pieSVG.innerHTML = `<g>${track}${sliceEls}</g>${hole}${textEls}`;
+    if (pieSVG) {
+      pieSVG.innerHTML = `<g>${track}${sliceEls}</g>${hole}${textEls}`;
+      animateDonutSweep(pieSVG);
+    }
 
     const pieLegend = $("pieLegend");
     if (pieLegend) {
@@ -2467,73 +2696,64 @@
     bindEntrySwipe();
   }
 
-  function renderEntryCard(e) {
-    const isIncome = (e.type || "expense") === "income";
-    const cat = isIncome ? { id: "income", color: "#34D399", label: "Income" } : getCat(e.category);
-    const confirming = state.expenseDeleteConfirmId === e.id;
-    const rightBlock = confirming
-      ? `<div class="bg-entry-del-confirm" role="group" aria-label="${escHtml(t("budget.delete.confirm", "Delete this transaction?"))}">
-           <span class="bg-entry-del-msg">${escHtml(t("budget.delete.confirm", "Delete this transaction?"))}</span>
-           <button type="button" class="bg-entry-del-yes" data-action="confirm-exp-del" data-id="${e.id}">${escHtml(t("common.confirm", "Confirm"))}</button>
-           <button type="button" class="bg-entry-del-no" data-action="cancel-exp-del" data-id="${e.id}">${escHtml(t("common.cancel", "Cancel"))}</button>
-         </div>`
-      : `<div class="bg-entry-amt" style="color:${cat.color}">${isIncome ? "+" : "&minus;"}${fmtMoney(Math.abs(e.amount))}</div>
-          <button class="bg-entry-del" data-action="start-exp-del" data-id="${e.id}" type="button" aria-label="${escHtml(t("budget.delete.aria", "Delete transaction"))}">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-            </svg>
-          </button>`;
-    const swipeLabel = confirming
-      ? escHtml(t("common.confirm", "Confirm"))
-      : escHtml(t("budget.delete.short", "Delete"));
-    return `
-      <div class="bg-entry-card" data-id="${e.id}"
-           ${e._pending ? 'data-pending="true"' : ""} role="listitem">
-        <div class="bg-entry-icon" style="background:${cat.color}22;color:${cat.color}" aria-hidden="true">${catIconSvg(cat.id, 18)}</div>
-        <div class="bg-entry-info">
-          <div class="bg-entry-desc">${escHtml(e.description || cat.label)}</div>
-          <div class="bg-entry-meta">
-            <span class="bg-entry-cat">${escHtml(cat.label)}</span>
-            ${e.note ? `<span class="bg-entry-note">${escHtml(e.note)}</span>` : ""}
-          </div>
-        </div>
-        <div class="bg-entry-right">
-          ${rightBlock}
-        </div>
-        <div class="bg-entry-swipe-del" data-action="${confirming ? "confirm-exp-del" : "start-exp-del"}" data-del="${e.id}">${swipeLabel}</div>
-      </div>`;
-  }
-
   /* ── Touch swipe-to-delete ────────────────────────────────────────── */
   function bindEntrySwipe() {
     const list = $("entriesList");
     if (!list) return;
-    list.querySelectorAll(".bg-entry-card").forEach(card => {
-      let startX = 0, startY = 0, moved = false;
-      card.addEventListener("touchstart", e => {
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-        moved  = false;
-        card.style.transition = "none";
-      }, { passive: true });
-      card.addEventListener("touchmove", e => {
-        const dx = e.touches[0].clientX - startX;
-        const dy = e.touches[0].clientY - startY;
-        if (!moved && Math.abs(dy) > Math.abs(dx)) return;
-        moved = true;
-        if (dx > 0) { card.style.transform = ""; return; }
-        card.style.transform = `translateX(${Math.max(-80, dx)}px)`;
-        e.preventDefault();
-      }, { passive: false });
-      card.addEventListener("touchend", () => {
-        card.style.transition = "";
-        const cur = parseFloat(card.style.transform.replace("translateX(", "") || "0");
-        if (cur <= -55) { card.classList.add("swiped"); card.style.transform = "translateX(-80px)"; }
-        else { card.classList.remove("swiped"); card.style.transform = ""; }
-      });
+    if (entrySwipeList === list) return;
+    entrySwipeList = list;
+    list.addEventListener("touchstart", onEntrySwipeStart, { passive: true });
+    list.addEventListener("touchmove", onEntrySwipeMove, { passive: false });
+    list.addEventListener("touchend", onEntrySwipeEnd);
+    list.addEventListener("touchcancel", onEntrySwipeEnd);
+  }
+
+  function getSwipeCard(target) {
+    const card = target?.closest?.(".bg-entry-card");
+    return card && $("entriesList")?.contains(card) ? card : null;
+  }
+
+  function onEntrySwipeStart(e) {
+    const card = getSwipeCard(e.target);
+    if (!card || !e.touches?.length) return;
+    entrySwipeState.set(card, {
+      startX: e.touches[0].clientX,
+      startY: e.touches[0].clientY,
+      moved: false,
     });
+    card.style.transition = "none";
+  }
+
+  function onEntrySwipeMove(e) {
+    const card = getSwipeCard(e.target);
+    const swipe = card ? entrySwipeState.get(card) : null;
+    if (!card || !swipe || !e.touches?.length) return;
+    const dx = e.touches[0].clientX - swipe.startX;
+    const dy = e.touches[0].clientY - swipe.startY;
+    if (!swipe.moved && Math.abs(dy) > Math.abs(dx)) return;
+    swipe.moved = true;
+    if (dx > 0) {
+      card.style.transform = "";
+      return;
+    }
+    card.style.transform = `translateX(${Math.max(-80, dx)}px)`;
+    if (e.cancelable) e.preventDefault();
+  }
+
+  function onEntrySwipeEnd(e) {
+    const card = getSwipeCard(e.target);
+    if (!card) return;
+    card.style.transition = "";
+    const match = card.style.transform.match(/translateX\((-?\d+(?:\.\d+)?)px\)/);
+    const cur = match ? parseFloat(match[1]) : 0;
+    if (cur <= -55) {
+      card.classList.add("swiped");
+      card.style.transform = "translateX(-80px)";
+    } else {
+      card.classList.remove("swiped");
+      card.style.transform = "";
+    }
+    entrySwipeState.delete(card);
   }
 
   /* ════════════════════════════════════════════════════════════
@@ -2707,17 +2927,11 @@
       closeOverlay("acctOverlay");
       await loadAccounts();
       renderAll();
-      updateBudgetMonthAggregate(state.month).catch(() => {});
+      updateBudgetMonthAggregate(state.month).catch((err) => fbErrRetry(err, () => updateBudgetMonthAggregate(state.month)));
     } catch (err) {
-      /* silent */
-      const code = err?.code || "";
-      const detail = err?.message || "Save failed";
-      const short = code === "permission-denied"
-        ? "Permission denied — sign in and try again"
-        : (code ? `${code}: ` : "") + detail;
-      const btnMsg = short.length > 52 ? short.slice(0, 49) + "…" : short;
-      showSheetError("acctSave", btnMsg);
-      showToast(short.length > 120 ? short.slice(0, 117) + "…" : short);
+      const msg = fbErrMsg(err);
+      showSheetError("acctSave", msg.length > 52 ? msg.slice(0, 49) + "\u2026" : msg);
+      fbErrRetry(err, () => submitAccount());
     } finally {
       clearBodyScrollUnlessOverlayOpen();
       setBusy("acctSave", false, t("budget.sheet.save"));
@@ -2731,13 +2945,11 @@
       closeOverlay("acctOverlay");
       await loadAccounts();
       renderAll();
-      updateBudgetMonthAggregate(state.month).catch(() => {});
+      updateBudgetMonthAggregate(state.month).catch((err) => fbErrRetry(err, () => updateBudgetMonthAggregate(state.month)));
     } catch (err) {
-      /* silent */
-      const code = err?.code || "";
-      const msg = code === "permission-denied" ? "Permission denied" : (code ? `${code}: ` : "") + (err?.message || "Error");
-      showSheetError("acctDelete", msg.length > 52 ? msg.slice(0, 49) + "…" : msg);
-      showToast(msg.length > 120 ? msg.slice(0, 117) + "…" : msg);
+      const msg = fbErrMsg(err);
+      showSheetError("acctDelete", msg.length > 52 ? msg.slice(0, 49) + "\u2026" : msg);
+      fbErrRetry(err, () => submitDeleteAccount(id));
     } finally {
       clearBodyScrollUnlessOverlayOpen();
       setBusy("acctDelete", false, t("budget.sheet.deleteAccount"));
@@ -2762,11 +2974,13 @@
     const grid = $("catGrid");
     if (grid) grid.style.display = txType === "income" ? "none" : "";
     const desc = $("expDesc");
-    if (desc) desc.placeholder = txType === "income" ? "What money came in?" : "What did you spend on?";
+    if (desc) desc.placeholder = txType === "income"
+      ? t("budget.tx.incomePlaceholder", "What money came in?")
+      : t("budget.tx.expensePlaceholder", "What did you spend on?");
     const del = $("expDelete");
     if (del) {
       del.style.display = entry ? "" : "none";
-      del.textContent = txType === "income" ? "Delete income" : "Delete expense";
+      del.textContent = txType === "income" ? t("budget.sheet.deleteIncome", "Delete income") : t("budget.sheet.deleteExpense", "Delete expense");
     }
     const sym = $("expCurrencySym");
     if (sym) sym.textContent = currencySymbol();
@@ -2781,18 +2995,6 @@
 
   function openIncomeSheet(income) {
     openTransactionSheet("income", income);
-  }
-
-  function renderCatGrid(sel, gridId, onSelect) {
-    const grid = $(gridId);
-    if (!grid) return;
-    grid.innerHTML = CATEGORIES.map(c => `
-      <button class="bg-cat-chip${c.id === sel ? " active" : ""}"
-              data-cat-id="${c.id}" data-grid="${gridId}" type="button"
-              style="--cat-color:${c.color}">
-        <span class="bg-cat-icon">${catIconSvg(c.id, 18)}</span>
-        <span class="bg-cat-name">${escHtml(c.label)}</span>
-      </button>`).join("");
   }
 
   async function submitExpense() {
@@ -2823,13 +3025,14 @@
       await loadEntries();
       await loadKpiComparison();
       renderAll();
-      updateBudgetMonthAggregate(month).catch(() => {});
+      updateBudgetMonthAggregate(month).catch((err) => fbErrRetry(err, () => updateBudgetMonthAggregate(month)));
     } catch (err) {
-      /* silent */
       state.entries = prev;
       renderAll();
       openTransactionSheet(txType, { id: editId, amount, category: cat, description: desc, note, dateKey, type: txType });
-      showSheetError("expSave", "Save failed — check connection");
+      const msg = fbErrMsg(err);
+      showSheetError("expSave", msg.length > 52 ? msg.slice(0, 49) + "\u2026" : msg);
+      fbErrRetry(err, () => submitExpense());
     } finally {
       clearBodyScrollUnlessOverlayOpen();
     }
@@ -2846,11 +3049,11 @@
       await loadEntries();
       await loadKpiComparison();
       renderAll();
-      updateBudgetMonthAggregate(state.month).catch(() => {});
+      updateBudgetMonthAggregate(state.month).catch((err) => fbErrRetry(err, () => updateBudgetMonthAggregate(state.month)));
     } catch (err) {
-      /* silent */
       if (removed) state.entries = [...state.entries, removed];
       renderAll();
+      fbErrRetry(err, () => submitDeleteExpense(id));
     } finally {
       clearBodyScrollUnlessOverlayOpen();
     }
@@ -2910,8 +3113,9 @@
       await loadBills();
       renderAll();
     } catch (err) {
-      /* silent */
-      showSheetError("billSave", "Save failed — retry");
+      const msg = fbErrMsg(err);
+      showSheetError("billSave", msg.length > 52 ? msg.slice(0, 49) + "\u2026" : msg);
+      fbErrRetry(err, () => submitBill());
     } finally {
       clearBodyScrollUnlessOverlayOpen();
       setBusy("billSave", false, t("budget.sheet.save"));
@@ -2926,8 +3130,9 @@
       state.bills = state.bills.filter(b => b.id !== id);
       renderAll();
     } catch (err) {
-      /* silent */
-      showSheetError("billDelete", "Error — retry");
+      const msg = fbErrMsg(err);
+      showSheetError("billDelete", msg.length > 52 ? msg.slice(0, 49) + "\u2026" : msg);
+      fbErrRetry(err, () => submitDeleteBill(id));
     } finally {
       clearBodyScrollUnlessOverlayOpen();
       setBusy("billDelete", false, t("budget.sheet.deleteBill"));
@@ -2960,7 +3165,7 @@
     state.plannerDraft = { ...state.plan };
     closeOverlay("limitOverlay");
     renderBudgetPlanner();
-    savePlan().catch(() => {});
+    savePlan().catch((err) => fbErrRetry(err, () => submitLimit()));
     renderSetupChecklist();
     renderSmartAlerts();
   }
@@ -2970,7 +3175,7 @@
     state.plannerDraft = { ...state.plan };
     closeOverlay("limitOverlay");
     renderBudgetPlanner();
-    savePlan().catch(() => {});
+    savePlan().catch((err) => fbErrRetry(err, () => removeLimit()));
     renderSetupChecklist();
     renderSmartAlerts();
   }
@@ -3002,6 +3207,39 @@
     if (!anyOpen) document.body.style.overflow = "";
   }
 
+  function getFocusableEls(modal) {
+    return [...(modal?.querySelectorAll?.('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])') || [])]
+      .filter(el => !el.disabled && el.offsetParent !== null);
+  }
+
+  function focusFirstInOverlay(modal) {
+    const first = getFocusableEls(modal)[0];
+    first?.focus?.();
+  }
+
+  function trapFocus(modal) {
+    if (!modal) return;
+    if (!overlayTrapHandlers.has(modal)) {
+      const handler = (e) => {
+        if (e.key !== "Tab" || modal.getAttribute("aria-hidden") === "true") return;
+        const list = getFocusableEls(modal);
+        if (!list.length) return;
+        const first = list[0];
+        const last = list[list.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      };
+      modal.addEventListener("keydown", handler);
+      overlayTrapHandlers.set(modal, handler);
+    }
+    focusFirstInOverlay(modal);
+  }
+
   function openOverlay(id) {
     BUDGET_OVERLAY_IDS.forEach((oid) => {
       if (oid !== id) {
@@ -3019,6 +3257,7 @@
     el.setAttribute("aria-hidden", "false");
     el.classList.add("open");           // 3. Triggers CSS opacity transition
     document.body.style.overflow = "hidden";
+    requestAnimationFrame(() => trapFocus(el));
   }
 
   function closeOverlay(id) {
@@ -3099,7 +3338,7 @@
   /* ── Wizard ──────────────────────────────────────────────────────── */
   function spawnWizardConfetti(card) {
     if (!card) return;
-    const colors = ["#F59E0B", "#34D399", "#818CF8", "#FB7185", "#ffffff"];
+      const colors = ["var(--bgt-accent)", "var(--bgt-income)", "var(--bgt-saved)", "var(--bgt-spent)", "var(--bgt-surface-1)"];
     for (let i = 0; i < 30; i++) {
       const p = document.createElement("span");
       p.className = "bg-confetti-piece";
@@ -3164,13 +3403,13 @@
         <div class="bg-wiz-mode-row">
           <button type="button" class="bg-wiz-mode-card${wizardAnswers.mode === "plan" ? " selected" : ""}" data-mode="plan">
             <span class="bg-wiz-mode-ico">${svgIconLucide(WIZ_MODE_INNER.plan, 26)}</span>
-            <span class="bg-wiz-option-label">Plan ahead</span>
-            <span class="bg-wiz-option-desc">Set budgets upfront, then track against them.</span>
+            <span class="bg-wiz-option-label">${escHtml(t("budget.wizard.planAhead", "Plan ahead"))}</span>
+            <span class="bg-wiz-option-desc">${escHtml(t("budget.wizard.planAheadDesc", "Set budgets upfront, then track against them."))}</span>
           </button>
           <button type="button" class="bg-wiz-mode-card${wizardAnswers.mode === "track" ? " selected" : ""}" data-mode="track">
             <span class="bg-wiz-mode-ico">${svgIconLucide(WIZ_MODE_INNER.track, 26)}</span>
-            <span class="bg-wiz-option-label">Track first</span>
-            <span class="bg-wiz-option-desc">See what I spend, then decide where to adjust.</span>
+            <span class="bg-wiz-option-label">${escHtml(t("budget.wizard.trackFirst", "Track first"))}</span>
+            <span class="bg-wiz-option-desc">${escHtml(t("budget.wizard.trackFirstDesc", "See what I spend, then decide where to adjust."))}</span>
           </button>
         </div>`;
 
@@ -3544,8 +3783,8 @@
       const x2 = cx + gap / 2;
       const delayInc = i * 160;
       const delaySp = i * 160 + 80;
-      bars += `<rect class="bg-trend-bar" x="${x1}" y="${padT + chartH - hInc}" width="${bw}" height="${hInc}" fill="#34D399" rx="2" style="animation-delay:${delayInc}ms"/>`;
-      bars += `<rect class="bg-trend-bar" x="${x2}" y="${padT + chartH - hSp}" width="${bw}" height="${hSp}" fill="#F59E0B" rx="2" style="animation-delay:${delaySp}ms"/>`;
+      bars += `<rect class="bg-trend-bar bg-trend-bar--income" x="${x1}" y="${padT + chartH - hInc}" width="${bw}" height="${hInc}" rx="2" style="animation-delay:${delayInc}ms"/>`;
+      bars += `<rect class="bg-trend-bar bg-trend-bar--spent" x="${x2}" y="${padT + chartH - hSp}" width="${bw}" height="${hSp}" rx="2" style="animation-delay:${delaySp}ms"/>`;
       const sv = Math.max(0, savings[i]);
       const sy = padT + chartH - (sv / maxVal) * chartH;
       const sx = cx;
@@ -3553,35 +3792,51 @@
     });
 
     const tooltipId = "bgTrendTip";
-    let svg = `<svg class="bg-trend-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" aria-label="Spending trend chart">`;
+    let svg = `<svg class="bg-trend-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" aria-label="${escHtml(t("budget.aria.trendChart", "Spending trend chart"))}">`;
     svg += bars;
-    svg += `<path d="${linePts.trim()}" fill="none" stroke="#818CF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+    svg += `<path class="bg-trend-line" d="${linePts.trim()}" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
     months.forEach((m, i) => {
       const cx = padL + i * groupW + groupW / 2;
       const tip = `${m.label} · Income ${fmtMoney(incomeArr[i] || 0)} · Spent ${fmtMoney(spentArr[i] || 0)} · Saved ${fmtMoney(savings[i])}`;
       svg += `<rect x="${padL + i * groupW}" y="${padT}" width="${groupW}" height="${chartH}" fill="transparent" class="bg-trend-hit" data-tip="${escHtml(tip)}" data-i="${i}"/>`;
-      svg += `<text x="${cx}" y="${H - 6}" text-anchor="middle" font-size="9" fill="#a0a0aa" font-family="system-ui,sans-serif">${escHtml(m.label)}</text>`;
+      svg += `<text x="${cx}" y="${H - 6}" text-anchor="middle" font-size="9" fill="var(--bgt-text-3)" font-family="system-ui,sans-serif">${escHtml(m.label)}</text>`;
     });
     svg += `</svg><div class="bg-trend-tooltip" id="${tooltipId}"></div>`;
 
-    setTimeout(() => {
-      const host = $("bgTrendChartWrap");
-      const tip = $("bgTrendTip");
-      if (!host || !tip) return;
-      host.querySelectorAll(".bg-trend-hit").forEach(h => {
-        h.addEventListener("mouseenter", ev => {
-          tip.textContent = h.dataset.tip || "";
-          tip.style.display = "block";
-          const r = h.getBoundingClientRect();
-          const hr = host.getBoundingClientRect();
-          tip.style.left = `${r.left - hr.left + r.width / 2 - tip.offsetWidth / 2}px`;
-          tip.style.top = `${r.top - hr.top - tip.offsetHeight - 8}px`;
-        });
-        h.addEventListener("mouseleave", () => { tip.style.display = "none"; });
-      });
-    }, 0);
+    setTimeout(bindTrendTooltip, 0);
 
     return svg;
+  }
+
+  function bindTrendTooltip() {
+    const host = $("bgTrendChartWrap");
+    const tip = $("bgTrendTip");
+    const svg = host?.querySelector?.(".bg-trend-svg");
+    if (!host || !tip || !svg || trendTooltipBoundSvg === svg) return;
+    trendTooltipBoundSvg = svg;
+    svg.addEventListener("pointermove", onTrendPointerMove);
+    svg.addEventListener("pointerleave", () => {
+      tip.style.display = "none";
+      tip.removeAttribute("data-current-idx");
+    });
+  }
+
+  function onTrendPointerMove(ev) {
+    const svg = ev.currentTarget;
+    const host = $("bgTrendChartWrap");
+    const tip = $("bgTrendTip");
+    const hit = ev.target?.closest?.(".bg-trend-hit");
+    if (!host || !tip || !hit || !svg.contains(hit)) {
+      if (tip) tip.style.display = "none";
+      return;
+    }
+    tip.textContent = hit.dataset.tip || "";
+    tip.dataset.currentIdx = hit.dataset.i || "";
+    tip.style.display = "block";
+    const r = hit.getBoundingClientRect();
+    const hr = host.getBoundingClientRect();
+    tip.style.left = `${r.left - hr.left + r.width / 2 - tip.offsetWidth / 2}px`;
+    tip.style.top = `${r.top - hr.top - tip.offsetHeight - 8}px`;
   }
 
   /* ── CSV export ───────────────────────────────────────────────────── */
@@ -3640,14 +3895,14 @@
   function openGoalCreateSheet() {
     state.goalSheetMode = "create";
     state.goalEditId = null;
-    setText("goalSheetTitle", "New goal");
+    setText("goalSheetTitle", t("budget.goal.newGoal", "New goal"));
     setVal("goalName", "");
     setVal("goalTargetAmt", "");
     setVal("goalTargetDate", "");
     setVal("goalMonthly", "");
     state.goalSelectedColor = GOAL_COLORS[0].hex;
     const createBtn = $("goalCreateBtn");
-    if (createBtn) createBtn.textContent = "Create Goal";
+    if (createBtn) createBtn.textContent = t("budget.goal.create", "Create Goal");
     const sym = $("goalCurrencySym");
     if (sym) sym.textContent = currencySymbol();
     renderGoalSwatches();
@@ -3657,7 +3912,7 @@
   function openGoalEditSheet(g) {
     state.goalSheetMode = "edit";
     state.goalEditId = g.id;
-    setText("goalSheetTitle", "Edit goal");
+    setText("goalSheetTitle", t("budget.goal.edit", "Edit goal"));
     setVal("goalName", g.name || "");
     setVal("goalTargetAmt", g.targetAmount != null ? String(g.targetAmount) : "");
     setVal("goalTargetDate", g.targetDate || "");
@@ -3665,7 +3920,7 @@
       ? String(g.monthlyTarget) : "");
     state.goalSelectedColor = g.color || GOAL_COLORS[0].hex;
     const createBtn = $("goalCreateBtn");
-    if (createBtn) createBtn.textContent = "Save goal";
+    if (createBtn) createBtn.textContent = t("budget.goal.save", "Save goal");
     const sym = $("goalCurrencySym");
     if (sym) sym.textContent = currencySymbol();
     renderGoalSwatches();
@@ -3676,7 +3931,7 @@
     const row = $("goalSwatches");
     if (!row) return;
     row.innerHTML = GOAL_COLORS.map((c, i) =>
-      `<button type="button" class="bg-goal-swatch${c.hex === state.goalSelectedColor ? " selected" : ""}" style="background:${c.hex}" data-hex="${c.hex}" aria-label="Color ${i + 1}"></button>`
+      `<button type="button" class="bg-goal-swatch${c.hex === state.goalSelectedColor ? " selected" : ""}" style="background:${c.hex}" data-hex="${c.hex}" aria-label="${escHtml(t("budget.goal.colorLabel", "Color {number}", { number: i + 1 }))}"></button>`
     ).join("");
   }
 
@@ -3720,9 +3975,7 @@
       renderGoalsSection();
       renderSetupChecklist();
     } catch (err) {
-      /* silent */
-      const msg = err?.message || "Could not save goal — check connection and try again.";
-      showToast(msg.length > 140 ? msg.slice(0, 137) + "…" : msg);
+      fbErrRetry(err, submitGoalSheet);
     }
   }
 
@@ -3738,7 +3991,7 @@
       const c = 2 * Math.PI * r * (pct / 100);
       arc.innerHTML = `<svg viewBox="0 0 100 100" aria-hidden="true">
         <circle cx="50" cy="50" r="${r}" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
-        <circle cx="50" cy="50" r="${r}" fill="none" stroke="${escHtml(g.color || "#F59E0B")}" stroke-width="8"
+        <circle cx="50" cy="50" r="${r}" fill="none" stroke="${escHtml(g.color || "var(--bgt-accent)")}" stroke-width="8"
           stroke-dasharray="${c.toFixed(1)} ${(2 * Math.PI * r).toFixed(1)}"
           transform="rotate(-90 50 50)" stroke-linecap="round"/></svg>`;
     }
@@ -3765,7 +4018,9 @@
       closeOverlay("goalDetailOverlay");
       await loadSavingsGoals();
       renderGoalsSection();
-    } catch (err) { /* silent */ }
+    } catch (err) {
+      fbErrRetry(err, () => addGoalContribution());
+    }
   }
 
   async function deleteGoal() {
@@ -3777,7 +4032,9 @@
       await loadSavingsGoals();
       renderGoalsSection();
       renderSetupChecklist();
-    } catch (err) { /* silent */ }
+    } catch (err) {
+      fbErrRetry(err, deleteGoal);
+    }
   }
 
   /* ── Event delegation ────────────────────────────────────────────── */
@@ -3955,7 +4212,7 @@
     /* Wizard buttons */
     ($("bgWizNext") || {}).onclick = () => wizardGoNext();
     ($("bgWizBack") || {}).onclick = () => wizardGoBack();
-    ($("bgWizSkip") || {}).onclick = () => skipWizard().catch(() => {});
+    ($("bgWizSkip") || {}).onclick = () => skipWizard().catch((err) => fbErrRetry(err, skipWizard));
     ($("bgWizStage") || {}).addEventListener?.("click", onWizardStageClick);
 
     /* Planner mode */
@@ -3974,11 +4231,15 @@
     ($("bgPlannerSaveBtn") || {}).onclick = async () => {
       readPlannerDraftFromDom();
       state.plan = { ...state.plannerDraft };
-      await savePlan();
-      showToast(t("budget.toast.planSaved", "Plan saved."));
-      renderBudgetPlanner();
-      renderSmartAlerts();
-      renderSetupChecklist();
+      try {
+        await savePlan();
+        showToast(t("budget.toast.planSaved", "Plan saved."));
+        renderBudgetPlanner();
+        renderSmartAlerts();
+        renderSetupChecklist();
+      } catch (err) {
+        fbErrRetry(err, () => $("bgPlannerSaveBtn")?.click());
+      }
     };
 
     document.addEventListener("click", (e) => {
@@ -4076,7 +4337,7 @@
     const ioTrend = new IntersectionObserver(entries => {
       entries.forEach(en => {
         if (en.target.id === "bgTrendSection" && en.isIntersecting) {
-          loadTrendData().catch(() => {});
+          loadTrendData().catch((err) => fbErrRetry(err, () => loadTrendData()));
           ioTrend.disconnect();
         }
       });
@@ -4085,7 +4346,7 @@
     if (trSec) ioTrend.observe(trSec);
     if (trSec && trSec.tagName === "DETAILS") {
       trSec.addEventListener("toggle", () => {
-        if (trSec.open) loadTrendData().catch(() => {});
+        if (trSec.open) loadTrendData().catch((err) => fbErrRetry(err, () => loadTrendData()));
       });
     }
 
@@ -4218,7 +4479,7 @@
       const payBtn = e.target.closest("[data-pay]");
       if (payBtn) {
         const bill = state.bills.find(b => b.id === payBtn.dataset.pay);
-        if (bill) toggleBillPaid(bill);
+        if (bill) toggleBillPaid(bill).catch((err) => fbErrRetry(err, () => toggleBillPaid(bill)));
         return;
       }
 
@@ -4402,9 +4663,17 @@
 
   /* ── One-time migration: old localStorage → Firestore ────────────── */
   /* Modern Budget v3 render overrides */
+  function prefersReducedMotion() {
+    try {
+      return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    } catch (_) {
+      return false;
+    }
+  }
+
   function countUpNumber(el, from, to, duration = 600, formatter = fmtMoney) {
     if (!el) return;
-    if (!window.requestAnimationFrame || duration <= 0) {
+    if (prefersReducedMotion() || !window.requestAnimationFrame || duration <= 0) {
       el.textContent = formatter(to);
       return;
     }
@@ -4424,7 +4693,19 @@
     if (!el) return;
     const from = Number(el.dataset.value || 0);
     el.dataset.value = String(value);
-    countUpNumber(el, from, value);
+    if (Math.abs(value - from) > 1) countUpNumber(el, from, value);
+    else el.textContent = fmtMoney(value);
+  }
+
+  function animateCountUp(el, to, duration = 800) {
+    if (!el) return;
+    const from = Number(el.dataset.value || 0);
+    el.dataset.value = String(to);
+    if (prefersReducedMotion() || Math.abs(to - from) <= 1) {
+      el.textContent = fmtMoney(to);
+      return;
+    }
+    countUpNumber(el, from, to, duration, fmtMoney);
   }
 
   function renderAll() {
@@ -4488,7 +4769,7 @@
     renderDailyAllowanceChip();
     renderHealthScore();
     renderSpendingStreak();
-    updateStreak().catch(() => {});
+    updateStreak().catch((err) => fbErrRetry(err, () => updateStreak()));
     maybeShowMonthEndSummary();
     applyBudgetI18n(document);
 
@@ -4565,9 +4846,7 @@
     if (valueEl) {
       valueEl.classList.toggle("overspent", remaining < 0);
       valueEl.classList.toggle("on-track", remaining >= 0 && budgetBase > 0);
-      const from = Number(valueEl.dataset.value || 0);
-      valueEl.dataset.value = String(remaining);
-      countUpNumber(valueEl, from, remaining);
+      animateCountUp(valueEl, remaining);
     }
     setText("bgPremiumMainSub", budgetBase > 0
       ? budgetCopy("budget.hero.ofBudgeted", "of {amount} budgeted", { amount: fmtMoney(budgetBase) })
@@ -4756,10 +5035,10 @@
           <div class="bg-cat-row bg-planner-row bg-planner-row--plan" data-cat="${row.id}" role="listitem">
             <div class="bg-cat-row-top">
               <div class="bg-cat-row-left">
-                <div class="bg-cat-icon-badge" style="background:${row.color}22;color:${row.color}">${catIconSvg(row.id, 18)}</div>
+            <div class="bg-cat-icon-badge" style="background:${softColor(row.color)};color:${row.color}">${catIconSvg(row.id, 18)}</div>
                 <div class="bg-cat-name">${escHtml(row.label)}</div>
               </div>
-              <input id="planInp-${row.id}" class="bg-input" type="number" min="0" step="1" data-plan-cat="${row.id}" value="${escHtml(val)}" placeholder="0" aria-label="${escHtml(row.label)} limit" style="max-width:116px;text-align:right">
+              <input id="planInp-${row.id}" class="bg-input" type="number" min="0" step="1" data-plan-cat="${row.id}" value="${escHtml(val)}" placeholder="0" aria-label="${escHtml(t("budget.aria.limitFor", "Limit for {category}", { category: row.label }))}" style="max-width:116px;text-align:right">
             </div>
             <div class="bg-cat-status"><span class="bg-cat-status-left bg-planner-plan-hint"></span><span class="bg-cat-status-right">${fmtMoney(Number(v) || 0)}</span></div>
           </div>`;
@@ -4782,7 +5061,7 @@
           <div class="bg-cat-row bg-planner-row bg-planner-row--track" data-cat="${row.id}" data-has-limit="${limit > 0 ? "1" : "0"}" role="listitem" tabindex="0">
             <div class="bg-cat-row-top">
               <div class="bg-cat-row-left">
-                <div class="bg-cat-icon-badge" style="background:${row.color}22;color:${row.color}">${catIconSvg(row.id, 18)}</div>
+            <div class="bg-cat-icon-badge" style="background:${softColor(row.color)};color:${row.color}">${catIconSvg(row.id, 18)}</div>
                 <div class="bg-cat-name">${escHtml(row.label)}</div>
               </div>
               <div class="bg-cat-row-right">
@@ -4842,57 +5121,6 @@
     meta.textContent = `${paid} ${t("budget.bills.paid", "paid")} - ${unpaid} ${t("budget.bills.unpaid", "unpaid")} - ${fmtMoney(total)}/mo`;
   }
 
-  function renderBills() {
-    const list = $("billsList");
-    const emptyEl = $("billsEmpty");
-    if (!list) return;
-    const tabs = $("bgBillsTabs");
-    tabs?.querySelectorAll("[data-bill-filter]").forEach(btn => {
-      const active = (btn.dataset.billFilter || "all") === state.billFilter;
-      btn.classList.toggle("active", active);
-      btn.setAttribute("aria-selected", active ? "true" : "false");
-    });
-    let bills = [...state.bills];
-    if (state.billFilter === "paid") bills = bills.filter(isBillPaid);
-    if (state.billFilter === "unpaid") bills = bills.filter(b => !isBillPaid(b));
-    if (state.billFilter === "subscriptions") bills = bills.filter(b => b.category === "subscriptions" || b.frequency === "monthly");
-
-    if (state.bills.length === 0) {
-      list.innerHTML = "";
-      list.style.display = "none";
-      if (emptyEl) emptyEl.style.display = "";
-      return;
-    }
-    list.style.display = "";
-    if (emptyEl) emptyEl.style.display = bills.length ? "none" : "";
-    const order = { overdue: 0, "due-soon": 1, upcoming: 2, paid: 3 };
-    bills.sort((a, b) => (order[billStatus(a)] ?? 2) - (order[billStatus(b)] ?? 2) || (a.dueDay || 1) - (b.dueDay || 1));
-    list.innerHTML = bills.map(bill => {
-      const cat = getCat(bill.category);
-      const status = billStatus(bill);
-      const paid = status === "paid";
-      const chipCls = status === "due-soon" ? "soon" : status;
-      return `
-        <div class="bg-bill-card ${status}" data-bill-id="${bill.id}" role="listitem">
-          <div class="bg-bill-icon" style="background:${cat.color}22;color:${cat.color}">${catIconSvg(cat.id, 18)}</div>
-          <div class="bg-bill-info">
-            <div class="bg-bill-name">${escHtml(bill.name || t("budget.sheet.addBill", "Bill"))}</div>
-            <div class="bg-bill-meta">
-              <span class="bg-bill-category">${escHtml(cat.label)}</span>
-              <span class="bg-bill-due-chip ${chipCls}">${escHtml(billDueText(bill, status))}</span>
-            </div>
-          </div>
-          <div class="bg-bill-right">
-            <div class="bg-bill-amount">${fmtMoney(Number(bill.amount) || 0)}</div>
-            <button class="bg-bill-paid-btn ${paid ? "paid" : "unpaid"}" data-pay="${bill.id}" type="button">
-              ${paid ? t("budget.bills.paid", "Paid") : t("budget.bills.markPaid", "Mark paid")}
-            </button>
-          </div>
-          <button class="bg-bill-edit-btn" data-edit-bill="${bill.id}" type="button" aria-label="${escHtml(t("budget.bills.edit", "Edit bill"))}"></button>
-        </div>`;
-    }).join("");
-  }
-
   function renderPieChart() {
     const catMap = computeByCategory();
     const total = Object.values(catMap).reduce((s, v) => s + v, 0);
@@ -4917,7 +5145,7 @@
       const off = -(acc * CIRC);
       acc += s.frac;
       const dim = state.focusedCat && state.focusedCat !== s.id ? "0.18" : "1";
-      return `<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${s.color}" stroke-width="${SW}" stroke-dasharray="0 ${CIRC.toFixed(3)}" data-arc="${len.toFixed(3)}" data-circ="${CIRC.toFixed(3)}" stroke-dashoffset="${off.toFixed(3)}" transform="rotate(-90 ${CX} ${CY})" opacity="${dim}" data-cat="${s.id}" data-idx="${i}" class="bg-pie-slice" style="cursor:pointer"/>`;
+      return `<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${s.color}" stroke-width="${SW}" stroke-dasharray="${len.toFixed(3)} ${CIRC.toFixed(3)}" data-arc="${len.toFixed(3)}" data-circ="${CIRC.toFixed(3)}" data-target-offset="${off.toFixed(3)}" stroke-dashoffset="${off.toFixed(3)}" transform="rotate(-90 ${CX} ${CY})" opacity="${dim}" data-cat="${s.id}" data-idx="${i}" class="bg-pie-slice" style="cursor:pointer"/>`;
     }).join("");
     const focused = state.focusedCat ? slices.find(s => s.id === state.focusedCat) : null;
     const hole = `<circle cx="${CX}" cy="${CY}" r="${R - SW / 2 - 2}" fill="var(--bgt-surface-1)"/>`;
@@ -4927,12 +5155,7 @@
     const pieSVG = $("pieSVG");
     if (pieSVG) {
       pieSVG.innerHTML = `<g><circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="var(--bgt-surface-3)" stroke-width="${SW}"/>${circles}</g>${hole}${textEls}`;
-      pieSVG.querySelectorAll(".bg-pie-slice").forEach((seg, index) => {
-        const arc = seg.dataset.arc;
-        const circ = seg.dataset.circ;
-        seg.style.transition = `stroke-dasharray ${400 + index * 80}ms cubic-bezier(0.4,0,0.2,1)`;
-        requestAnimationFrame(() => { seg.style.strokeDasharray = `${arc} ${circ}`; });
-      });
+      animateDonutSweep(pieSVG);
     }
     const pieLegend = $("pieLegend");
     if (pieLegend) {
@@ -5004,7 +5227,7 @@
 
   function renderEntryCard(e) {
     const isIncome = (e.type || "expense") === "income";
-    const cat = isIncome ? { id: "income", color: "#34D399", label: t("budget.income", "Income") } : getCat(e.category);
+    const cat = isIncome ? { id: "income", color: "var(--bgt-income)", label: t("budget.income", "Income") } : getCat(e.category);
     const confirming = state.expenseDeleteConfirmId === e.id;
     const amount = `${isIncome ? "+" : "-"}${fmtMoney(Math.abs(Number(e.amount) || 0))}`;
     const rightBlock = confirming
@@ -5016,7 +5239,7 @@
          <button class="bg-entry-del" data-action="start-exp-del" data-id="${e.id}" type="button" aria-label="${escHtml(t("budget.delete.aria", "Delete transaction"))}">x</button>`;
     return `
       <div class="bg-tx-item bg-entry-card" data-id="${e.id}" ${e._pending ? 'data-pending="true"' : ""} role="listitem">
-        <div class="bg-tx-icon bg-entry-icon" style="background:${cat.color}22;color:${cat.color}" aria-hidden="true">${catIconSvg(cat.id, 18)}</div>
+        <div class="bg-tx-icon bg-entry-icon" style="background:${softColor(cat.color)};color:${cat.color}" aria-hidden="true">${catIconSvg(cat.id, 18)}</div>
         <div class="bg-tx-info bg-entry-main bg-entry-info">
           <div class="bg-tx-desc bg-entry-title bg-entry-desc">${escHtml(e.description || cat.label)}</div>
           ${e.note ? `<div class="bg-tx-note bg-entry-note">${escHtml(e.note)}</div>` : ""}
@@ -5051,7 +5274,7 @@
     grid.innerHTML = CATEGORIES.map(c => `
       <button class="${isBill ? "bg-bill-cat-item" : "bg-cat-item"}${c.id === sel ? " selected active" : ""}"
               data-cat-id="${c.id}" data-grid="${gridId}" type="button">
-        <span class="icon-wrap" style="background:${c.color}22;color:${c.color}">${catIconSvg(c.id, 18)}</span>
+        <span class="icon-wrap" style="background:${softColor(c.color)};color:${c.color}">${catIconSvg(c.id, 18)}</span>
         <span class="cat-label">${escHtml(c.label)}</span>
       </button>`).join("");
     if (isBill) renderBillPresets();
@@ -5277,7 +5500,9 @@
       localStorage.removeItem(LS_EXPENSES);
       await loadEntries();
       renderAll();
-    } catch (err) { /* silent */ }
+    } catch (err) {
+      fbErrRetry(err, () => migrateLocalStorage());
+    }
   }
 
   function openBudgetDetailsSection(id) {
@@ -5337,7 +5562,7 @@
         initPlannerModeFromMeta();
         await Promise.all([loadAccounts(), loadEntries(), loadPlan(), loadBills(), loadSavingsGoals(), loadKpiComparison()]);
         state.plannerDraft = { ...state.plan };
-        migrateLocalStorage().catch(() => {});
+        migrateLocalStorage().catch((err) => fbErrRetry(err, () => migrateLocalStorage()));
         state.dataHydrated = true;
         const needsWizard = !state.wizardMeta || state.wizardMeta.completed !== true;
         if (needsWizard) openWizard();

@@ -56,7 +56,7 @@
       <h1 class="pl-title" id="plSelDateLabel" data-i18n="plan.title">Today</h1>
     </div>
     <div class="pl-header-actions">
-      <button class="pl-icon-btn hdr-btn" id="plHelpBtn" type="button" data-i18n-aria-label="plan.help.title">
+      <button class="pl-icon-btn hdr-btn" id="plHelpBtn" type="button" data-i18n-aria-label="plan.help.title" hidden>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="10"/>
           <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
@@ -98,6 +98,36 @@
       <button class="pl-carry-btn" id="plCarryBtn" type="button" data-i18n="plan.carry.btn">Bring to today</button>
     </div>
 
+    <section class="pl-day-summary" aria-label="Day plan summary" data-i18n-aria-label="plan.aria.daySummary">
+      <div>
+        <span class="pl-summary-kicker" data-i18n="plan.summary.kicker">Today’s plan</span>
+        <strong id="plSummaryMain">0 tasks</strong>
+      </div>
+      <div class="pl-summary-meter" aria-hidden="true"><span id="plSummaryFill"></span></div>
+      <span class="pl-summary-meta" id="plSummaryMeta">0 complete</span>
+    </section>
+
+    <section class="pl-overview" aria-label="Planner overview" data-i18n-aria-label="plan.aria.overview">
+      <article class="pl-overview-card pl-overview-card--date">
+        <span class="pl-overview-kicker" data-i18n="plan.overview.date">Selected date</span>
+        <strong id="plOverviewDate">Today</strong>
+        <span id="plOverviewDateMeta">0 tasks</span>
+      </article>
+      <article class="pl-overview-card pl-overview-card--next">
+        <span class="pl-overview-kicker" data-i18n="plan.overview.next">Next up</span>
+        <strong id="plOverviewNext">No upcoming task</strong>
+        <span id="plOverviewNextMeta">Add a task to start planning.</span>
+      </article>
+      <article class="pl-overview-card pl-overview-card--legend">
+        <span class="pl-overview-kicker" data-i18n="plan.overview.colors">Colors</span>
+        <div class="pl-color-legend" aria-hidden="true">
+          <span><i class="high"></i><span data-i18n="plan.priority.high">High</span></span>
+          <span><i class="medium"></i><span data-i18n="plan.priority.medium">Medium</span></span>
+          <span><i class="low"></i><span data-i18n="plan.priority.low">Low</span></span>
+        </div>
+      </article>
+    </section>
+
     <section class="pl-habits-section" id="plHabitsSection" hidden>
       <div class="pl-section-head">
         <h2 data-i18n="plan.section.habits">Today's Habits</h2>
@@ -112,7 +142,7 @@
       <button class="pl-filter-chip" type="button" data-priority-filter="low" aria-checked="false"><span class="pl-priority-dot low"></span><span data-i18n="plan.priority.low">Low</span></button>
     </div>
 
-    <!-- Chronological Itinerary List -->
+    <!-- Calendar + todo list -->
     <section class="pl-list-wrap" aria-live="polite">
       <div class="pl-empty" id="planEmpty" hidden>
         <div class="pl-empty-hero" aria-hidden="true">
@@ -136,7 +166,7 @@
   </main>
 
   <!-- Floating Action Button -->
-  <button class="pl-fab" id="plFabBtn" aria-label="Create Plan">
+  <button class="pl-fab" id="plFabBtn" aria-label="Create Plan" data-i18n-aria-label="plan.aria.createPlan">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>
 
@@ -151,6 +181,7 @@
       </div>
       
       <form class="pl-modal-body modal-body" id="planForm">
+        <input type="hidden" id="plEditingId" value="" />
         <div class="pl-input-group">
           <input class="pl-input-title" id="plInputTitle" type="text" data-i18n-placeholder="plan.placeholder.title" placeholder="What are you doing?" required />
         </div>
@@ -179,8 +210,7 @@
           <label data-i18n="plan.label.notes">Notes & Links</label>
           <textarea class="pl-input-notes" id="plInputNotes" data-i18n-placeholder="plan.placeholder.notes" placeholder="Add detailed notes here..."></textarea>
         </div>
-
-        <button type="submit" class="pl-modal-save" data-i18n="plan.btn.addItinerary">Add task</button>
+        <button type="submit" class="pl-modal-save" id="plModalSave" data-i18n="plan.btn.addItinerary">Add task</button>
       </form>
     </div>
   </div>

@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(node --check \"c:/Users/demxa/Desktop/Hbit/js/pages/budget.js\")",
-      "Bash(python \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"personal finance budget tracker mobile-first dark premium\" --design-system -p \"Hbit Budget\" -f markdown)"
+      "Bash(python \".claude/skills/ui-ux-pro-max/scripts/search.py\" \"personal finance budget tracker mobile-first dark premium\" --design-system -p \"Hbit Budget\" -f markdown)",
+      "Bash(grep -nE '\\\\.textContent\\\\s*=\\\\s*[\"`]|\\\\.innerHTML\\\\s*=\\\\s*[\"`]' /c/Users/demxa/Desktop/Hbit/js/pages/budget.js)",
+      "Bash(grep -nE '\\(textContent|innerHTML|placeholder|aria-label|title\\)\\\\s*=\\\\s*[\"\\\\047`][^\"]*[\"\\\\047`]|alert\\\\\\(|confirm\\\\\\(|toast\\\\\\(' /c/Users/demxa/Desktop/Hbit/js/pages/budget.js)",
+      "Bash(grep -n '\\\\`[^`]*[A-Z][a-z][^`]*\\\\`' /c/Users/demxa/Desktop/Hbit/js/pages/budget.js)",
+      "Bash(grep -vE 't\\\\\\(|budgetCopy|\"\"|\\\\$')"
     ]
   }
 }

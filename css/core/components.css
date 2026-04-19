@@ -219,7 +219,29 @@
   white-space: nowrap;
   cursor: default;
   border-left-width: 3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
 }
+.hbit-toast .hbit-toast-msg { flex: 1 1 auto; text-align: left; }
+.hbit-toast-action {
+  flex: 0 0 auto;
+  background: transparent;
+  color: inherit;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  opacity: 0.9;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+.hbit-toast-action:hover,
+.hbit-toast-action:focus-visible { opacity: 1; background: rgba(255,255,255,0.08); outline: none; }
 .hbit-toast--show {
   opacity: 1;
   transform: translateY(0) scale(1);

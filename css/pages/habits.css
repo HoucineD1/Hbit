@@ -19,7 +19,12 @@ html[data-theme="light"] #habitsPage {
   --hb-surface: rgba(255, 255, 255, 0.92);
   --hb-border:  rgba(0, 0, 0, 0.08);
   --hb-text:    rgba(15, 18, 24, 0.9);
-  --hb-muted:   rgba(15, 18, 24, 0.5);
+  --hb-muted:   #4b5563;
+  /* AA contrast on light: mint-green text fails at 1.9:1, swap to deep emerald. */
+  --hb-accent:  #059669;
+}
+html[data-theme="light"] #habitsPage .hb-card[data-cat="lifestyle"] {
+  --hb-card-color: #059669;
 }
 
 /* ════════════════════════════════════════════════════════════

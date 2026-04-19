@@ -32,6 +32,7 @@
   const SOUND_PREF_KEY = "hbit_focus_sound";
   const TAB_KEY = "hbit_focus_tab";
   const SESSIONS_KEY = "hbit:focus:sessions";
+  const INTENT_KEY = "hbit:focus:intent";
 
   let audioCtx = null;
   let audioUserReady = false;
@@ -134,6 +135,7 @@
     dailyGoal: 4,
     brPattern: "box",
   };
+  let currentIntent = "";
 
   // Breathing rhythms
   const BR_PATTERNS = {
@@ -153,6 +155,20 @@
   function saveSettings() {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
     renderSettingsState();
+  }
+
+  function loadIntent() {
+    try {
+      currentIntent = localStorage.getItem(INTENT_KEY) || "";
+    } catch (_) {
+      currentIntent = "";
+    }
+  }
+
+  function syncIntentFromInput() {
+    currentIntent = (ui.intentInput?.value || "").trim();
+    try { localStorage.setItem(INTENT_KEY, currentIntent); } catch (_) {}
+    return currentIntent;
   }
 
   // ======================================================================
@@ -200,7 +216,7 @@
         const uid = firebase.auth().currentUser.uid;
         firebase.firestore().collection("users").doc(uid).collection("focus").add({
           type: "zen", durationMins: settings.workDuration, createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).catch(()=>{});
+        }).catch((err) => showFocusError(err));
       }
       if (HBIT.db?.users?.incrementStat) {
         HBIT.db.users.incrementStat("focusSessions", 1).catch(() => {});
@@ -243,7 +259,9 @@
         localSaveSessions();
         renderSessionsTab();
       }
-    } catch (_) {}
+    } catch (err) {
+      showFocusError(err, () => loadSessionHistory());
+    }
   }
 
   async function recordSession(type, durationMins, startedAtMs) {
@@ -254,6 +272,8 @@
       startTime: started.toISOString(),
       duration: Math.max(1, Number(durationMins) || 1),
       type: type === "break" ? "break" : "work",
+      label: type === "work" ? (currentIntent || tr("focus.intent.default", "Deep work")) : "",
+      completed: true,
       createdAtMs: Date.now(),
     };
     sessionHistory.push(entry);
@@ -267,7 +287,23 @@
         ...entry,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       });
-    } catch (_) {}
+    } catch (err) {
+      showFocusError(err, () => recordSession(type, durationMins, startedAtMs));
+    }
+  }
+
+  function showFocusError(err, retryFn) {
+    const msg = err?.code === "permission-denied"
+      ? tr("focus.error.permission", "Could not sync. Sign in and try again.")
+      : tr("focus.error.sync", "Could not sync focus data.");
+    if (typeof HBIT.toast?.error === "function") {
+      HBIT.toast.error(msg, {
+        action: tr("focus.error.retry", "Retry"),
+        onAction: retryFn,
+      });
+    } else if (typeof HBIT.toast?.show === "function") {
+      HBIT.toast.show(msg, "error");
+    }
   }
 
   function formatMinutesTotal(mins) {
@@ -339,6 +375,10 @@
     weekBars: $("fcWeekBars"),
     sessionList: $("fcSessionList"),
     sessionEmpty: $("fcSessionEmpty"),
+    intentInput: $("fcIntentInput"),
+    goalProgress: $("fcGoalProgressFill"),
+    progressMeta: $("fcProgressMeta"),
+    focusMinutes: $("fcFocusMinutes"),
   };
 
   function fmt(sec) {
@@ -374,6 +414,11 @@
   }
 
   function renderSettingsState() {
+    const today = getTodayStr();
+    const workTodayMins = sessionHistory
+      .filter((s) => s.date === today && s.type === "work")
+      .reduce((n, s) => n + (Number(s.duration) || 0), 0);
+    const pct = Math.min(100, Math.round((timerState.sessions / Math.max(1, settings.dailyGoal)) * 100));
     if (ui.goalTxt) {
       ui.goalTxt.textContent = tr("focus.sessions.today", "{n} sessions today", { n: timerState.sessions });
     }
@@ -381,6 +426,9 @@
       ui.goalTgt.textContent = tr("focus.goal.target", "goal: {n}", { n: settings.dailyGoal });
     }
     if (ui.sess) ui.sess.textContent = String(timerState.sessions);
+    if (ui.progressMeta) ui.progressMeta.textContent = `${timerState.sessions} / ${settings.dailyGoal}`;
+    if (ui.goalProgress) ui.goalProgress.style.width = `${pct}%`;
+    if (ui.focusMinutes) ui.focusMinutes.textContent = formatMinutesTotal(workTodayMins);
   }
 
   function setActiveTab(tab) {
@@ -419,9 +467,10 @@
         .map((s) => {
           const d = s.startTime ? new Date(s.startTime) : new Date();
           const tText = tf.format(d);
+          const label = s.label ? `<span class="fc-session-label">${escapeHtml(s.label)}</span>` : "";
           return `<article class="fc-session-row">
             <span class="fc-session-badge ${s.type === "break" ? "break" : "work"}">${s.type === "break" ? tr("focus.phase.breathe", "Break") : tr("focus.phase.work", "Work")}</span>
-            <span class="fc-session-time">${tText}</span>
+            <span class="fc-session-time">${tText}${label}</span>
             <span class="fc-session-dur">${Math.max(1, Number(s.duration) || 1)}m</span>
           </article>`;
         })
@@ -452,6 +501,10 @@
         </div>`;
       }).join("");
     }
+  }
+
+  function escapeHtml(t) {
+    return String(t || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
 
   // ======================================================================
@@ -551,11 +604,14 @@
     renderTimer(); // flush ui
 
     if (run) {
+      syncIntentFromInput();
+      clearInterval(timerState.interval);
       timerState.interval = setInterval(tick, 1000);
       // Kick off breathe visual if starting break
       if (!timerState.isWorking) syncBreatheUI();
     } else {
       clearInterval(timerState.interval);
+      timerState.interval = null;
       if (ui.brCircle) ui.brCircle.className = "fc-br-circle"; // Pause animation
     }
   }
@@ -590,7 +646,7 @@
     $("fcSkipBtn")?.addEventListener("click", () => {
       markAudioUserReady();
       toggleRun(false);
-      if (timerState.isWorking) { incDaily(); initPhase(false); }
+      if (timerState.isWorking) initPhase(false);
       else initPhase(true);
     });
 
@@ -622,6 +678,25 @@
       initPhase(true);
     });
 
+    ui.intentInput?.addEventListener("input", syncIntentFromInput);
+
+    document.querySelectorAll(".fc-preset").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (btn.dataset.custom === "true") {
+          openMod();
+          return;
+        }
+        const w = parseInt(btn.dataset.work, 10) || settings.workDuration;
+        const b = parseInt(btn.dataset.break, 10) || settings.breakDuration;
+        settings.workDuration = w;
+        settings.breakDuration = b;
+        saveSettings();
+        document.querySelectorAll(".fc-preset").forEach((el) => el.classList.toggle("active", el === btn));
+        toggleRun(false);
+        initPhase(true);
+      });
+    });
+
     // Spacebar mapping
     document.addEventListener("keydown", (e) => {
       if (e.target && ["INPUT", "SELECT", "TEXTAREA"].includes(e.target.tagName)) return;
@@ -640,7 +715,11 @@
 
   function init() {
     if (document.body.id !== "focusPage") return;
+    $("fcSettingsModal")?.setAttribute("hidden", "");
+    $("fcHelpOverlay")?.classList.remove("open");
+    $("fcHelpOverlay")?.setAttribute("aria-hidden", "true");
     loadSettings();
+    loadIntent();
     loadDaily();
 
     // Populate Modal inputs with loaded settings
@@ -648,6 +727,7 @@
     if ($("fcSetBreak")) $("fcSetBreak").value = settings.breakDuration;
     if ($("fcSetGoal")) $("fcSetGoal").value = settings.dailyGoal;
     if ($("fcSetBrPattern")) $("fcSetBrPattern").value = settings.brPattern;
+    if (ui.intentInput) ui.intentInput.value = currentIntent;
 
     renderSettingsState();
     initPhase(true);

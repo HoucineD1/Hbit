@@ -22,6 +22,11 @@ window.HBIT.fbAuth      = firebase.auth();
 window.HBIT.fbDb        = firebase.database();
 window.HBIT.fbFirestore = firebase.firestore();
 
+if (firebase.auth?.Auth?.Persistence?.LOCAL) {
+  window.HBIT.fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+    .catch((err) => console.warn("[Hbit] Auth persistence fallback:", err?.code || err));
+}
+
 /* ─────────────────────────────────────────────────────────
    clearLocalData()
    Wipes ALL module data from localStorage so the next user

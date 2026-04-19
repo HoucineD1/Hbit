@@ -122,6 +122,147 @@
   transform: translateY(0);
 }
 
+.fc-cockpit {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5, 20px);
+  align-items: center;
+}
+
+.fc-timer-stage,
+.fc-focus-side {
+  min-width: 0;
+}
+
+.fc-timer-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5, 20px);
+}
+
+.fc-focus-side {
+  display: grid;
+  gap: var(--space-3, 12px);
+}
+
+.fc-intent-card,
+.fc-preset-panel,
+.fc-progress-card {
+  border: 1px solid var(--fc-border);
+  background: var(--fc-surface);
+  border-radius: 16px;
+  padding: 14px;
+  color: var(--fc-text);
+}
+
+.fc-intent-card {
+  display: grid;
+  gap: 8px;
+  cursor: text;
+}
+
+.fc-intent-kicker,
+.fc-side-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--fc-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.fc-intent-input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  border-bottom: 1px solid var(--fc-border);
+  background: transparent;
+  color: var(--fc-text);
+  font: inherit;
+  font-size: 17px;
+  font-weight: 800;
+  outline: none;
+  padding: 4px 0 9px;
+}
+
+.fc-intent-input:focus {
+  border-color: var(--fc-accent);
+}
+
+.fc-intent-input::placeholder {
+  color: var(--fc-muted);
+  opacity: 0.9;
+}
+
+.fc-intent-hint {
+  color: var(--fc-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.fc-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.fc-preset {
+  min-height: 44px;
+  border: 1px solid var(--fc-border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--fc-surface) 76%, transparent);
+  color: var(--fc-text);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.fc-preset.active,
+.fc-preset:focus-visible {
+  border-color: var(--fc-accent);
+  background: color-mix(in srgb, var(--fc-accent) 18%, transparent);
+  outline: none;
+}
+
+.fc-progress-card {
+  display: grid;
+  gap: 10px;
+}
+
+.fc-progress-head,
+.fc-progress-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--fc-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.fc-progress-head strong,
+.fc-progress-foot span:first-child {
+  color: var(--fc-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.fc-progress-track {
+  height: 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fc-border) 70%, transparent);
+  overflow: hidden;
+}
+
+.fc-progress-track span {
+  display: block;
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--fc-accent);
+  transition: width 260ms var(--ease-smooth);
+}
+
 /* Config pill */
 .fc-daily-goal {
   display: flex;
@@ -277,6 +418,9 @@
   display: grid; place-items: center;
   padding: 20px;
 }
+.fc-modal-overlay[hidden] {
+  display: none !important;
+}
 .fc-modal {
   width: 100%; max-width: 440px;
   background: var(--fc-bg);
@@ -402,6 +546,13 @@
 .fc-session-badge.work { background: rgba(249, 115, 22, 0.2); color: #fdba74; }
 .fc-session-badge.break { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; }
 .fc-session-time { font-size: 12px; color: var(--fc-muted); }
+.fc-session-label {
+  display: block;
+  margin-top: 2px;
+  color: var(--fc-text);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
 .fc-session-dur { font-size: 12px; font-weight: 700; }
 .fc-session-empty {
   text-align: center;
@@ -445,6 +596,10 @@ html[data-theme="light"] .fc-session-card {
   background: #ffffff;
   border-color: rgba(0,0,0,0.08);
   color: rgba(15,23,42,0.92);
+}
+html[data-theme="light"] .fc-panel {
+  background: transparent;
+  border-color: transparent;
 }
 html[data-theme="light"] .fc-icon-btn {
   background: var(--fc-surface);
@@ -521,8 +676,7 @@ html[data-theme="light"] .fc-select option {
 
 #focusPage .fc-panel {
   border-radius: 22px;
-  padding: clamp(18px, 4vw, 32px);
-  box-shadow: var(--shadow-md);
+  padding: 18px 14px 24px;
 }
 
 #focusPage .fc-timer-wrap {
@@ -575,6 +729,57 @@ html[data-theme="light"] .fc-select option {
 
   #focusPage .fc-panel {
     padding: 18px 14px 24px;
+  }
+}
+
+@media (max-width: 390px) {
+  #focusPage .fc-main {
+    width: min(100%, calc(100% - 20px));
+    gap: 18px;
+  }
+
+  #focusPage .fc-timer-wrap {
+    width: min(250px, 72vw);
+    height: min(250px, 72vw);
+  }
+
+  #focusPage .fc-time-display {
+    font-size: 48px;
+  }
+
+  #focusPage .fc-ctrl-main {
+    width: 72px;
+    height: 72px;
+  }
+
+  #focusPage .fc-ctrl-reset,
+  #focusPage .fc-ctrl-skip {
+    width: 48px;
+    height: 48px;
+  }
+
+  #focusPage .fc-header-right {
+    gap: 5px;
+  }
+}
+
+@media (min-width: 1024px) {
+  #focusPage .fc-main {
+    width: min(1040px, calc(100% - 56px));
+  }
+
+  #focusPage .fc-panel {
+    width: 100%;
+    padding: 8px 0 24px;
+  }
+
+  #focusPage .fc-cockpit {
+    grid-template-columns: minmax(420px, 1fr) minmax(280px, 340px);
+    gap: 32px;
+  }
+
+  #focusPage .fc-focus-side {
+    align-self: center;
   }
 }
 
