@@ -86,13 +86,47 @@
   </header>
 
   <main class="md-main" id="main-content">
-    <div class="md-sleep-banner md-sleep-banner--hidden" id="mdSleepBanner" role="status" hidden>
-      <svg class="md-sleep-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      <span class="md-sleep-text" id="mdSleepText"></span>
-      <button type="button" class="md-sleep-dismiss" id="mdSleepDismiss" data-i18n="mood.sleepBannerDismiss">Dismiss</button>
-    </div>
+    <p class="md-leadin" data-i18n="mood.leadin">How did you feel overall today?</p>
 
-    <p class="md-leadin" data-i18n="mood.leadin">How are you today?</p>
+    <section class="md-heatmap-stage" aria-labelledby="mdHeatmapTitle">
+      <div class="md-heatmap-copy">
+        <p class="md-heatmap-kicker" data-i18n="mood.heatmap.kicker">Mood map</p>
+        <h2 id="mdHeatmapTitle" class="md-heatmap-title" data-i18n="mood.heatmap.title">Your state of mind over time</h2>
+        <p class="md-heatmap-sub" data-i18n="mood.heatmap.sub">The selected month at a glance.</p>
+      </div>
+      <div class="md-heatmap-shell">
+        <div class="md-heatmap-nav">
+          <button type="button" class="md-heatmap-nav-btn" id="mdHeatmapPrev" data-i18n-aria-label="common.prev">‹</button>
+          <div class="md-heatmap-month-label" id="mdHeatmapMonthLabel">—</div>
+          <button type="button" class="md-heatmap-nav-btn" id="mdHeatmapNext" data-i18n-aria-label="common.next">›</button>
+        </div>
+        <div class="md-heatmap-body">
+          <div class="md-heatmap-days" aria-hidden="true">
+            <span data-i18n="common.mon">Mon</span>
+            <span data-i18n="common.wed">Wed</span>
+            <span data-i18n="common.fri">Fri</span>
+          </div>
+          <div class="md-heatmap-grid md-heatmap-grid--month" id="mdMoodHeatmap" role="grid" data-i18n-aria-label="mood.heatmap.aria"></div>
+        </div>
+        <div class="md-heatmap-legend" aria-hidden="true">
+          <span data-i18n="mood.band.1">Very unpleasant</span>
+          <i class="md-legend-dot md-legend-dot--1"></i>
+          <i class="md-legend-dot md-legend-dot--2"></i>
+          <i class="md-legend-dot md-legend-dot--3"></i>
+          <i class="md-legend-dot md-legend-dot--4"></i>
+          <i class="md-legend-dot md-legend-dot--5"></i>
+          <span data-i18n="mood.band.5">Very pleasant</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="md-resources" aria-labelledby="mdResourcesTitle">
+      <div class="md-resources-head">
+        <p class="md-heatmap-kicker" data-i18n="mood.resources.kicker">Next step</p>
+        <h2 id="mdResourcesTitle" class="md-resources-title" data-i18n="mood.resources.title">A few things that can help your mood</h2>
+      </div>
+      <div class="md-resource-grid" id="mdResourceGrid"></div>
+    </section>
 
     <div class="md-layout">
       <div class="md-col md-col-left">
@@ -179,11 +213,11 @@
               </div>
 
               <p class="md-depth-heading" data-i18n="mood.emotionTitle">What emotion fits best?</p>
-              <div class="md-chips" id="mdEmotionChips"></div>
+              <div class="md-chip-wrap"><div class="md-chips" id="mdEmotionChips"></div></div>
               <button type="button" class="md-chip-more" id="mdEmoMore" data-i18n="mood.showMore">Show more</button>
 
               <p class="md-depth-heading" data-i18n="mood.impactTitle">What had the most impact?</p>
-              <div class="md-chips" id="mdImpactChips"></div>
+              <div class="md-chip-wrap"><div class="md-chips" id="mdImpactChips"></div></div>
               <button type="button" class="md-chip-more" id="mdImpMore" data-i18n="mood.showMore">Show more</button>
 
               <div class="md-reflect">
@@ -209,7 +243,7 @@
 
         <section class="md-card md-insight-card" id="mdInsightCard" aria-labelledby="mdInsightHeading">
           <div class="md-card-head">
-            <h2 class="md-card-label" id="mdInsightHeading"><span aria-hidden="true">ðŸ“Š</span> <span data-i18n="mood.weekInsight">This week</span></h2>
+            <h2 class="md-card-label" id="mdInsightHeading" data-i18n="mood.weekInsight">Weekly pattern</h2>
           </div>
           <p class="md-insight-text" id="mdInsightText"></p>
           <div class="md-mini-bars-labels" id="mdMiniBarLabels" aria-hidden="true"></div>
@@ -230,7 +264,62 @@
     <div class="md-toast" id="mdToast" role="status" aria-live="polite"></div>
   </main>
 
-  <button type="button" class="hbit-scroll-top" id="hbitScrollTop" hidden data-i18n="common.scrollTop" aria-label="Back to top">â†‘</button>
+  <button type="button" class="md-log-fab" id="mdOpenLogFab" data-i18n-aria-label="mood.logFab">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M12 8v8"/>
+      <path d="M8 12h8"/>
+    </svg>
+  </button>
+
+  <div class="md-save-burst" id="mdSaveBurst" hidden>
+    <div class="md-save-burst-ring"></div>
+    <div class="md-save-burst-check">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <p data-i18n="mood.savedFullToast">Saved ✓</p>
+  </div>
+
+  <div class="md-wizard-overlay" id="mdWizardOverlay" aria-hidden="true">
+    <div class="md-wizard-sheet" role="dialog" aria-modal="true" aria-labelledby="mdWizardTitle">
+      <div class="md-wizard-head">
+        <div>
+          <p class="md-heatmap-kicker" data-i18n="mood.log.kicker">Daily check-in</p>
+          <h2 id="mdWizardTitle" class="md-wizard-title" data-i18n="mood.log.question">How did you feel overall today?</h2>
+        </div>
+        <button type="button" class="md-wizard-close" id="mdWizardClose" data-i18n-aria-label="common.close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="md-wizard-body">
+        <div class="md-wizard-main">
+          <div class="md-current-feel" id="mdWizardMoodLabel">Okay</div>
+          <p class="md-wizard-hint" data-i18n="mood.log.emotionPrompt">What emotions do you feel right now?</p>
+          <div class="md-wizard-chips" id="mdWizardEmotionChips"></div>
+          <label class="md-note-label" for="mdWizardNote" data-i18n="mood.note">Notes</label>
+          <textarea class="md-note md-wizard-note" id="mdWizardNote" rows="3" data-i18n-placeholder="mood.notePlaceholder" placeholder="Anything else on your mind?"></textarea>
+        </div>
+        <div class="md-valence-rail" aria-label="Mood slider">
+          <span data-i18n="mood.band.5">Very pleasant</span>
+          <input id="mdMoodSlider" class="md-mood-slider" type="range" min="1" max="5" step="1" value="3" />
+          <span data-i18n="mood.band.1">Very unpleasant</span>
+        </div>
+      </div>
+
+      <div class="md-wizard-foot">
+        <a class="md-focus-link" href="focus.html" data-i18n="mood.resources.focusCta">Open Focus</a>
+        <button type="button" class="md-wizard-save" id="mdWizardSave" data-i18n="mood.saveAll">Save check-in</button>
+      </div>
+    </div>
+  </div>
 
   <div class="hbit-help-overlay" id="mdHelpOverlay" aria-hidden="true">
     <div class="hbit-help-card" role="dialog" aria-modal="true" aria-labelledby="mdHelpTitle">

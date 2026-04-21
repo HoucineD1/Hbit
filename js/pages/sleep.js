@@ -26,14 +26,7 @@
 
   const CYCLE_MIN = 90;
   const ONSET_MIN = 14;
-  const BREATH_PHASES = [
-    { labelKey: "sleep.inhale", label: "Inhale", secs: 4, scale: 1.4, color: "#818CF8" },
-    { labelKey: "sleep.hold", label: "Hold", secs: 7, scale: 1.4, color: "#818CF8" },
-    { labelKey: "sleep.exhale", label: "Exhale", secs: 8, scale: 1.0, color: "#1e1b4b" },
-  ];
-  const BREATH_CYCLE_SECS = BREATH_PHASES.reduce((s, p) => s + p.secs, 0);
-  const BREATH_TOTAL_MS = 180_000;
-
+  const ALLOWED_CYCLES = [3, 4, 5, 6, 7];
   const WIND_ITEMS = [
     {
       id: "warm",
@@ -85,8 +78,15 @@
       "sleep.findBedtime": "Find your ideal bedtime",
       "sleep.wakeGoal": "I want to wake up at",
       "sleep.recommended": "Recommended",
+      "sleep.option": "Option",
       "sleep.forTomorrow": "for tomorrow night",
       "sleep.bufferNote": "Includes 14 min to fall asleep",
+      "sleep.shortWakeWarning": "Less than 6 hours until your wake time - consider waking later.",
+      "sleep.whyOptions": "Why these options?",
+      "sleep.whyOptionsBody": "These suggestions use 90-minute sleep cycles, only show times that are still possible from now, and prioritize a sensible bedtime with at least 7 hours of sleep.",
+      "sleep.showMoreOptions": "Show more options",
+      "sleep.showFewerOptions": "Show fewer options",
+      "sleep.tooLateForBest": "Late option",
       "sleep.cyclePreview": "Sleep at {bed} → {cycles} cycles → wake at {wake} feeling refreshed",
       "sleep.setAsPlan": "Set {time} as tonight's plan",
       "sleep.planSet": "Tonight's plan set ✓",
@@ -101,7 +101,7 @@
       "sleep.grayscaleSub": "Reduce stimulation — switch phone to grayscale",
       "sleep.breathing": "Breathing exercise",
       "sleep.breathingSub": "4-7-8 method: inhale 4s · hold 7s · exhale 8s",
-      "sleep.startBreath": "Start 3-min guide →",
+      "sleep.startBreath": "Open Focus breathing ->",
       "sleep.breathProgress": "{done} / {total} complete",
       "sleep.readyToSleep": "Ready to Sleep",
       "sleep.readyDone": "Sleep session started ✓",
@@ -122,6 +122,30 @@
       "sleep.winddownAllDone": "All done — sleep well!",
       "sleep.markDone": "Mark done",
       "sleep.notificationsUnsupported": "Notifications not supported on this browser",
+      "sleep.wizard.fab": "Plan sleep",
+      "sleep.wizard.title": "Plan tonight",
+      "sleep.wizard.step": "{step} / {total}",
+      "sleep.wizard.step1Eyebrow": "Wake time",
+      "sleep.wizard.step2Eyebrow": "Bedtime",
+      "sleep.wizard.step3Eyebrow": "Wind-down",
+      "sleep.wizard.wakeQuestion": "What time do you want to wake up?",
+      "sleep.wizard.wakeCopy": "Pick the wake-up time first. Hbit will calculate bedtimes around full sleep cycles.",
+      "sleep.wizard.wakeLabel": "Wake-up time",
+      "sleep.wizard.bedQuestion": "Choose when you want to sleep",
+      "sleep.wizard.bedCopy": "Options start from the current time and include 14 minutes to fall asleep.",
+      "sleep.wizard.finishQuestion": "Add the pieces that help tonight",
+      "sleep.wizard.finishCopy": "You can set an alarm reminder and include a breathing exercise before sleep.",
+      "sleep.wizard.alarmTitle": "Wake-up alarm",
+      "sleep.wizard.alarmCopy": "Ask this browser to remind you.",
+      "sleep.wizard.breathTitle": "Breathing exercise",
+      "sleep.wizard.breathCopy": "Keep 4-7-8 breathing in the wind-down.",
+      "sleep.wizard.summary": "Sleep at {bed}. Wake at {wake}. {alarm} {breath}",
+      "sleep.wizard.alarmOn": "Alarm reminder on.",
+      "sleep.wizard.alarmOff": "No alarm reminder.",
+      "sleep.wizard.breathOn": "Breathing included.",
+      "sleep.wizard.breathOff": "Breathing skipped.",
+      "sleep.wizard.finish": "Save sleep plan",
+      "sleep.logForDate": "Log sleep for {date}",
     },
     fr: {
       "sleep.tonightsPlan": "Plan de cette nuit",
@@ -141,7 +165,14 @@
       "sleep.wakeGoal": "Je veux me réveiller à",
       "sleep.recommended": "Recommandé",
       "sleep.forTomorrow": "pour demain soir",
+      "sleep.option": "Option",
       "sleep.bufferNote": "Inclut 14 min pour s'endormir",
+      "sleep.shortWakeWarning": "Moins de 6 heures jusqu'au reveil - envisage de te lever plus tard.",
+      "sleep.whyOptions": "Pourquoi ces options ?",
+      "sleep.whyOptionsBody": "Ces suggestions utilisent des cycles de 90 minutes, montrent seulement les heures encore possibles maintenant et priorisent une heure de coucher raisonnable avec au moins 7 heures de sommeil.",
+      "sleep.showMoreOptions": "Afficher plus d'options",
+      "sleep.showFewerOptions": "Afficher moins d'options",
+      "sleep.tooLateForBest": "Option tardive",
       "sleep.cyclePreview": "Coucher à {bed} → {cycles} cycles → réveil à {wake} reposé",
       "sleep.setAsPlan": "Définir {time} comme plan",
       "sleep.planSet": "Plan de nuit enregistré ✓",
@@ -156,7 +187,7 @@
       "sleep.grayscaleSub": "Réduis la stimulation visuelle.",
       "sleep.breathing": "Exercice de respiration",
       "sleep.breathingSub": "4-7-8 : inspirez 4s · retenez 7s · expirez 8s",
-      "sleep.startBreath": "Démarrer le guide 3 min →",
+      "sleep.startBreath": "Ouvrir la respiration Focus ->",
       "sleep.breathProgress": "{done} / {total} complétés",
       "sleep.readyToSleep": "Prêt à dormir",
       "sleep.readyDone": "Session de sommeil lancée ✓",
@@ -177,6 +208,30 @@
       "sleep.winddownAllDone": "Tout est prêt — bonne nuit !",
       "sleep.markDone": "Marquer fait",
       "sleep.notificationsUnsupported": "Notifications non prises en charge sur ce navigateur",
+      "sleep.wizard.fab": "Planifier",
+      "sleep.wizard.title": "Planifier la nuit",
+      "sleep.wizard.step": "{step} / {total}",
+      "sleep.wizard.step1Eyebrow": "Heure de reveil",
+      "sleep.wizard.step2Eyebrow": "Coucher",
+      "sleep.wizard.step3Eyebrow": "Routine",
+      "sleep.wizard.wakeQuestion": "A quelle heure veux-tu te reveiller ?",
+      "sleep.wizard.wakeCopy": "Choisis d'abord le reveil. Hbit calcule les heures de coucher avec des cycles complets.",
+      "sleep.wizard.wakeLabel": "Heure de reveil",
+      "sleep.wizard.bedQuestion": "Choisis l'heure a laquelle tu veux dormir",
+      "sleep.wizard.bedCopy": "Les options commencent a partir de maintenant et incluent 14 minutes pour t'endormir.",
+      "sleep.wizard.finishQuestion": "Ajoute ce qui aide ce soir",
+      "sleep.wizard.finishCopy": "Tu peux activer une alarme et garder un exercice de respiration avant de dormir.",
+      "sleep.wizard.alarmTitle": "Alarme de reveil",
+      "sleep.wizard.alarmCopy": "Demander au navigateur de te rappeler.",
+      "sleep.wizard.breathTitle": "Exercice de respiration",
+      "sleep.wizard.breathCopy": "Garder la respiration 4-7-8 dans la routine.",
+      "sleep.wizard.summary": "Dors a {bed}. Reveil a {wake}. {alarm} {breath}",
+      "sleep.wizard.alarmOn": "Alarme activee.",
+      "sleep.wizard.alarmOff": "Pas d'alarme.",
+      "sleep.wizard.breathOn": "Respiration incluse.",
+      "sleep.wizard.breathOff": "Respiration ignoree.",
+      "sleep.wizard.finish": "Enregistrer le plan",
+      "sleep.logForDate": "Enregistrer le sommeil pour {date}",
     },
   };
 
@@ -191,16 +246,22 @@
     tonightPlan: null,
     sleepDebt: 0,
     countdownTimer: null,
-    breathTimer: null,
-    breathAnimTimer: null,
-    breathSessionElapsed: 0,
     cycleSelection: null,
+    sleepShowAllOptions: false,
     historyLoaded: false,
     activeTab: "tonight",
     statsSnapshot: null,
     saveSettingsTimer: null,
     deviceTooltipTimer: null,
     sleepDataReady: false,
+    sleepWizard: {
+      step: 0,
+      wake: "07:00",
+      bedtime: "",
+      cycles: 5,
+      alarm: true,
+      breath: true,
+    },
   };
 
   function lang() {
@@ -240,6 +301,14 @@
 
   function pad2(n) { return String(n).padStart(2, "0"); }
 
+  function esc(s) {
+    return String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
   function addMinutes(d, min) {
     return new Date(d.getTime() + min * 60000);
   }
@@ -250,6 +319,12 @@
     const d = new Date();
     d.setHours(h, m, 0, 0);
     return d;
+  }
+
+  function hhmmToMinutes(hhmm) {
+    const [h, m] = String(hhmm || "").split(":").map((x) => parseInt(x, 10));
+    if (!Number.isFinite(h) || !Number.isFinite(m)) return NaN;
+    return h * 60 + m;
   }
 
   function timeToParts(hhmm) {
@@ -299,19 +374,45 @@
    * Suggested bedtimes: wake − (cycles × 90 min) − 14 min onset.
    * Keeps legacy name; always returns 4–8 cycle rows for the calculator.
    */
-  function suggestedBedtimes(wakeHhmm, count = 5) {
+  function isLateBedtime(hhmm) {
+    const minutes = hhmmToMinutes(hhmm);
+    if (!Number.isFinite(minutes)) return false;
+    return minutes >= 60 && minutes < 5 * 60;
+  }
+
+  function isRecommendedBedtime(item) {
+    if (!item) return false;
+    return item.totalMinutes >= 7 * 60
+      && item.totalMinutes <= 9 * 60
+      && (item.cycles === 5 || item.cycles === 6)
+      && !isLateBedtime(item.hhmm);
+  }
+
+  function suggestedBedtimes(wakeHhmm, countOrOptions = 5) {
     const wake = nextWakeDatetime(wakeHhmm);
     if (!wake) return [];
     const now = new Date();
-    const cyclesArr = [4, 5, 6, 7, 8].slice(0, Math.min(count, 5));
+    const options = typeof countOrOptions === "object" && countOrOptions
+      ? countOrOptions
+      : { count: countOrOptions };
+    const count = Number.isFinite(options.count) ? options.count : ALLOWED_CYCLES.length;
+    const includePast = options.includePast === true;
+    const cyclesArr = ALLOWED_CYCLES.slice(0, Math.min(count, ALLOWED_CYCLES.length));
     const list = cyclesArr.map((c) => {
       const bed = addMinutes(wake, -c * CYCLE_MIN - ONSET_MIN);
       const hhmm = formatTime(bed);
-      const duration = (c * CYCLE_MIN) / 60;
-      const forTomorrow = bed.getTime() <= now.getTime();
-      return { cycles: c, time: bed, hhmm, duration, forTomorrow };
-    });
-    return list.sort((a, b) => a.cycles - b.cycles);
+      const totalMinutes = c * CYCLE_MIN;
+      const duration = totalMinutes / 60;
+      const isFuture = bed.getTime() > now.getTime();
+      return { cycles: c, time: bed, hhmm, duration, totalMinutes, isFuture, forTomorrow: false };
+    }).filter((item) => item.totalMinutes >= 360 && (includePast || item.isFuture));
+    return list.sort((a, b) => a.time.getTime() - b.time.getTime());
+  }
+
+  function minutesUntilWake(wakeHhmm) {
+    const wake = nextWakeDatetime(wakeHhmm);
+    if (!wake) return null;
+    return Math.round((wake.getTime() - Date.now()) / 60000);
   }
 
   function weeklySchedule(wakeHhmm, durationHoursVal) {
@@ -719,8 +820,8 @@
 
   function defaultPlanDisplay() {
     const wake = state.tonightPlan?.wakeTimePlanned || $("cycleWakeInput")?.value || effectiveSettings().defaultWake;
-    const sug = suggestedBedtimes(wake, 5);
-    const five = sug.find((s) => s.cycles === 5) || sug[0];
+    const sug = suggestedBedtimes(wake, { count: ALLOWED_CYCLES.length });
+    const five = sug.find(isRecommendedBedtime) || sug[0];
     if (!five) return { bed: "—", wake, badge: "—", cycles: 5 };
     const durH = five.duration;
     const badge = `${formatDurHuman(durH)} · ${five.cycles} cycles`;
@@ -891,10 +992,28 @@
     const wrap = $("slCycleCards");
     if (!wrap) return;
     const wake = $("cycleWakeInput")?.value || effectiveSettings().defaultWake;
-    const sug = suggestedBedtimes(wake, 5);
-    wrap.innerHTML = sug.map((s) => {
-      const rec = s.cycles === 5 || s.cycles === 6;
+    const allSuggestions = suggestedBedtimes(wake, { count: ALLOWED_CYCLES.length });
+    const sug = state.sleepShowAllOptions ? allSuggestions : allSuggestions.slice(0, 3);
+    const minsToWake = minutesUntilWake(wake);
+    const warn = minsToWake != null && minsToWake < 360
+      ? `<div class="sl-cycle-warning" role="alert">${esc(tsleep("sleep.shortWakeWarning"))}</div>`
+      : "";
+    const why = `
+      <details class="sl-cycle-why">
+        <summary>${esc(tsleep("sleep.whyOptions"))}</summary>
+        <p>${esc(tsleep("sleep.whyOptionsBody"))}</p>
+      </details>`;
+    if (!allSuggestions.length) {
+      wrap.innerHTML = (warn || `<div class="sl-cycle-warning" role="alert">${esc(tsleep("sleep.shortWakeWarning"))}</div>`) + why;
+      return;
+    }
+    const moreBtn = allSuggestions.length > 3
+      ? `<button type="button" class="sl-cycle-more" id="slCycleMore">${esc(tsleep(state.sleepShowAllOptions ? "sleep.showFewerOptions" : "sleep.showMoreOptions"))}</button>`
+      : "";
+    wrap.innerHTML = warn + why + sug.map((s) => {
+      const rec = isRecommendedBedtime(s);
       const sel = state.cycleSelection && state.cycleSelection.cycles === s.cycles;
+      const note = !rec && isLateBedtime(s.hhmm) ? tsleep("sleep.tooLateForBest") : "";
       return `
         <button type="button" class="sl-cycle-card${rec ? " recommended" : ""}${sel ? " selected" : ""}"
           data-cycles="${s.cycles}" data-bed="${s.hhmm}" data-wake="${wake}">
@@ -902,9 +1021,9 @@
           <div class="sl-cycle-meta-top">${s.cycles} cycles</div>
           <div class="sl-cycle-time">${formatDisplayTime12(s.hhmm)}</div>
           <div class="sl-cycle-meta">${formatDurHuman(s.duration)}</div>
-          ${s.forTomorrow ? `<div class="sl-cycle-note">${tsleep("sleep.forTomorrow")}</div>` : ""}
+          ${note ? `<div class="sl-cycle-note">${esc(note)}</div>` : ""}
         </button>`;
-    }).join("");
+    }).join("") + moreBtn;
 
     wrap.querySelectorAll(".sl-cycle-card").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -916,11 +1035,31 @@
       });
     });
 
+    $("slCycleMore")?.addEventListener("click", () => {
+      state.sleepShowAllOptions = !state.sleepShowAllOptions;
+      renderCycleCalculator();
+    });
+
     const prev = state.cycleSelection;
     if (prev) {
-      const still = sug.find((x) => x.cycles === prev.cycles);
-      if (still) selectCycleCard(still.cycles, still.hhmm, wake);
-      else {
+      const still = allSuggestions.find((x) => x.cycles === prev.cycles);
+      if (still) {
+        state.cycleSelection = { cycles: still.cycles, bedtime: still.hhmm, wake };
+        const pvw = $("slCyclePreview");
+        const cta = $("slCycleCta");
+        if (pvw) {
+          pvw.hidden = false;
+          pvw.textContent = tsleep("sleep.cyclePreview", {
+            bed: formatDisplayTime12(still.hhmm),
+            cycles: String(still.cycles),
+            wake: formatDisplayTime12(wake),
+          });
+        }
+        if (cta) {
+          cta.hidden = false;
+          cta.textContent = tsleep("sleep.setAsPlan", { time: formatDisplayTime12(still.hhmm) });
+        }
+      } else {
         state.cycleSelection = null;
         const pvw = $("slCyclePreview");
         const cta = $("slCycleCta");
@@ -948,6 +1087,145 @@
       cta.textContent = tsleep("sleep.setAsPlan", { time: formatDisplayTime12(bedtime) });
     }
     $("slCycleCta")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function renderSleepWizardSuggestions() {
+    const wrap = $("slWizardSuggestions");
+    if (!wrap) return;
+    const wake = state.sleepWizard.wake || $("slWizardWake")?.value || effectiveSettings().defaultWake;
+    const options = suggestedBedtimes(wake, { count: ALLOWED_CYCLES.length });
+    if (!options.length) {
+      wrap.innerHTML = `<p class="sl-wizard-copy">${esc(tsleep("sleep.enterTime"))}</p>`;
+      return;
+    }
+    wrap.innerHTML = options.map((s) => {
+      const selected = state.sleepWizard.bedtime === s.hhmm;
+      const recommended = isRecommendedBedtime(s);
+      const note = !recommended && isLateBedtime(s.hhmm) ? ` - ${tsleep("sleep.tooLateForBest")}` : "";
+      return `
+        <button type="button" class="sl-wizard-option${selected ? " selected" : ""}"
+          data-bed="${s.hhmm}" data-wake="${wake}" data-cycles="${s.cycles}">
+          <span>
+            <span class="sl-wizard-option-title">${formatDisplayTime12(s.hhmm)}</span>
+            <span class="sl-wizard-option-meta">${s.cycles} ${tsleep("sleep.ring.cycles")} · ${formatDurHuman(s.duration)}</span>
+          </span>
+          ${recommended ? `<span class="sl-wizard-option-badge">${tsleep("sleep.recommended")}</span>` : (note ? `<span class="sl-wizard-option-badge sl-wizard-option-badge--muted">${esc(note.replace(/^ - /, ""))}</span>` : "")}
+        </button>`;
+    }).join("");
+    wrap.querySelectorAll(".sl-wizard-option").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.sleepWizard.bedtime = btn.dataset.bed;
+        state.sleepWizard.wake = btn.dataset.wake;
+        state.sleepWizard.cycles = parseInt(btn.dataset.cycles, 10) || 5;
+        renderSleepWizard();
+      });
+    });
+  }
+
+  function renderSleepWizardSummary() {
+    const el = $("slWizardSummary");
+    if (!el) return;
+    const bed = state.sleepWizard.bedtime || defaultPlanDisplay().bed;
+    const wake = state.sleepWizard.wake || effectiveSettings().defaultWake;
+    el.textContent = tsleep("sleep.wizard.summary", {
+      bed: formatDisplayTime12(bed),
+      wake: formatDisplayTime12(wake),
+      alarm: tsleep(state.sleepWizard.alarm ? "sleep.wizard.alarmOn" : "sleep.wizard.alarmOff"),
+      breath: tsleep(state.sleepWizard.breath ? "sleep.wizard.breathOn" : "sleep.wizard.breathOff"),
+    });
+  }
+
+  function renderSleepWizard() {
+    const step = Math.max(0, Math.min(2, state.sleepWizard.step || 0));
+    state.sleepWizard.step = step;
+    document.querySelectorAll("#sleepPage .sl-wizard-step").forEach((el) => {
+      el.classList.toggle("active", Number(el.dataset.wizardStep) === step);
+    });
+    const label = $("slWizardStepLabel");
+    if (label) label.textContent = tsleep("sleep.wizard.step", { step: String(step + 1), total: "3" });
+    const prog = $("slWizardProgress");
+    if (prog) prog.style.width = `${((step + 1) / 3) * 100}%`;
+    const back = $("slWizardBack");
+    if (back) back.disabled = step === 0;
+    const next = $("slWizardNext");
+    if (next) {
+      next.textContent = step === 2
+        ? tsleep("sleep.wizard.finish")
+        : (HBIT.i18n?.t?.("common.next", "Next") || "Next");
+      next.disabled = step === 1 && !state.sleepWizard.bedtime;
+    }
+    document.querySelectorAll("#sleepPage .sl-wizard-toggle").forEach((btn) => {
+      const key = btn.dataset.wizardToggle;
+      btn.setAttribute("aria-pressed", state.sleepWizard[key] ? "true" : "false");
+    });
+    if (step === 1) renderSleepWizardSuggestions();
+    renderSleepWizardSummary();
+  }
+
+  function openSleepWizard() {
+    const ov = $("slWizardOverlay");
+    if (!ov) return;
+    const es = effectiveSettings();
+    const wake = state.tonightPlan?.wakeTimePlanned || $("cycleWakeInput")?.value || es.defaultWake;
+    const fallback = defaultPlanDisplay();
+    state.sleepWizard = {
+      step: 0,
+      wake,
+      bedtime: state.tonightPlan?.bedTimePlanned || fallback.bed || "",
+      cycles: fallback.cycles || 5,
+      alarm: es.alarmEnabled !== false,
+      breath: true,
+    };
+    const input = $("slWizardWake");
+    if (input) input.value = wake;
+    syncTimePicker("slWizardWake");
+    renderSleepWizard();
+    ov.classList.add("open");
+    ov.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeSleepWizard() {
+    const ov = $("slWizardOverlay");
+    if (!ov) return;
+    ov.classList.remove("open");
+    ov.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  async function finishSleepWizard() {
+    const wake = state.sleepWizard.wake || $("slWizardWake")?.value || effectiveSettings().defaultWake;
+    const bedtime = state.sleepWizard.bedtime || defaultPlanDisplay().bed;
+    if (!wake || !bedtime || bedtime === "—") return;
+    const next = $("slWizardNext");
+    if (next) next.disabled = true;
+    try {
+      const targetHours = durationHours(bedtime, wake);
+      state.settings = {
+        ...(state.settings || {}),
+        defaultWake: wake,
+        targetHours,
+        alarmEnabled: !!state.sleepWizard.alarm,
+      };
+      await saveSettings({
+        defaultWake: wake,
+        targetHours,
+        alarmEnabled: !!state.sleepWizard.alarm,
+      });
+      if ($("cycleWakeInput")) $("cycleWakeInput").value = wake;
+      if ($("planWake")) $("planWake").value = wake;
+      if ($("planDuration")) $("planDuration").value = String(Math.round(targetHours * 10) / 10);
+      syncTimePicker("cycleWakeInput");
+      syncTimePicker("planWake");
+      await setTonightsPlan(bedtime, wake);
+      if (state.sleepWizard.alarm) await scheduleWakeAlarm(wake);
+      closeSleepWizard();
+      if (state.sleepWizard.breath) {
+        $("slWindDown")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    } finally {
+      if (next) next.disabled = false;
+    }
   }
 
   async function setTonightsPlan(bedtime, wake) {
@@ -1022,7 +1300,7 @@
         </div>`;
       } else if (item.breath) {
         links = `<div class="sl-winddown-links">
-          <button type="button" class="sl-winddown-link" data-breath="1">${tsleep("sleep.startBreath")}</button>
+          <a class="sl-winddown-link" href="focus.html?mode=breathing">${tsleep("sleep.startBreath")}</a>
         </div>`;
       }
       return `
@@ -1048,12 +1326,6 @@
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         toggleWindDownItem(btn.dataset.mark);
-      });
-    });
-    list.querySelectorAll(".sl-winddown-link[data-breath]").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        openBreathingModal();
       });
     });
   }
@@ -1117,114 +1389,6 @@
     if (t) t.textContent = tsleep("sleep.winddownActive");
   }
 
-  function runBreathPhase() {
-    /* Phase visuals driven by paintBreathAt (1s interval in openBreathingModal). */
-  }
-
-  function paintBreathAt(total) {
-    if (total >= 180) {
-      endBreathingSession();
-      return;
-    }
-    const prog = $("slBreathProgressBar");
-    const remEl = $("slBreathRemaining");
-    if (prog) prog.style.width = `${Math.min(100, (total / 180) * 100)}%`;
-    if (remEl) {
-      const left = Math.max(0, 180 - total);
-      const mm = Math.floor(left / 60);
-      const ss = left % 60;
-      const timeStr = `${mm}:${pad2(ss)}`;
-      remEl.textContent = typeof HBIT.i18n?.t === "function"
-        ? HBIT.i18n.t("sleep.breath.remaining", "{time} remaining", { time: timeStr })
-        : `${timeStr} remaining`;
-    }
-    const posInCycle = total % BREATH_CYCLE_SECS;
-    let acc = 0;
-    let phaseIdx = 0;
-    let secInPhase = 0;
-    for (let i = 0; i < BREATH_PHASES.length; i++) {
-      const L = BREATH_PHASES[i].secs;
-      if (posInCycle < acc + L) {
-        phaseIdx = i;
-        secInPhase = posInCycle - acc;
-        break;
-      }
-      acc += L;
-    }
-    const phase = BREATH_PHASES[phaseIdx];
-    const secsLeft = phase.secs - secInPhase;
-    const labelEl = $("slBreathLabel");
-    const secEl = $("slBreathSecs");
-    const circle = $("slBreathCircle");
-    if (labelEl) labelEl.textContent = tsleep(phase.labelKey);
-    if (secEl) {
-      secEl.textContent = typeof HBIT.i18n?.t === "function"
-        ? HBIT.i18n.t("sleep.breath.sec", "{n} sec", { n: String(secsLeft) })
-        : `${secsLeft} sec`;
-    }
-    if (circle) {
-      circle.style.background = phase.color;
-      circle.style.transform = `scale(${phase.scale})`;
-    }
-  }
-
-  function runBreathTick() {
-    state.breathSessionElapsed += 1;
-    paintBreathAt(state.breathSessionElapsed);
-  }
-
-  function openBreathingModal() {
-    const ov = $("slBreathOverlay");
-    const done = $("slBreathDone");
-    const inner = ov?.querySelector(".sl-breath-inner");
-    if (!ov) return;
-    done && (done.hidden = true);
-    inner?.querySelectorAll(".sl-breath-label, .sl-breath-secs, .sl-breath-progress, .sl-breath-remaining").forEach((el) => {
-      if (!el.classList.contains("sl-breath-done")) el.style.display = "";
-    });
-    ov.classList.add("open");
-    ov.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
-    state.breathSessionElapsed = 0;
-    if (state.breathTimer) clearInterval(state.breathTimer);
-    paintBreathAt(0);
-    state.breathTimer = setInterval(runBreathTick, 1000);
-  }
-
-  function closeBreathingModal() {
-    const ov = $("slBreathOverlay");
-    if (state.breathTimer) {
-      clearInterval(state.breathTimer);
-      state.breathTimer = null;
-    }
-    if (ov) {
-      ov.classList.remove("open");
-      ov.setAttribute("aria-hidden", "true");
-    }
-    document.body.style.overflow = "";
-  }
-
-  function endBreathingSession() {
-    if (state.breathTimer) {
-      clearInterval(state.breathTimer);
-      state.breathTimer = null;
-    }
-    const ids = loadWindDownState();
-    if (!ids.includes("breath")) saveWindDownState([...ids, "breath"]);
-    renderWindDown();
-    loadWindDownStateIntoUI();
-    const done = $("slBreathDone");
-    const inner = $("slBreathOverlay")?.querySelector(".sl-breath-inner");
-    inner?.querySelectorAll(".sl-breath-label, .sl-breath-secs, .sl-breath-progress, .sl-breath-remaining").forEach((el) => {
-      el.style.display = "none";
-    });
-    if (done) {
-      done.hidden = false;
-      const p = $("slBreathDoneText");
-      if (p) p.textContent = tsleep("sleep.breathDone");
-    }
-  }
-
   function recordSleepStart() {
     try {
       const key = `sl-sleepStart-${todayKey()}`;
@@ -1267,7 +1431,6 @@
     const es = effectiveSettings();
     const wake = state.tonightPlan?.wakeTimePlanned || $("cycleWakeInput")?.value || es.defaultWake;
     if (es.alarmEnabled) await scheduleWakeAlarm(wake);
-    openBreathingModal();
     try {
       sessionStorage.setItem(`sl-ready-${todayKey()}`, "1");
     } catch (_) { /* ignore */ }
@@ -1435,7 +1598,7 @@
     for (let i = 0; i < startPad; i++) {
       const prev = new Date(y, m - 1, -startPad + i + 1);
       const dk = `${prev.getFullYear()}-${pad2(prev.getMonth() + 1)}-${pad2(prev.getDate())}`;
-      html += `<div class="sl-cal-day other-month" data-date="${dk}"><span class="sl-cal-num">${prev.getDate()}</span></div>`;
+      html += `<div class="sl-cal-day other-month" data-date="${dk}" role="button" tabindex="0" aria-label="${esc(tsleep("sleep.logForDate", { date: dk }))}"><span class="sl-cal-num">${prev.getDate()}</span></div>`;
     }
     for (let day = 1; day <= daysInMonth; day++) {
       const dk = `${ym}-${pad2(day)}`;
@@ -1445,7 +1608,7 @@
       const qAttr = q >= 7 ? "high" : q > 0 && q <= 4 ? "low" : "";
       html += `<div class="sl-cal-day ${log ? "has-log" : ""}" data-date="${dk}"
                 ${qAttr ? `data-quality="${qAttr}"` : ""}
-                role="button" tabindex="0">
+                role="button" tabindex="0" aria-label="${esc(tsleep("sleep.logForDate", { date: dk }))}">
         <span class="sl-cal-num">${day}</span>
         ${dur ? `<span class="sl-cal-dur">${dur}</span>` : ""}
       </div>`;
@@ -1455,7 +1618,7 @@
     for (let i = filled; i < totalCells; i++) {
       const next = new Date(y, m, i - filled + 1);
       const dk = `${next.getFullYear()}-${pad2(next.getMonth() + 1)}-${pad2(next.getDate())}`;
-      html += `<div class="sl-cal-day other-month" data-date="${dk}"><span class="sl-cal-num">${next.getDate()}</span></div>`;
+      html += `<div class="sl-cal-day other-month" data-date="${dk}" role="button" tabindex="0" aria-label="${esc(tsleep("sleep.logForDate", { date: dk }))}"><span class="sl-cal-num">${next.getDate()}</span></div>`;
     }
     wrap.innerHTML = html;
 
@@ -1623,13 +1786,27 @@
 
     $("cycleWakeInput")?.addEventListener("change", () => {
       state.cycleSelection = null;
+      state.sleepShowAllOptions = false;
       renderCycleCalculator();
       renderHeroV2();
     });
     $("cycleWakeInput")?.addEventListener("input", () => {
       state.cycleSelection = null;
+      state.sleepShowAllOptions = false;
       renderCycleCalculator();
       renderHeroV2();
+    });
+    $("slWizardWake")?.addEventListener("input", () => {
+      state.sleepWizard.wake = $("slWizardWake")?.value || effectiveSettings().defaultWake;
+      state.sleepWizard.bedtime = "";
+      syncTimePicker("slWizardWake");
+      renderSleepWizard();
+    });
+    $("slWizardWake")?.addEventListener("change", () => {
+      state.sleepWizard.wake = $("slWizardWake")?.value || effectiveSettings().defaultWake;
+      state.sleepWizard.bedtime = "";
+      syncTimePicker("slWizardWake");
+      renderSleepWizard();
     });
 
     $("slCycleCta")?.addEventListener("click", async () => {
@@ -1645,7 +1822,11 @@
     });
 
     $("slHeroEditPlan")?.addEventListener("click", () => {
-      document.getElementById("slSecCycles")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const pop = $("slPlanPopover");
+      const btn = $("slHeroEditPlan");
+      const open = !!pop?.hidden;
+      if (pop) pop.hidden = !open;
+      btn?.setAttribute("aria-expanded", open ? "true" : "false");
     });
 
     $("slLastNightPill")?.addEventListener("click", () => {
@@ -1656,6 +1837,39 @@
     });
 
     $("slReadyBtn")?.addEventListener("click", () => activateReadyToSleep());
+
+    $("slPlanFab")?.addEventListener("click", openSleepWizard);
+    $("slWizardClose")?.addEventListener("click", closeSleepWizard);
+    $("slWizardOverlay")?.addEventListener("click", (e) => {
+      if (e.target.id === "slWizardOverlay") closeSleepWizard();
+    });
+    $("slWizardBack")?.addEventListener("click", () => {
+      state.sleepWizard.step = Math.max(0, state.sleepWizard.step - 1);
+      renderSleepWizard();
+    });
+    $("slWizardNext")?.addEventListener("click", () => {
+      if (state.sleepWizard.step < 2) {
+        state.sleepWizard.step += 1;
+        if (state.sleepWizard.step === 1 && !state.sleepWizard.bedtime) {
+          const options = suggestedBedtimes(state.sleepWizard.wake, { count: ALLOWED_CYCLES.length });
+          const first = options.find(isRecommendedBedtime) || options[0];
+          if (first) {
+            state.sleepWizard.bedtime = first.hhmm;
+            state.sleepWizard.cycles = first.cycles;
+          }
+        }
+        renderSleepWizard();
+        return;
+      }
+      finishSleepWizard();
+    });
+    document.querySelectorAll("#sleepPage .sl-wizard-toggle").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.wizardToggle;
+        state.sleepWizard[key] = !state.sleepWizard[key];
+        renderSleepWizard();
+      });
+    });
 
     $("planWake")?.addEventListener("change", () => {
       renderWeekSchedule();
@@ -1699,17 +1913,14 @@
       if (ban) ban.hidden = true;
     });
 
-    $("slBreathClose")?.addEventListener("click", closeBreathingModal);
-    $("slBreathDoneClose")?.addEventListener("click", closeBreathingModal);
-
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
       const logOpen = $("logOverlay")?.classList.contains("open");
       const helpOpen = $("slHelpOverlay")?.classList.contains("open");
-      const breathOpen = $("slBreathOverlay")?.classList.contains("open");
+      const wizardOpen = $("slWizardOverlay")?.classList.contains("open");
       if (logOpen) closeLogSheet();
-      else if (breathOpen) closeBreathingModal();
       else if (helpOpen) closeSleepHelp();
+      else if (wizardOpen) closeSleepWizard();
     });
 
     window.addEventListener("hbit:lang-changed", () => {
@@ -1772,19 +1983,6 @@
     HBIT.i18n?.apply?.(document);
   }
 
-  function initScrollTopBtn() {
-    const btn = document.getElementById("hbitScrollTop");
-    if (!btn) return;
-    const sync = () => {
-      const show = window.scrollY > 400;
-      btn.hidden = !show;
-      btn.classList.toggle("is-visible", show);
-    };
-    window.addEventListener("scroll", sync, { passive: true });
-    sync();
-    btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
-  }
-
   function init() {
     if (document.body.id !== "sleepPage") return;
     if (document.body.dataset.sleepInit) return;
@@ -1792,7 +1990,7 @@
 
     state.calMonth = todayKey().slice(0, 7);
     bindEvents();
-    initScrollTopBtn();
+    initTimePickers();
     initTabs();
     initDevicePlaceholders();
     populateDurationSelect();

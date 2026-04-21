@@ -60,8 +60,8 @@
 
   function scaleLabel(v, lang) {
     const bands = lang === "fr"
-      ? ["Très difficile", "Difficile", "Ça va", "Bien", "Super"]
-      : ["Very difficult", "Difficult", "Okay", "Good", "Great"];
+      ? ["Tres desagreable", "Desagreable", "Neutre", "Agreable", "Tres agreable"]
+      : ["Very unpleasant", "Unpleasant", "Neutral", "Pleasant", "Very pleasant"];
     return bands[clamp(Math.round(v), 1, 5) - 1] || "—";
   }
 
@@ -70,7 +70,7 @@
       verybad: { base: ["Overwhelmed", "Anxious", "Angry", "Sad", "Hopeless", "Tired", "Stressed"], more: ["Empty", "Burned out", "Panicked", "Ashamed", "Numb", "Defeated", "Confused", "Guilty", "Scared", "Irritable", "Lonely"] },
       bad: { base: ["Unmotivated", "Irritated", "Worried", "Drained", "Frustrated", "Insecure", "Down"], more: ["Bored", "Restless", "Sensitive", "Disappointed", "Uncertain", "Stuck", "Annoyed", "Distracted", "Tense", "Undervalued", "Disconnected"] },
       slight: { base: ["Okay", "Meh", "Calm", "Reserved", "Low energy", "Quiet", "Neutral"], more: ["Stable", "Chill", "Content", "Thoughtful", "Observing", "Routine", "Balanced", "Patient", "Grounded"] },
-      good: { base: ["Confident", "Motivated", "Hopeful", "Grateful", "Energized", "Proud", "Relaxed"], more: ["Optimistic", "Clear-headed", "Productive", "Social", "Playful", "Present", "Disciplined", "Connected", "Refreshed", "Brave", "Creative"] },
+      good: { base: ["Calm", "Hopeful", "Content", "Grateful", "Motivated", "Clear", "Connected"], more: ["Joyful", "Excited", "Confident", "Energized", "Proud", "Inspired", "Loved", "Creative", "Peaceful"] },
       other: { base: ["Other", "Mixed", "Unsure", "Complicated", "Different", "Unique", "Varied"], more: ["Bittersweet", "Changing", "In between", "Hard to name", "Uneven", "Blurred", "Complex"] }
     };
     const FR = {
@@ -101,7 +101,7 @@
     if (b === 2) return "bad";
     if (b === 3) return "slight";
     if (b === 4) return "good";
-    return "other";
+    return "good";
   }
 
   function moodLabel(band, lang) {
@@ -135,6 +135,8 @@
     uid: null,
     todayLog: null,
     recentLogs: [],
+    heatmapLogs: [],
+    heatmapMonth: todayKey().slice(0, 7),
     selectedBand: null,
     depthOpen: false,
     depthBand: 3,
@@ -147,6 +149,8 @@
     sliderTouched: { energy: false, stress: false, focus: false, social: false },
     eventsBound: false,
     moodDataReady: false,
+    wizardMood: 3,
+    wizardEmotion: "",
   };
 
   async function migrateLegacyData() {
@@ -549,11 +553,24 @@
     renderSelector();
     const actions = $("mdSelectorActions");
     if (actions) {
-      actions.classList.remove("md-selector-actions--hidden");
-      actions.hidden = false;
+      actions.classList.add("md-selector-actions--hidden");
+      actions.hidden = true;
     }
     const saveBtn = $("mdSaveQuick");
     if (saveBtn) saveBtn.disabled = false;
+    openDepthSection({
+      mood: state.selectedBand,
+      energy: null,
+      stress: null,
+      focus: null,
+      social: null,
+      emotion: "",
+      impact: "",
+      impactQ: "",
+      triggerQ: "",
+      actionQ: "",
+      notes: ""
+    });
   }
 
   function renderTodaySummary(log) {
@@ -711,6 +728,199 @@
     });
   }
 
+  async function loadHeatmapLogs() {
+    const month = state.heatmapMonth || todayKey().slice(0, 7);
+    const [y, m] = month.split("-").map(Number);
+    const last = new Date(y, m, 0).getDate();
+    const start = `${month}-01`;
+    const end = `${month}-${pad2(last)}`;
+    try {
+      return await HBIT.db.moodLogs.range(start, end);
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function renderMoodHeatmap(logs) {
+    const grid = $("mdMoodHeatmap");
+    const labelEl = $("mdHeatmapMonthLabel");
+    if (!grid) return;
+    const month = state.heatmapMonth || todayKey().slice(0, 7);
+    const [year, monthNum] = month.split("-").map(Number);
+    const lastDay = new Date(year, monthNum, 0).getDate();
+    const first = new Date(year, monthNum - 1, 1);
+    const days = [];
+    for (let i = 1; i <= lastDay; i++) days.push(`${month}-${pad2(i)}`);
+    const map = new Map((logs || []).map((l) => [logDateKey(l), l]));
+    const locale = getLang() === "fr" ? "fr-FR" : "en-US";
+    const startPad = (first.getDay() + 6) % 7;
+
+    const blanks = Array.from({ length: startPad }, () => `<span class="md-heatmap-cell is-empty" aria-hidden="true"></span>`);
+    grid.innerHTML = blanks.join("") + days.map((dk) => {
+      const log = map.get(dk);
+      const band = log ? inferMoodBand(log) : "";
+      const date = new Date(dk + "T12:00:00");
+      const label = log
+        ? `${date.toLocaleDateString(locale, { month: "short", day: "numeric" })}: ${moodLabel(band, getLang())}`
+        : `${date.toLocaleDateString(locale, { month: "short", day: "numeric" })}: ${t("mood.history.empty", "No entry")}`;
+      return `<button type="button" class="md-heatmap-cell" data-date="${dk}" ${band ? `data-band="${band}"` : ""} aria-label="${label}" title="${label}"></button>`;
+    }).join("");
+
+    grid.querySelectorAll(".md-heatmap-cell").forEach((cell) => {
+      cell.addEventListener("click", () => {
+        const dk = cell.dataset.date;
+        const log = map.get(dk);
+        if (log) {
+          state.editingDateKey = dk;
+          state.editingToday = dk === todayKey();
+          openMoodWizard(log);
+        } else if (dk === todayKey()) {
+          openMoodWizard();
+        }
+      });
+    });
+
+    if (labelEl) {
+      labelEl.textContent = first.toLocaleDateString(locale, { month: "long", year: "numeric" });
+    }
+  }
+
+  function resourceCards() {
+    const low = state.todayLog ? inferMoodBand(state.todayLog) <= 2 : false;
+    return [
+      {
+        type: t("mood.resources.article", "Article"),
+        title: low ? t("mood.resources.nhsLow", "Small steps for tough days") : t("mood.resources.nhs", "5 steps to mental wellbeing"),
+        copy: low ? t("mood.resources.lowCopy", "Gentle actions when your mood feels heavy.") : t("mood.resources.nhsCopy", "Simple habits for connection, movement, learning, giving, and attention."),
+        href: "https://www.nhs.uk/conditions/stress-anxiety-depression/improve-mental-wellbeing/",
+      },
+      {
+        type: t("mood.resources.video", "YouTube"),
+        title: low ? t("mood.resources.videoLow", "Guided breathing for anxiety") : t("mood.resources.videoGood", "Quick mood reset"),
+        copy: t("mood.resources.videoCopy", "A short guided video for your current state."),
+        href: low
+          ? "https://www.youtube.com/results?search_query=5+minute+guided+breathing+exercise+for+anxiety"
+          : "https://www.youtube.com/results?search_query=5+minute+positive+mood+guided+meditation",
+      },
+      {
+        type: t("mood.resources.action", "Action"),
+        title: t("mood.resources.focus", "Switch to Focus"),
+        copy: t("mood.resources.focusCopy", "Use a breathing timer or a short focus block."),
+        href: "focus.html",
+      },
+    ];
+  }
+
+  function renderMoodResources() {
+    const box = $("mdResourceGrid");
+    if (!box) return;
+    const cards = resourceCards();
+    const cardHtml = (r) => `
+      <a class="md-resource-card" href="${r.href}" ${r.href.startsWith("http") ? 'target="_blank" rel="noopener noreferrer"' : ""}>
+        <span class="md-resource-type">${r.type}</span>
+        <span>
+          <h3 class="md-resource-title">${r.title}</h3>
+          <p class="md-resource-copy">${r.copy}</p>
+        </span>
+      </a>`;
+    box.innerHTML = `
+      ${cardHtml(cards[0])}
+      <details class="md-resource-more">
+        <summary>${t("mood.resources.more", "More resources")}</summary>
+        <div class="md-resource-more-body">${cards.slice(1).map(cardHtml).join("")}</div>
+      </details>`;
+  }
+
+  function updateMoodWizardColor() {
+    const band = clamp(Math.round(num($("mdMoodSlider")?.value, state.wizardMood || 3)), 1, 5);
+    state.wizardMood = band;
+    applyMoodTint(band);
+    const label = $("mdWizardMoodLabel");
+    if (label) label.textContent = moodLabel(band, getLang());
+    renderWizardEmotionChips();
+  }
+
+  function renderWizardEmotionChips() {
+    const box = $("mdWizardEmotionChips");
+    if (!box) return;
+    const set = emotionSets(getLang())[bandKeyFromMood(state.wizardMood)] || emotionSets(getLang()).slight;
+    const labels = set.base;
+    box.innerHTML = "";
+    labels.forEach((label) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "md-chip" + (state.wizardEmotion === label ? " active" : "");
+      btn.textContent = label;
+      btn.addEventListener("click", () => {
+        state.wizardEmotion = state.wizardEmotion === label ? "" : label;
+        renderWizardEmotionChips();
+      });
+      box.appendChild(btn);
+    });
+  }
+
+  function openMoodWizard(prefill) {
+    const ov = $("mdWizardOverlay");
+    if (!ov) return;
+    const band = prefill ? inferMoodBand(prefill) : (state.todayLog ? inferMoodBand(state.todayLog) : 3);
+    state.wizardMood = band;
+    state.wizardEmotion = prefill?.emotion || "";
+    const slider = $("mdMoodSlider");
+    if (slider) slider.value = String(band);
+    if ($("mdWizardNote")) $("mdWizardNote").value = prefill?.notes || "";
+    updateMoodWizardColor();
+    ov.classList.add("open");
+    ov.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeMoodWizard() {
+    const ov = $("mdWizardOverlay");
+    if (!ov) return;
+    ov.classList.remove("open");
+    ov.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    state.editingDateKey = null;
+    state.editingToday = false;
+  }
+
+  function showSaveBurst() {
+    const el = $("mdSaveBurst");
+    if (!el) return;
+    el.hidden = false;
+    clearTimeout(showSaveBurst._t);
+    showSaveBurst._t = setTimeout(() => {
+      el.hidden = true;
+    }, 900);
+  }
+
+  async function saveMoodWizard() {
+    const data = {
+      mood: clamp(Math.round(num($("mdMoodSlider")?.value, 3)), 1, 5),
+      energy: null,
+      stress: null,
+      focus: null,
+      social: null,
+      emotion: state.wizardEmotion || "",
+      impact: "",
+      impactQ: "",
+      triggerQ: "",
+      actionQ: "",
+      notes: $("mdWizardNote")?.value?.trim() || "",
+      tags: [state.wizardEmotion].filter(Boolean),
+    };
+    const dk = state.editingDateKey || todayKey();
+    await saveMoodFull(data, dk);
+    state.todayLog = await loadTodayLog();
+    state.recentLogs = await loadRecentLogs();
+    state.heatmapLogs = await loadHeatmapLogs();
+    closeMoodWizard();
+    renderAll();
+    showSaveBurst();
+    showToast(t("mood.savedFullToast", "Saved ✓"));
+    window.dispatchEvent(new CustomEvent("hbit:data-changed", { detail: { area: "mood" } }));
+  }
+
   function updateDateDisplay() {
     const el = $("moodDate");
     if (!el) return;
@@ -803,6 +1013,8 @@
     renderStreak(state.recentLogs);
     renderWeeklyInsight(state.recentLogs);
     renderEntryCards(state.recentLogs);
+    renderMoodHeatmap(state.heatmapLogs);
+    renderMoodResources();
 
     HBIT.mood = HBIT.mood || {};
     HBIT.mood.todaySummary = {
@@ -903,6 +1115,42 @@
       if (b) b.hidden = true;
     });
 
+    $("mdOpenLogFab")?.addEventListener("click", () => openMoodWizard());
+    $("mdHeatmapPrev")?.addEventListener("click", async () => {
+      const [y, m] = (state.heatmapMonth || todayKey().slice(0, 7)).split("-").map(Number);
+      state.heatmapMonth = m === 1 ? `${y - 1}-12` : `${y}-${pad2(m - 1)}`;
+      state.heatmapLogs = await loadHeatmapLogs();
+      renderMoodHeatmap(state.heatmapLogs);
+    });
+    $("mdHeatmapNext")?.addEventListener("click", async () => {
+      const [y, m] = (state.heatmapMonth || todayKey().slice(0, 7)).split("-").map(Number);
+      state.heatmapMonth = m === 12 ? `${y + 1}-01` : `${y}-${pad2(m + 1)}`;
+      state.heatmapLogs = await loadHeatmapLogs();
+      renderMoodHeatmap(state.heatmapLogs);
+    });
+    $("mdWizardClose")?.addEventListener("click", closeMoodWizard);
+    $("mdWizardOverlay")?.addEventListener("click", (e) => {
+      if (e.target.id === "mdWizardOverlay") closeMoodWizard();
+    });
+    $("mdMoodSlider")?.addEventListener("input", updateMoodWizardColor);
+    $("mdWizardSave")?.addEventListener("click", async () => {
+      const btn = $("mdWizardSave");
+      if (btn) btn.disabled = true;
+      try {
+        await saveMoodWizard();
+      } catch (e) {
+        showToast(t("mood.saveError", "Could not save. Check your connection."));
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && $("mdWizardOverlay")?.classList.contains("open")) {
+        closeMoodWizard();
+      }
+    });
+
     $("mdEntries")?.addEventListener("click", (e) => {
       const btn = e.target.closest(".md-entry-edit");
       if (!btn) return;
@@ -926,6 +1174,7 @@
         renderImpactChips();
         updateSubdimCaps();
       }
+      if ($("mdWizardOverlay")?.classList.contains("open")) updateMoodWizardColor();
     });
   }
 
@@ -934,15 +1183,15 @@
   async function start(user) {
     state.uid = user.uid;
     await migrateLegacyData();
-    const [todayLog, recentLogs] = await Promise.all([loadTodayLog(), loadRecentLogs()]);
+    const [todayLog, recentLogs, heatmapLogs] = await Promise.all([loadTodayLog(), loadRecentLogs(), loadHeatmapLogs()]);
     state.todayLog = todayLog;
     state.recentLogs = recentLogs;
+    state.heatmapLogs = heatmapLogs;
     state.weekInsight = generateWeeklyInsight(recentLogs);
     state.moodDataReady = true;
     bindEvents();
     renderAll();
     handleSleepBanner();
-    initScrollTopBtn();
     if (!_moodHelpModalBound && HBIT.utils?.initHelpModal) {
       HBIT.utils.initHelpModal({
         openBtn: "mdHelpBtn",
@@ -951,19 +1200,6 @@
       });
       _moodHelpModalBound = true;
     }
-  }
-
-  function initScrollTopBtn() {
-    const btn = document.getElementById("hbitScrollTop");
-    if (!btn) return;
-    const sync = () => {
-      const show = window.scrollY > 400;
-      btn.hidden = !show;
-      btn.classList.toggle("is-visible", show);
-    };
-    window.addEventListener("scroll", sync, { passive: true });
-    sync();
-    btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
   }
 
   function init() {

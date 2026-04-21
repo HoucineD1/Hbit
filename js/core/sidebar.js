@@ -55,6 +55,10 @@
       </div>
     </div>
     <div class="sb-foot">
+      <a class="sb-item" href="profile.html#appearance" data-page="profile-settings">
+        <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 0-.38 1.05V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 0-1.05-.38H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6A1.65 1.65 0 0 0 10.4 3V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.39.37.73.68 1 .3.26.67.4 1.05.4H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51.6z"/></svg></span>
+        <span class="sb-item-label" data-i18n="nav.settings">Settings</span>
+      </a>
       <a class="sb-item" href="profile.html" data-page="profile.html">
         <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
         <span class="sb-item-label" data-i18n="nav.profile">Profile</span>
@@ -117,9 +121,122 @@
     markActiveNav();
   }
 
+  /* ── Swipe gesture — ouvrir depuis le bord gauche ── */
+  function initSwipeGesture() {
+    var EDGE_ZONE   = 24;   // px depuis le bord gauche pour démarrer le swipe
+    var MIN_DIST    = 60;   // distance min pour déclencher l'ouverture
+    var MAX_VERT    = 80;   // déviation verticale max (évite scroll vertical)
+    var VELOCITY    = 0.3;  // px/ms minimum pour déclencher
+
+    var startX, startY, startTime, dragging = false;
+    var nav = null;
+    var overlay = null;
+
+    function getSb() {
+      nav     = document.querySelector('nav.sb');
+      overlay = document.querySelector('.sb-overlay');
+    }
+
+    function isOpen() { return document.body.classList.contains('nav-open'); }
+
+    function setDragging(val) {
+      document.body.classList.toggle('sb-dragging', val);
+      dragging = val;
+    }
+
+    function applyTranslate(x) {
+      if (!nav) return;
+      var w   = nav.offsetWidth;
+      var clamped = Math.max(-w, Math.min(0, x - w));
+      nav.style.transform = 'translateX(' + clamped + 'px)';
+      var pct = (clamped + w) / w;
+      if (overlay) {
+        overlay.style.visibility = 'visible';
+        overlay.style.opacity    = String(Math.min(pct * 0.6, 0.6));
+        overlay.style.pointerEvents = 'auto';
+      }
+    }
+
+    function clearTranslate() {
+      if (!nav) return;
+      nav.style.transform = '';
+      if (overlay) {
+        overlay.style.visibility = '';
+        overlay.style.opacity    = '';
+        overlay.style.pointerEvents = '';
+      }
+    }
+
+    document.addEventListener('touchstart', function(e) {
+      if (e.touches.length !== 1) return;
+      var t = e.touches[0];
+      // Pour ouvrir : commencer dans la zone bord gauche quand fermé
+      // Pour fermer : commencer n'importe où quand ouvert
+      if (!isOpen() && t.clientX > EDGE_ZONE) return;
+      getSb();
+      startX    = t.clientX;
+      startY    = t.clientY;
+      startTime = Date.now();
+      setDragging(true);
+    }, { passive: true });
+
+    document.addEventListener('touchmove', function(e) {
+      if (!dragging) return;
+      var t    = e.touches[0];
+      var dx   = t.clientX - startX;
+      var dy   = Math.abs(t.clientY - startY);
+
+      // Si trop de déviation verticale → annuler
+      if (dy > MAX_VERT) { setDragging(false); clearTranslate(); return; }
+
+      // Empêcher le scroll si on gère le swipe
+      if (Math.abs(dx) > 8) e.preventDefault();
+
+      if (!isOpen()) {
+        // Ouverture : on suit le doigt de gauche à droite
+        if (dx < 0) return;
+        var w = nav ? nav.offsetWidth : 280;
+        applyTranslate(dx - w + startX);
+      } else {
+        // Fermeture : on suit le doigt de droite à gauche
+        if (dx > 0) return;
+        applyTranslate(dx);
+      }
+    }, { passive: false });
+
+    document.addEventListener('touchend', function(e) {
+      if (!dragging) return;
+      setDragging(false);
+
+      var t  = e.changedTouches[0];
+      var dx = t.clientX - startX;
+      var dt = Date.now() - startTime;
+      var velocity = Math.abs(dx) / dt;
+
+      clearTranslate();
+
+      if (!isOpen()) {
+        // Ouvrir si distance ou vélocité suffisante vers la droite
+        if (dx > MIN_DIST || velocity > VELOCITY) {
+          document.body.classList.add('nav-open');
+        }
+      } else {
+        // Fermer si swipe vers la gauche
+        if (dx < -MIN_DIST || velocity > VELOCITY) {
+          document.body.classList.remove('nav-open');
+          document.body.classList.remove('nav-locked');
+        }
+      }
+    }, { passive: true });
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', inject);
+    document.addEventListener('DOMContentLoaded', function() {
+      inject();
+      initSwipeGesture();
+    });
   } else {
     inject();
+    initSwipeGesture();
   }
 })();
