@@ -102,6 +102,28 @@
     el.hidden = false;
   }
 
+  function formatSleepHero(hours) {
+    const value = Number(hours) || 0;
+    if (value <= 0) return getLang() === "fr" ? "Sommeil --" : "Slept --";
+    const h = Math.floor(value);
+    const m = Math.round((value - h) * 60);
+    return getLang() === "fr" ? `Sommeil ${h}h ${m}m` : `Slept ${h}h ${m}m`;
+  }
+
+  function renderHeroSummary(parts) {
+    const el = $("homeHeroSummary");
+    if (!el) return;
+    const fr = getLang() === "fr";
+    el.textContent = [
+      `${fr ? "Habitudes" : "Habits"} ${parts.habitsDone || 0}/${parts.habitsTotal || 0}`,
+      formatSleepHero(parts.sleepHours),
+      `${fr ? "Humeur" : "Mood"} ${parts.moodScore ? `${parts.moodScore}/10` : "--"}`,
+      parts.budgetText || "Budget --",
+      `Focus ${parts.focusSessions || 0}/${parts.focusGoal || 3}`,
+      `${fr ? "Planifiés" : "Planned"} ${parts.planned || 0}`,
+    ].join("   ");
+  }
+
   function readPlannerItems() {
     try {
       const raw = localStorage.getItem(PLANNER_KEY);
@@ -347,6 +369,7 @@
     setWeeklyRing("wkBudgetFill", 0, WK_BUDGET_CIRC);
     setWeeklyRing("wkSleepFill", 0, WK_SLEEP_CIRC);
     setWeeklySummaryStats({ habitsPct: null, budgetPct: null, sleepAvg: null, moodAvg: null });
+    renderHeroSummary({});
   }
 
   function renderFromDashboard(data) {
@@ -357,6 +380,11 @@
     const weekly = data?.weekly || {};
     const planner = getPlannerSummary();
     const focus = getFocusSummary();
+    const budgetText = budget.monthGoal > 0
+      ? `${formatCurrency(budget.expenseTotal || 0, budget.lastEntry?.currency || "CAD")} / ${formatCurrency(budget.monthGoal, budget.lastEntry?.currency || "CAD")}`
+      : budget.hasData
+        ? `${formatCurrency(budget.expenseTotal || 0, budget.lastEntry?.currency || "CAD")}`
+        : "Budget --";
 
     setMetricHtml(
       "habitsMetric",
@@ -509,6 +537,16 @@
       budgetPct: weekly.budgetPct ?? null,
       sleepAvg: weekly.sleepAvg ?? null,
       moodAvg: weekly.moodAvg ?? null,
+    });
+    renderHeroSummary({
+      habitsDone: habits.doneToday || 0,
+      habitsTotal: habits.totalActive || 0,
+      sleepHours: lastSleepHours,
+      moodScore: score,
+      budgetText,
+      focusSessions,
+      focusGoal: 3,
+      planned: planner.open || 0,
     });
   }
 

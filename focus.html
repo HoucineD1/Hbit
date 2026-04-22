@@ -33,6 +33,7 @@
   <script defer src="js/core/db.js"></script>
   <script defer src="js/core/core.js"></script>
   <script defer src="js/core/nav.js"></script>
+  <script defer src="js/core/confetti.js"></script>
 
   <!-- Page -->
   <script defer src="js/pages/focus.js"></script>
@@ -57,13 +58,6 @@
       <span class="fc-header-sub" id="fcPhaseLabel">Ready to Focus</span>
     </div>
     <div class="fc-header-right">
-      <button class="fc-icon-btn" id="fcHelpBtn" type="button" data-i18n-aria-label="focus.help.title">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="10"/>
-          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-          <line x1="12" y1="17" x2="12.01" y2="17"/>
-        </svg>
-      </button>
       <button class="fc-icon-btn" id="fcSoundToggle" type="button" aria-pressed="true" aria-label="Timer sounds on">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
       </button>
@@ -76,6 +70,7 @@
   <main class="fc-main" id="main-content">
     <div class="fc-tabs" role="tablist" aria-label="Focus sections">
       <button id="fcTabTimer" class="fc-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="fcPanelTimer" data-i18n="focus.tab.timer">Timer</button>
+      <button id="fcTabBreathe" class="fc-tab" type="button" role="tab" aria-selected="false" aria-controls="fcPanelBreathe" data-i18n="focus.tab.breathe">Breathe</button>
       <button id="fcTabSessions" class="fc-tab" type="button" role="tab" aria-selected="false" aria-controls="fcPanelSessions" data-i18n="focus.tab.sessions">Sessions</button>
     </div>
 
@@ -175,6 +170,26 @@
       </div>
     </section>
 
+    <section id="fcPanelBreathe" class="fc-panel" role="tabpanel" aria-labelledby="fcTabBreathe" hidden>
+      <div class="fc-breathe-grid" aria-label="Breathing exercises">
+        <button type="button" class="fc-breathe-card" data-breathe-preset="box" aria-label="Start Box 4-4-4-4 breathing">
+          <span class="fc-breathe-card-kicker" data-i18n="focus.breathe.calm">Calm</span>
+          <strong data-i18n="focus.breathe.box.title">Box 4-4-4-4</strong>
+          <span data-i18n="focus.breathe.box.desc">2 min total</span>
+        </button>
+        <button type="button" class="fc-breathe-card" data-breathe-preset="478" aria-label="Start 4-7-8 breathing">
+          <span class="fc-breathe-card-kicker" data-i18n="focus.breathe.sleep">Sleep</span>
+          <strong data-i18n="focus.breathe.478.title">4-7-8</strong>
+          <span data-i18n="focus.breathe.478.desc">3 min total</span>
+        </button>
+        <button type="button" class="fc-breathe-card" data-breathe-preset="coherent" aria-label="Start coherent breathing">
+          <span class="fc-breathe-card-kicker" data-i18n="focus.breathe.focus">Focus</span>
+          <strong data-i18n="focus.breathe.coherent.title">Coherent 6-6</strong>
+          <span data-i18n="focus.breathe.coherent.desc">3 min total</span>
+        </button>
+      </div>
+    </section>
+
     <section id="fcPanelSessions" class="fc-panel" role="tabpanel" aria-labelledby="fcTabSessions" hidden>
       <div class="fc-sess-stats" id="fcSessStats">
         <article class="fc-sess-stat"><div class="fc-sess-stat-val" id="fcStatTotalSessions">0</div><div class="fc-sess-stat-lbl" data-i18n="focus.sessions.totalToday">Sessions today</div></article>
@@ -257,6 +272,28 @@
         <li data-i18n="focus.help.step3">Sounds</li>
       </ol>
       <p class="hbit-help-footer" data-i18n="focus.help.footer">Stats</p>
+    </div>
+  </div>
+
+  <div class="fc-breath-overlay" id="fcBreathOverlay" aria-hidden="true">
+    <div class="fc-breath-inner" role="dialog" aria-modal="true" aria-labelledby="fcBreathTitle">
+      <button type="button" class="fc-breath-close" id="fcBreathClose" aria-label="Close">x</button>
+      <p class="fc-breath-kicker" id="fcBreathTitle" data-i18n="focus.tab.breathe">Breathe</p>
+      <div class="fc-breath-visual" aria-hidden="true">
+        <div class="fc-breath-circle" id="fcBreathCircle"></div>
+      </div>
+      <div class="fc-breath-label" id="fcBreathLabel">Inhale</div>
+      <div class="fc-breath-secs" id="fcBreathSecs">4 sec</div>
+      <div class="fc-breath-progress"><span id="fcBreathProgressBar"></span></div>
+      <div class="fc-breath-remaining" id="fcBreathRemaining"></div>
+      <button type="button" class="fc-breath-end" id="fcBreathEnd" data-i18n="focus.breathe.endEarly">End early</button>
+    </div>
+  </div>
+
+  <div class="fc-focus-pop" id="fcFocusPop" aria-hidden="true">
+    <div class="fc-focus-pop-card" role="dialog" aria-modal="true" aria-labelledby="fcFocusPopTitle">
+      <h2 id="fcFocusPopTitle" data-i18n="focus.greatFocus">Great focus!</h2>
+      <button type="button" class="fc-focus-pop-skip" id="fcFocusPopSkip" data-i18n="common.skip">Skip</button>
     </div>
   </div>
 

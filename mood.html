@@ -51,17 +51,9 @@
 
   <header class="md-header">
     <div class="md-hdr-left">
-      <span class="md-hdr-date" id="moodDate">â€”</span>
       <h1 class="md-hdr-title" data-i18n="mood.title">State of Mind</h1>
     </div>
     <div class="md-hdr-right">
-      <button class="md-hdr-btn" id="mdHelpBtn" type="button" data-i18n-aria-label="mood.help.title">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="10"/>
-          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-          <line x1="12" y1="17" x2="12.01" y2="17"/>
-        </svg>
-      </button>
       <button class="md-hdr-btn" id="langToggle" type="button" aria-label="Switch language">
         <span id="langLabel">FR</span>
       </button>
@@ -103,19 +95,14 @@
         <div class="md-heatmap-body">
           <div class="md-heatmap-days" aria-hidden="true">
             <span data-i18n="common.mon">Mon</span>
+            <span data-i18n="common.tue">Tue</span>
             <span data-i18n="common.wed">Wed</span>
+            <span data-i18n="common.thu">Thu</span>
             <span data-i18n="common.fri">Fri</span>
+            <span data-i18n="common.sat">Sat</span>
+            <span data-i18n="common.sun">Sun</span>
           </div>
           <div class="md-heatmap-grid md-heatmap-grid--month" id="mdMoodHeatmap" role="grid" data-i18n-aria-label="mood.heatmap.aria"></div>
-        </div>
-        <div class="md-heatmap-legend" aria-hidden="true">
-          <span data-i18n="mood.band.1">Very unpleasant</span>
-          <i class="md-legend-dot md-legend-dot--1"></i>
-          <i class="md-legend-dot md-legend-dot--2"></i>
-          <i class="md-legend-dot md-legend-dot--3"></i>
-          <i class="md-legend-dot md-legend-dot--4"></i>
-          <i class="md-legend-dot md-legend-dot--5"></i>
-          <span data-i18n="mood.band.5">Very pleasant</span>
         </div>
       </div>
     </section>
@@ -302,20 +289,21 @@
       <div class="md-wizard-body">
         <div class="md-wizard-main">
           <div class="md-current-feel" id="mdWizardMoodLabel">Okay</div>
+          <div class="md-valence-rail" aria-label="Mood slider">
+            <input id="mdMoodSlider" class="md-mood-slider" type="range" min="1" max="5" step="1" value="3" />
+            <div class="md-valence-ends">
+              <span data-i18n="mood.band.1">Very unpleasant</span>
+              <span data-i18n="mood.band.5">Very pleasant</span>
+            </div>
+          </div>
           <p class="md-wizard-hint" data-i18n="mood.log.emotionPrompt">What emotions do you feel right now?</p>
           <div class="md-wizard-chips" id="mdWizardEmotionChips"></div>
           <label class="md-note-label" for="mdWizardNote" data-i18n="mood.note">Notes</label>
           <textarea class="md-note md-wizard-note" id="mdWizardNote" rows="3" data-i18n-placeholder="mood.notePlaceholder" placeholder="Anything else on your mind?"></textarea>
         </div>
-        <div class="md-valence-rail" aria-label="Mood slider">
-          <span data-i18n="mood.band.5">Very pleasant</span>
-          <input id="mdMoodSlider" class="md-mood-slider" type="range" min="1" max="5" step="1" value="3" />
-          <span data-i18n="mood.band.1">Very unpleasant</span>
-        </div>
       </div>
 
       <div class="md-wizard-foot">
-        <a class="md-focus-link" href="focus.html" data-i18n="mood.resources.focusCta">Open Focus</a>
         <button type="button" class="md-wizard-save" id="mdWizardSave" data-i18n="mood.saveAll">Save check-in</button>
       </div>
     </div>

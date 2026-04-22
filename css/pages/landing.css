@@ -2427,3 +2427,89 @@
     opacity: 1 !important;
   }
 }
+
+html[data-palette="prism"] #landingPage {
+  --ld-glass-bg: color-mix(in srgb, var(--panel) 84%, transparent);
+  --ld-glass-border: color-mix(in srgb, var(--border) 78%, transparent);
+  --ld-glass-shine: color-mix(in srgb, var(--text) 6%, transparent);
+  --ld-text: color-mix(in srgb, var(--text) 96%, transparent);
+  --ld-muted: color-mix(in srgb, var(--text-secondary) 88%, transparent);
+  --ld-subtle: color-mix(in srgb, var(--text-muted) 82%, transparent);
+  background: var(--bg);
+  color: var(--ld-text);
+}
+
+html[data-palette="prism"] #landingPage .ld-nav {
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+  border-bottom-color: var(--border);
+}
+
+html[data-palette="prism"] #landingPage .ld-nav-icon,
+html[data-palette="prism"] #landingPage .ld-nav-ghost,
+html[data-palette="prism"] #landingPage .ld-cta-secondary {
+  color: var(--text-secondary);
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--panel2) 78%, transparent);
+}
+
+html[data-palette="prism"] #landingPage .ld-nav-icon:hover,
+html[data-palette="prism"] #landingPage .ld-nav-ghost:hover,
+html[data-palette="prism"] #landingPage .ld-cta-secondary:hover {
+  color: var(--text);
+  background: var(--panel2);
+}
+
+html[data-palette="prism"] #landingPage .ld-logo-mark,
+html[data-palette="prism"] #landingPage .ld-nav-solid,
+html[data-palette="prism"] #landingPage .ld-cta-primary {
+  color: var(--panel);
+}
+
+html[data-palette="prism"] #landingPage .ld-hero,
+html[data-palette="prism"] #landingPage .ld-hero-left,
+html[data-palette="prism"] #landingPage .ld-h1,
+html[data-palette="prism"] #landingPage .ld-sub,
+html[data-palette="prism"] #landingPage .ld-preview-deck {
+  color: var(--ld-text);
+}
+
+html[data-palette="prism"] #landingPage .ld-eyebrow,
+html[data-palette="prism"] #landingPage .ld-chip-nav,
+html[data-palette="prism"] #landingPage .ld-preview-deck,
+html[data-palette="prism"] #landingPage .ld-feat-card {
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--panel) 86%, transparent);
+}
+
+html[data-palette="prism"] #landingPage .ld-features,
+html[data-palette="prism"] #landingPage .ld-how,
+html[data-palette="prism"] #landingPage .ld-footer,
+html[data-palette="prism"] #landingPage .ld-reveal-statement,
+html[data-palette="prism"] #landingPage .ld-section-break {
+  background: var(--bg);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+html[data-palette="prism"] #landingPage .ld-grid-overlay {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--text) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--text) 5%, transparent) 1px, transparent 1px);
+}
+
+@media (max-width: 479px) {
+  #landingPage .ld-hero {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 42px 18px 56px;
+  }
+
+  #landingPage .ld-h1 {
+    font-size: clamp(38px, 15vw, 56px);
+    line-height: 0.96;
+  }
+
+  #landingPage .ld-sub {
+    font-size: 16px;
+  }
+}

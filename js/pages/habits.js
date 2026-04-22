@@ -186,10 +186,135 @@
     ],
   };
 
+  /* ══════════════════════════════════════════════════════════
+     INTENT-AWARE SUGGESTIONS
+     Curated from competitor research (Habitica, Finch, Fabulous…)
+     Realistic, relatable, bilingual. Show 10 initially + "more".
+     ══════════════════════════════════════════════════════════ */
+  const SUGGESTIONS_BY_INTENT = {
+    start: {
+      en: [
+        "Drink 2L water daily", "Walk 20 minutes", "Morning stretch 5 min",
+        "Meditate 5 min", "Read 15 min", "Journal 3 things",
+        "Healthy breakfast", "Plan tomorrow before bed", "Call a friend weekly",
+        "Learn something new 15 min",
+        // more
+        "Take daily vitamins", "Practice gratitude", "Cook at home",
+        "Morning workout 20 min", "Track one expense", "Single-task today",
+        "Floss teeth", "Breathing exercise 2 min", "Evening walk",
+        "Write 200 words",
+      ],
+      fr: [
+        "Boire 2 L d'eau par jour", "Marcher 20 minutes", "Étirements du matin 5 min",
+        "Méditer 5 min", "Lire 15 min", "Noter 3 gratitudes",
+        "Petit-déjeuner sain", "Planifier demain avant de dormir", "Appeler un ami chaque semaine",
+        "Apprendre 15 min par jour",
+        // more
+        "Prendre des vitamines", "Pratiquer la gratitude", "Cuisiner maison",
+        "Sport du matin 20 min", "Noter une dépense", "Une tâche à la fois",
+        "Se filer les dents", "Respiration 2 min", "Marche du soir",
+        "Écrire 200 mots",
+      ],
+    },
+    maintain: {
+      en: [
+        "Sleep 7–9 hours", "Consistent bedtime", "Brush teeth twice daily",
+        "Stay hydrated", "Balanced meals", "Weekly exercise routine",
+        "Check in with family", "Review weekly budget", "Keep workspace tidy",
+        "Take medication on time",
+        // more
+        "Morning routine", "Evening wind-down", "Weekly meal prep",
+        "Back up important files", "Weekly reflection", "Respect lunch break",
+        "Posture check", "Review to-do list daily", "Stay in contact with close friends",
+        "Daily skincare",
+      ],
+      fr: [
+        "Dormir 7 à 9 heures", "Heure de coucher régulière", "Brosser les dents 2 fois par jour",
+        "Rester hydraté", "Repas équilibrés", "Routine sportive hebdo",
+        "Prendre des nouvelles de la famille", "Revue budget hebdo", "Bureau en ordre",
+        "Prendre ses médicaments à l'heure",
+        // more
+        "Routine matinale", "Rituel du soir", "Meal prep hebdo",
+        "Sauvegarder les fichiers", "Réflexion hebdo", "Respecter la pause dîner",
+        "Vérifier la posture", "Revoir la to-do chaque jour", "Rester proche des amis clés",
+        "Routine soin quotidienne",
+      ],
+    },
+    stop: {
+      en: [
+        "Doomscrolling at night", "Phone in first hour of day", "Late-night snacking",
+        "Sugary drinks daily", "Hitting snooze repeatedly", "Skipping meals",
+        "Comparing on social media", "Eating in front of a screen", "Impulse online shopping",
+        "Checking email after hours",
+        // more
+        "Smoking / vaping", "Binge-watching without limits", "Caffeine after 2 PM",
+        "Alcohol during the week", "Biting nails", "Negative self-talk",
+        "Gossiping", "Saying yes when you mean no", "Working through lunch",
+        "Checking phone during meals",
+      ],
+      fr: [
+        "Doomscroll le soir", "Téléphone la 1re heure", "Grignotage tardif",
+        "Boissons sucrées quotidiennes", "Appuyer sur snooze", "Sauter des repas",
+        "Comparaisons sur les réseaux", "Manger devant un écran", "Achats impulsifs en ligne",
+        "Vérifier ses e-mails hors travail",
+        // more
+        "Fumer / vapoter", "Binge-watch sans limite", "Café après 14 h",
+        "Alcool en semaine", "Se ronger les ongles", "Auto-critique négative",
+        "Ragots / potins", "Dire oui quand on pense non", "Travailler pendant le dîner",
+        "Téléphone pendant les repas",
+      ],
+    },
+  };
+  const SUGGESTIONS_INITIAL_COUNT = 10;
+
   function getLang() {
     try {
       return window.HBIT?.i18n?.getLang?.() === "fr" ? "fr" : "en";
     } catch (_) { return "en"; }
+  }
+
+  const MONTH_LABELS = {
+    en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    fr: ["Janv", "F\u00e9vr", "Mars", "Avr", "Mai", "Juin", "Juil", "Ao\u00fbt", "Sept", "Oct", "Nov", "D\u00e9c"],
+  };
+  const WEEKDAY_HEATMAP_LABELS = {
+    en: ["Mon", "Wed", "Fri"],
+    fr: ["Lun", "Mer", "Ven"],
+  };
+  const DETAIL_DAY_LABELS = {
+    en: ["M", "T", "W", "T", "F", "S", "S"],
+    fr: ["L", "M", "M", "J", "V", "S", "D"],
+  };
+
+  function currentLocale() {
+    return getLang() === "fr" ? "fr-CA" : "en-US";
+  }
+
+  function monthShortLabel(date) {
+    const labels = MONTH_LABELS[getLang()] || MONTH_LABELS.en;
+    return labels[date.getMonth()] || "";
+  }
+
+  function suggestionsForIntent(intent) {
+    const key = (intent === "quit") ? "stop" : (intent || "start");
+    return SUGGESTIONS_BY_INTENT[key] || SUGGESTIONS_BY_INTENT.start;
+  }
+
+  function suggestionsForSelection(intent, category, lang) {
+    if (category && PRESETS[category]) {
+      return PRESETS[category].map((value, index) => ({
+        value,
+        label: lang === "fr" && PRESETS_FR[category]?.[index] ? PRESETS_FR[category][index] : value,
+      }));
+    }
+    if (intent) {
+      const byIntent = suggestionsForIntent(intent);
+      return (byIntent[lang] || byIntent.en).map((value) => ({ value, label: value }));
+    }
+    return Object.entries(PRESETS)
+      .flatMap(([, v]) => v.slice(0, 2))
+      .slice(0, 16)
+      .map((value) => ({ value, label: lang === "fr" ? presetChipLabel(value) : value }));
   }
 
   function findCategoryForPreset(name) {
@@ -208,6 +333,20 @@
     if (!cat || !PRESETS[cat] || !PRESETS_FR[cat]) return raw;
     const idx = PRESETS[cat].indexOf(raw);
     return idx >= 0 ? PRESETS_FR[cat][idx] : raw;
+  }
+
+  function isQuitHabit(h) {
+    return h?.intent === "stop" || h?.intent === "quit";
+  }
+
+  function quitDayNumber(h) {
+    const raw = h?.startedAt || h?.createdAt;
+    const start = raw?.toDate ? raw.toDate() : raw ? new Date(raw) : new Date();
+    if (Number.isNaN(start.getTime())) return 1;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    start.setHours(0, 0, 0, 0);
+    return Math.max(1, Math.floor((today - start) / 86400000) + 1);
   }
 
   function presetChipLabel(enName) {
@@ -237,7 +376,7 @@
     activeFilter: "all",
     detailId: null,
     detailMonth: null,
-    wizard: { open: false, step: 0, data: {}, editId: null },
+    wizard: { open: false, step: 0, data: {}, editId: null, showAllPresets: false },
   };
   let db = null;
 
@@ -360,12 +499,24 @@
     const grid = $("hbHeatmapGrid");
     const monthsEl = $("hbHeatmapMonths");
     if (!grid) return;
+    const wrap = $("hbHeatmapWrap");
+    const weekdayLabels = WEEKDAY_HEATMAP_LABELS[getLang()] || WEEKDAY_HEATMAP_LABELS.en;
+    if (wrap && !$("hbHeatmapWeekdays")) {
+      const labels = document.createElement("div");
+      labels.className = "hb-heatmap-weekdays";
+      labels.id = "hbHeatmapWeekdays";
+      labels.setAttribute("aria-hidden", "true");
+      labels.innerHTML = `<span></span><span>${weekdayLabels[0]}</span><span></span><span>${weekdayLabels[1]}</span><span></span><span>${weekdayLabels[2]}</span><span></span>`;
+      wrap.insertBefore(labels, grid);
+    } else if ($("hbHeatmapWeekdays")) {
+      $("hbHeatmapWeekdays").innerHTML = `<span></span><span>${weekdayLabels[0]}</span><span></span><span>${weekdayLabels[1]}</span><span></span><span>${weekdayLabels[2]}</span><span></span>`;
+    }
 
     if (!state.habitLogsHydrated) {
-      const totalWeeks = 16;
+      const totalWeeks = 26;
       const totalDays = totalWeeks * 7;
       grid.innerHTML = "";
-      grid.style.gridTemplateColumns = `repeat(${totalWeeks}, 1fr)`;
+      grid.style.gridTemplateColumns = `repeat(${totalWeeks}, var(--cell))`;
       grid.setAttribute("role", "img");
       grid.setAttribute("aria-label", t("habits.heatmap.aria", "Habit activity over the last {weeks} weeks. {days} active days.", { weeks: String(totalWeeks), days: "…" }));
       for (let i = 0; i < totalDays; i++) {
@@ -376,6 +527,7 @@
       }
       if (monthsEl) {
         monthsEl.innerHTML = "";
+        monthsEl.style.gridTemplateColumns = `repeat(${totalWeeks}, var(--cell))`;
         monthsEl.style.height = "14px";
       }
       return;
@@ -396,7 +548,7 @@
     startDay.setDate(today.getDate() - todayDow - (totalWeeks - 1) * 7);
 
     const cells = [];
-    const monthLabels = [];
+    const monthLabelMap = new Map();
     let lastMonth = -1;
     const totalDays = totalWeeks * 7;
 
@@ -408,9 +560,9 @@
       const level = count === 0 ? 0 : count <= 1 ? 1 : count <= 2 ? 2 : count <= 4 ? 3 : 4;
       const isFuture = d > today;
 
-      if (i % 7 === 0 && d.getMonth() !== lastMonth) {
-        const loc = getLang() === "fr" ? "fr-FR" : "en-US";
-        monthLabels.push({ col: Math.floor(i / 7), label: d.toLocaleString(loc, { month: "short" }) });
+      const col = Math.floor(i / 7);
+      if (i === 0 || d.getDate() === 1 || (i % 7 === 0 && d.getMonth() !== lastMonth)) {
+        monthLabelMap.set(col, monthShortLabel(d));
         lastMonth = d.getMonth();
       }
 
@@ -419,7 +571,7 @@
 
     const activeDays = cells.filter(c => !c.isFuture && c.count > 0).length;
     grid.innerHTML = "";
-    grid.style.gridTemplateColumns = `repeat(${totalWeeks}, 1fr)`;
+    grid.style.gridTemplateColumns = `repeat(${totalWeeks}, var(--cell))`;
     grid.setAttribute("role", "img");
     grid.setAttribute(
       "aria-label",
@@ -440,17 +592,19 @@
     });
 
     if (monthsEl) {
-      const colWidth = grid.offsetWidth / totalWeeks;
+      const monthLabels = Array.from(monthLabelMap.entries())
+        .map(([col, label]) => ({ col, label }))
+        .sort((a, b) => a.col - b.col);
       monthsEl.innerHTML = "";
       monthLabels.forEach((m, i) => {
         const span = document.createElement("span");
         span.textContent = m.label;
-        const leftPx = m.col * colWidth;
-        span.style.position = "absolute";
-        span.style.left = leftPx + "px";
+        const nextCol = monthLabels[i + 1]?.col ?? totalWeeks;
+        span.style.gridColumn = `${m.col + 1} / span ${Math.max(1, nextCol - m.col)}`;
         monthsEl.appendChild(span);
       });
-      monthsEl.style.position = "relative";
+      monthsEl.style.display = "grid";
+      monthsEl.style.gridTemplateColumns = `repeat(${totalWeeks}, var(--cell))`;
       monthsEl.style.height = "14px";
     }
   }
@@ -547,6 +701,8 @@
     const pctRound = Math.round(pct * 100);
     const offset = (RING_CIRC * (1 - pct)).toFixed(2);
     const streak = computeStreak(h.id);
+    const quitHabit = isQuitHabit(h);
+    const displayName = habitDisplayName(h);
     const weekDots = getWeekDots(h.id);
     const isPaused = !!h.paused;
     const catIcon = CAT_ICON_MAP[h.category] || "";
@@ -567,7 +723,7 @@
     } else if (status === "done") {
       actionHtml = `<button class="hb-card-action-btn done-state" data-action="done" data-id="${h.id}" type="button">${t("habits.card.undo", "Undo")}</button>`;
     } else {
-      actionHtml = `<button class="hb-card-action-btn primary" data-action="${status === "start" ? "done" : "done"}" data-id="${h.id}" type="button">${status === "start" ? t("habits.card.markDone", "Mark done") : t("habits.card.done", "Done")}</button>`;
+      actionHtml = `<button class="hb-card-action-btn primary" data-action="${status === "start" ? "done" : "done"}" data-id="${h.id}" type="button">${quitHabit ? t("habits.stayedStrong", "Stayed strong") : status === "start" ? t("habits.card.markDone", "Mark done") : t("habits.card.done", "Done")}</button>`;
     }
 
     const card = document.createElement("div");
@@ -580,7 +736,7 @@
       <div class="hb-card-inner">
         <div class="hb-card-head">
           <div class="hb-card-cat-icon">${catIcon}</div>
-          <div class="hb-card-name">${esc(habitDisplayName(h))}</div>
+          <div class="hb-card-name">${esc(displayName)}</div>
           <span class="hb-card-status-dot ${dotClass}"></span>
         </div>
         <div class="hb-card-ring">
@@ -596,8 +752,9 @@
         </div>
         <div class="hb-card-streak">
           <span class="hb-streak-flame">\u{1F525}</span>
-          <span class="hb-streak-num">${streak.current}</span>
-          <span>${t("habits.streak.days", "days")}</span>
+          ${quitHabit
+            ? `<span>${esc(t("habits.dayWithout", "Day {n} without {name}", { n: String(quitDayNumber(h)), name: displayName }))}</span>`
+            : `<span class="hb-streak-num">${streak.current}</span><span>${t("habits.streak.days", "days")}</span>`}
           ${streak.best > 0 ? `<span class="hb-streak-best">(${t("habits.streak.best", "best")} ${streak.best})</span>` : ""}
         </div>
         <div class="hb-card-week">${weekHtml}</div>
@@ -727,6 +884,12 @@
         cardEl.addEventListener("animationend", () => cardEl.classList.remove("hb-card--done-pulse"), { once: true });
       }
       void maybeStreakMilestone(habitId);
+      const h = state.habits.find(x => x.id === habitId);
+      if (isQuitHabit(h)) {
+        window.HBIT?.toast?.success?.(t("habits.anotherDayWithout", "Another day without {name}", {
+          name: habitDisplayName(h),
+        }));
+      }
     }
     window.dispatchEvent(new Event("hbit:data-changed"));
   }
@@ -904,8 +1067,8 @@
       logsMap[l.dateKey] = l.status;
     });
 
-    const dayLabels = ["M", "T", "W", "T", "F", "S", "S"];
-    const monthName = firstDay.toLocaleString("default", { month: "long", year: "numeric" });
+    const dayLabels = DETAIL_DAY_LABELS[getLang()] || DETAIL_DAY_LABELS.en;
+    const monthName = firstDay.toLocaleString(currentLocale(), { month: "long", year: "numeric" });
 
     let cellsHtml = dayLabels.map(d => `<div class="hb-det-cal-day-label">${d}</div>`).join("");
     for (let i = 0; i < startDow; i++) {
@@ -953,6 +1116,7 @@
   function openWizard(editHabit) {
     state.wizard.step = 0;
     state.wizard.editId = editHabit?.id || null;
+    state.wizard.showAllPresets = false;
 
     if (editHabit) {
       state.wizard.data = {
@@ -1030,6 +1194,7 @@
     qsa(".wz-intent-card", s).forEach(btn => {
       btn.addEventListener("click", () => {
         state.wizard.data.intent = btn.dataset.intent;
+        state.wizard.showAllPresets = false;
         qsa(".wz-intent-card", s).forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
       });
@@ -1059,7 +1224,14 @@
     </div>`;
     qsa(".wz-cat-card", s).forEach(btn => {
       btn.addEventListener("click", () => {
+        const changed = state.wizard.data.category !== btn.dataset.cat;
         state.wizard.data.category = btn.dataset.cat;
+        if (changed) {
+          state.wizard.showAllPresets = false;
+          state.wizard.data.name = "";
+          const ci = $("wzCustomName");
+          if (ci) ci.value = "";
+        }
         qsa(".wz-cat-card", s).forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
         refreshPresetChips();
@@ -1092,12 +1264,33 @@
   function refreshPresetChips() {
     const wrap = $("wzPresetChips");
     if (!wrap) return;
+
+    const intent = state.wizard.data.intent;
     const cat = state.wizard.data.category;
-    const list = (cat && PRESETS[cat]) ? PRESETS[cat] : Object.entries(PRESETS).flatMap(([, v]) => v.slice(0, 2)).slice(0, 16);
-    wrap.innerHTML = list.map(name => {
-      const a = state.wizard.data.name === name ? " active" : "";
-      return `<button class="wz-chip${a}" data-preset="${esc(name)}" type="button">${esc(presetChipLabel(name))}</button>`;
+    const lang = getLang();
+
+    /* Category is the strongest signal. If someone picks Fitness, do not offer sleep habits. */
+    const list = suggestionsForSelection(intent, cat, lang);
+
+    const showAll = !!state.wizard.showAllPresets;
+    const visible = showAll ? list : list.slice(0, SUGGESTIONS_INITIAL_COUNT);
+    const hasMore = list.length > SUGGESTIONS_INITIAL_COUNT;
+
+    const chipsHtml = visible.map(item => {
+      const a = state.wizard.data.name === item.value ? " active" : "";
+      return `<button class="wz-chip${a}" data-preset="${esc(item.value)}" type="button">${esc(item.label)}</button>`;
     }).join("");
+
+    const moreHtml = hasMore
+      ? `<button class="wz-show-more" id="wzShowMore" type="button">${
+          showAll
+            ? t("habits.wz.showLess", "Show less")
+            : t("habits.wz.showMore", "Show more")
+        }</button>`
+      : "";
+
+    wrap.innerHTML = chipsHtml + moreHtml;
+
     qsa(".wz-chip", wrap).forEach(btn => {
       btn.addEventListener("click", () => {
         state.wizard.data.name = btn.dataset.preset;
@@ -1107,6 +1300,14 @@
         btn.classList.add("active");
       });
     });
+
+    const moreBtn = $("wzShowMore");
+    if (moreBtn) {
+      moreBtn.addEventListener("click", () => {
+        state.wizard.showAllPresets = !state.wizard.showAllPresets;
+        refreshPresetChips();
+      });
+    }
   }
 
   function buildStep4() {
@@ -1544,14 +1745,14 @@
     const el = $("hbDate");
     if (!el) return;
     const d = new Date();
-    el.textContent = d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }).toUpperCase();
+    el.textContent = d.toLocaleDateString(currentLocale(), { weekday: "short", month: "short", day: "numeric" }).toUpperCase();
   }
 
   /* ══════════════════════════════════════════════════════════
      EVENT BINDING
      ══════════════════════════════════════════════════════════ */
   function bindEvents() {
-    [$("btnNewHabit"), $("btnEmptyNew")].forEach(btn => {
+    [$("btnNewHabit"), $("btnNewHabitDesktop"), $("btnEmptyNew")].forEach(btn => {
       btn?.addEventListener("click", () => openWizard());
     });
 

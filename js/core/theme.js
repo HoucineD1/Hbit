@@ -5,9 +5,16 @@
 (function () {
   const HBIT = (window.HBIT = window.HBIT || {});
 
-  const VALID = ["midnight", "obsidian", "ivory", "arctic"];
+  const VALID = ["midnight", "obsidian", "sage", "arctic"];
   const KEY = "hbit:palette";
   const LEGACY_KEY = HBIT.storage?.LS?.theme || "hbit:theme";
+  const LEGACY_MAP = {
+    dark:    "midnight",
+    light:   "arctic",
+    terra:   "obsidian",
+    prism:   "arctic",
+    aurora:  "obsidian",
+  };
 
   function read(key) {
     try { return localStorage.getItem(key); } catch { return null; }
@@ -18,30 +25,38 @@
   }
 
   function normalize(name) {
-    if (VALID.includes(name)) return name;
-    if (name === "light") return "arctic";
-    if (name === "dark") return "midnight";
-    return "midnight";
+    const value = String(name || "").toLowerCase();
+    if (VALID.includes(value)) return value;
+    return LEGACY_MAP[value] || "midnight";
+  }
+
+  function isLightPalette(palette) {
+    return palette === "sage" || palette === "arctic";
   }
 
   function savedPalette() {
     const saved = read(KEY);
     if (VALID.includes(saved)) return saved;
+    if (saved) write(KEY, "midnight");
 
     const legacy = read(LEGACY_KEY);
-    if (legacy === "light") return "arctic";
-    if (legacy === "dark") return "midnight";
+    if (legacy && LEGACY_MAP[legacy]) return LEGACY_MAP[legacy];
     return "midnight";
   }
 
   function labelFor(name) {
-    const key = `palette.${name}`;
-    return HBIT.i18n?.t ? HBIT.i18n.t(key) : name.charAt(0).toUpperCase() + name.slice(1);
+    const key = `theme.${name}`;
+    const fallbackKey = `palette.${name}`;
+    const fallback = name.charAt(0).toUpperCase() + name.slice(1);
+    if (!HBIT.i18n?.t) return fallback;
+    return HBIT.i18n.t(key, HBIT.i18n.t(fallbackKey, fallback));
   }
 
   function syncPickerUI(palette) {
     document.querySelectorAll(".palette-chip").forEach((el) => {
-      el.setAttribute("aria-checked", el.dataset.palette === palette ? "true" : "false");
+      const checked = el.dataset.palette === palette;
+      el.setAttribute("aria-checked", checked ? "true" : "false");
+      el.classList.toggle("is-active", checked);
     });
 
     document.querySelectorAll("[data-palette-label]").forEach((el) => {
@@ -61,33 +76,39 @@
 
   function applyPalette(name, options = {}) {
     const palette = normalize(name);
-    const isLight = palette === "ivory" || palette === "arctic";
+    const mode = isLightPalette(palette) ? "light" : "dark";
 
     document.documentElement.setAttribute("data-palette", palette);
-    document.documentElement.setAttribute("data-theme", isLight ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", mode);
 
     if (!options.skipStorage) {
       write(KEY, palette);
-      write(LEGACY_KEY, isLight ? "light" : "dark");
+      write(LEGACY_KEY, mode);
     }
 
     syncPickerUI(palette);
     if (!options.skipRemote) syncProfile(palette);
 
     window.dispatchEvent(new CustomEvent("hbit:palette-changed", { detail: { palette } }));
-    window.dispatchEvent(new CustomEvent("hbit:theme-changed", { detail: { mode: isLight ? "light" : "dark", palette } }));
+    window.dispatchEvent(new CustomEvent("hbit:theme-changed", { detail: { mode, palette } }));
+    return palette;
   }
 
   function apply() {
-    applyPalette(savedPalette(), { skipRemote: true });
+    return applyPalette(savedPalette(), { skipRemote: true });
+  }
+
+  function current() {
+    return normalize(document.documentElement.getAttribute("data-palette") || savedPalette());
   }
 
   function cycle() {
-    const current = document.documentElement.getAttribute("data-palette") || savedPalette();
-    const next = VALID[(VALID.indexOf(normalize(current)) + 1) % VALID.length];
+    const active = current();
+    const next = VALID[(VALID.indexOf(active) + 1) % VALID.length];
     applyPalette(next);
     HBIT.i18n?.apply?.(document);
     HBIT.i18n?.updateToggle?.();
+    return next;
   }
 
   function bind() {
@@ -112,14 +133,16 @@
   HBIT.palette = {
     valid: VALID.slice(),
     apply: applyPalette,
-    get: () => document.documentElement.getAttribute("data-palette") || savedPalette(),
+    get: current,
   };
 
   HBIT.theme = {
     apply,
+    set: applyPalette,
+    current,
     cycle,
     bind,
-    getMode: () => document.documentElement.getAttribute("data-palette") || savedPalette(),
+    getMode: () => (isLightPalette(current()) ? "light" : "dark"),
   };
 
   apply();

@@ -7,26 +7,49 @@
 :root {
   --sb-w: 256px;
   --sb-w-mobile: min(300px, 85vw);
-  --sb-bg: rgba(9, 11, 17, 0.98);
-  --sb-border: rgba(255, 255, 255, 0.06);
-  --sb-text: rgba(255, 255, 255, 0.72);
-  --sb-text-muted: rgba(255, 255, 255, 0.38);
-  --sb-accent: rgba(255, 255, 255, 0.06);
+  /* Midnight (default) */
+  --sb-bg: #111111;
+  --sb-border: rgba(255, 255, 255, 0.07);
+  --sb-text: rgba(255, 255, 255, 0.85);
+  --sb-text-muted: rgba(255, 255, 255, 0.35);
+  --sb-accent: rgba(255, 255, 255, 0.05);
   --sb-accent-hover: rgba(255, 255, 255, 0.08);
-  --sb-accent-active: rgba(154, 28, 28, 0.14);
-  --sb-accent-active-border: rgba(154, 28, 28, 0.28);
-  --sb-ring: rgba(154, 28, 28, 0.5);
+  --sb-accent-active: rgba(232, 51, 74, 0.14);
+  --sb-accent-active-border: rgba(232, 51, 74, 0.28);
+  --sb-ring: rgba(232, 51, 74, 0.5);
 }
+
+/* Obsidian */
+html[data-palette="obsidian"] {
+  --sb-bg: #0d0d14;
+  --sb-border: rgba(255, 255, 255, 0.06);
+  --sb-text: rgba(245, 245, 255, 0.82);
+  --sb-text-muted: rgba(245, 245, 255, 0.30);
+  --sb-accent: rgba(255, 255, 255, 0.04);
+  --sb-accent-hover: rgba(255, 255, 255, 0.07);
+  --sb-accent-active: rgba(232, 51, 74, 0.14);
+  --sb-accent-active-border: rgba(232, 51, 74, 0.25);
+  --sb-ring: rgba(232, 51, 74, 0.45);
+}
+
+/* Sage + Arctic (light themes) */
+html[data-palette="sage"],
+html[data-palette="arctic"],
 html[data-theme="light"] {
-  --sb-bg: #f4f3f0;
+  --sb-bg: #ffffff;
   --sb-border: rgba(0, 0, 0, 0.07);
-  --sb-text: rgba(0, 0, 0, 0.72);
-  --sb-text-muted: rgba(0, 0, 0, 0.42);
-  --sb-accent: rgba(0, 0, 0, 0.045);
-  --sb-accent-hover: rgba(0, 0, 0, 0.075);
-  --sb-accent-active: rgba(154, 28, 28, 0.1);
-  --sb-accent-active-border: rgba(154, 28, 28, 0.2);
-  --sb-ring: rgba(154, 28, 28, 0.35);
+  --sb-text: rgba(0, 0, 0, 0.80);
+  --sb-text-muted: rgba(0, 0, 0, 0.38);
+  --sb-accent: rgba(0, 0, 0, 0.04);
+  --sb-accent-hover: rgba(0, 0, 0, 0.07);
+  --sb-accent-active: rgba(232, 51, 74, 0.09);
+  --sb-accent-active-border: rgba(232, 51, 74, 0.20);
+  --sb-ring: rgba(232, 51, 74, 0.35);
+}
+
+/* Sage sidebar a une teinte verte légère */
+html[data-palette="sage"] {
+  --sb-bg: #f4f8f3;
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -96,14 +119,14 @@ body.sb-dragging .sb-overlay {
 .sb-mark {
   width: 30px; height: 30px;
   border-radius: 8px;
-  background: linear-gradient(145deg, #d13a3c, #971718);
+  background: linear-gradient(145deg, #E8334A, #b81e31);
   color: #fff;
   font-weight: 800;
   font-size: 13px;
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(154, 28, 28, 0.35);
+  box-shadow: 0 2px 10px rgba(232, 51, 74, 0.40);
 }
 
 .sb-title {
@@ -248,10 +271,10 @@ html[data-theme="light"] .sb-item[aria-current="page"] {
   color: #1a1a1a;
 }
 .sb-item[aria-current="page"] .sb-item-icon {
-  color: #e05555;
+  color: #E8334A;
 }
 html[data-theme="light"] .sb-item[aria-current="page"] .sb-item-icon {
-  color: #c0392b;
+  color: #c42038;
 }
 
 /* ── Footer ── */

@@ -50,7 +50,8 @@
       "Bash(grep -h \"class=\\\\\".*header\\\\|class=\\\\\".*topbar\\\\|<header\" C:/Users/demxa/Desktop/Hbit/*.html)",
       "Bash(grep -n \"\\\\.bg-header\\\\|\\\\.hm-header\\\\|\\\\.fc-header\\\\|\\\\.sl-header\\\\|\\\\.md-header\\\\|\\\\.pl-header\\\\|\\\\.hb-header\" C:/Users/demxa/Desktop/Hbit/css/pages/*.css)",
       "Bash(grep -n \"au-topbar\\\\|wl-header\\\\|padding-left\" C:/Users/demxa/Desktop/Hbit/css/pages/*.css)",
-      "Bash(node -e \"require\\('fs'\\).readFileSync\\('c:/Users/demxa/Desktop/Hbit/js/pages/budget.js','utf8'\\);console.log\\('js ok'\\);require\\('fs'\\).readFileSync\\('c:/Users/demxa/Desktop/Hbit/css/pages/budget.css','utf8'\\);console.log\\('css ok'\\)\")"
+      "Bash(node -e \"require\\('fs'\\).readFileSync\\('c:/Users/demxa/Desktop/Hbit/js/pages/budget.js','utf8'\\);console.log\\('js ok'\\);require\\('fs'\\).readFileSync\\('c:/Users/demxa/Desktop/Hbit/css/pages/budget.css','utf8'\\);console.log\\('css ok'\\)\")",
+      "WebFetch(domain:habitica.fandom.com)"
     ]
   },
   "model": "claude-opus-4-7"

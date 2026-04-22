@@ -40,32 +40,25 @@
   position: sticky;
   top: 0;
   z-index: 30;
-  height: 64px;
+  height: 76px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px 0 56px;
+  padding: 0 20px 0 64px;
   background: color-mix(in srgb, var(--hm-bg, #07090e) 92%, transparent);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
-.md-hdr-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.md-hdr-date {
-  font-size: var(--font-size-xs, 12px);
-  font-weight: var(--font-weight-bold, 700);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--hm-muted, var(--muted, rgba(255, 255, 255, 0.48)));
-}
+.md-hdr-left { display: flex; align-items: center; min-width: 0; padding-left: 8px; }
 .md-hdr-title {
   font-family: var(--font-display, var(--font-body));
-  font-size: var(--font-size-xl, 20px);
+  font-size: 26px;
   font-weight: var(--font-weight-extrabold, 800);
-  letter-spacing: var(--tracking-tight, -0.02em);
+  letter-spacing: -0.4px;
   color: var(--hm-text);
   margin: 0;
-  line-height: var(--leading-tight, 1.25);
+  line-height: 1.1;
 }
 .md-hdr-right { display: flex; align-items: center; gap: 6px; }
 .md-hdr-btn, .md-avatar {
@@ -87,9 +80,7 @@
 /* ── Main + page tint ───────────────────────────────────── */
 .md-main {
   flex: 1;
-  padding: var(--space-6) 18px 120px;
-  max-width: 960px;
-  margin: 0 auto;
+  padding: 24px 24px 120px;
   transition: background-color 0.4s ease, box-shadow 0.4s ease;
 }
 .md-main.tinted {
@@ -110,15 +101,14 @@
 }
 
 .md-heatmap-stage {
-  max-width: 980px;
-  min-height: min(62vh, 620px);
-  margin: 0 auto 22px;
+  width: 100%;
+  margin-bottom: 22px;
   display: grid;
   place-items: center;
   gap: 20px;
 }
 .md-heatmap-copy {
-  width: min(100%, 680px);
+  width: 100%;
   text-align: center;
 }
 .md-heatmap-kicker {
@@ -180,43 +170,38 @@
 }
 .md-heatmap-body {
   display: grid;
-  grid-template-columns: 26px 1fr;
-  gap: 8px;
-  align-items: start;
+  grid-template-columns: 1fr;
+  gap: 10px;
 }
 .md-heatmap-days {
   display: grid;
-  grid-template-rows: repeat(7, 1fr);
-  min-height: 190px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
   color: var(--hm-muted);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
-  align-items: center;
+  text-align: center;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding-bottom: 2px;
 }
-.md-heatmap-days span:nth-child(1) { grid-row: 2; }
-.md-heatmap-days span:nth-child(2) { grid-row: 4; }
-.md-heatmap-days span:nth-child(3) { grid-row: 6; }
+.md-heatmap-days span { line-height: 1; }
 .md-heatmap-grid {
   display: grid;
-  grid-auto-flow: column;
-  grid-template-rows: repeat(7, minmax(18px, 1fr));
-  grid-auto-columns: minmax(18px, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 8px;
 }
 .md-heatmap-grid--month {
-  grid-auto-flow: row;
-  grid-template-columns: repeat(7, minmax(26px, 1fr));
-  grid-template-rows: none;
-  grid-auto-columns: initial;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 .md-heatmap-cell {
-  min-width: 18px;
+  width: 100%;
   aspect-ratio: 1;
-  border-radius: 7px;
-  border: 1px solid color-mix(in srgb, var(--hm-text) 18%, transparent);
-  background: color-mix(in srgb, var(--hm-text) 9%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bg) 48%, transparent);
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--hm-text) 14%, transparent);
+  background: color-mix(in srgb, var(--hm-text) 7%, transparent);
   transition: transform 0.16s ease, border-color 0.16s ease, background 0.2s ease;
+  cursor: pointer;
 }
 .md-heatmap-cell.is-empty {
   opacity: 0;
@@ -262,8 +247,8 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
 .md-legend-dot--5 { background: var(--md-band-5); }
 
 .md-resources {
-  max-width: 980px;
-  margin: 0 auto 22px;
+  width: 100%;
+  margin-bottom: 22px;
 }
 .md-resources-head {
   margin-bottom: 12px;
@@ -340,10 +325,8 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
   padding: 0 12px 12px;
 }
 
-#moodPage .md-col-left { display: none; }
 #moodPage .md-layout {
-  max-width: 980px;
-  margin: 0 auto;
+  width: 100%;
   display: block;
 }
 
@@ -381,11 +364,32 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
   display: grid;
   gap: 20px;
 }
-@media (min-width: 1025px) {
-  .md-layout {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+/* Mobile: left col hidden (FAB is entry point) */
+.md-col-left { display: none; }
+
+@media (min-width: 980px) {
+  .md-main {
+    padding: 28px 32px 60px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    grid-template-rows: auto auto 1fr;
+    column-gap: 28px;
     align-items: start;
   }
+  .md-leadin { grid-column: 1 / 3; }
+  .md-heatmap-stage { grid-column: 1; grid-row: 2 / 4; margin-bottom: 0; }
+  .md-heatmap-shell { width: 100%; }
+  .md-resources { display: none; }
+  #moodPage .md-layout {
+    grid-column: 2;
+    grid-row: 2 / 4;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .md-col-left { display: block; }
+  .md-col-right { display: block; }
+  .md-log-fab { display: none; }
 }
 
 /* ── Cards ──────────────────────────────────────────────── */
@@ -404,10 +408,10 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
   margin-bottom: 18px;
 }
 .md-card-label {
-  font-size: var(--card-title-size);
-  font-weight: var(--card-title-weight);
-  letter-spacing: var(--card-title-tracking);
-  color: var(--card-subtitle-color);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  color: var(--hm-text);
   margin: 0;
 }
 
@@ -1001,9 +1005,7 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
   flex-shrink: 0;
 }
 .md-wizard-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 120px;
-  gap: clamp(16px, 4vw, 34px);
+  display: block;
   padding: 12px 22px 20px;
   overflow-y: auto;
   max-height: calc(92vh - 178px);
@@ -1034,48 +1036,75 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
   gap: 8px;
 }
 .md-valence-rail {
-  min-height: 360px;
-  display: grid;
-  grid-template-rows: auto minmax(260px, 1fr) auto;
-  align-items: center;
-  justify-items: center;
-  gap: 12px;
-  padding: 14px 10px;
-  border-radius: 24px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px 14px;
+  border-radius: 20px;
   background: color-mix(in srgb, var(--hm-text) 5%, transparent);
   border: 1px solid color-mix(in srgb, var(--hm-text) 8%, transparent);
 }
-.md-valence-rail span {
+.md-valence-ends {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
   color: var(--hm-muted);
   font-size: 11px;
-  font-weight: 900;
-  text-align: center;
-  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 .md-mood-slider {
-  width: 36px;
-  height: 300px;
-  max-height: 100%;
-  accent-color: var(--md-color);
-  writing-mode: vertical-rl;
-  direction: rtl;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 32px;
+  background: transparent;
   cursor: pointer;
+  padding: 0;
+  margin: 0;
 }
+.md-mood-slider:focus { outline: none; }
 .md-mood-slider::-webkit-slider-runnable-track {
-  width: 10px;
-  height: 100%;
+  height: 10px;
   border-radius: 999px;
-  background: linear-gradient(180deg, var(--md-band-5), var(--md-band-4), var(--md-band-3), var(--md-band-2), var(--md-band-1));
+  background: linear-gradient(90deg, var(--md-band-1), var(--md-band-2), var(--md-band-3), var(--md-band-4), var(--md-band-5));
+  border: 1px solid color-mix(in srgb, var(--hm-text) 10%, transparent);
+}
+.md-mood-slider::-moz-range-track {
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--md-band-1), var(--md-band-2), var(--md-band-3), var(--md-band-4), var(--md-band-5));
+  border: 1px solid color-mix(in srgb, var(--hm-text) 10%, transparent);
 }
 .md-mood-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
   appearance: none;
-  width: 28px;
-  height: 28px;
-  margin-left: -9px;
+  width: 26px;
+  height: 26px;
+  margin-top: -9px;
   border-radius: 50%;
-  border: 4px solid var(--panel);
+  border: 3px solid var(--panel, #fff);
   background: var(--md-color);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--md-color) 24%, transparent);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--md-color) 42%, transparent),
+              0 0 0 3px color-mix(in srgb, var(--md-color) 22%, transparent);
+  cursor: grab;
+  transition: transform 0.12s ease;
+}
+.md-mood-slider::-webkit-slider-thumb:active { transform: scale(1.08); cursor: grabbing; }
+.md-mood-slider::-moz-range-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 3px solid var(--panel, #fff);
+  background: var(--md-color);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--md-color) 42%, transparent),
+              0 0 0 3px color-mix(in srgb, var(--md-color) 22%, transparent);
+  cursor: grab;
+}
+.md-mood-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--md-color) 40%, transparent);
 }
 .md-wizard-foot {
   display: flex;
@@ -1192,8 +1221,10 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
     border-radius: 20px;
   }
   .md-heatmap-body {
-    grid-template-columns: 24px 1fr;
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
+  .md-heatmap-days { font-size: 10px; gap: 6px; }
   .md-heatmap-grid {
     grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 6px;
@@ -1206,44 +1237,22 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
     min-height: 100dvh;
     border-radius: 0;
   }
-  .md-wizard-title { font-size: 28px; }
+  .md-wizard-title { font-size: 26px; }
   .md-wizard-body {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 78px;
+    display: block;
     max-height: calc(100dvh - 162px);
-    gap: 12px;
-  }
-  .md-valence-rail {
-    min-height: min(54dvh, 420px);
-    grid-template-rows: auto 1fr auto;
-    grid-template-columns: 1fr;
-    width: 100%;
-    padding: 10px 8px;
-  }
-  .md-mood-slider {
-    width: 34px;
-    height: 100%;
-    writing-mode: vertical-rl;
-    direction: rtl;
+    overflow-y: auto;
+    padding-inline: 18px;
   }
   .md-wizard-foot {
     flex-direction: column;
   }
-  .md-focus-link,
-  .md-wizard-save {
-    width: 100%;
-  }
+  .md-wizard-save { width: 100%; }
 }
 
 @media (max-width: 420px) {
   .md-wizard-head { padding-inline: 16px; }
-  .md-wizard-body {
-    grid-template-columns: minmax(0, 1fr) 66px;
-    padding-inline: 16px;
-  }
-  .md-valence-rail {
-    min-height: min(50dvh, 360px);
-  }
+  .md-wizard-body { padding-inline: 16px; }
   .md-wizard-chip {
     padding-inline: 10px;
     font-size: 12px;
@@ -1266,6 +1275,35 @@ html[data-theme="light"] #moodPage {
   --hm-text: rgba(0, 0, 0, 0.88);
   --hm-muted: rgba(0, 0, 0, 0.48);
 }
+html[data-theme="light"] #moodPage .md-heatmap-shell {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+html[data-theme="light"] #moodPage .md-heatmap-cell:not([data-band]) {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+html[data-theme="light"] #moodPage .md-heatmap-days { color: rgba(0, 0, 0, 0.45); }
+html[data-theme="light"] #moodPage .md-heatmap-nav-btn {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.72);
+}
+html[data-theme="light"] #moodPage .md-valence-rail {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+html[data-theme="light"] #moodPage .md-wizard-sheet {
+  background: #ffffff;
+}
+html[data-theme="light"] #moodPage .md-wizard-chip {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.72);
+}
+html[data-theme="light"] #moodPage .md-mini-bar.empty { background: rgba(0, 0, 0, 0.08); }
+html[data-theme="light"] #moodPage .md-current-feel { color: rgba(0, 0, 0, 0.85); }
 html[data-palette="prism"] #moodPage .md-header,
 html[data-theme="light"] #moodPage .md-header {
   background: color-mix(in srgb, var(--panel) 92%, transparent);

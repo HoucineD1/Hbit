@@ -313,9 +313,10 @@ html[data-theme="light"] #budgetPage .bg-activity-bar-fill-wrap{background:rgba(
 #budgetPage .bg-trend-skeleton{height:120px;border-radius:var(--r-md);background:linear-gradient(90deg,var(--bgt-surface-2),var(--bgt-surface-3),var(--bgt-surface-2));background-size:200% 100%;animation:shimmer 1.4s infinite linear}
 
 /* Sheets, forms, and category pickers */
-#budgetPage .bg-overlay{position:fixed;inset:0;z-index:220;display:flex;align-items:flex-end;justify-content:center;background:var(--bgt-overlay);animation:fadeIn 160ms ease both}
+#budgetPage .bg-overlay{position:fixed;inset:0;z-index:220;display:none;align-items:flex-end;justify-content:center;background:var(--bgt-overlay);opacity:0;pointer-events:none;transition:opacity 180ms ease}
+#budgetPage .bg-overlay.open{display:flex;opacity:1;pointer-events:auto}
 #budgetPage .bg-overlay[aria-hidden="true"]{display:none}
-#budgetPage .bg-sheet{width:100%;max-width:520px;max-height:min(86vh,760px);overflow:hidden;display:flex;flex-direction:column;background:var(--bgt-surface-1);border:1px solid var(--bgt-border);border-bottom:none;border-radius:var(--r-2xl) var(--r-2xl) 0 0;box-shadow:var(--shadow-lg);transform:translateY(0);transition:transform 320ms cubic-bezier(.32,.72,0,1);animation:slideUp 260ms cubic-bezier(.32,.72,0,1) both}
+#budgetPage .bg-sheet{width:100%;max-width:520px;max-height:min(86vh,760px);overflow:hidden;display:flex;flex-direction:column;background:var(--bgt-surface-1);border:1px solid var(--bgt-border);border-bottom:none;border-radius:var(--r-2xl) var(--r-2xl) 0 0;box-shadow:var(--shadow-lg);transform:translateY(18px);transition:transform 320ms cubic-bezier(.32,.72,0,1);animation:slideUp 260ms cubic-bezier(.32,.72,0,1) both}
 #budgetPage .bg-overlay.open .bg-sheet{transform:translateY(0)}
 #budgetPage .bg-sheet--sm{max-width:440px}
 #budgetPage .bg-sheet-drag{width:36px;height:4px;border-radius:var(--r-full);background:var(--bgt-surface-4);margin:var(--sp-3) auto 0}
@@ -323,6 +324,7 @@ html[data-theme="light"] #budgetPage .bg-activity-bar-fill-wrap{background:rgba(
 #budgetPage .bg-sheet-close{width:38px;height:38px;border-radius:var(--r-md);background:var(--bgt-surface-2);color:var(--bgt-text-3);border:1px solid var(--bgt-border);font-weight:900;cursor:pointer}
 #budgetPage .bg-sheet-title{margin:0;text-align:center;color:var(--bgt-text-1);font-size:var(--font-lg);font-weight:900}
 #budgetPage .bg-sheet-body{overflow-y:auto;padding:var(--sp-4);overscroll-behavior:contain}
+#budgetPage .bg-sheet-intro{margin:0 0 var(--sp-4);color:var(--bgt-text-3);font-size:var(--font-sm);line-height:1.45}
 #budgetPage .bg-field{margin-bottom:var(--sp-3)}
 #budgetPage .bg-label{display:block;margin-bottom:var(--sp-2);color:var(--bgt-text-2);font-size:var(--font-xs);font-weight:900;text-transform:uppercase;letter-spacing:.04em}
 #budgetPage .bg-label-opt{color:var(--bgt-text-4);text-transform:none}
@@ -420,14 +422,23 @@ html[data-theme="light"] #budgetPage .bg-activity-bar-fill-wrap{background:rgba(
 #budgetPage .bg-monthend-close{flex:2;background:linear-gradient(135deg,var(--bgt-accent),var(--bgt-accent-dark));color:#000;box-shadow:0 4px 16px rgba(245,158,11,.3);transition:transform var(--t-spring),box-shadow var(--t-fast)}
 #budgetPage .bg-monthend-close:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(245,158,11,.4)}
 #budgetPage .bg-fab-wrap{position:fixed;right:var(--sp-4);bottom:max(var(--sp-4),env(safe-area-inset-bottom));z-index:120;display:grid;justify-items:end;gap:var(--sp-3)}
+#bg-fab-portal .bg-fab-wrap{position:fixed;right:var(--sp-4);bottom:max(var(--sp-4),env(safe-area-inset-bottom));z-index:120;display:grid;justify-items:end;gap:var(--sp-3)}
 #budgetPage .bg-fab{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--bgt-accent),var(--bgt-accent-dark));color:#000;box-shadow:0 10px 30px rgba(245,158,11,.30);cursor:pointer;transition:transform var(--t-spring)}
+#bg-fab-portal .bg-fab{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--bgt-accent),var(--bgt-accent-dark));color:#000;box-shadow:0 10px 30px rgba(245,158,11,.30);cursor:pointer;transition:transform var(--t-spring)}
 #budgetPage .bg-fab.open{transform:rotate(45deg)}
+#bg-fab-portal .bg-fab.open{transform:rotate(45deg)}
 #budgetPage .bg-fab-menu{display:none;gap:var(--sp-2)}
+#bg-fab-portal .bg-fab-menu{display:none;gap:var(--sp-2)}
 #budgetPage .bg-fab-wrap.open .bg-fab-menu,#budgetPage .bg-fab-menu.open{display:grid;animation:slideUp 180ms ease both}
+#bg-fab-portal .bg-fab-wrap.open .bg-fab-menu,#bg-fab-portal .bg-fab-menu.open{display:grid;animation:slideUp 180ms ease both}
 #budgetPage .bg-fab-sub-row{display:flex;align-items:center;gap:var(--sp-2)}
+#bg-fab-portal .bg-fab-sub-row{display:flex;align-items:center;gap:var(--sp-2)}
 #budgetPage .bg-fab-sub-label{padding:6px 10px;border-radius:var(--r-full);background:var(--bgt-surface-1);border:1px solid var(--bgt-border);color:var(--bgt-text-2);font-size:var(--font-xs);font-weight:900;box-shadow:var(--shadow-md)}
+#bg-fab-portal .bg-fab-sub-label{padding:6px 10px;border-radius:var(--r-full);background:var(--bgt-surface-1);border:1px solid var(--bgt-border);color:var(--bgt-text-2);font-size:var(--font-xs);font-weight:900;box-shadow:var(--shadow-md)}
 #budgetPage .bg-fab-sub{width:42px;height:42px;border-radius:50%;background:var(--bgt-surface-1);border:1px solid var(--bgt-border-md);color:var(--bgt-text-1);font-size:22px;font-weight:800;cursor:pointer;box-shadow:var(--shadow-md)}
+#bg-fab-portal .bg-fab-sub{width:42px;height:42px;border-radius:50%;background:var(--bgt-surface-1);border:1px solid var(--bgt-border-md);color:var(--bgt-text-1);font-size:22px;font-weight:800;cursor:pointer;box-shadow:var(--shadow-md)}
 #budgetPage .bg-fab-sub--income{color:var(--bgt-income)}
+#bg-fab-portal .bg-fab-sub--income{color:var(--bgt-income)}
 #budgetPage .bg-income-hint{display:block;margin:0 var(--sp-4) var(--sp-3);padding:var(--sp-3) var(--sp-4);border-radius:var(--r-lg);border:1px solid rgba(245,158,11,.2);background:var(--bgt-accent-dim);color:var(--bgt-accent);font-size:var(--font-sm);font-weight:800;text-align:left;cursor:pointer}
 #budgetPage .bg-alerts{margin:0 var(--sp-4) var(--sp-3);display:grid;gap:var(--sp-2)}
 #budgetPage .bg-alert{padding:var(--sp-3);border-radius:var(--r-md);border:1px solid var(--bgt-border);background:var(--bgt-surface-1);color:var(--bgt-text-2);font-size:var(--font-sm)}

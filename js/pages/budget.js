@@ -129,6 +129,16 @@
     plan:    Object.freeze(["planner", "overview", "goals", "bills", "calendar", "accounts", "chart", "trend", "transactions"]),
     track:   Object.freeze(["overview", "chart", "transactions", "goals", "planner", "bills", "calendar", "accounts", "trend"]),
   });
+  const DEFAULT_DASHBOARD_CARDS = Object.freeze(["hero", "top3", "bills"]);
+  const CARD_SECTION_MAP = Object.freeze({
+    top3: "chart",
+    bills: "bills",
+    accounts: "accounts",
+    savings: "goals",
+    networth: "overview",
+    calendar: "calendar",
+    trend: "trend",
+  });
 
   /* ── State ────────────────────────────────────────────────────────── */
   const state = {
@@ -179,6 +189,9 @@
 
   function budgetMetaCol() {
     return HBIT.userSubcollectionRef(state.uid, "budgetMeta");
+  }
+  function budgetSettingsDoc() {
+    return HBIT.userSubcollectionRef(state.uid, "budget").doc("settings");
   }
   function savingsGoalsCol() {
     return HBIT.userSubcollectionRef(state.uid, "savingsGoals");
@@ -298,8 +311,22 @@
     state.setupDone = false;
     if (!state.uid) return;
     try {
-      const wizSnap = await budgetMetaCol().doc("wizard").get();
-      state.wizardMeta = wizSnap.exists ? wizSnap.data() : null;
+      const settingsSnap = await budgetSettingsDoc().get();
+      if (settingsSnap.exists) {
+        const data = settingsSnap.data() || {};
+        state.wizardMeta = {
+          ...data,
+          completed: data.wizardComplete === true,
+          cards: Array.isArray(data.cards) && data.cards.length ? data.cards : DEFAULT_DASHBOARD_CARDS.slice(),
+        };
+      } else {
+        const wizSnap = await budgetMetaCol().doc("wizard").get();
+        state.wizardMeta = wizSnap.exists ? {
+          ...wizSnap.data(),
+          cards: DEFAULT_DASHBOARD_CARDS.slice(),
+          wizardComplete: wizSnap.data()?.completed === true,
+        } : null;
+      }
       const setupSnap = await budgetMetaCol().doc("setup").get();
       state.setupDone = !!(setupSnap.exists && setupSnap.data()?.done);
     } catch (err) {
@@ -308,7 +335,16 @@
   }
 
   async function saveWizardDoc(data, merge = true) {
-    await budgetMetaCol().doc("wizard").set(data, { merge });
+    const cards = Array.isArray(data.cards) && data.cards.length ? data.cards : DEFAULT_DASHBOARD_CARDS.slice();
+    const payload = {
+      ...data,
+      cards,
+      wizardComplete: data.wizardComplete ?? data.completed ?? true,
+      completed: data.completed ?? data.wizardComplete ?? true,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    };
+    await budgetSettingsDoc().set(payload, { merge });
+    await budgetMetaCol().doc("wizard").set(payload, { merge }).catch(() => {});
   }
 
   async function saveSetupDone() {
@@ -382,6 +418,17 @@
 
     /* Section keys → HTML element IDs */
     const SECTION_IDS = BASE_LAYOUT_SECTION_IDS;
+
+    if (Array.isArray(m.cards) && m.cards.length) {
+      const keys = [];
+      m.cards.forEach((card) => {
+        const key = CARD_SECTION_MAP[card];
+        if (key && !keys.includes(key)) keys.push(key);
+      });
+      return keys
+        .map((key) => ({ id: SECTION_IDS[key], expanded: true }))
+        .filter((item) => item.id);
+    }
 
     let order = cloneLayoutOrder("default");
     const hidden   = new Set();
@@ -2911,7 +2958,7 @@
     if (limitRow) limitRow.style.display = isCredit ? "" : "none";
     if (aprRow)   aprRow.style.display   = isCredit || isDebt ? "" : "none";
     if (balLbl)   balLbl.textContent     =
-      isDebt ? t("budget.sheet.balanceOwed") : isCredit ? t("budget.sheet.balanceCurrent") : t("budget.sheet.balance");
+      isDebt ? t("budget.sheet.balanceOwed", "Amount owed") : isCredit ? t("budget.sheet.balanceCurrent", "Current balance") : t("budget.sheet.balance", "Current balance");
   }
 
   async function submitAccount() {
@@ -2964,8 +3011,11 @@
     state.sheet = { type: txType, data: entry || null };
     expEditCat  = txType === "income" ? "income" : (entry?.category || "other");
     setText("expTitle", entry
-      ? (txType === "income" ? "Edit income" : t("budget.sheet.editExpense"))
-      : (txType === "income" ? "Add income" : t("budget.sheet.addExpense")));
+      ? (txType === "income" ? t("budget.sheet.editIncome", "Edit income") : t("budget.sheet.editExpense", "Edit expense"))
+      : (txType === "income" ? t("budget.sheet.addIncome", "Log income") : t("budget.sheet.addExpense", "Log expense")));
+    setText("expIntro", txType === "income"
+      ? t("budget.sheet.incomeIntro", "Record money that came in. This powers your remaining budget.")
+      : t("budget.sheet.expenseIntro", "Enter what left your wallet. Category keeps your monthly breakdown honest."));
     setVal("expAmount", entry ? String(entry.amount) : "");
     setVal("expDesc",   entry?.description ?? "");
     setVal("expNote",   entry?.note        ?? "");
@@ -2976,7 +3026,7 @@
     const desc = $("expDesc");
     if (desc) desc.placeholder = txType === "income"
       ? t("budget.tx.incomePlaceholder", "What money came in?")
-      : t("budget.tx.expensePlaceholder", "What did you spend on?");
+      : t("budget.tx.expensePlaceholder", "Groceries, rent, coffee...");
     const del = $("expDelete");
     if (del) {
       del.style.display = entry ? "" : "none";
@@ -3251,11 +3301,9 @@
     });
     const el = $(id);
     if (!el) return;
-    el.style.display = "flex";          // 1. Force display:flex so transition can play
     el.style.removeProperty("visibility");
-    void el.offsetWidth;                // 2. Force reflow — allows opacity 0→1 transition
     el.setAttribute("aria-hidden", "false");
-    el.classList.add("open");           // 3. Triggers CSS opacity transition
+    el.classList.add("open");
     document.body.style.overflow = "hidden";
     requestAnimationFrame(() => trapFocus(el));
   }
@@ -3263,26 +3311,35 @@
   function closeOverlay(id) {
     const el = $(id);
     if (!el) return;
-    el.classList.remove("open");        // Triggers opacity 1→0 transition
+    el.classList.remove("open");
     el.setAttribute("aria-hidden", "true");
     el.style.removeProperty("visibility");
-    // Hide after transition completes
-    const onEnd = (e) => {
-      if (e.target !== el) return;
-      if (!el.classList.contains("open")) {
-        el.style.display = "none";
-      }
-      el.removeEventListener("transitionend", onEnd);
-    };
-    el.addEventListener("transitionend", onEnd);
-    // Fallback in case transitionend doesn't fire
-    setTimeout(() => {
-      if (!el.classList.contains("open")) {
-        el.style.display = "none";
-      }
-      el.removeEventListener("transitionend", onEnd);
-    }, 350);
     clearBodyScrollUnlessOverlayOpen();
+  }
+
+  function smokeTestBudgetOverlaysHidden() {
+    requestAnimationFrame(() => {
+      document.querySelectorAll("#budgetPage .bg-overlay").forEach((overlay) => {
+        const shown = getComputedStyle(overlay).display !== "none";
+        if (shown && !overlay.classList.contains("open")) {
+          console.warn("[Hbit Budget] Overlay visible at rest:", overlay.id || overlay);
+          overlay.setAttribute("aria-hidden", "true");
+          overlay.classList.remove("open");
+        }
+      });
+    });
+  }
+
+  function initFabPortal() {
+    const fab = $("fabWrap");
+    if (!fab || fab.closest("#bg-fab-portal")) return;
+    let portal = document.getElementById("bg-fab-portal");
+    if (!portal) {
+      portal = document.createElement("div");
+      portal.id = "bg-fab-portal";
+      document.body.appendChild(portal);
+    }
+    portal.appendChild(fab);
   }
 
   /* ── Help modal (single page, i18n-driven) ─────────────────────── */
@@ -3586,9 +3643,11 @@
     try {
       await saveWizardDoc({
         completed: true,
+        wizardComplete: true,
+        cards: DEFAULT_DASHBOARD_CARDS.slice(),
         completedAt: firebase.firestore.FieldValue.serverTimestamp(),
       }, true);
-      state.wizardMeta = { ...state.wizardMeta, completed: true };
+      state.wizardMeta = { ...state.wizardMeta, completed: true, wizardComplete: true, cards: DEFAULT_DASHBOARD_CARDS.slice() };
       fadeOutWizardThen(() => {
         renderSetupChecklist();
         showToast(t("budget.toast.skipped", "Skipped — you can always revisit settings later."));
@@ -3604,7 +3663,9 @@
     try {
       await saveWizardDoc({
         completed:    true,
+        wizardComplete: true,
         completedAt:  firebase.firestore.FieldValue.serverTimestamp(),
+        cards:        DEFAULT_DASHBOARD_CARDS.slice(),
         goal:         wizardAnswers.goal,
         mode:         wizardAnswers.mode,
         payFrequency: wizardAnswers.payFrequency,
@@ -3619,6 +3680,8 @@
     spawnWizardConfetti(card);
     state.wizardMeta = {
       completed:    true,
+      wizardComplete: true,
+      cards:        DEFAULT_DASHBOARD_CARDS.slice(),
       goal:         wizardAnswers.goal,
       mode:         wizardAnswers.mode,
       payFrequency: wizardAnswers.payFrequency,
@@ -5540,6 +5603,7 @@
       if (saved && /^\d{4}-\d{2}$/.test(saved)) state.month = saved;
     } catch {}
 
+    initFabPortal();
     bindEvents();
     applyBudgetDetailsDefaults();
     renderAll();
@@ -5573,6 +5637,7 @@
 
     subscribeBudgetAuth();
     window.addEventListener("load", () => subscribeBudgetAuth(), { once: true });
+    window.addEventListener("load", smokeTestBudgetOverlaysHidden, { once: true });
   }
 
   HBIT.pages        = HBIT.pages || {};

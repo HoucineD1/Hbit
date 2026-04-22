@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hbit — Theme Preview v3</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      background: #080808;
+      color: #fff;
+      min-height: 100vh;
+      padding: 32px 24px 60px;
+    }
+
+    h1 { text-align: center; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; color: #fff; }
+    .subtitle { text-align: center; font-size: 13px; color: #444; margin-bottom: 8px; }
+    .rule { text-align: center; font-size: 12px; color: #2a2a2a; margin-bottom: 32px; border: 1px solid #1a1a1a; border-radius: 8px; padding: 8px 16px; max-width: 390px; margin-left: auto; margin-right: auto; }
+    .rule span { color: #555; }
+
+    /* Tabs */
+    .tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 36px; flex-wrap: wrap; }
+    .tab {
+      padding: 9px 20px; border-radius: 100px;
+      border: 1px solid #222; background: transparent;
+      color: #555; font-size: 13px; font-weight: 500; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab:hover { border-color: #444; color: #aaa; }
+    .tab.active { background: #fff; border-color: #fff; color: #000; font-weight: 600; }
+
+    /* Phone shell */
+    .preview-container {
+      max-width: 390px; margin: 0 auto;
+      border-radius: 44px; overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.06);
+    }
+    .phone { min-height: 820px; display: flex; flex-direction: column; }
+
+    /* =============================================
+       THEME VARS
+       --accent = couleur signature du thème (UI only)
+       modules = leurs propres couleurs fixes
+    ============================================= */
+
+    /* MIDNIGHT — Noir pur + Écarlate */
+    .theme-midnight {
+      --bg:       #000000;
+      --surface:  #1c1c1e;
+      --surface2: #2c2c2e;
+      --border:   #2c2c2e;
+      --t1:       #ffffff;
+      --t2:       #8e8e93;
+      --t3:       #48484a;
+      --accent:   #E8334A;   /* écarlate — couleur signature */
+    }
+
+    /* OBSIDIAN — Deep navy + Écarlate */
+    .theme-obsidian {
+      --bg:       #050508;
+      --surface:  #13131a;
+      --surface2: #1e1e28;
+      --border:   #1e1e28;
+      --t1:       #f5f5ff;
+      --t2:       #6b6b8a;
+      --t3:       #35354a;
+      --accent:   #E8334A;   /* même écarlate — test cohérence */
+    }
+
+    /* IVORY A — Crème brun taupe */
+    .theme-ivory {
+      --bg:       #F0EBE3;   /* crème brun taupe chaud */
+      --surface:  #FAF6F1;   /* card légèrement plus clair */
+      --surface2: #E8E0D5;
+      --border:   #DDD4C8;
+      --t1:       #1C1410;
+      --t2:       #7A6E64;
+      --t3:       #B5AA9E;
+      --accent:   #E8334A;
+    }
+
+    /* IVORY B — Vert sage très clair */
+    .theme-ivory-sage {
+      --bg:       #EEF2ED;   /* vert sage très désaturé */
+      --surface:  #F7FAF7;   /* card quasi blanc verdâtre */
+      --surface2: #E2E9E1;
+      --border:   #D4DDD2;
+      --t1:       #101810;
+      --t2:       #6A7868;
+      --t3:       #A8B5A6;
+      --accent:   #E8334A;
+    }
+
+    /* ARCTIC — Blanc froid + Écarlate */
+    .theme-arctic {
+      --bg:       #f0f4f8;
+      --surface:  #ffffff;
+      --surface2: #e4eaf2;
+      --border:   #d8e2ee;
+      --t1:       #0a1628;
+      --t2:       #5a6880;
+      --t3:       #9aaabb;
+      --accent:   #E8334A;
+    }
+
+    /* Module colors — JAMAIS MODIFIER */
+    :root {
+      --habit:  #34D399;
+      --budget: #F59E0B;
+      --sleep:  #818CF8;
+      --mood:   #A78BFA;
+      --focus:  #F97316;
+      --plan:   #22D3EE;
+    }
+
+    /* STATUS BAR */
+    .status-bar { padding: 16px 24px 6px; display: flex; justify-content: space-between; align-items: center; background: var(--bg); }
+    .status-time { font-size: 15px; font-weight: 600; color: var(--t1); }
+    .status-icons { font-size: 12px; color: var(--t1); }
+
+    /* APP BAR */
+    .appbar { background: var(--bg); padding: 10px 22px 16px; }
+    .appbar-row { display: flex; justify-content: space-between; align-items: center; }
+    .appbar-left { display: flex; align-items: center; gap: 12px; }
+
+    /* Avatar = accent color */
+    .avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 800; color: #fff; flex-shrink: 0;
+      letter-spacing: -0.5px;
+    }
+
+    .appbar-title { font-size: 24px; font-weight: 800; letter-spacing: -0.8px; color: var(--t1); line-height: 1.1; }
+    .appbar-date { font-size: 13px; color: var(--t2); font-weight: 400; margin-top: 1px; }
+
+    .appbar-actions { display: flex; gap: 8px; align-items: center; }
+    .icon-btn {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--surface2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; cursor: pointer;
+    }
+    .lang-tag {
+      height: 28px; padding: 0 10px; border-radius: 100px;
+      background: var(--surface2);
+      font-size: 11px; font-weight: 700; color: var(--t2);
+      display: flex; align-items: center;
+    }
+
+    /* DIVIDER */
+    .divider { height: 1px; background: var(--border); margin: 0; opacity: 0.7; }
+
+    /* CONTENT */
+    .content { flex: 1; padding: 20px 16px; background: var(--bg); }
+
+    /* SCORE CARD */
+    .score-card {
+      background: var(--surface); border-radius: 22px;
+      padding: 20px 22px; margin-bottom: 16px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .score-label { font-size: 11px; color: var(--t2); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 4px; }
+    .score-number { font-size: 52px; font-weight: 800; color: var(--t1); letter-spacing: -3px; line-height: 1; }
+    /* delta uses accent — not a module color */
+    .score-delta { font-size: 12px; color: var(--accent); margin-top: 6px; font-weight: 600; }
+
+    .ring-stack { position: relative; width: 80px; height: 80px; }
+    .ring-stack svg { transform: rotate(-90deg); }
+    .ring-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 18px; font-weight: 800; color: var(--t1); }
+
+    /* SECTION LABEL */
+    .section-label { font-size: 18px; font-weight: 700; color: var(--t1); letter-spacing: -0.3px; margin-bottom: 12px; margin-top: 4px; padding: 0 4px; }
+
+    /* MODULE GRID */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .card { background: var(--surface); border-radius: 20px; padding: 16px 16px 14px; position: relative; overflow: hidden; }
+
+    /* colored top strip */
+    .card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 20px 20px 0 0; }
+    .card.habit::after  { background: var(--habit); }
+    .card.budget::after { background: var(--budget); }
+    .card.sleep::after  { background: var(--sleep); }
+    .card.mood::after   { background: var(--mood); }
+    .card.focus::after  { background: var(--focus); }
+    .card.plan::after   { background: var(--plan); }
+
+    /* colored dot */
+    .card-dot { width: 7px; height: 7px; border-radius: 50%; margin-bottom: 10px; }
+    .card.habit  .card-dot { background: var(--habit); }
+    .card.budget .card-dot { background: var(--budget); }
+    .card.sleep  .card-dot { background: var(--sleep); }
+    .card.mood   .card-dot { background: var(--mood); }
+    .card.focus  .card-dot { background: var(--focus); }
+    .card.plan   .card-dot { background: var(--plan); }
+
+    .card-name { font-size: 11px; font-weight: 600; color: var(--t2); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 5px; }
+    .card-value { font-size: 22px; font-weight: 800; letter-spacing: -0.8px; line-height: 1; color: var(--t1); }
+    .card-sub { font-size: 11px; color: var(--t3); margin-top: 4px; }
+
+    .sparkline { display: flex; gap: 2px; align-items: flex-end; height: 18px; margin-top: 10px; }
+    .spark { flex: 1; border-radius: 2px; opacity: 0.3; }
+    .spark:last-child { opacity: 0.9; }
+    .card.habit  .spark { background: var(--habit); }
+    .card.budget .spark { background: var(--budget); }
+    .card.sleep  .spark { background: var(--sleep); }
+    .card.mood   .spark { background: var(--mood); }
+    .card.focus  .spark { background: var(--focus); }
+    .card.plan   .spark { background: var(--plan); }
+
+    /* STREAK */
+    .streak-card {
+      background: var(--surface); border-radius: 20px;
+      padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .streak-label { font-size: 11px; color: var(--t2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+    .streak-val { font-size: 26px; font-weight: 800; color: var(--t1); letter-spacing: -0.8px; }
+    .streak-best { font-size: 12px; color: var(--t3); }
+
+    /* Active nav pip uses accent */
+    .bottombar {
+      background: var(--surface); border-top: 1px solid var(--border);
+      padding: 10px 6px 28px; display: flex; justify-content: space-around; align-items: center;
+    }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 14px; cursor: pointer; min-width: 56px; }
+    .nav-item.active { background: var(--surface2); }
+    .nav-ico { font-size: 19px; }
+    .nav-lbl { font-size: 10px; font-weight: 500; color: var(--t3); }
+    .nav-item.active .nav-lbl { color: var(--t1); font-weight: 600; }
+    .nav-pip { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); display: none; }
+    .nav-item.active .nav-pip { display: block; }
+
+    /* Panes */
+    .pane { display: none; }
+    .pane.active { display: block; }
+
+    /* Palette info */
+    .palette-panel { max-width: 390px; margin: 24px auto 0; }
+    .palette-title { font-size: 11px; color: #444; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 10px; }
+
+    .palette-strip { display: flex; height: 40px; border-radius: 12px; overflow: hidden; }
+    .swatch { flex: 1; }
+
+    .chips { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    .chip { display: flex; align-items: center; gap: 7px; background: #111; border: 1px solid #1a1a1a; border-radius: 10px; padding: 6px 10px; }
+    .chip-dot { width: 12px; height: 12px; border-radius: 4px; flex-shrink: 0; }
+    .chip-name { font-size: 10px; color: #555; }
+    .chip-hex { font-size: 10px; color: #888; font-family: 'SF Mono', monospace; }
+
+    .accent-note {
+      max-width: 390px; margin: 16px auto 0;
+      background: #0d0d0d; border: 1px solid #1c1c1c;
+      border-radius: 12px; padding: 12px 16px;
+    }
+    .accent-note p { font-size: 12px; color: #555; line-height: 1.6; }
+    .accent-note strong { color: #888; }
+    .accent-swatch {
+      display: inline-block; width: 10px; height: 10px;
+      background: #E8334A; border-radius: 3px;
+      vertical-align: middle; margin-right: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Hbit — Theme Preview v3</h1>
+<p class="subtitle">UI = neutre · Modules = leurs couleurs · Accent = couleur du thème</p>
+<div class="rule"><span>Écarlate #E8334A — couleur signature des thèmes · jamais utilisée dans les modules</span></div>
+
+<div class="tabs">
+  <button class="tab active" onclick="sw('midnight',this)">🌑 Midnight</button>
+  <button class="tab" onclick="sw('obsidian',this)">💠 Obsidian</button>
+  <button class="tab" onclick="sw('ivory',this)">🟫 Taupe</button>
+  <button class="tab" onclick="sw('ivory-sage',this)">🌿 Sage</button>
+  <button class="tab" onclick="sw('arctic',this)">❄️ Arctic</button>
+</div>
+
+<!-- Helper macro via JS for module cards -->
+<script>
+function moduleCards() {
+  return `
+    <div class="card habit"><div class="card-dot"></div><div class="card-name">Habits</div><div class="card-value">5/7</div><div class="card-sub">done today</div><div class="sparkline"><div class="spark" style="height:55%"></div><div class="spark" style="height:75%"></div><div class="spark" style="height:45%"></div><div class="spark" style="height:90%"></div><div class="spark" style="height:65%"></div><div class="spark" style="height:85%"></div><div class="spark" style="height:100%"></div></div></div>
+    <div class="card sleep"><div class="card-dot"></div><div class="card-name">Sleep</div><div class="card-value">7h24</div><div class="card-sub">+23 min avg</div><div class="sparkline"><div class="spark" style="height:70%"></div><div class="spark" style="height:60%"></div><div class="spark" style="height:85%"></div><div class="spark" style="height:50%"></div><div class="spark" style="height:90%"></div><div class="spark" style="height:75%"></div><div class="spark" style="height:100%"></div></div></div>
+    <div class="card budget"><div class="card-dot"></div><div class="card-name">Budget</div><div class="card-value">$342</div><div class="card-sub">left this month</div><div class="sparkline"><div class="spark" style="height:80%"></div><div class="spark" style="height:100%"></div><div class="spark" style="height:65%"></div><div class="spark" style="height:70%"></div><div class="spark" style="height:55%"></div><div class="spark" style="height:60%"></div><div class="spark" style="height:45%"></div></div></div>
+    <div class="card focus"><div class="card-dot"></div><div class="card-name">Focus</div><div class="card-value">2h10</div><div class="card-sub">deep work</div><div class="sparkline"><div class="spark" style="height:40%"></div><div class="spark" style="height:70%"></div><div class="spark" style="height:90%"></div><div class="spark" style="height:55%"></div><div class="spark" style="height:80%"></div><div class="spark" style="height:95%"></div><div class="spark" style="height:100%"></div></div></div>
+    <div class="card mood"><div class="card-dot"></div><div class="card-name">Mood</div><div class="card-value">8/10</div><div class="card-sub">feeling great</div><div class="sparkline"><div class="spark" style="height:65%"></div><div class="spark" style="height:55%"></div><div class="spark" style="height:75%"></div><div class="spark" style="height:85%"></div><div class="spark" style="height:70%"></div><div class="spark" style="height:90%"></div><div class="spark" style="height:100%"></div></div></div>
+    <div class="card plan"><div class="card-dot"></div><div class="card-name">Plan</div><div class="card-value">3/5</div><div class="card-sub">tasks done</div><div class="sparkline"><div class="spark" style="height:100%"></div><div class="spark" style="height:80%"></div><div class="spark" style="height:60%"></div><div class="spark" style="height:90%"></div><div class="spark" style="height:70%"></div><div class="spark" style="height:85%"></div><div class="spark" style="height:75%"></div></div></div>
+  `;
+}
+function navBar() {
+  return `
+    <div class="bottombar">
+      <div class="nav-item active"><span class="nav-ico">⊙</span><span class="nav-lbl">Home</span><div class="nav-pip"></div></div>
+      <div class="nav-item"><span class="nav-ico">◈</span><span class="nav-lbl">Stats</span></div>
+      <div class="nav-item"><span class="nav-ico">⊕</span><span class="nav-lbl">Add</span></div>
+      <div class="nav-item"><span class="nav-ico">◉</span><span class="nav-lbl">Journal</span></div>
+      <div class="nav-item"><span class="nav-ico">⊞</span><span class="nav-lbl">Settings</span></div>
+    </div>
+  `;
+}
+function phoneBody(ringStroke) {
+  return `
+    <div class="score-card">
+      <div>
+        <div class="score-label">Daily Score</div>
+        <div class="score-number">78</div>
+        <div class="score-delta">↑ +12 vs yesterday</div>
+      </div>
+      <div class="ring-stack">
+        <svg width="80" height="80" viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="32" fill="none" stroke="${ringStroke}" stroke-width="8"/>
+          <circle cx="40" cy="40" r="32" fill="none" stroke="#E8334A" stroke-width="8"
+            stroke-dasharray="201" stroke-dashoffset="50" stroke-linecap="round"/>
+        </svg>
+        <div class="ring-label">78</div>
+      </div>
+    </div>
+    <div class="section-label">Modules</div>
+    <div class="grid">${moduleCards()}</div>
+    <div class="streak-card">
+      <div>
+        <div class="streak-label">Streak</div>
+        <div class="streak-val">14 days 🔥</div>
+      </div>
+      <div class="streak-best">Personal best: 21</div>
+    </div>
+  `;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Fill content areas
+  document.querySelectorAll('[data-ring]').forEach(el => {
+    el.innerHTML = phoneBody(el.dataset.ring);
+  });
+  document.querySelectorAll('[data-nav]').forEach(el => {
+    el.innerHTML = navBar();
+  });
+});
+</script>
+
+<!-- ===== MIDNIGHT ===== -->
+<div class="pane active" id="pane-midnight">
+  <div class="preview-container">
+    <div class="phone theme-midnight">
+      <div class="status-bar"><span class="status-time">9:41</span><span class="status-icons">▲▲▲ ⊡ ▮</span></div>
+      <div class="appbar">
+        <div class="appbar-row">
+          <div class="appbar-left">
+            <div class="avatar">G</div>
+            <div><div class="appbar-title">Overview</div><div class="appbar-date">Tuesday, 21 April</div></div>
+          </div>
+          <div class="appbar-actions"><div class="lang-tag">FR</div><div class="icon-btn">🌙</div><div class="icon-btn">👤</div></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="content" data-ring="#2c2c2e"></div>
+      <div data-nav></div>
+    </div>
+  </div>
+  <div class="palette-panel">
+    <div class="palette-title">Midnight — couleurs UI</div>
+    <div class="palette-strip">
+      <div class="swatch" style="background:#000000"></div>
+      <div class="swatch" style="background:#1c1c1e"></div>
+      <div class="swatch" style="background:#2c2c2e"></div>
+      <div class="swatch" style="background:#8e8e93"></div>
+      <div class="swatch" style="background:#ffffff"></div>
+      <div class="swatch" style="background:#E8334A"></div>
+    </div>
+    <div class="chips">
+      <div class="chip"><div class="chip-dot" style="background:#000"></div><div class="chip-name">Background</div><div class="chip-hex">#000000</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#1c1c1e"></div><div class="chip-name">Surface</div><div class="chip-hex">#1c1c1e</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#2c2c2e"></div><div class="chip-name">Surface 2</div><div class="chip-hex">#2c2c2e</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#8e8e93"></div><div class="chip-name">Text 2</div><div class="chip-hex">#8e8e93</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#E8334A"></div><div class="chip-name">Accent</div><div class="chip-hex">#E8334A</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== OBSIDIAN ===== -->
+<div class="pane" id="pane-obsidian">
+  <div class="preview-container">
+    <div class="phone theme-obsidian">
+      <div class="status-bar"><span class="status-time">9:41</span><span class="status-icons">▲▲▲ ⊡ ▮</span></div>
+      <div class="appbar">
+        <div class="appbar-row">
+          <div class="appbar-left">
+            <div class="avatar">G</div>
+            <div><div class="appbar-title">Overview</div><div class="appbar-date">Tuesday, 21 April</div></div>
+          </div>
+          <div class="appbar-actions"><div class="lang-tag">FR</div><div class="icon-btn">🌙</div><div class="icon-btn">👤</div></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="content" data-ring="#1e1e28"></div>
+      <div data-nav></div>
+    </div>
+  </div>
+  <div class="palette-panel">
+    <div class="palette-title">Obsidian — couleurs UI</div>
+    <div class="palette-strip">
+      <div class="swatch" style="background:#050508"></div>
+      <div class="swatch" style="background:#13131a"></div>
+      <div class="swatch" style="background:#1e1e28"></div>
+      <div class="swatch" style="background:#6b6b8a"></div>
+      <div class="swatch" style="background:#f5f5ff"></div>
+      <div class="swatch" style="background:#E8334A"></div>
+    </div>
+    <div class="chips">
+      <div class="chip"><div class="chip-dot" style="background:#050508"></div><div class="chip-name">Background</div><div class="chip-hex">#050508</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#13131a"></div><div class="chip-name">Surface</div><div class="chip-hex">#13131a</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#1e1e28"></div><div class="chip-name">Surface 2</div><div class="chip-hex">#1e1e28</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#6b6b8a"></div><div class="chip-name">Text 2</div><div class="chip-hex">#6b6b8a</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#E8334A"></div><div class="chip-name">Accent</div><div class="chip-hex">#E8334A</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== IVORY ===== -->
+<div class="pane" id="pane-ivory">
+  <div class="preview-container" style="box-shadow:0 40px 100px rgba(0,0,0,0.2),0 0 0 1px rgba(0,0,0,0.06)">
+    <div class="phone theme-ivory">
+      <div class="status-bar"><span class="status-time">9:41</span><span class="status-icons">▲▲▲ ⊡ ▮</span></div>
+      <div class="appbar">
+        <div class="appbar-row">
+          <div class="appbar-left">
+            <div class="avatar">G</div>
+            <div><div class="appbar-title">Overview</div><div class="appbar-date">Tuesday, 21 April</div></div>
+          </div>
+          <div class="appbar-actions"><div class="lang-tag">FR</div><div class="icon-btn">☀️</div><div class="icon-btn">👤</div></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="content" data-ring="#E8E0D5"></div>
+      <div data-nav></div>
+    </div>
+  </div>
+  <div class="palette-panel">
+    <div class="palette-title">Taupe — couleurs UI</div>
+    <div class="palette-strip">
+      <div class="swatch" style="background:#F0EBE3;outline:1px solid #ccc"></div>
+      <div class="swatch" style="background:#FAF6F1;outline:1px solid #ccc"></div>
+      <div class="swatch" style="background:#DDD4C8;outline:1px solid #ccc"></div>
+      <div class="swatch" style="background:#7A6E64"></div>
+      <div class="swatch" style="background:#1C1410"></div>
+      <div class="swatch" style="background:#E8334A"></div>
+    </div>
+    <div class="chips">
+      <div class="chip"><div class="chip-dot" style="background:#F0EBE3;border:1px solid #333"></div><div class="chip-name">Background</div><div class="chip-hex">#F0EBE3</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#FAF6F1;border:1px solid #333"></div><div class="chip-name">Surface</div><div class="chip-hex">#FAF6F1</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#DDD4C8;border:1px solid #333"></div><div class="chip-name">Border</div><div class="chip-hex">#DDD4C8</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#7A6E64"></div><div class="chip-name">Text 2</div><div class="chip-hex">#7A6E64</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#E8334A"></div><div class="chip-name">Accent</div><div class="chip-hex">#E8334A</div></div>
+    </div>
+    <p style="font-size:11px;color:#333;margin-top:12px;line-height:1.5;">Crème brun taupe — ambiance chaleureuse, organique. Style "carnet premium" / Notion warm.</p>
+  </div>
+</div>
+
+<!-- ===== IVORY SAGE ===== -->
+<div class="pane" id="pane-ivory-sage">
+  <div class="preview-container" style="box-shadow:0 40px 100px rgba(0,0,0,0.18),0 0 0 1px rgba(0,0,0,0.05)">
+    <div class="phone theme-ivory-sage">
+      <div class="status-bar"><span class="status-time">9:41</span><span class="status-icons">▲▲▲ ⊡ ▮</span></div>
+      <div class="appbar">
+        <div class="appbar-row">
+          <div class="appbar-left">
+            <div class="avatar">G</div>
+            <div><div class="appbar-title">Overview</div><div class="appbar-date">Tuesday, 21 April</div></div>
+          </div>
+          <div class="appbar-actions"><div class="lang-tag">FR</div><div class="icon-btn">☀️</div><div class="icon-btn">👤</div></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="content" data-ring="#E2E9E1"></div>
+      <div data-nav></div>
+    </div>
+  </div>
+  <div class="palette-panel">
+    <div class="palette-title">Sage — couleurs UI</div>
+    <div class="palette-strip">
+      <div class="swatch" style="background:#EEF2ED;outline:1px solid #ccc"></div>
+      <div class="swatch" style="background:#F7FAF7;outline:1px solid #ccc"></div>
+      <div class="swatch" style="background:#D4DDD2;outline:1px solid #ccc"></div>
+      <div class="swatch" style="background:#6A7868"></div>
+      <div class="swatch" style="background:#101810"></div>
+      <div class="swatch" style="background:#E8334A"></div>
+    </div>
+    <div class="chips">
+      <div class="chip"><div class="chip-dot" style="background:#EEF2ED;border:1px solid #333"></div><div class="chip-name">Background</div><div class="chip-hex">#EEF2ED</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#F7FAF7;border:1px solid #333"></div><div class="chip-name">Surface</div><div class="chip-hex">#F7FAF7</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#D4DDD2;border:1px solid #333"></div><div class="chip-name">Border</div><div class="chip-hex">#D4DDD2</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#6A7868"></div><div class="chip-name">Text 2</div><div class="chip-hex">#6A7868</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#E8334A"></div><div class="chip-name">Accent</div><div class="chip-hex">#E8334A</div></div>
+    </div>
+    <p style="font-size:11px;color:#333;margin-top:12px;line-height:1.5;">Vert sage très désaturé — ambiance nature/wellness. Cohérent avec une app de croissance personnelle. Contraste net avec Arctic (bleu-froid).</p>
+  </div>
+</div>
+
+<!-- ===== ARCTIC ===== -->
+<div class="pane" id="pane-arctic">
+  <div class="preview-container" style="box-shadow:0 40px 100px rgba(0,0,0,0.15),0 0 0 1px rgba(0,0,0,0.05)">
+    <div class="phone theme-arctic">
+      <div class="status-bar"><span class="status-time">9:41</span><span class="status-icons">▲▲▲ ⊡ ▮</span></div>
+      <div class="appbar">
+        <div class="appbar-row">
+          <div class="appbar-left">
+            <div class="avatar">G</div>
+            <div><div class="appbar-title">Overview</div><div class="appbar-date">Tuesday, 21 April</div></div>
+          </div>
+          <div class="appbar-actions"><div class="lang-tag">FR</div><div class="icon-btn">☀️</div><div class="icon-btn">👤</div></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="content" data-ring="#e4eaf2"></div>
+      <div data-nav></div>
+    </div>
+  </div>
+  <div class="palette-panel">
+    <div class="palette-title">Arctic — couleurs UI</div>
+    <div class="palette-strip">
+      <div class="swatch" style="background:#f0f4f8;outline:1px solid #ccc"></div>
+      <div class="swatch" style="background:#ffffff;outline:1px solid #ccc"></div>
+      <div class="swatch" style="background:#d8e2ee;outline:1px solid #ccc"></div>
+      <div class="swatch" style="background:#5a6880"></div>
+      <div class="swatch" style="background:#0a1628"></div>
+      <div class="swatch" style="background:#E8334A"></div>
+    </div>
+    <div class="chips">
+      <div class="chip"><div class="chip-dot" style="background:#f0f4f8;border:1px solid #333"></div><div class="chip-name">Background</div><div class="chip-hex">#f0f4f8</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#fff;border:1px solid #333"></div><div class="chip-name">Surface</div><div class="chip-hex">#ffffff</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#d8e2ee;border:1px solid #333"></div><div class="chip-name">Border</div><div class="chip-hex">#d8e2ee</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#5a6880"></div><div class="chip-name">Text 2</div><div class="chip-hex">#5a6880</div></div>
+      <div class="chip"><div class="chip-dot" style="background:#E8334A"></div><div class="chip-name">Accent</div><div class="chip-hex">#E8334A</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Accent note -->
+<div class="accent-note" style="margin-top:24px">
+  <p>
+    <span class="accent-swatch"></span>
+    <strong>Écarlate #E8334A</strong> — couleur signature de l'app.<br>
+    Utilisée sur : avatar, score delta, ring principal, pip de navigation active.<br>
+    Les 6 couleurs de modules restent intactes et indépendantes.
+  </p>
+</div>
+
+<script>
+  function sw(t, btn) {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    document.getElementById('pane-' + t).classList.add('active');
+  }
+</script>
+</body>
+</html>

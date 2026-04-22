@@ -3,6 +3,7 @@
    Compat SDK loaded via CDN before this script.
    ========================= */
 
+// TODO(launch): switch to browserLocalPersistence
 const firebaseConfig = {
   apiKey:            "AIzaSyBipZqtsB69eDF5dAFiAijIjNUfO_nkg6s",
   authDomain:        "hbit-d62a6.firebaseapp.com",
@@ -22,8 +23,8 @@ window.HBIT.fbAuth      = firebase.auth();
 window.HBIT.fbDb        = firebase.database();
 window.HBIT.fbFirestore = firebase.firestore();
 
-if (firebase.auth?.Auth?.Persistence?.LOCAL) {
-  window.HBIT.fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+if (firebase.auth?.Auth?.Persistence?.SESSION) {
+  window.HBIT.fbAuth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
     .catch((err) => console.warn("[Hbit] Auth persistence fallback:", err?.code || err));
 }
 

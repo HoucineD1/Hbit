@@ -17,6 +17,10 @@
     return HBIT.i18n.t(key, fallback);
   }
 
+  function getLang() {
+    return HBIT.i18n?.getLang?.() || HBIT.i18n?.lang?.() || "en";
+  }
+
   function translateBreathPhase(l) {
     if (l === "Inhale") return tr("focus.breath.inhale", l);
     if (l === "Exhale") return tr("focus.breath.exhale", l);
@@ -144,6 +148,11 @@
     sigh:     [{l: "Inhale", t: 2}, {l: "Inhale", t: 1}, {l: "Exhale", t: 6}],
     energize: [{l: "Inhale", t: 6}, {l: "Exhale", t: 2}]
   };
+  const FC_BREATH_PRESETS = {
+    box: { minutes: 2, phases: BR_PATTERNS.box },
+    "478": { minutes: 3, phases: BR_PATTERNS["478"] },
+    coherent: { minutes: 3, phases: [{ l: "Inhale", t: 6 }, { l: "Exhale", t: 6 }] },
+  };
 
   function loadSettings() {
     try {
@@ -185,6 +194,10 @@
   let phaseStartedAt = Date.now();
   let sessionHistory = [];
   let historyLoaded = false;
+  let sessionUnsubscribe = null;
+  let focusPopTimer = null;
+  let fcBreathTimer = null;
+  let fcBreathState = null;
 
   let brState = {
     seq: [],
@@ -240,26 +253,37 @@
     } catch (_) {}
   }
 
-  async function loadSessionHistory() {
+  function loadSessionHistory() {
     localLoadSessions();
-    historyLoaded = true;
+    historyLoaded = false;
     renderSessionsTab();
 
-    if (!(window.firebase && firebase.auth && firebase.firestore && firebase.auth().currentUser)) return;
+    if (!(window.firebase && firebase.auth && firebase.firestore && firebase.auth().currentUser)) {
+      historyLoaded = true;
+      renderSessionsTab();
+      return;
+    }
     try {
       const uid = firebase.auth().currentUser.uid;
-      const snap = await firebase.firestore()
+      if (typeof sessionUnsubscribe === "function") sessionUnsubscribe();
+      sessionUnsubscribe = firebase.firestore()
         .collection("users").doc(uid).collection("focus_sessions")
         .orderBy("date", "desc")
         .limit(300)
-        .get();
-      const remote = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-      if (remote.length) {
-        sessionHistory = remote;
-        localSaveSessions();
-        renderSessionsTab();
-      }
+        .onSnapshot((snap) => {
+          sessionHistory = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          historyLoaded = true;
+          localSaveSessions();
+          renderSessionsTab();
+          renderSettingsState();
+        }, (err) => {
+          historyLoaded = true;
+          renderSessionsTab();
+          showFocusError(err, () => loadSessionHistory());
+        });
     } catch (err) {
+      historyLoaded = true;
+      renderSessionsTab();
       showFocusError(err, () => loadSessionHistory());
     }
   }
@@ -267,12 +291,13 @@
   async function recordSession(type, durationMins, startedAtMs) {
     const started = new Date(startedAtMs || Date.now());
     const dateKey = `${started.getFullYear()}-${String(started.getMonth() + 1).padStart(2, "0")}-${String(started.getDate()).padStart(2, "0")}`;
+    const kind = type === "break" || type === "breathe" ? type : "work";
     const entry = {
       date: dateKey,
       startTime: started.toISOString(),
       duration: Math.max(1, Number(durationMins) || 1),
-      type: type === "break" ? "break" : "work",
-      label: type === "work" ? (currentIntent || tr("focus.intent.default", "Deep work")) : "",
+      type: kind,
+      label: kind === "work" ? (currentIntent || tr("focus.intent.default", "Deep work")) : "",
       completed: true,
       createdAtMs: Date.now(),
     };
@@ -366,8 +391,10 @@
     pauseIcon: $("fcPauseIcon"),
     modal: $("fcSettingsModal"),
     tabTimer: $("fcTabTimer"),
+    tabBreathe: $("fcTabBreathe"),
     tabSessions: $("fcTabSessions"),
     panelTimer: $("fcPanelTimer"),
+    panelBreathe: $("fcPanelBreathe"),
     panelSessions: $("fcPanelSessions"),
     statTotalSessions: $("fcStatTotalSessions"),
     statFocusTime: $("fcStatFocusTime"),
@@ -379,6 +406,13 @@
     goalProgress: $("fcGoalProgressFill"),
     progressMeta: $("fcProgressMeta"),
     focusMinutes: $("fcFocusMinutes"),
+    breathOverlay: $("fcBreathOverlay"),
+    breathLabel: $("fcBreathLabel"),
+    breathSecs: $("fcBreathSecs"),
+    breathCircle: $("fcBreathCircle"),
+    breathProgress: $("fcBreathProgressBar"),
+    breathRemaining: $("fcBreathRemaining"),
+    focusPop: $("fcFocusPop"),
   };
 
   function fmt(sec) {
@@ -432,22 +466,37 @@
   }
 
   function setActiveTab(tab) {
-    const next = tab === "sessions" ? "sessions" : "timer";
+    const next = tab === "sessions" ? "sessions" : tab === "breathe" ? "breathe" : "timer";
     const timerOn = next === "timer";
+    const breatheOn = next === "breathe";
+    const sessionsOn = next === "sessions";
     ui.tabTimer?.classList.toggle("is-active", timerOn);
-    ui.tabSessions?.classList.toggle("is-active", !timerOn);
+    ui.tabBreathe?.classList.toggle("is-active", breatheOn);
+    ui.tabSessions?.classList.toggle("is-active", sessionsOn);
     ui.tabTimer?.setAttribute("aria-selected", timerOn ? "true" : "false");
-    ui.tabSessions?.setAttribute("aria-selected", !timerOn ? "true" : "false");
+    ui.tabBreathe?.setAttribute("aria-selected", breatheOn ? "true" : "false");
+    ui.tabSessions?.setAttribute("aria-selected", sessionsOn ? "true" : "false");
     ui.panelTimer?.classList.toggle("is-active", timerOn);
-    ui.panelSessions?.classList.toggle("is-active", !timerOn);
+    ui.panelBreathe?.classList.toggle("is-active", breatheOn);
+    ui.panelSessions?.classList.toggle("is-active", sessionsOn);
     if (ui.panelTimer) ui.panelTimer.hidden = !timerOn;
-    if (ui.panelSessions) ui.panelSessions.hidden = timerOn;
+    if (ui.panelBreathe) ui.panelBreathe.hidden = !breatheOn;
+    if (ui.panelSessions) ui.panelSessions.hidden = !sessionsOn;
     try { localStorage.setItem(TAB_KEY, next); } catch (_) {}
-    if (!timerOn) renderSessionsTab();
+    if (sessionsOn) renderSessionsTab();
   }
 
   function renderSessionsTab() {
-    if (!historyLoaded) return;
+    if (!historyLoaded) {
+      if (ui.sessionEmpty) ui.sessionEmpty.hidden = true;
+      if (ui.sessionList) {
+        ui.sessionList.innerHTML = [1, 2, 3].map(() => `<article class="fc-session-row fc-session-skeleton" aria-hidden="true">
+          <span class="fc-session-time">&nbsp;</span>
+          <span class="fc-session-dur">&nbsp;</span>
+        </article>`).join("");
+      }
+      return;
+    }
     const now = new Date();
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
     const todays = sessionHistory.filter((s) => s.date === today);
@@ -467,10 +516,17 @@
         .map((s) => {
           const d = s.startTime ? new Date(s.startTime) : new Date();
           const tText = tf.format(d);
+          const isBreath = s.type === "breathe";
+          const isBreak = s.type === "break";
+          const title = isBreath
+            ? tr("focus.session.breathe", "Breathing")
+            : isBreak
+              ? tr("focus.phase.breathe", "Break")
+              : tr("focus.phase.work", "Work");
           const label = s.label ? `<span class="fc-session-label">${escapeHtml(s.label)}</span>` : "";
-          return `<article class="fc-session-row">
-            <span class="fc-session-badge ${s.type === "break" ? "break" : "work"}">${s.type === "break" ? tr("focus.phase.breathe", "Break") : tr("focus.phase.work", "Work")}</span>
-            <span class="fc-session-time">${tText}${label}</span>
+          return `<article class="fc-session-row ${isBreath ? "is-breathe" : isBreak ? "is-break" : "is-work"}">
+            <span class="fc-session-badge ${isBreak || isBreath ? "break" : "work"}">${title}</span>
+            <span class="fc-session-time"><strong>${title}</strong><span>${tText}</span>${label}</span>
             <span class="fc-session-dur">${Math.max(1, Number(s.duration) || 1)}m</span>
           </article>`;
         })
@@ -505,6 +561,104 @@
 
   function escapeHtml(t) {
     return String(t || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  function formatBreathRemaining(sec) {
+    const mm = Math.floor(Math.max(0, sec) / 60);
+    const ss = String(Math.max(0, sec) % 60).padStart(2, "0");
+    return `${mm}:${ss}`;
+  }
+
+  function setStandaloneBreathPhase() {
+    if (!fcBreathState) return;
+    const preset = fcBreathState.preset;
+    const phases = preset.phases;
+    const totalCycle = phases.reduce((sum, p) => sum + p.t, 0);
+    const elapsed = fcBreathState.elapsed;
+    const pos = elapsed % totalCycle;
+    let acc = 0;
+    let phase = phases[0];
+    let secInPhase = 0;
+    for (const p of phases) {
+      if (pos < acc + p.t) {
+        phase = p;
+        secInPhase = pos - acc;
+        break;
+      }
+      acc += p.t;
+    }
+    const secLeft = phase.t - secInPhase;
+    if (ui.breathLabel) ui.breathLabel.textContent = translateBreathPhase(phase.l);
+    if (ui.breathSecs) ui.breathSecs.textContent = tr("focus.breath.sec", "{n} sec", { n: secLeft });
+    if (ui.breathRemaining) {
+      ui.breathRemaining.textContent = tr("focus.breath.remaining", "{time} remaining", {
+        time: formatBreathRemaining(fcBreathState.total - elapsed),
+      });
+    }
+    if (ui.breathProgress) ui.breathProgress.style.width = `${Math.min(100, (elapsed / fcBreathState.total) * 100)}%`;
+    if (ui.breathCircle) {
+      ui.breathCircle.className = "fc-breath-circle";
+      ui.breathCircle.classList.add(phase.l === "Exhale" ? "exhale" : phase.l === "Hold" ? "hold" : "inhale");
+    }
+  }
+
+  function completeStandaloneBreath() {
+    if (!fcBreathState) return;
+    const mins = fcBreathState.preset.minutes;
+    closeStandaloneBreath();
+    recordSession("breathe", mins, Date.now() - mins * 60_000);
+    navigator.vibrate?.(20);
+    window.HBIT?.toast?.success?.(tr("focus.breathe.done", "Breathed {minutes} min today", { minutes: mins }));
+  }
+
+  function tickStandaloneBreath() {
+    if (!fcBreathState) return;
+    fcBreathState.elapsed += 1;
+    if (fcBreathState.elapsed >= fcBreathState.total) {
+      completeStandaloneBreath();
+      return;
+    }
+    setStandaloneBreathPhase();
+  }
+
+  function openStandaloneBreath(name) {
+    const preset = FC_BREATH_PRESETS[name] || FC_BREATH_PRESETS.box;
+    fcBreathState = { preset, elapsed: 0, total: preset.minutes * 60 };
+    clearInterval(fcBreathTimer);
+    ui.breathOverlay?.classList.add("open");
+    ui.breathOverlay?.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    setStandaloneBreathPhase();
+    fcBreathTimer = setInterval(tickStandaloneBreath, 1000);
+  }
+
+  function closeStandaloneBreath(clearState = true) {
+    clearInterval(fcBreathTimer);
+    fcBreathTimer = null;
+    ui.breathOverlay?.classList.remove("open");
+    ui.breathOverlay?.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    if (clearState) fcBreathState = null;
+  }
+
+  function showFocusTransition(done) {
+    const pop = ui.focusPop;
+    if (!pop) {
+      done?.();
+      return;
+    }
+    const finish = () => {
+      clearTimeout(focusPopTimer);
+      focusPopTimer = null;
+      pop.classList.remove("open");
+      pop.setAttribute("aria-hidden", "true");
+      done?.();
+    };
+    pop.classList.add("open");
+    pop.setAttribute("aria-hidden", "false");
+    HBIT.confetti?.burst?.({ count: 28, spread: 55 });
+    focusPopTimer = setTimeout(finish, 3000);
+    $("fcFocusPopSkip")?.addEventListener("click", finish, { once: true });
   }
 
   // ======================================================================
@@ -581,8 +735,10 @@
         if (endedWork) {
           playWorkEndChime();
           incDaily();
-          window.HBIT?.toast?.success(tr("focus.toast.sessionGreat", "Great focus session! Let's breathe."));
-          initPhase(false);
+          showFocusTransition(() => {
+            window.HBIT?.toast?.success(tr("focus.toast.sessionGreat", "Great focus session! Let's breathe."));
+            initPhase(false);
+          });
         } else {
           playBreakEndChime();
           window.HBIT?.toast?.info(tr("focus.toast.breakDone", "Break complete. Back to work."));
@@ -621,15 +777,19 @@
   // ======================================================================
   function bindUi() {
     ui.tabTimer?.addEventListener("click", () => setActiveTab("timer"));
+    ui.tabBreathe?.addEventListener("click", () => setActiveTab("breathe"));
     ui.tabSessions?.addEventListener("click", () => setActiveTab("sessions"));
-    [ui.tabTimer, ui.tabSessions].forEach((tab) => {
+    [ui.tabTimer, ui.tabBreathe, ui.tabSessions].forEach((tab) => {
       tab?.addEventListener("keydown", (e) => {
         if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
         e.preventDefault();
-        const next = tab === ui.tabTimer ? ui.tabSessions : ui.tabTimer;
+        const tabs = [ui.tabTimer, ui.tabBreathe, ui.tabSessions].filter(Boolean);
+        const index = tabs.indexOf(tab);
+        const delta = e.key === "ArrowRight" ? 1 : -1;
+        const next = tabs[(index + delta + tabs.length) % tabs.length];
         if (next) {
           next.focus();
-          setActiveTab(next === ui.tabSessions ? "sessions" : "timer");
+          setActiveTab(next === ui.tabSessions ? "sessions" : next === ui.tabBreathe ? "breathe" : "timer");
         }
       });
     });
@@ -697,9 +857,25 @@
       });
     });
 
+    document.querySelectorAll("[data-breathe-preset]").forEach((btn) => {
+      btn.addEventListener("click", () => openStandaloneBreath(btn.dataset.breathePreset));
+    });
+    $("fcBreathClose")?.addEventListener("click", () => closeStandaloneBreath());
+    $("fcBreathEnd")?.addEventListener("click", () => closeStandaloneBreath());
+    ui.breathOverlay?.addEventListener("click", (e) => {
+      if (e.target === ui.breathOverlay) closeStandaloneBreath();
+    });
+
     // Spacebar mapping
     document.addEventListener("keydown", (e) => {
       if (e.target && ["INPUT", "SELECT", "TEXTAREA"].includes(e.target.tagName)) return;
+      if (e.key === "Escape") {
+        if (ui.breathOverlay?.classList.contains("open")) closeStandaloneBreath();
+        if (ui.focusPop?.classList.contains("open")) {
+          ui.focusPop.classList.remove("open");
+          ui.focusPop.setAttribute("aria-hidden", "true");
+        }
+      }
       if (e.code === "Space") {
         e.preventDefault();
         markAudioUserReady();
@@ -738,6 +914,7 @@
     try {
       initialTab = localStorage.getItem(TAB_KEY) || "timer";
     } catch (_) {}
+    if (new URLSearchParams(location.search).get("mode") === "breathing") initialTab = "breathe";
     setActiveTab(initialTab);
 
     if (!focusHelpModalBound && HBIT.utils?.initHelpModal) {

@@ -80,36 +80,25 @@
         </summary>
         <div class="palette-dropdown-menu">
           <div class="palette-picker" role="radiogroup" aria-label="Choose color theme">
-            <button class="palette-chip" data-palette="midnight" aria-checked="true" type="button"><div class="palette-chip-preview"><div class="palette-chip-bg" style="background:#070B14"><div class="palette-chip-panel" style="background:#0D1117"></div></div></div><span class="palette-chip-name" data-i18n="palette.midnight">Midnight</span></button>
-            <button class="palette-chip" data-palette="obsidian" aria-checked="false" type="button"><div class="palette-chip-preview"><div class="palette-chip-bg" style="background:#0C0A1A"><div class="palette-chip-panel" style="background:#13101F"></div></div></div><span class="palette-chip-name" data-i18n="palette.obsidian">Obsidian</span></button>
-            <button class="palette-chip" data-palette="ivory" aria-checked="false" type="button"><div class="palette-chip-preview"><div class="palette-chip-bg" style="background:#F7F5F0"><div class="palette-chip-panel" style="background:#FFFFFF"></div></div></div><span class="palette-chip-name" data-i18n="palette.ivory">Ivory</span></button>
-            <button class="palette-chip" data-palette="arctic" aria-checked="false" type="button"><div class="palette-chip-preview"><div class="palette-chip-bg" style="background:#F8FAFC"><div class="palette-chip-panel" style="background:#FFFFFF"></div></div></div><span class="palette-chip-name" data-i18n="palette.arctic">Arctic</span></button>
+            <button class="palette-chip" role="radio" data-palette="midnight" aria-checked="true" type="button" style="--pal-bg:#000000;--pal-panel:#1c1c1e;--pal-text:#ffffff;--pal-accent:#E8334A"><span class="palette-chip-preview" aria-hidden="true"><span class="palette-chip-bg"><span class="palette-chip-panel"><span class="palette-chip-accent"></span></span></span></span><span class="palette-chip-name" data-i18n="palette.midnight">Midnight</span><span class="palette-chip-check" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+            <button class="palette-chip" role="radio" data-palette="obsidian" aria-checked="false" type="button" style="--pal-bg:#050508;--pal-panel:#13131a;--pal-text:#f5f5ff;--pal-accent:#E8334A"><span class="palette-chip-preview" aria-hidden="true"><span class="palette-chip-bg"><span class="palette-chip-panel"><span class="palette-chip-accent"></span></span></span></span><span class="palette-chip-name" data-i18n="palette.obsidian">Obsidian</span><span class="palette-chip-check" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+            <button class="palette-chip" role="radio" data-palette="sage" aria-checked="false" type="button" style="--pal-bg:#EEF2ED;--pal-panel:#F7FAF7;--pal-text:#101810;--pal-accent:#059669"><span class="palette-chip-preview" aria-hidden="true"><span class="palette-chip-bg"><span class="palette-chip-panel"><span class="palette-chip-accent"></span></span></span></span><span class="palette-chip-name" data-i18n="palette.sage">Sage</span><span class="palette-chip-check" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
+            <button class="palette-chip" role="radio" data-palette="arctic" aria-checked="false" type="button" style="--pal-bg:#f0f4f8;--pal-panel:#ffffff;--pal-text:#0a1628;--pal-accent:#E8334A"><span class="palette-chip-preview" aria-hidden="true"><span class="palette-chip-bg"><span class="palette-chip-panel"><span class="palette-chip-accent"></span></span></span></span><span class="palette-chip-name" data-i18n="palette.arctic">Arctic</span><span class="palette-chip-check" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></button>
           </div>
         </div>
       </details>
       <a class="hm-avatar hdr-avatar" id="profileBtn" href="profile.html" aria-label="Profile">H</a>
-      <a class="hm-hdr-btn hdr-btn" href="profile.html" aria-label="Settings">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33
-                   1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4
-                   a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15
-                   a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9
-                   a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68
-                   a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51
-                   a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9
-                   a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-        </svg>
-      </a>
     </div>
   </header>
 
   <!-- â•â• Greeting strip â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div class="hm-greeting">
-    <span class="hm-greeting-text">
-      <span id="greetingLabel">Hello</span><span class="hm-comma">,&thinsp;</span><span class="hm-greeting-name" id="greetingName">â€”</span>
-    </span>
+    <div class="hm-greeting-copy">
+      <span class="hm-greeting-text">
+        <span id="greetingLabel">Hello</span><span class="hm-comma">,&thinsp;</span><span class="hm-greeting-name" id="greetingName">â€”</span>
+      </span>
+      <span class="hm-hero-summary" id="homeHeroSummary" aria-live="polite">Habits 0/0   Slept --   Mood --   Budget --   Focus 0   Planned 0</span>
+    </div>
     <span class="hm-greeting-date" id="greetingDate">â€”</span>
   </div>
 
