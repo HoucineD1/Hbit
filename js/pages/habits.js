@@ -810,7 +810,10 @@
 
     if (newStatus === "done" && existing?.status === "done") {
       try {
-        await logsCol().doc(existing.id).delete();
+        await window.HBIT?.db?.habitLogs?.remove?.(habitId, today);
+        if (existing.id && existing.id !== `${habitId}_${today}`) {
+          await logsCol().doc(existing.id).delete().catch(() => {});
+        }
         await habitsCol().doc(habitId).update({
           doneDays: firebase.firestore.FieldValue.increment(-1),
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -829,11 +832,11 @@
     try {
       let logId;
       if (existing) {
-        await logsCol().doc(existing.id).update({
-          status: newStatus,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        });
-        logId = existing.id;
+        await window.HBIT?.db?.habitLogs?.set?.(habitId, today, newStatus);
+        if (existing.id && existing.id !== `${habitId}_${today}`) {
+          await logsCol().doc(existing.id).delete().catch(() => {});
+        }
+        logId = `${habitId}_${today}`;
         if (existing.status === "done" && newStatus !== "done") {
           await habitsCol().doc(habitId).update({
             doneDays: firebase.firestore.FieldValue.increment(-1),
@@ -853,11 +856,8 @@
         const idx = state.allLogs.findIndex(l => l.id === logId);
         if (idx !== -1) state.allLogs[idx].status = newStatus;
       } else {
-        const ref = await logsCol().add({
-          habitId, dateKey: today, status: newStatus,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        });
-        logId = ref.id;
+        await window.HBIT?.db?.habitLogs?.set?.(habitId, today, newStatus);
+        logId = `${habitId}_${today}`;
         if (newStatus === "done") {
           await habitsCol().doc(habitId).update({
             doneDays: firebase.firestore.FieldValue.increment(1),
@@ -1207,7 +1207,7 @@
     return `<button class="wz-intent-card${a}" data-intent="${id}" type="button">
       <div class="wz-intent-icon">${emoji}</div>
       <div class="wz-intent-text"><div class="wz-intent-label">${label}</div><div class="wz-intent-sub">${sub}</div></div>
-      <div class="wz-intent-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><polyline points="1 4 4 7 9 1" stroke="#07090e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="wz-intent-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><polyline points="1 4 4 7 9 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     </button>`;
   }
 
@@ -1645,7 +1645,7 @@
         motivationTags: d.motivationTags || [], obstacles: d.obstacles || [],
         difficulty: d.difficulty || "moderate",
         archived: false, pinned: false, isActive: true,
-        color: "#34D399", icon: "\u2726",
+        color: "var(--habit)", icon: "\u2726",
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       };
 

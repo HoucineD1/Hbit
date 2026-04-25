@@ -3,7 +3,9 @@
    Compat SDK loaded via CDN before this script.
    ========================= */
 
-// TODO(launch): switch to browserLocalPersistence
+// Phase 1.7a — flipped to LOCAL persistence so users stay signed in
+// across browser closes. To force re-login during dev, sign out manually
+// or clear application storage.
 const firebaseConfig = {
   apiKey:            "AIzaSyBipZqtsB69eDF5dAFiAijIjNUfO_nkg6s",
   authDomain:        "hbit-d62a6.firebaseapp.com",
@@ -23,7 +25,13 @@ window.HBIT.fbAuth      = firebase.auth();
 window.HBIT.fbDb        = firebase.database();
 window.HBIT.fbFirestore = firebase.firestore();
 
-if (firebase.auth?.Auth?.Persistence?.SESSION) {
+// Phase 1.7a — LOCAL persistence keeps the user signed in across tab
+// closes; falls back to SESSION only if the SDK lacks LOCAL on this
+// platform (very old browsers).
+if (firebase.auth?.Auth?.Persistence?.LOCAL) {
+  window.HBIT.fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+    .catch((err) => console.warn("[Hbit] Auth persistence fallback:", err?.code || err));
+} else if (firebase.auth?.Auth?.Persistence?.SESSION) {
   window.HBIT.fbAuth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
     .catch((err) => console.warn("[Hbit] Auth persistence fallback:", err?.code || err));
 }

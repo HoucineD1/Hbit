@@ -249,11 +249,41 @@
     });
   }
 
+  function bindExportData() {
+    const btn = $("pfExportData");
+    if (!btn || btn.dataset.bound) return;
+    btn.dataset.bound = "1";
+    btn.addEventListener("click", async () => {
+      const user = firebase.auth().currentUser;
+      if (!user || !HBIT.db?.users?.exportAllData) return;
+      btn.disabled = true;
+      try {
+        const data = await HBIT.db.users.exportAllData(user.uid);
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `hbit-export-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showMsg(HBIT.i18n?.t?.("profile.export.success", "Your data export is ready.") || "Export ready.");
+      } catch {
+        showMsg(HBIT.i18n?.t?.("profile.export.error", "Could not export your data.") || "Export failed.", true);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  }
+
   function bindDeleteModal() {
     const overlay = $("pfDeleteModal");
     const openBtn = $("pfDeleteAccount");
     const cancel = $("pfDeleteCancel");
     const confirm = $("pfDeleteConfirm");
+    const passwordWrap = $("pfDeletePasswordWrap");
+    const passwordInput = $("pfDeletePassword");
     const dialog = overlay?.querySelector(".pf-modal");
     if (!overlay || !openBtn) return;
 
@@ -270,6 +300,13 @@
       lastFocus = document.activeElement;
       overlay.classList.add("open");
       overlay.setAttribute("aria-hidden", "false");
+      const user = firebase.auth().currentUser;
+      const needsPassword = !!user?.providerData?.some((p) => p.providerId === "password");
+      if (passwordWrap) passwordWrap.hidden = !needsPassword;
+      if (passwordInput) {
+        passwordInput.value = "";
+        passwordInput.required = needsPassword;
+      }
       (cancel || confirm)?.focus?.();
       onKey = (e) => {
         if (!overlay.classList.contains("open")) return;
@@ -294,6 +331,25 @@
       document.addEventListener("keydown", onKey);
     }
 
+    async function reauthenticateForDelete(user) {
+      const providers = user?.providerData?.map((p) => p.providerId).filter(Boolean) || [];
+      if (providers.includes("password")) {
+        const password = passwordInput?.value || "";
+        if (!password) {
+          passwordInput?.focus?.();
+          throw new Error("missing-password");
+        }
+        const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+        await user.reauthenticateWithCredential(credential);
+        return;
+      }
+      if (providers.includes("google.com")) {
+        await user.reauthenticateWithPopup(new firebase.auth.GoogleAuthProvider());
+        return;
+      }
+      await user.getIdToken(true);
+    }
+
     function close() {
       overlay.classList.remove("open");
       overlay.setAttribute("aria-hidden", "true");
@@ -310,12 +366,16 @@
     confirm?.addEventListener("click", async () => {
       const user = firebase.auth().currentUser;
       if (!user) return;
+      confirm.disabled = true;
       try {
+        await reauthenticateForDelete(user);
+        await HBIT.db?.users?.deleteAllData?.(user.uid);
         await user.delete();
         window.location.replace("index.html");
-      } catch {
+      } catch (err) {
+        confirm.disabled = false;
         showMsg(HBIT.i18n?.t?.("profile.delete.reauth", "Sign in again, then try deleting.") || "Error", true);
-        close();
+        if (err?.message !== "missing-password") close();
       }
     });
   }
@@ -331,6 +391,7 @@
     $("pfBio")?.addEventListener("input", updateCharCount);
     $("saveProfileBtn")?.addEventListener("click", saveProfile);
     bindPersonalToggle();
+    bindExportData();
     bindDeleteModal();
 
     $("pfLogoutBtn")?.addEventListener("click", async () => {

@@ -148,9 +148,8 @@ document.addEventListener("DOMContentLoaded", () => {
   })();
 
   async function setSessionPersistence() {
-    // TODO: Change to LOCAL persistence before public launch.
-    // SESSION is intentional during beta testing so the dev can test signup repeatedly.
-    await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
+    const persistence = firebase.auth.Auth.Persistence.LOCAL || firebase.auth.Auth.Persistence.SESSION;
+    await firebase.auth().setPersistence(persistence);
   }
 
   /*
@@ -427,7 +426,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (v.length >= 12 && /[^A-Za-z0-9]/.test(v)) { level=4; label="Strong 💪"; }
       pwStrength.dataset.level = level;
       pwLabel.textContent = level > 0 ? label : "";
-      pwLabel.style.color = ["","#ef4444","#f97316","#eab308","#3ecf7f"][level];
+      pwLabel.style.color = ["", "var(--danger)", "var(--focus)", "var(--budget)", "var(--habit)"][level];
     });
   }
 

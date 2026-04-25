@@ -8,9 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
   window.HBIT?.i18n?.init?.();
 
   async function setSessionPersistence() {
-    // TODO: Change to LOCAL persistence before public launch.
-    // SESSION is intentional during beta testing so the dev can test signup repeatedly.
-    await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
+    const persistence = firebase.auth.Auth.Persistence.LOCAL || firebase.auth.Auth.Persistence.SESSION;
+    await firebase.auth().setPersistence(persistence);
   }
 
   /* Redirect to home if already signed in on page load */

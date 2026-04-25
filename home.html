@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Hbit â€” Dashboard</title>
+  <title>Hbit  -  Dashboard</title>
   <meta name="description"
-        content="Your personal Hbit dashboard â€” habits, budget, sleep and mood at a glance." />
+        content="Your personal Hbit dashboard  -  habits, budget, sleep and mood at a glance." />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23E63946'/><text x='50%25' y='68%25' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='900' font-size='20' fill='white'>H</text></svg>">
   <meta name="theme-color" content="#070B14">
@@ -53,14 +53,14 @@
 
   <a href="#main-content" class="skip-link" data-i18n="a11y.skipToContent">Skip to main content</a>
 
-  <!-- â•â• Sidebar (injected by sidebar.js) â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- == Sidebar (injected by sidebar.js) ================== -->
   <div class="sb-overlay"></div>
   <nav class="sb" aria-hidden="true" aria-label="Main navigation"></nav>
 
-  <!-- â•â• Sticky header â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- == Sticky header =================================== -->
   <header class="hm-header">
     <div class="hm-hdr-left">
-      <span class="hm-hdr-date" id="homeDate">â€”</span>
+      <span class="hm-hdr-date" id="homeDate"> - </span>
       <h1 class="hm-hdr-title" data-i18n="nav.overview">Overview</h1>
     </div>
     <div class="hm-hdr-right">
@@ -91,21 +91,21 @@
     </div>
   </header>
 
-  <!-- â•â• Greeting strip â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- == Greeting strip ================================== -->
   <div class="hm-greeting">
     <div class="hm-greeting-copy">
       <span class="hm-greeting-text">
-        <span id="greetingLabel">Hello</span><span class="hm-comma">,&thinsp;</span><span class="hm-greeting-name" id="greetingName">â€”</span>
+        <span id="greetingLabel">Hello</span><span class="hm-comma">,&thinsp;</span><span class="hm-greeting-name" id="greetingName"> - </span>
       </span>
       <span class="hm-hero-summary" id="homeHeroSummary" aria-live="polite">Habits 0/0   Slept --   Mood --   Budget --   Focus 0   Planned 0</span>
     </div>
-    <span class="hm-greeting-date" id="greetingDate">â€”</span>
+    <span class="hm-greeting-date" id="greetingDate"> - </span>
   </div>
 
-  <!-- â•â• Dashboard cards (scrollable) â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- == Dashboard cards (scrollable) =================== -->
   <main class="hm-grid" id="main-content" aria-label="Dashboard overview">
 
-    <!-- â”€â”€ Card 0 Â· Weekly Summary (featured, first, not clickable) â”€â”€ -->
+    <!-- -- Card 0 &middot; Weekly Summary (featured, first, not clickable) -- -->
     <div class="hc-card hc-card--featured hc-card--summary"
          data-module="summary" aria-label="Weekly summary">
       <div class="hc-top">
@@ -119,19 +119,19 @@
         <!-- Concentric rings donut -->
         <div class="hc-summary-chart">
           <svg class="hc-weekly-donut" id="weeklyRings" viewBox="0 0 80 80" role="img" data-i18n-aria-label="home.chart.weeklyAria">
-            <!-- Habits outer ring  r=30  circâ‰ˆ188.5 -->
+            <!-- Habits outer ring  r=30  circ~188.5 -->
             <circle class="hc-wr-track" cx="40" cy="40" r="30"/>
             <circle class="hc-wr-fill" id="wkHabitsFill" data-module="habits"
                     cx="40" cy="40" r="30"
                     stroke-dasharray="188.496" stroke-dashoffset="188.496"
                     transform="rotate(-90 40 40)"/>
-            <!-- Budget middle ring  r=21  circâ‰ˆ131.9 -->
+            <!-- Budget middle ring  r=21  circ~131.9 -->
             <circle class="hc-wr-track" cx="40" cy="40" r="21"/>
             <circle class="hc-wr-fill" id="wkBudgetFill" data-module="budget"
                     cx="40" cy="40" r="21"
                     stroke-dasharray="131.947" stroke-dashoffset="131.947"
                     transform="rotate(-90 40 40)"/>
-            <!-- Sleep inner ring  r=12  circâ‰ˆ75.4 -->
+            <!-- Sleep inner ring  r=12  circ~75.4 -->
             <circle class="hc-wr-track" cx="40" cy="40" r="12"/>
             <circle class="hc-wr-fill" id="wkSleepFill" data-module="sleep"
                     cx="40" cy="40" r="12"
@@ -145,22 +145,22 @@
           <div class="hc-sum-row">
             <span class="hc-sum-dot" data-module="habits" aria-hidden="true"></span>
             <span class="hc-sum-lbl" data-i18n="nav.habits">Habits</span>
-            <span class="hc-sum-val" id="wkHabitsText">â€”</span>
+            <span class="hc-sum-val" id="wkHabitsText"> - </span>
           </div>
           <div class="hc-sum-row">
             <span class="hc-sum-dot" data-module="budget" aria-hidden="true"></span>
             <span class="hc-sum-lbl" data-i18n="nav.budget">Budget</span>
-            <span class="hc-sum-val" id="wkBudgetText">â€”</span>
+            <span class="hc-sum-val" id="wkBudgetText"> - </span>
           </div>
           <div class="hc-sum-row">
             <span class="hc-sum-dot" data-module="sleep" aria-hidden="true"></span>
             <span class="hc-sum-lbl" data-i18n="nav.sleep">Sleep</span>
-            <span class="hc-sum-val" id="wkSleepText">â€”</span>
+            <span class="hc-sum-val" id="wkSleepText"> - </span>
           </div>
           <div class="hc-sum-row">
             <span class="hc-sum-dot" data-module="mood" aria-hidden="true"></span>
             <span class="hc-sum-lbl" data-i18n="nav.mood">Mood</span>
-            <span class="hc-sum-val" id="wkMoodText">â€”</span>
+            <span class="hc-sum-val" id="wkMoodText"> - </span>
           </div>
         </div>
 
@@ -168,7 +168,7 @@
     </div><!-- /weekly summary -->
 
 
-    <!-- â”€â”€ Card 1 Â· Habits â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- -- Card 1 &middot; Habits ---------------------------------- -->
     <a class="hc-card" data-module="habits" href="habits.html" aria-label="Habits">
       <div class="hc-top">
         <span class="hc-label" data-i18n="nav.habits">Habits</span>
@@ -195,14 +195,14 @@
       </div>
     </a>
 
-    <!-- â”€â”€ Card 2 Â· Budget â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- -- Card 2 &middot; Budget --------------------------------- -->
     <a class="hc-card" data-module="budget" href="budget.html" aria-label="Budget">
       <div class="hc-top">
         <span class="hc-label" data-i18n="nav.budget">Budget</span>
         <span class="hc-dot" data-module="budget" aria-hidden="true"></span>
       </div>
       <div class="hc-value" id="budgetMetric">
-        â€”<span class="hc-unit">&thinsp;left</span>
+         - <span class="hc-unit">&thinsp;left</span>
       </div>
       <div class="hc-chart">
         <svg class="hc-donut" viewBox="0 0 44 44" aria-hidden="true">
@@ -225,14 +225,14 @@
       </div>
     </a>
 
-    <!-- â”€â”€ Card 3 Â· Sleep â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- -- Card 3 &middot; Sleep ---------------------------------- -->
     <a class="hc-card" data-module="sleep" href="sleep.html" aria-label="Sleep">
       <div class="hc-top">
         <span class="hc-label" data-i18n="nav.sleep">Sleep</span>
         <span class="hc-dot" data-module="sleep" aria-hidden="true"></span>
       </div>
       <div class="hc-value" id="sleepMetric">
-        â€”<span class="hc-unit">&thinsp;hrs</span>
+         - <span class="hc-unit">&thinsp;hrs</span>
       </div>
       <div class="hc-chart">
         <svg class="hc-bars-svg" id="sleepBarsChart" viewBox="0 0 56 28"
@@ -249,14 +249,14 @@
       </div>
     </a>
 
-    <!-- â”€â”€ Card 4 Â· Mood / State of Mind (single grid cell: card + suggestions) â”€â”€ -->
+    <!-- -- Card 4 &middot; Mood / State of Mind (single grid cell: card + suggestions) -- -->
     <div class="hc-card hc-card--mood-compound" data-module="mood">
       <a class="hc-card-mood-primary" href="mood.html" aria-label="State of Mind">
         <div class="hc-top">
           <span class="hc-label" data-i18n="nav.mood">State of Mind</span>
           <span class="hc-dot" data-module="mood" aria-hidden="true"></span>
         </div>
-        <div class="hc-value" id="moodMetric">â€”</div>
+        <div class="hc-value" id="moodMetric"> - </div>
         <div class="hc-chart">
           <svg class="hc-spark-svg" id="moodSparkChart" viewBox="0 0 60 30"
                preserveAspectRatio="xMidYMid meet" aria-hidden="true">
@@ -287,8 +287,8 @@
       </div>
     </div>
 
-    <!-- â”€â”€ Card 5 Â· Schedule â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
-    <!-- â”€â”€ Card 6 Â· Focus â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- -- Card 5 &middot; Schedule -------------------------------- -->
+    <!-- -- Card 6 &middot; Focus ---------------------------------- -->
     <a class="hc-card" data-module="plan" href="plan.html" aria-label="Planner">
       <div class="hc-top">
         <span class="hc-label" data-i18n="nav.plan">Planner</span>
@@ -354,7 +354,7 @@
 
   </main><!-- /hm-grid -->
 
-  <!-- â•â• Page footer â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <!-- == Page footer ======================================== -->
   <footer class="hm-page-footer">
     <span data-i18n="footer.copyright">&copy; 2026 Hbit</span>
     &nbsp;&middot;&nbsp;

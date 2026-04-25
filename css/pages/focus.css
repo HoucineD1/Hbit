@@ -97,7 +97,8 @@
   background: transparent;
   color: var(--fc-muted);
   border-radius: 999px;
-  padding: 8px 14px;
+  min-height: var(--tap-min, 44px);
+  padding: 10px 16px;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
@@ -120,6 +121,10 @@
 .fc-panel.is-active {
   opacity: 1;
   transform: translateY(0);
+}
+
+.fc-panel:not(.is-active) {
+  display: none;
 }
 
 .fc-cockpit {
@@ -380,6 +385,13 @@
   gap: 2px;
   animation: fadeIn 0.4s ease;
 }
+/* Phase 1.1 — explicit guard: when the breath display is `hidden` it must not
+   leak visually onto the timer below it. The global [hidden] rule covers this
+   but local !important transforms in animation keyframes can fight it. */
+.fc-br-display[hidden]{ display:none !important; }
+/* Phase 1.1 — inactive Focus panels must not reserve vertical height; that
+   was pushing the Breathe-tab cards below the fold. */
+.fc-panel[hidden]{ display:none !important; }
 .fc-br-phase-label { font-size: 26px; font-weight: 800; color: var(--fc-break); letter-spacing: -0.5px; }
 .fc-br-secs { font-size: 16px; font-weight: 700; color: var(--fc-muted); }
 

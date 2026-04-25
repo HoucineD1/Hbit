@@ -22,7 +22,10 @@
   --t-fast:80ms cubic-bezier(0.4,0,0.2,1); --t-normal:200ms cubic-bezier(0.4,0,0.2,1); --t-slow:350ms cubic-bezier(0.4,0,0.2,1); --t-spring:400ms cubic-bezier(0.34,1.56,0.64,1);
   --grad-salary:linear-gradient(135deg,#0d2318 0%,#112a1e 100%); --grad-cash:linear-gradient(135deg,#1f1500 0%,#261a00 100%);
   --grad-credit:linear-gradient(135deg,#0f0a22 0%,#160e2e 100%); --grad-debt:linear-gradient(135deg,#200a0a 0%,#2a0e0e 100%);
-  --bgt-text:var(--bgt-text-1); --bgt-surface:var(--bgt-surface-1); --bgt-green:var(--bgt-income); --bgt-red:var(--bgt-danger); --bgt-blue:#38BDF8; --bgt-purple:#A78BFA; --bgt-cyan:#22D3EE; --bgt-orange:#FB923C; --bgt-positive:var(--bgt-income); --bgt-negative:var(--bgt-danger);
+  /* Phase 1.3 — Budget category palette tuned to NOT collide with module accents.
+     Plan = #22D3EE, Mood = #A78BFA — those are reserved. We shift to teal and
+     orchid so the donut never reads as another module's color. */
+  --bgt-text:var(--bgt-text-1); --bgt-surface:var(--bgt-surface-1); --bgt-green:var(--bgt-income); --bgt-red:var(--bgt-danger); --bgt-blue:#38BDF8; --bgt-purple:#C084FC; --bgt-cyan:#14B8A6; --bgt-orange:#FB923C; --bgt-positive:var(--bgt-income); --bgt-negative:var(--bgt-danger);
   --bgt-salary-bg:var(--grad-salary); --bgt-cash-bg:var(--grad-cash); --bgt-credit-bg:var(--grad-credit); --bgt-debt-bg:var(--grad-debt);
   margin:0; min-height:100vh; background:radial-gradient(ellipse 80% 42% at 50% -12%,rgba(245,158,11,0.10),transparent 70%),var(--bgt-bg);
   color:var(--bgt-text-1); font-family:"DM Sans",Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
@@ -40,6 +43,44 @@ html[data-theme="light"] #budgetPage {
   --bgt-positive:var(--bgt-income); --bgt-negative:var(--bgt-danger); --bgt-green:var(--bgt-income); --bgt-red:var(--bgt-danger);
   --grad-salary:linear-gradient(135deg,#EAFBF4 0%,#DCFCEB 100%); --grad-cash:linear-gradient(135deg,#FFF8E6 0%,#FEF3C7 100%); --grad-credit:linear-gradient(135deg,#EEF2FF 0%,#E0E7FF 100%); --grad-debt:linear-gradient(135deg,#FFF1F2 0%,#FEE2E2 100%);
   background:radial-gradient(ellipse 90% 38% at 50% -16%,rgba(245,158,11,0.16),transparent 70%),var(--bgt-bg);
+}
+html[data-theme="light"] #budgetPage .bg-hero,
+html[data-theme="light"] #budgetPage .bg-kpi,
+html[data-theme="light"] #budgetPage .bg-kpi-card,
+html[data-theme="light"] #budgetPage .bg-sec,
+html[data-theme="light"] #budgetPage .bg-section,
+html[data-theme="light"] #budgetPage .bg-planner-section,
+html[data-theme="light"] #budgetPage .bg-chart-section,
+html[data-theme="light"] #budgetPage .bg-health-section,
+html[data-theme="light"] #budgetPage .bg-sheet,
+html[data-theme="light"] #budgetPage .bg-modal,
+html[data-theme="light"] #budgetPage .bg-export-dropdown {
+  background:var(--bgt-surface-1);
+  border-color:var(--bgt-border);
+  color:var(--bgt-text-1);
+  box-shadow:var(--shadow-md);
+}
+html[data-theme="light"] #budgetPage .bg-action-btn,
+html[data-theme="light"] #budgetPage .bg-month-nav,
+html[data-theme="light"] #budgetPage .bg-currency-select,
+html[data-theme="light"] #budgetPage .bg-daily-chip,
+html[data-theme="light"] #budgetPage .bg-input,
+html[data-theme="light"] #budgetPage .bg-select,
+html[data-theme="light"] #budgetPage .bg-textarea,
+html[data-theme="light"] #budgetPage .bg-tab,
+html[data-theme="light"] #budgetPage .bg-pill {
+  background:var(--bgt-surface-2);
+  border-color:var(--bgt-border);
+  color:var(--bgt-text-1);
+}
+html[data-theme="light"] #budgetPage .bg-hero-label,
+html[data-theme="light"] #budgetPage .bg-hero-sub,
+html[data-theme="light"] #budgetPage .bg-kpi-lbl,
+html[data-theme="light"] #budgetPage .kpi-label,
+html[data-theme="light"] #budgetPage .bg-planner-hint,
+html[data-theme="light"] #budgetPage .bg-empty-sub,
+html[data-theme="light"] #budgetPage .bg-badge {
+  color:var(--bgt-text-3);
 }
 #budgetPage *,#budgetPage *::before,#budgetPage *::after{box-sizing:border-box}
 #budgetPage button,#budgetPage input,#budgetPage select,#budgetPage textarea{font:inherit}

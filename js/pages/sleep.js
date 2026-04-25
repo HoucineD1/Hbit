@@ -797,7 +797,7 @@
     const total = n * barW + (n - 1) * gap;
     const xOff = (W - total) / 2;
     const maxV = Math.max(9, ...data);
-    const col = "#818CF8";
+    const col = "var(--sleep)";
     svg.innerHTML = data.map((v, i) => {
       const x = xOff + i * (barW + gap);
       const bh = Math.max(3, Math.round((Math.max(0, v) / maxV) * (H - 5)));
@@ -805,7 +805,7 @@
       const r = Math.min(3, barW / 2);
       const op = (0.5 + (i / n) * 0.5).toFixed(2);
       return `<rect x="${x}" y="2" width="${barW}" height="${H - 4}" rx="${r}"
-              fill="${col}18"/>
+              fill="${col}" opacity="0.10"/>
               ${bh > 2 ? `<rect x="${x}" y="${y}" width="${barW}" height="${bh}" rx="${r}"
               fill="${col}" opacity="${op}"/>` : ""}`;
     }).join("");
@@ -1743,7 +1743,7 @@
       /* silent */
       if (saveBtn) {
         saveBtn.textContent = "Error — retry";
-        saveBtn.style.background = "var(--sl-red,#F87171)";
+        saveBtn.style.background = "var(--sl-red, var(--danger))";
       }
       setTimeout(() => {
         if (saveBtn) {

@@ -921,6 +921,11 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
 
 /* ── Toast ──────────────────────────────────────────────── */
 .md-log-fab {
+  /* Phase 1.3 — FAB now uses the canonical Mood accent (violet #A78BFA)
+     regardless of the active mood band. The dynamic --md-color still drives
+     other surfaces, but the FAB is the persistent module identifier and
+     must read as Mood from any state. */
+  --md-fab-color: #A78BFA;
   position: fixed;
   right: max(20px, env(safe-area-inset-right));
   bottom: max(24px, env(safe-area-inset-bottom));
@@ -932,10 +937,10 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
   border: 0;
   border-radius: 50%;
   background:
-    radial-gradient(circle at 32% 24%, color-mix(in srgb, var(--md-color) 32%, #fff), transparent 36%),
-    var(--md-color);
+    radial-gradient(circle at 32% 24%, color-mix(in srgb, var(--md-fab-color) 32%, #fff), transparent 36%),
+    var(--md-fab-color);
   color: color-mix(in srgb, var(--bg) 86%, #000);
-  box-shadow: 0 18px 44px color-mix(in srgb, var(--md-color) 32%, transparent), 0 10px 22px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 18px 44px color-mix(in srgb, var(--md-fab-color) 32%, transparent), 0 10px 22px rgba(0, 0, 0, 0.28);
   cursor: pointer;
   transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.2s ease;
 }

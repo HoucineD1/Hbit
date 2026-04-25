@@ -169,6 +169,10 @@
         state.tasks = tasks;
         state.tasksSnapReady = true;
         sortRender();
+      }, (err) => {
+        state.tasksSnapReady = true;
+        renderList();
+        showPlanError(err, () => loadTasks());
       });
 
       HBIT.db.tasks.listAll().then(allTasks => {
@@ -178,7 +182,9 @@
         buildCalendarMeta(mapped);
         if ($("plCarryOver")) $("plCarryOver").hidden = state.allPastUndone.length === 0 || state.selectedDate !== today;
         renderCalendar();
-      }).catch(()=>{});
+      }).catch((err) => {
+        showPlanError(err, () => loadTasks());
+      });
 
       loadTodaysHabits();
 
@@ -750,7 +756,7 @@
         if ($("planAvatar")) $("planAvatar").textContent = (u.displayName || "H").charAt(0).toUpperCase();
       } else {
         state.user = null;
-        loadTasks();
+        window.location.replace("login.html");
       }
     });
   }

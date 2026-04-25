@@ -48,6 +48,7 @@
       habits: null,
       sleep: null,
       mind: null,
+      plan: null,
       weekly: { habitsPct: null, budgetPct: null, sleepAvg: null, moodAvg: null },
     };
 
@@ -67,6 +68,7 @@
         sleepPlansUpcoming,
         moodToday,
         moodRecent,
+        tasksSnap,
       ] = await Promise.all([
         userRef.collection("habits").get().catch((e) => { /* silent */ return { docs: [] }; }),
         userRef.collection("habitLogs").where("dateKey", ">=", weekStart).where("dateKey", "<=", today).get().catch((e) => { /* silent */ return { docs: [] }; }),
@@ -80,6 +82,7 @@
         fetchNextSleepPlan(uid),
         userRef.collection("moodLogs").doc(today).get().catch((e) => { /* silent */ return { exists: false }; }),
         userRef.collection("moodLogs").orderBy("date", "desc").limit(7).get().catch((e) => { /* silent */ return { docs: [] }; }),
+        userRef.collection("tasks").get().catch((e) => { /* silent */ return { docs: [] }; }),
       ]);
 
       const habitsList = habitsSnap.docs.map(d => ({ id: d.id, ...d.data() })).filter(h => !h.archived);
@@ -87,6 +90,7 @@
       const sleepLogsArr = sleepLogsRecent.docs ? sleepLogsRecent.docs.map(d => ({ id: d.id, ...d.data() })) : [];
       const moodTodayObj = moodToday.exists ? { id: moodToday.id, ...moodToday.data() } : null;
       const moodRecentArr = moodRecent.docs ? moodRecent.docs.map(d => ({ id: d.id, ...d.data() })) : [];
+      const tasksArr = tasksSnap.docs ? tasksSnap.docs.map(d => ({ id: d.id, ...d.data() })) : [];
 
       /* ── Budget ───────────────────────────────────────────── */
       let incomeTotal = 0, expenseTotal = 0, remaining = 0, monthGoal = 0;
@@ -207,6 +211,21 @@
         out.budget.monthGoal > 0 || out.budget.incomeTotal > 0
           ? Math.max(0, 1 - (out.budget.expenseTotal / (out.budget.monthGoal || out.budget.incomeTotal || 1)))
           : null;
+
+      const openTasks = tasksArr
+        .filter((task) => !task.done)
+        .sort((a, b) => {
+          const da = a.date || "9999-12-31";
+          const db = b.date || "9999-12-31";
+          if (da !== db) return da.localeCompare(db);
+          return (a.time || "24:00").localeCompare(b.time || "24:00");
+        });
+      out.plan = {
+        total: tasksArr.length,
+        open: openTasks.length,
+        next: openTasks[0] || null,
+        hasData: tasksArr.length > 0,
+      };
     } catch (err) {
       /* silent */
       return getEmptyDashboard();
@@ -272,6 +291,12 @@
         stress: null,
         focus: null,
         recentScores: [],
+        hasData: false,
+      },
+      plan: {
+        total: 0,
+        open: 0,
+        next: null,
         hasData: false,
       },
       weekly: { habitsPct: null, budgetPct: null, sleepAvg: null, moodAvg: null },

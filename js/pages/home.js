@@ -8,6 +8,7 @@
   const HBIT = (window.HBIT = window.HBIT || {});
   const $ = (id) => document.getElementById(id);
   const PLANNER_KEY = "hbit:plan:items";
+  const LEGACY_PLANNER_KEYS = ["hbit:plan:items", "hbit:plan:tasks"];
   const FOCUS_DAILY_KEY = "hbit:focus:daily";
 
   const DONUT_CIRC = 2 * Math.PI * 18;
@@ -104,24 +105,31 @@
 
   function formatSleepHero(hours) {
     const value = Number(hours) || 0;
-    if (value <= 0) return getLang() === "fr" ? "Sommeil --" : "Slept --";
+    if (value <= 0) return tr("home.hero.sleepEmpty", "Slept --");
     const h = Math.floor(value);
     const m = Math.round((value - h) * 60);
-    return getLang() === "fr" ? `Sommeil ${h}h ${m}m` : `Slept ${h}h ${m}m`;
+    return tr("home.hero.sleep", "Slept {hours}h {minutes}m", { hours: h, minutes: m });
   }
 
   function renderHeroSummary(parts) {
     const el = $("homeHeroSummary");
     if (!el) return;
-    const fr = getLang() === "fr";
     el.textContent = [
-      `${fr ? "Habitudes" : "Habits"} ${parts.habitsDone || 0}/${parts.habitsTotal || 0}`,
+      tr("home.hero.habits", "Habits {done}/{total}", {
+        done: parts.habitsDone || 0,
+        total: parts.habitsTotal || 0,
+      }),
       formatSleepHero(parts.sleepHours),
-      `${fr ? "Humeur" : "Mood"} ${parts.moodScore ? `${parts.moodScore}/10` : "--"}`,
-      parts.budgetText || "Budget --",
-      `Focus ${parts.focusSessions || 0}/${parts.focusGoal || 3}`,
-      `${fr ? "Planifiés" : "Planned"} ${parts.planned || 0}`,
-    ].join("   ");
+      tr("home.hero.mood", "Mood {score}", {
+        score: parts.moodScore ? `${parts.moodScore}/10` : "--",
+      }),
+      parts.budgetText || tr("home.hero.budgetEmpty", "Budget --"),
+      tr("home.hero.focus", "Focus {done}/{goal}", {
+        done: parts.focusSessions || 0,
+        goal: parts.focusGoal || 3,
+      }),
+      tr("home.hero.plan", "Plan {count}", { count: parts.planned || 0 }),
+    ].join(" - ");
   }
 
   function readPlannerItems() {
@@ -134,8 +142,16 @@
     }
   }
 
-  function getPlannerSummary() {
-    const items = readPlannerItems().filter((item) => item && typeof item.text === "string");
+  function getPlannerSummary(data) {
+    if (data?.plan) {
+      return {
+        total: Number(data.plan.total) || 0,
+        open: Number(data.plan.open) || 0,
+        next: data.plan.next || null,
+        hasData: !!data.plan.hasData,
+      };
+    }
+    const items = readPlannerItems().filter((item) => item && (typeof item.text === "string" || typeof item.title === "string"));
     const openItems = items.filter((item) => !item.done);
     return {
       total: items.length,
@@ -143,6 +159,52 @@
       next: openItems[0] || null,
       hasData: items.length > 0,
     };
+  }
+
+  function readAllLegacyPlannerItems() {
+    const items = [];
+    LEGACY_PLANNER_KEYS.forEach((key) => {
+      try {
+        const raw = localStorage.getItem(key);
+        const parsed = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(parsed)) items.push(...parsed);
+      } catch {}
+    });
+    return items;
+  }
+
+  async function migrateLegacyPlannerTasks(user = state.user) {
+    if (!user || !HBIT.db?.tasks) return;
+    const marker = `hbit:plan:migrated:${user.uid}`;
+    try {
+      if (localStorage.getItem(marker)) return;
+    } catch {}
+    const legacy = readAllLegacyPlannerItems()
+      .map((item) => {
+        const title = String(item?.title || item?.text || "").trim();
+        if (!title) return null;
+        return {
+          title,
+          date: item.date || todayKeyLocal(),
+          time: item.time || "",
+          duration: item.duration || 60,
+          priority: item.priority || "low",
+          notes: item.notes || "",
+          done: !!item.done,
+        };
+      })
+      .filter(Boolean);
+    if (!legacy.length) {
+      try { localStorage.setItem(marker, "1"); } catch {}
+      return;
+    }
+    try {
+      await Promise.all(legacy.map((task) => HBIT.db.tasks.add(task)));
+      try { localStorage.setItem(marker, "1"); } catch {}
+      window.HBIT?.toast?.success?.(tr("home.plan.migrated", "Planner tasks synced to your account."));
+    } catch (err) {
+      window.HBIT?.toast?.error?.(tr("home.plan.migrateError", "Could not sync older planner tasks."));
+    }
   }
 
   function todayKeyLocal() {
@@ -265,7 +327,6 @@
     const total = data.length * barWidth + (data.length - 1) * gap;
     const xOffset = (width - total) / 2;
     const maxValue = Math.max(9, ...data);
-    const dim = `${color}28`;
 
     svg.innerHTML = data.map((value, index) => {
       const x = xOffset + index * (barWidth + gap);
@@ -274,7 +335,7 @@
       const radius = Math.min(2, barWidth / 2);
       const opacity = (0.65 + (index / data.length) * 0.35).toFixed(2);
       return `
-        <rect x="${x}" y="2" width="${barWidth}" height="${height - 4}" rx="${radius}" fill="${dim}"/>
+        <rect x="${x}" y="2" width="${barWidth}" height="${height - 4}" rx="${radius}" fill="${color}" opacity="0.16"/>
         ${barHeight > 1
           ? `<rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="${radius}" fill="${color}" opacity="${opacity}"/>`
           : ""}
@@ -348,7 +409,7 @@
     setBudgetSubline("");
 
     setMetricHtml("sleepMetric", "—", tr("home.sleep.unit", "hrs"));
-    renderSleepBars("sleepBarsChart", [0, 0, 0, 0, 0, 0, 0], "#818CF8");
+    renderSleepBars("sleepBarsChart", [0, 0, 0, 0, 0, 0, 0], "var(--sleep)");
     setFooter("sleepFooter", tr("home.sleep.footer.empty", "No sleep logged · Log last night"));
 
     if ($("moodMetric")) $("moodMetric").textContent = "—";
@@ -378,7 +439,7 @@
     const sleep = data?.sleep || {};
     const mind = data?.mind || {};
     const weekly = data?.weekly || {};
-    const planner = getPlannerSummary();
+    const planner = getPlannerSummary(data);
     const focus = getFocusSummary();
     const budgetText = budget.monthGoal > 0
       ? `${formatCurrency(budget.expenseTotal || 0, budget.lastEntry?.currency || "CAD")} / ${formatCurrency(budget.monthGoal, budget.lastEntry?.currency || "CAD")}`
@@ -475,7 +536,7 @@
           ? tr("home.sleep.footer.great", "Great night! · View history")
           : tr("home.sleep.footer.low", "Below target · View details")
     );
-    renderSleepBars("sleepBarsChart", sleep.recentHours || [], "#818CF8");
+    renderSleepBars("sleepBarsChart", sleep.recentHours || [], "var(--sleep)");
 
     const score = mind.score != null ? Number(mind.score) : null;
     if ($("moodMetric")) {
@@ -511,7 +572,7 @@
         : planner.open === 0
           ? tr("home.plan.footer.done", "All clear - Plan your next win")
           : tr("home.plan.footer.next", "Next: {task}", {
-              task: planner.next?.text?.trim() || tr("home.plan.fallback", "Open planner"),
+              task: (planner.next?.title || planner.next?.text || "").trim() || tr("home.plan.fallback", "Open planner"),
             })
     );
 
@@ -678,6 +739,7 @@
 
       state.user = user;
       await loadProfile(user);
+      await migrateLegacyPlannerTasks(user);
       renderHeader();
       await refreshDashboard(user);
     });

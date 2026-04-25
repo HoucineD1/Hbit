@@ -1182,6 +1182,15 @@
 
   async function start(user) {
     state.uid = user.uid;
+    const avatar = $("moodProfileBtn");
+    if (avatar) {
+      let name = user.displayName || "";
+      try {
+        const profile = await HBIT.getCurrentUserProfile?.();
+        name = profile?.fullName || profile?.name || name;
+      } catch (_) {}
+      avatar.textContent = (name || user.email || "H").trim().charAt(0).toUpperCase();
+    }
     await migrateLegacyData();
     const [todayLog, recentLogs, heatmapLogs] = await Promise.all([loadTodayLog(), loadRecentLogs(), loadHeatmapLogs()]);
     state.todayLog = todayLog;

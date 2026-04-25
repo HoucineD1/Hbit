@@ -123,6 +123,83 @@
       } catch (err) { return logAndThrow("users.update", err); }
     },
 
+    async exportAllData(uid = getUidOrThrow()) {
+      try {
+        const root = userDocRef(uid);
+        const profile = await root.get();
+        const subcollections = [
+          "habits",
+          "habitLogs",
+          "habitOnboarding",
+          "budgetEntries",
+          "budgetGoals",
+          "budgetAccounts",
+          "budgetMonths",
+          "budgetPlan",
+          "budgetBills",
+          "savingsGoals",
+          "sleepLogs",
+          "sleepSettings",
+          "sleepPlans",
+          "moodLogs",
+          "tasks",
+          "focus",
+          "focus_sessions",
+        ];
+        const data = {
+          exportedAt: new Date().toISOString(),
+          uid,
+          profile: profile.exists ? profile.data() : null,
+          collections: {},
+        };
+        await Promise.all(subcollections.map(async (name) => {
+          const snap = await root.collection(name).get();
+          data.collections[name] = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        }));
+        return data;
+      } catch (err) { return logAndThrow("users.exportAllData", err); }
+    },
+
+    async deleteAllData(uid = getUidOrThrow()) {
+      try {
+        const root = userDocRef(uid);
+        const subcollections = [
+          "habits",
+          "habitLogs",
+          "habitOnboarding",
+          "budgetEntries",
+          "budgetGoals",
+          "budgetAccounts",
+          "budgetMonths",
+          "budgetPlan",
+          "budgetBills",
+          "savingsGoals",
+          "sleepLogs",
+          "sleepSettings",
+          "sleepPlans",
+          "moodLogs",
+          "tasks",
+          "focus",
+          "focus_sessions",
+        ];
+
+        for (const name of subcollections) {
+          let snap = await root.collection(name).limit(450).get();
+          while (!snap.empty) {
+            const batch = fs().batch();
+            snap.docs.forEach((doc) => batch.delete(doc.ref));
+            await batch.commit();
+            snap = await root.collection(name).limit(450).get();
+          }
+        }
+
+        await root.delete().catch(() => {});
+        if (HBIT.fbDb?.ref) {
+          await HBIT.fbDb.ref(`users/${uid}`).remove().catch(() => {});
+        }
+      } catch (err) { return logAndThrow("users.deleteAllData", err); }
+    },
+
     /** Atomically increment one stats counter. */
     async incrementStat(key, delta = 1) {
       try {
@@ -288,7 +365,15 @@
     async get(habitId, dateKey) {
       try {
         const doc = await this._col().doc(this._id(habitId, dateKey)).get();
-        return snap2obj(doc);
+        const deterministic = snap2obj(doc);
+        if (deterministic) return deterministic;
+
+        const legacy = await this._col()
+          .where("habitId", "==", habitId)
+          .where("dateKey", "==", dateKey)
+          .limit(1)
+          .get();
+        return legacy.empty ? null : snap2obj(legacy.docs[0]);
       } catch (err) { return logAndThrow("habitLogs.get", err); }
     },
 
@@ -895,9 +980,12 @@
       } catch (err) { return logAndThrow("tasks.delete", err); }
     },
 
-    onSnapshot(date, callback) {
+    onSnapshot(date, callback, onError) {
       return this._col().where("date", "==", date).onSnapshot(snap => {
         callback(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      }, err => {
+        if (typeof onError === "function") onError(err);
+        else logAndThrow("tasks.onSnapshot", err);
       });
     }
   };

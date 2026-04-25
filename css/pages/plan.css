@@ -24,6 +24,52 @@ html[data-theme="light"] #planPage {
   --pl-border: var(--border);
   --pl-text: var(--text);
   --pl-muted: var(--muted);
+  --pl-accent-glow: color-mix(in srgb, var(--plan) 18%, transparent);
+}
+
+html[data-theme="light"] #planPage .pl-day-summary,
+html[data-theme="light"] #planPage .pl-overview-card,
+html[data-theme="light"] #planPage .pl-carry-over,
+html[data-theme="light"] #planPage .pl-empty,
+html[data-theme="light"] #planPage .pl-card,
+html[data-theme="light"] #planPage .pl-modal {
+  background: var(--panel);
+  border-color: color-mix(in srgb, var(--border) 92%, var(--text) 8%);
+  color: var(--text);
+}
+html[data-theme="light"] #planPage .pl-filter-chip,
+html[data-theme="light"] #planPage .pl-priority-pill,
+html[data-theme="light"] #planPage .pl-status-pill,
+html[data-theme="light"] #planPage .pl-act-btn,
+html[data-theme="light"] #planPage .pl-cal-day,
+html[data-theme="light"] #planPage .pl-input-num,
+html[data-theme="light"] #planPage .pl-input-notes {
+  background: color-mix(in srgb, var(--panel) 96%, var(--bg) 4%);
+  border-color: color-mix(in srgb, var(--border) 85%, var(--text) 15%);
+  color: var(--text);
+}
+html[data-theme="light"] #planPage .pl-cal-day.active,
+html[data-theme="light"] #planPage .pl-filter-chip.active {
+  background: color-mix(in srgb, var(--plan) 16%, var(--panel));
+  border-color: var(--plan);
+  color: var(--plan);
+}
+html[data-theme="light"] #planPage .pl-summary-meter,
+html[data-theme="light"] #planPage .pl-priority-filter,
+html[data-theme="light"] #planPage .pl-card-meta,
+html[data-theme="light"] #planPage .pl-notes-area {
+  background: color-mix(in srgb, var(--bg) 82%, var(--panel));
+}
+html[data-theme="light"] #planPage .pl-time-display,
+html[data-theme="light"] #planPage .pl-dur-display,
+html[data-theme="light"] #planPage .pl-overview-kicker,
+html[data-theme="light"] #planPage .pl-summary-kicker,
+html[data-theme="light"] #planPage .pl-summary-meta,
+html[data-theme="light"] #planPage .pl-card-meta,
+html[data-theme="light"] #planPage .pl-empty-sub,
+html[data-theme="light"] #planPage .pl-empty-tips,
+html[data-theme="light"] #planPage .pl-input-group label {
+  color: var(--text-secondary);
 }
 
 #planPage {
@@ -497,8 +543,8 @@ html[data-theme="light"] .pl-cal-strip { background: color-mix(in srgb, var(--pl
 
 .pl-card-actions { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
 .pl-act-btn {
-  min-width: 36px;
-  min-height: 36px;
+  min-width: var(--tap-min, 44px);
+  min-height: var(--tap-min, 44px);
   background: transparent; border: 1px solid transparent; color: var(--pl-muted);
   cursor: pointer; padding: 6px; border-radius: 8px; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center;
 }
@@ -604,7 +650,7 @@ html[data-theme="light"] .pl-notes-area { background: color-mix(in srgb, var(--t
   .pl-card { padding: 13px 12px 13px 14px; }
   .pl-card-top { align-items: flex-start; }
   .pl-card-actions { gap: 4px; }
-  .pl-act-btn { min-width: 34px; min-height: 34px; }
+  .pl-act-btn { min-width: var(--tap-min, 44px); min-height: var(--tap-min, 44px); }
   .pl-day-summary { grid-template-columns: 1fr; }
   .pl-summary-meta { justify-self: start; }
   .pl-modal-overlay { padding-inline: 10px; }

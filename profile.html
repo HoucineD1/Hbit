@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title data-i18n="profile.documentTitle">Hbit â€” Profile</title>
+  <title data-i18n="profile.documentTitle">Hbit  -  Profile</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23E63946'/><text x='50%25' y='68%25' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='900' font-size='20' fill='white'>H</text></svg>">
   <meta name="theme-color" content="#070B14">
   <meta name="color-scheme" content="dark light" />
@@ -52,7 +52,7 @@
 
   <header class="hm-header">
     <div class="hm-hdr-left">
-      <span class="hm-hdr-date" id="profileDate">â€”</span>
+      <span class="hm-hdr-date" id="profileDate"> - </span>
       <h1 class="hm-hdr-title" data-i18n="nav.profile">Profile</h1>
     </div>
     <div class="hm-hdr-right">
@@ -88,9 +88,9 @@
       </div>
       <div class="pf-hero-text">
         <p class="pf-hero-kicker" data-i18n="profile.hero.kicker">Your Space</p>
-        <h2 class="pf-hero-name" id="pfHeroName">â€”</h2>
-        <p class="pf-hero-meta" id="pfHeroMeta">â€”</p>
-        <p class="pf-hero-since"><span data-i18n="profile.label.memberSince">Member since</span> <span id="pfCreatedAtHero">â€”</span></p>
+        <h2 class="pf-hero-name" id="pfHeroName"> - </h2>
+        <p class="pf-hero-meta" id="pfHeroMeta"> - </p>
+        <p class="pf-hero-since"><span data-i18n="profile.label.memberSince">Member since</span> <span id="pfCreatedAtHero"> - </span></p>
         <button type="button" class="pf-btn-secondary" id="pfEditHeroBtn" data-i18n="profile.hero.edit">Edit Profile</button>
       </div>
     </section>
@@ -134,7 +134,7 @@
     <section class="pf-panel hbitFadeUp">
       <button type="button" class="pf-panel-toggle" id="pfTogglePersonal" aria-expanded="false" aria-controls="pfPersonalPanel">
         <span data-i18n="profile.personal.toggle">Edit personal info</span>
-        <span class="pf-chevron" aria-hidden="true">â–¾</span>
+        <span class="pf-chevron" aria-hidden="true">v</span>
       </button>
       <div class="pf-panel-body" id="pfPersonalPanel" hidden>
         <div class="pf-field">
@@ -151,7 +151,7 @@
         <div class="pf-row-2">
           <div class="pf-field">
             <label class="pf-label" for="pfAge" data-i18n="profile.label.age">Age</label>
-            <input class="pf-input" id="pfAge" type="number" min="1" max="120" placeholder="â€”" />
+            <input class="pf-input" id="pfAge" type="number" min="1" max="120" placeholder=" - " />
           </div>
           <div class="pf-field">
             <label class="pf-label" for="pfGender" data-i18n="profile.label.gender">Gender</label>
@@ -181,13 +181,14 @@
       <h2 class="pf-section-title" data-i18n="profile.section.account">Account</h2>
       <div class="pf-account-row">
         <span class="pf-account-key" data-i18n="profile.label.email">Email</span>
-        <span class="pf-account-val" id="pfEmailDisplay">â€”</span>
+        <span class="pf-account-val" id="pfEmailDisplay"> - </span>
       </div>
       <div class="pf-account-row">
         <span class="pf-account-key" data-i18n="profile.label.signInMethod">Sign-in method</span>
-        <span class="pf-account-val" id="pfProviderDisplay">â€”</span>
+        <span class="pf-account-val" id="pfProviderDisplay"> - </span>
       </div>
       <a class="pf-link" id="pfChangePwd" href="#" hidden data-i18n="profile.account.changePassword">Change password</a>
+      <button type="button" class="pf-btn-secondary" id="pfExportData" data-i18n="profile.account.exportData">Export my data</button>
       <button type="button" class="pf-btn-danger-outline" id="pfDeleteAccount" data-i18n="profile.account.delete">Delete account</button>
       <button class="pf-logout-btn" id="pfLogoutBtn" type="button">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
@@ -231,6 +232,10 @@
     <div class="pf-modal" role="dialog" aria-modal="true" aria-labelledby="pfDeleteTitle">
       <h3 id="pfDeleteTitle" data-i18n="profile.delete.confirmTitle">Delete your account?</h3>
       <p data-i18n="profile.delete.confirmBody">This cannot be undone. All your data will be removed.</p>
+      <label class="pf-field" id="pfDeletePasswordWrap" hidden>
+        <span data-i18n="profile.delete.passwordLabel">Confirm your password</span>
+        <input class="pf-input" id="pfDeletePassword" type="password" autocomplete="current-password" data-i18n-placeholder="profile.delete.passwordPlaceholder" placeholder="Password" />
+      </label>
       <div class="pf-modal-actions">
         <button type="button" class="pf-btn-secondary" id="pfDeleteCancel" data-i18n="common.cancel">Cancel</button>
         <button type="button" class="pf-btn-danger" id="pfDeleteConfirm" data-i18n="profile.delete.confirm">Delete</button>
