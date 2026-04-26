@@ -29,6 +29,10 @@
    * @returns {Promise<DashboardData>}
    */
   async function fetchDashboardData(uid) {
+    if (HBIT.demoData?.isEnabled?.()) {
+      return HBIT.demoData.generate();
+    }
+
     if (!uid || !HBIT.fbFirestore || !HBIT.db) {
       /* silent */
       return getEmptyDashboard();
@@ -42,6 +46,11 @@
       d.setDate(d.getDate() - 6);
       return localDateKey(d);
     })();
+    const streakStart = (() => {
+      const d = new Date();
+      d.setDate(d.getDate() - 29);
+      return localDateKey(d);
+    })();
 
     const out = {
       budget: null,
@@ -49,6 +58,7 @@
       sleep: null,
       mind: null,
       plan: null,
+      streaks: null,
       weekly: { habitsPct: null, budgetPct: null, sleepAvg: null, moodAvg: null },
     };
 
@@ -69,20 +79,24 @@
         moodToday,
         moodRecent,
         tasksSnap,
+        budgetEntriesStreak,
+        focusSessionsStreak,
       ] = await Promise.all([
         userRef.collection("habits").get().catch((e) => { /* silent */ return { docs: [] }; }),
-        userRef.collection("habitLogs").where("dateKey", ">=", weekStart).where("dateKey", "<=", today).get().catch((e) => { /* silent */ return { docs: [] }; }),
+        userRef.collection("habitLogs").where("dateKey", ">=", streakStart).where("dateKey", "<=", today).get().catch((e) => { /* silent */ return { docs: [] }; }),
         HBIT.db.budgetEntries.forMonth(thisMonth).catch(() => []),
         HBIT.db.budgetMonths?.get?.(thisMonth).catch(() => null) ?? null,
         HBIT.db.budgetGoals.get(thisMonth).catch(() => null),
         HBIT.db.budgetAccounts?.list?.().catch(() => []) ?? [],
         HBIT.db.budgetBills?.list?.().catch(() => []) ?? [],
         userRef.collection("savingsGoals").get().catch((e) => { /* silent */ return { docs: [] }; }),
-        userRef.collection("sleepLogs").orderBy("date", "desc").limit(7).get().catch((e) => { /* silent */ return { docs: [] }; }),
+        userRef.collection("sleepLogs").orderBy("date", "desc").limit(30).get().catch((e) => { /* silent */ return { docs: [] }; }),
         fetchNextSleepPlan(uid),
         userRef.collection("moodLogs").doc(today).get().catch((e) => { /* silent */ return { exists: false }; }),
-        userRef.collection("moodLogs").orderBy("date", "desc").limit(7).get().catch((e) => { /* silent */ return { docs: [] }; }),
+        userRef.collection("moodLogs").orderBy("date", "desc").limit(30).get().catch((e) => { /* silent */ return { docs: [] }; }),
         userRef.collection("tasks").get().catch((e) => { /* silent */ return { docs: [] }; }),
+        userRef.collection("budgetEntries").where("dateKey", ">=", streakStart).where("dateKey", "<=", today).get().catch((e) => { /* silent */ return { docs: [] }; }),
+        userRef.collection("focus_sessions").where("dateKey", ">=", streakStart).where("dateKey", "<=", today).get().catch((e) => { /* silent */ return { docs: [] }; }),
       ]);
 
       const habitsList = habitsSnap.docs.map(d => ({ id: d.id, ...d.data() })).filter(h => !h.archived);
@@ -91,6 +105,8 @@
       const moodTodayObj = moodToday.exists ? { id: moodToday.id, ...moodToday.data() } : null;
       const moodRecentArr = moodRecent.docs ? moodRecent.docs.map(d => ({ id: d.id, ...d.data() })) : [];
       const tasksArr = tasksSnap.docs ? tasksSnap.docs.map(d => ({ id: d.id, ...d.data() })) : [];
+      const budgetStreakArr = budgetEntriesStreak.docs ? budgetEntriesStreak.docs.map(d => ({ id: d.id, ...d.data() })) : [];
+      const focusStreakArr = focusSessionsStreak.docs ? focusSessionsStreak.docs.map(d => ({ id: d.id, ...d.data() })) : [];
 
       /* ── Budget ───────────────────────────────────────────── */
       let incomeTotal = 0, expenseTotal = 0, remaining = 0, monthGoal = 0;
@@ -226,6 +242,29 @@
         next: openTasks[0] || null,
         hasData: tasksArr.length > 0,
       };
+
+      out.streaks = {
+        habits: consecutiveDays(today, (date) => {
+          const dayLogs = habitLogsRange.filter((log) => log.dateKey === date && log.status === "done");
+          return totalActive > 0 && dayLogs.length >= totalActive;
+        }),
+        sleep: consecutiveDays(today, (date) => sleepLogsArr.some((log) => logDateKey(log) === date && Number(log.duration) > 0)),
+        mood: consecutiveDays(today, (date) => moodRecentArr.some((log) => logDateKey(log) === date && Number(log.score) > 0)),
+        budget: consecutiveDays(today, (date) => {
+          const dailyTarget = (monthGoal || incomeTotal || 0) / 30;
+          if (!out.budget.hasData || !dailyTarget) return false;
+          if (!budgetStreakArr.some((entry) => entryDateKey(entry) === date)) return false;
+          const spent = budgetStreakArr
+            .filter((entry) => entryDateKey(entry) === date && entry.type === "expense")
+            .reduce((sum, entry) => sum + Math.abs(Number(entry.amount) || 0), 0);
+          return spent <= dailyTarget;
+        }),
+        focus: consecutiveDays(today, (date) => focusStreakArr.some((session) => entryDateKey(session) === date && Number(session.duration || session.minutes || 0) > 0)),
+        plan: consecutiveDays(today, (date) => {
+          const dayTasks = tasksArr.filter((task) => task.date === date);
+          return dayTasks.length > 0 && dayTasks.every((task) => !!task.done);
+        }),
+      };
     } catch (err) {
       /* silent */
       return getEmptyDashboard();
@@ -299,8 +338,41 @@
         next: null,
         hasData: false,
       },
+      streaks: {
+        habits: 0,
+        sleep: 0,
+        mood: 0,
+        budget: 0,
+        focus: 0,
+        plan: 0,
+      },
       weekly: { habitsPct: null, budgetPct: null, sleepAvg: null, moodAvg: null },
     };
+  }
+
+  function consecutiveDays(today, predicate, maxDays = 30) {
+    let count = 0;
+    const d = parseDateKey(today);
+    for (let i = 0; i < maxDays; i += 1) {
+      const key = localDateKey(d);
+      if (!predicate(key)) break;
+      count += 1;
+      d.setDate(d.getDate() - 1);
+    }
+    return count;
+  }
+
+  function parseDateKey(key) {
+    const [y, m, d] = String(key).split("-").map(Number);
+    return new Date(y || 1970, (m || 1) - 1, d || 1);
+  }
+
+  function logDateKey(log) {
+    return log?.date || log?.dateKey || log?.id || "";
+  }
+
+  function entryDateKey(entry) {
+    return entry?.dateKey || entry?.date || entry?.id || "";
   }
 
   HBIT.dashboardData = {

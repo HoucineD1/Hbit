@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -16,6 +16,7 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" /></noscript>
 <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="css/core/nav.css" />
+  <link rel="stylesheet" href="css/core/components.css" />
   <link rel="stylesheet" href="css/pages/mood.css" />
 
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -25,6 +26,7 @@
 
   <script defer src="js/core/utils.js"></script>
   <script defer src="js/core/toast.js"></script>
+  <script defer src="js/core/components.js"></script>
   <script defer src="js/core/storage.js"></script>
   <script defer src="js/core/theme.js"></script>
   <script defer src="js/core/i18n.js"></script>
@@ -49,15 +51,28 @@
   <div class="sb-overlay"></div>
   <nav class="sb" aria-hidden="true" aria-label="Main navigation"></nav>
 
-  <header class="md-header">
-    <div class="md-hdr-left">
-      <h1 class="md-hdr-title" data-i18n="mood.title">State of Mind</h1>
+  <header class="hbit-module-header" data-accent="mood">
+    <div class="hbit-module-mark" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 18h6"/>
+        <path d="M10 22h4"/>
+        <path d="M12 2a7 7 0 0 0-4 12.74V16h8v-1.26A7 7 0 0 0 12 2Z"/>
+      </svg>
     </div>
-    <div class="md-hdr-right">
-      <button class="md-hdr-btn" id="langToggle" type="button" aria-label="Switch language">
+    <div class="hbit-module-copy">
+      <p>State of Mind</p>
+      <h1>Mood</h1>
+    </div>
+    <div class="hbit-module-actions">
+      <button class="hdr-btn md-hdr-btn" id="mdHelpBtn" type="button" aria-label="Open help" data-i18n-aria-label="help.open">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 1 1 5.82 1c-.58 1.02-1.91 1.45-2.54 2.35-.25.36-.37.79-.37 1.25"/><path d="M12 17h.01"/>
+        </svg>
+      </button>
+      <button class="hdr-btn md-hdr-btn" id="langToggle" type="button" aria-label="Switch language">
         <span id="langLabel">FR</span>
       </button>
-      <button class="md-hdr-btn" id="themeToggle" type="button" aria-label="Toggle theme">
+      <button class="hdr-btn md-hdr-btn" id="themeToggle" type="button" aria-label="Toggle theme">
         <svg class="hm-theme-dark" width="18" height="18" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
@@ -73,7 +88,7 @@
           <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
         </svg>
       </button>
-      <a class="md-avatar" id="moodProfileBtn" href="profile.html" aria-label="Profile">H</a>
+      <a class="hdr-avatar md-avatar" id="moodProfileBtn" href="profile.html" aria-label="Profile">H</a>
     </div>
   </header>
 
@@ -117,7 +132,7 @@
 
     <div class="md-layout">
       <div class="md-col md-col-left">
-        <section class="md-card md-card--today" aria-labelledby="mdTodayHeading">
+        <section class="hbit-card md-card md-card--today" aria-labelledby="mdTodayHeading">
           <div class="md-card-head">
             <h2 class="md-card-label" id="mdTodayHeading" data-i18n="mood.today">Today</h2>
           </div>
@@ -228,7 +243,7 @@
       <div class="md-col md-col-right">
         <div class="md-streak md-streak--hidden" id="mdStreak" hidden></div>
 
-        <section class="md-card md-insight-card" id="mdInsightCard" aria-labelledby="mdInsightHeading">
+        <section class="hbit-card md-card md-insight-card" id="mdInsightCard" aria-labelledby="mdInsightHeading">
           <div class="md-card-head">
             <h2 class="md-card-label" id="mdInsightHeading" data-i18n="mood.weekInsight">Weekly pattern</h2>
           </div>
@@ -238,7 +253,7 @@
           <!-- FUTURE: resource suggestions based on weekly mood -->
         </section>
 
-        <section class="md-card" aria-labelledby="mdEntriesHeading">
+        <section class="hbit-card md-card" aria-labelledby="mdEntriesHeading">
           <div class="md-card-head">
             <h2 class="md-card-label" id="mdEntriesHeading" data-i18n="mood.entries">Recent entries</h2>
           </div>
@@ -268,17 +283,17 @@
         <polyline points="20 6 9 17 4 12"/>
       </svg>
     </div>
-    <p data-i18n="mood.savedFullToast">Saved ✓</p>
+    <p data-i18n="mood.savedFullToast">Saved ?</p>
   </div>
 
-  <div class="md-wizard-overlay" id="mdWizardOverlay" aria-hidden="true">
-    <div class="md-wizard-sheet" role="dialog" aria-modal="true" aria-labelledby="mdWizardTitle">
-      <div class="md-wizard-head">
+  <div class="hbit-sheet-overlay md-wizard-overlay" id="mdWizardOverlay" hidden aria-hidden="true" data-hbit-sheet>
+    <div class="hbit-sheet md-wizard-sheet" role="dialog" aria-modal="true" aria-labelledby="mdWizardTitle">
+      <div class="hbit-sheet-head md-wizard-head">
         <div>
           <p class="md-heatmap-kicker" data-i18n="mood.log.kicker">Daily check-in</p>
           <h2 id="mdWizardTitle" class="md-wizard-title" data-i18n="mood.log.question">How did you feel overall today?</h2>
         </div>
-        <button type="button" class="md-wizard-close" id="mdWizardClose" data-i18n-aria-label="common.close">
+        <button type="button" class="hbit-sheet-close md-wizard-close" id="mdWizardClose" data-i18n-aria-label="common.close" data-hbit-sheet-close>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -286,7 +301,7 @@
         </button>
       </div>
 
-      <div class="md-wizard-body">
+      <div class="hbit-sheet-body md-wizard-body">
         <div class="md-wizard-main">
           <div class="md-current-feel" id="mdWizardMoodLabel">Okay</div>
           <div class="md-valence-rail" aria-label="Mood slider">
@@ -309,7 +324,7 @@
     </div>
   </div>
 
-  <div class="hbit-help-overlay" id="mdHelpOverlay" aria-hidden="true">
+  <div class="hbit-help-overlay" id="mdHelpOverlay" hidden aria-hidden="true">
     <div class="hbit-help-card" role="dialog" aria-modal="true" aria-labelledby="mdHelpTitle">
       <button class="hbit-help-close" id="mdHelpClose" type="button" data-i18n-aria-label="help.close">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

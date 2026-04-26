@@ -298,7 +298,17 @@
     }
   }
 
-  function showToast(msg, ms = 2200) {
+  function showToast(msg, opts = 2200) {
+    const type = typeof opts === "string" ? opts : "success";
+    const ms = typeof opts === "number" ? opts : 2200;
+    if (HBIT.toast?.[type]) {
+      HBIT.toast[type](msg, { duration: ms });
+      return;
+    }
+    if (HBIT.toast?.show) {
+      HBIT.toast.show(msg, type, { duration: ms });
+      return;
+    }
     const el = $("mdToast");
     if (!el) return;
     el.textContent = msg;
@@ -693,7 +703,7 @@
       const dk = logDateKey(log);
       const b = inferMoodBand(log);
       const card = document.createElement("article");
-      card.className = "md-entry-card";
+      card.className = "hbit-card md-entry-card";
       card.innerHTML = `
         <div class="md-entry-swatch" style="--entry-band:var(--md-band-${b})"></div>
         <div class="md-entry-body">
@@ -816,7 +826,7 @@
     if (!box) return;
     const cards = resourceCards();
     const cardHtml = (r) => `
-      <a class="md-resource-card" href="${r.href}" ${r.href.startsWith("http") ? 'target="_blank" rel="noopener noreferrer"' : ""}>
+      <a class="hbit-card md-resource-card" href="${r.href}" ${r.href.startsWith("http") ? 'target="_blank" rel="noopener noreferrer"' : ""}>
         <span class="md-resource-type">${r.type}</span>
         <span>
           <h3 class="md-resource-title">${r.title}</h3>
@@ -869,8 +879,12 @@
     if (slider) slider.value = String(band);
     if ($("mdWizardNote")) $("mdWizardNote").value = prefill?.notes || "";
     updateMoodWizardColor();
+    if (HBIT.components?.openSheet) HBIT.components.openSheet(ov);
+    else {
+      ov.hidden = false;
+      ov.setAttribute("aria-hidden", "false");
+    }
     ov.classList.add("open");
-    ov.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
   }
 
@@ -878,7 +892,11 @@
     const ov = $("mdWizardOverlay");
     if (!ov) return;
     ov.classList.remove("open");
-    ov.setAttribute("aria-hidden", "true");
+    if (HBIT.components?.closeSheet) HBIT.components.closeSheet(ov);
+    else {
+      ov.hidden = true;
+      ov.setAttribute("aria-hidden", "true");
+    }
     document.body.style.overflow = "";
     state.editingDateKey = null;
     state.editingToday = false;
@@ -1058,7 +1076,7 @@
         window.dispatchEvent(new CustomEvent("hbit:data-changed", { detail: { area: "mood" } }));
       } catch (e) {
         /* silent */
-        showToast(t("mood.saveError", "Could not save. Check your connection."));
+        showToast(t("mood.saveError", "Could not save. Check your connection."), "error");
       }
     });
 
@@ -1095,7 +1113,7 @@
         window.dispatchEvent(new CustomEvent("hbit:data-changed", { detail: { area: "mood" } }));
       } catch (e) {
         /* silent */
-        showToast(t("mood.saveError", "Could not save. Check your connection."));
+        showToast(t("mood.saveError", "Could not save. Check your connection."), "error");
       }
     });
 
@@ -1139,7 +1157,7 @@
       try {
         await saveMoodWizard();
       } catch (e) {
-        showToast(t("mood.saveError", "Could not save. Check your connection."));
+        showToast(t("mood.saveError", "Could not save. Check your connection."), "error");
       } finally {
         if (btn) btn.disabled = false;
       }
@@ -1215,6 +1233,14 @@
     if (!window.firebase?.auth) {
       /* silent */
       return;
+    }
+    if (!_moodHelpModalBound && HBIT.utils?.initHelpModal) {
+      HBIT.utils.initHelpModal({
+        openBtn: "mdHelpBtn",
+        overlay: "mdHelpOverlay",
+        closeBtn: "mdHelpClose",
+      });
+      _moodHelpModalBound = true;
     }
     const auth = firebase.auth();
     if (auth.currentUser) {

@@ -16,6 +16,7 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" /></noscript>
 <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="css/core/nav.css" />
+  <link rel="stylesheet" href="css/core/components.css" />
   <link rel="stylesheet" href="css/pages/focus.css" />
 
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -25,6 +26,7 @@
 
   <script defer src="js/core/utils.js"></script>
   <script defer src="js/core/toast.js"></script>
+  <script defer src="js/core/components.js"></script>
   <script defer src="js/core/storage.js"></script>
   <script defer src="js/core/theme.js"></script>
   <script defer src="js/core/i18n.js"></script>
@@ -52,16 +54,27 @@
   <div class="sb-overlay"></div>
   <nav class="sb" aria-hidden="true" aria-label="Main navigation"></nav>
 
-  <header class="fc-header">
-    <div class="fc-header-title">
-      <span class="fc-header-label" data-i18n="focus.header.zen">Zen Timer</span>
-      <span class="fc-header-sub" id="fcPhaseLabel">Ready to Focus</span>
+  <header class="hbit-module-header" data-accent="focus">
+    <div class="hbit-module-mark" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 7v5l3 2"/>
+      </svg>
     </div>
-    <div class="fc-header-right">
-      <button class="fc-icon-btn" id="fcSoundToggle" type="button" aria-pressed="true" aria-label="Timer sounds on">
+    <div class="hbit-module-copy">
+      <p data-i18n="nav.focus">Focus</p>
+      <h1 id="fcPhaseLabel">Ready to Focus</h1>
+    </div>
+    <div class="hbit-module-actions">
+      <button class="hdr-btn fc-icon-btn" id="fcHelpBtn" type="button" aria-label="Open help" data-i18n-aria-label="help.open">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 1 1 5.82 1c-.58 1.02-1.91 1.45-2.54 2.35-.25.36-.37.79-.37 1.25"/><path d="M12 17h.01"/>
+        </svg>
+      </button>
+      <button class="hdr-btn fc-icon-btn" id="fcSoundToggle" type="button" aria-pressed="true" aria-label="Timer sounds on">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
       </button>
-      <button class="fc-icon-btn" id="fcSettingsBtn" type="button" aria-label="Settings">
+      <button class="hdr-btn fc-icon-btn" id="fcSettingsBtn" type="button" aria-label="Settings">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
     </div>
@@ -104,13 +117,8 @@
       <div class="fc-timer-inner">
         <div class="fc-phase-chip" id="fcPhaseChip">Work</div>
         
-        <!-- Timer display during work -->
-        <div class="fc-time-display" id="fcTimeDisplay" aria-live="polite" aria-atomic="true">25:00</div>
-        
-        <!-- Breathing display during break -->
-        <div class="fc-br-display" id="fcBrDisplay" hidden>
-           <div class="fc-br-phase-label" id="fcBrPhaseLabel">Inhale</div>
-           <div class="fc-br-secs" id="fcBrSecs">4</div>
+        <div class="fc-display-slot" id="fcDisplay" aria-live="polite" aria-atomic="true">
+          <div class="fc-time-display">25:00</div>
         </div>
 
         <div class="fc-sessions-wrap">
@@ -139,7 +147,7 @@
         </div>
 
         <aside class="fc-focus-side">
-          <label class="fc-intent-card" for="fcIntentInput">
+          <label class="hbit-card fc-intent-card" for="fcIntentInput">
             <span class="fc-intent-kicker" data-i18n="focus.intent.kicker">Today's focus</span>
             <input id="fcIntentInput" class="fc-intent-input" type="text" maxlength="80" data-i18n-placeholder="focus.intent.placeholder" placeholder="What are you focusing on?" autocomplete="off" />
             <span class="fc-intent-hint" id="fcIntentHint" data-i18n="focus.intent.hint">Saved with every completed work session.</span>
@@ -155,7 +163,7 @@
             </div>
           </div>
 
-          <div class="fc-progress-card">
+          <div class="hbit-card fc-progress-card">
             <div class="fc-progress-head">
               <span data-i18n="focus.progress.today">Today</span>
               <strong id="fcProgressMeta">0 / 4</strong>
@@ -192,20 +200,20 @@
 
     <section id="fcPanelSessions" class="fc-panel" role="tabpanel" aria-labelledby="fcTabSessions" hidden>
       <div class="fc-sess-stats" id="fcSessStats">
-        <article class="fc-sess-stat"><div class="fc-sess-stat-val" id="fcStatTotalSessions">0</div><div class="fc-sess-stat-lbl" data-i18n="focus.sessions.totalToday">Sessions today</div></article>
-        <article class="fc-sess-stat"><div class="fc-sess-stat-val" id="fcStatFocusTime">0h 0m</div><div class="fc-sess-stat-lbl" data-i18n="focus.sessions.focusTimeToday">Focus time</div></article>
-        <article class="fc-sess-stat"><div class="fc-sess-stat-val" id="fcStatStreak">0</div><div class="fc-sess-stat-lbl" data-i18n="focus.sessions.streakDays">Streak days</div></article>
+        <article class="hbit-stat fc-sess-stat"><div class="fc-sess-stat-val" id="fcStatTotalSessions">0</div><div class="fc-sess-stat-lbl" data-i18n="focus.sessions.totalToday">Sessions today</div></article>
+        <article class="hbit-stat fc-sess-stat"><div class="fc-sess-stat-val" id="fcStatFocusTime">0h 0m</div><div class="fc-sess-stat-lbl" data-i18n="focus.sessions.focusTimeToday">Focus time</div></article>
+        <article class="hbit-stat fc-sess-stat"><div class="fc-sess-stat-val" id="fcStatStreak">0</div><div class="fc-sess-stat-lbl" data-i18n="focus.sessions.streakDays">Streak days</div></article>
       </div>
 
-      <section class="fc-sess-card">
+      <section class="hbit-card fc-sess-card">
         <h3 data-i18n="focus.sessions.weeklyChart">Weekly focus</h3>
         <div class="fc-week-bars" id="fcWeekBars" role="img" aria-label="Weekly focus hours"></div>
       </section>
 
-      <section class="fc-sess-card">
+      <section class="hbit-card fc-sess-card">
         <h3 data-i18n="focus.sessions.todayList">Today's sessions</h3>
         <div id="fcSessionList" class="fc-session-list"></div>
-        <div id="fcSessionEmpty" class="fc-session-empty" hidden>
+        <div id="fcSessionEmpty" class="hbit-empty-state fc-session-empty" hidden>
           <div class="fc-session-empty-icon" aria-hidden="true">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v5l3 2"/><path d="M9 2h6"/></svg>
           </div>
@@ -216,15 +224,15 @@
   </main>
 
   <!-- Settings Modal -->
-  <div class="fc-modal-overlay modal-overlay fc-modal-overlay" id="fcSettingsModal" hidden>
-    <div class="fc-modal modal-panel">
-      <div class="fc-modal-header modal-header">
-        <h2 class="fc-modal-title" data-i18n="focus.settings.title">Timer Settings</h2>
-        <button class="fc-modal-close" id="fcModalClose" aria-label="Close">
+  <div class="hbit-sheet-overlay" id="fcSettingsModal" hidden aria-hidden="true" data-hbit-sheet>
+    <div class="hbit-sheet fc-modal" role="dialog" aria-modal="true" aria-labelledby="fcSettingsTitle">
+      <div class="hbit-sheet-head fc-modal-header">
+        <h2 class="hbit-sheet-title fc-modal-title" id="fcSettingsTitle" data-i18n="focus.settings.title">Timer Settings</h2>
+        <button class="hbit-sheet-close fc-modal-close" id="fcModalClose" aria-label="Close" data-hbit-sheet-close>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
-      <div class="fc-modal-body modal-body">
+      <div class="hbit-sheet-body fc-modal-body modal-body">
         
         <div class="fc-set-row">
           <label data-i18n="focus.label.workMins">Work Duration (mins)</label>
@@ -257,7 +265,7 @@
     </div>
   </div>
 
-  <div class="hbit-help-overlay" id="fcHelpOverlay" aria-hidden="true">
+  <div class="hbit-help-overlay" id="fcHelpOverlay" hidden aria-hidden="true">
     <div class="hbit-help-card" role="dialog" aria-modal="true" aria-labelledby="fcHelpTitle">
       <button class="hbit-help-close" id="fcHelpClose" type="button" data-i18n-aria-label="help.close">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -290,10 +298,18 @@
     </div>
   </div>
 
-  <div class="fc-focus-pop" id="fcFocusPop" aria-hidden="true">
-    <div class="fc-focus-pop-card" role="dialog" aria-modal="true" aria-labelledby="fcFocusPopTitle">
-      <h2 id="fcFocusPopTitle" data-i18n="focus.greatFocus">Great focus!</h2>
-      <button type="button" class="fc-focus-pop-skip" id="fcFocusPopSkip" data-i18n="common.skip">Skip</button>
+  <div class="fc-save-sheet" id="fcSaveSheet" aria-hidden="true">
+    <div class="fc-save-card" role="dialog" aria-modal="true" aria-labelledby="fcSaveTitle">
+      <p class="fc-save-kicker" data-i18n="focus.saved.kicker">Session saved</p>
+      <h2 id="fcSaveTitle" data-i18n="focus.saved.title">Nice work. Breathe next.</h2>
+      <div class="fc-save-stats" aria-label="Session summary">
+        <span><strong id="fcSaveMinutes">0m</strong><small data-i18n="focus.saved.today">focus today</small></span>
+        <span><strong id="fcSaveStreak">0</strong><small data-i18n="focus.saved.streak">day streak</small></span>
+      </div>
+      <div class="fc-save-actions">
+        <button type="button" id="fcStartAnother" data-i18n="focus.saved.startAnother">Start another</button>
+        <button type="button" id="fcStartBreathAfter" data-i18n="focus.saved.takeBreath">Take a 2-min breathe</button>
+      </div>
     </div>
   </div>
 

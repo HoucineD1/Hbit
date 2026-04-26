@@ -37,15 +37,21 @@
   }
 
   /**
-   * Shared help modal (`.hbit-help-overlay` + `.hbit-help-card`): open/close, Escape, focus trap.
+   * Shared help modal (`.hbit-help-overlay` + `.hbit-help-card`): open/close,
+   * Escape, focus trap. When the Phase 2 component layer is present, route
+   * visibility through the shared sheet lifecycle so all overlays behave alike.
    * Budget uses `openOverlay` in budget.js instead.
    */
   function initHelpModal(opts) {
-    const openBtn = typeof opts.openBtn === "string" ? qs(opts.openBtn) : opts.openBtn;
-    const overlay = typeof opts.overlay === "string" ? qs(opts.overlay) : opts.overlay;
+    const resolveEl = (value) => {
+      if (typeof value !== "string") return value;
+      return qs(value) || document.getElementById(value.replace(/^#/, ""));
+    };
+    const openBtn = resolveEl(opts.openBtn);
+    const overlay = resolveEl(opts.overlay);
     const closeBtn =
       typeof opts.closeBtn === "string"
-        ? qs(opts.closeBtn)
+        ? resolveEl(opts.closeBtn)
         : opts.closeBtn || overlay?.querySelector(".hbit-help-close");
     const card = overlay?.querySelector(".hbit-help-card") || overlay;
     let lastFocus = null;
@@ -59,13 +65,17 @@
       ).filter((el) => el.getClientRects().length > 0);
     }
 
-    function open() {
-      lastFocus = document.activeElement;
-      overlay.setAttribute("aria-hidden", "false");
-      overlay.classList.add("open");
-      document.body.style.overflow = "hidden";
-      const first = closeBtn || focusables()[0];
-      requestAnimationFrame(() => first?.focus?.());
+      function open() {
+        if (!overlay) return;
+        lastFocus = document.activeElement;
+        if (HBIT.components?.openSheet) HBIT.components.openSheet(overlay);
+        else overlay.hidden = false;
+        overlay.classList.add("open");
+        overlay.classList.add("is-open");
+        overlay.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+        const first = closeBtn || focusables()[0];
+        requestAnimationFrame(() => first?.focus?.());
 
       onKey = (e) => {
         if (e.key === "Escape") {
@@ -90,11 +100,15 @@
       opts.onOpen?.();
     }
 
-    function close() {
-      overlay.classList.remove("open");
-      overlay.setAttribute("aria-hidden", "true");
-      document.body.style.overflow = "";
-      if (onKey) document.removeEventListener("keydown", onKey);
+      function close() {
+        if (!overlay) return;
+        overlay.classList.remove("open");
+        overlay.classList.remove("is-open");
+        overlay.setAttribute("aria-hidden", "true");
+        if (HBIT.components?.closeSheet) HBIT.components.closeSheet(overlay);
+        else overlay.hidden = true;
+        document.body.style.overflow = "";
+        if (onKey) document.removeEventListener("keydown", onKey);
       onKey = null;
       lastFocus?.focus?.();
       opts.onClose?.();

@@ -129,7 +129,7 @@
         goal: parts.focusGoal || 3,
       }),
       tr("home.hero.plan", "Plan {count}", { count: parts.planned || 0 }),
-    ].join(" - ");
+    ].join(" · ");
   }
 
   function readPlannerItems() {
@@ -313,6 +313,63 @@
     }
   }
 
+  function escapeHtml(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function renderInsights(data) {
+    const host = $("homeInsightsList");
+    if (!host) return;
+    const cards = HBIT.insights?.generateFromDashboard?.(data, tr) || [];
+    host.innerHTML = cards.map((card) => `
+      <article class="hc-insight-card" data-confidence="${Math.round((card.confidence || 0) * 100)}">
+        <div class="hc-insight-top">
+          <h3>${escapeHtml(card.title)}</h3>
+          <span>${Math.round((card.confidence || 0) * 100)}%</span>
+        </div>
+        <p>${escapeHtml(card.body)}</p>
+        <details>
+          <summary>${escapeHtml(tr("insights.why", "Why?"))}</summary>
+          <div>${escapeHtml(card.math)}</div>
+        </details>
+        <a href="${escapeHtml(card.href || "home.html")}">${escapeHtml(tr("insights.takeMeThere", "Take me there"))}</a>
+      </article>
+    `).join("");
+  }
+
+  function renderStreaks(data) {
+    const host = $("homeStreaksList");
+    if (!host) return;
+    const streaks = data?.streaks || {};
+    const items = [
+      { key: "habits", label: tr("streaks.label.habits", "Habits"), href: "habits.html" },
+      { key: "sleep", label: tr("streaks.label.sleep", "Sleep"), href: "sleep.html" },
+      { key: "mood", label: tr("streaks.label.mood", "Mood"), href: "mood.html" },
+      { key: "budget", label: tr("streaks.label.budget", "Budget"), href: "budget.html" },
+      { key: "focus", label: tr("streaks.label.focus", "Focus"), href: "focus.html" },
+      { key: "plan", label: tr("streaks.label.plan", "Plan"), href: "plan.html" },
+    ];
+    const max = Math.max(1, ...items.map((item) => Number(streaks[item.key]) || 0));
+    host.innerHTML = items.map((item) => {
+      const value = Number(streaks[item.key]) || 0;
+      const pct = Math.max(0.08, Math.min(1, value / max));
+      const dayLabel = value === 1 ? tr("streaks.day", "day") : tr("streaks.days", "days");
+      return `
+        <a class="hc-streak-pill" href="${item.href}" data-module="${item.key}" style="--streak-pct:${pct}">
+          <span class="hc-streak-ring" aria-hidden="true"></span>
+          <span class="hc-streak-copy">
+            <strong>${value}</strong>
+            <span>${escapeHtml(item.label)} ${escapeHtml(dayLabel)}</span>
+          </span>
+        </a>
+      `;
+    }).join("");
+  }
+
   function renderSleepBars(svgId, values, color) {
     const svg = $(svgId);
     if (!svg) return;
@@ -431,6 +488,8 @@
     setWeeklyRing("wkSleepFill", 0, WK_SLEEP_CIRC);
     setWeeklySummaryStats({ habitsPct: null, budgetPct: null, sleepAvg: null, moodAvg: null });
     renderHeroSummary({});
+    renderInsights({});
+    renderStreaks({});
   }
 
   function renderFromDashboard(data) {
@@ -609,6 +668,8 @@
       focusGoal: 3,
       planned: planner.open || 0,
     });
+    renderInsights(data);
+    renderStreaks(data);
   }
 
   async function fetchHomeSummary(uid) {
@@ -633,6 +694,9 @@
 
     try {
       const data = await fetchHomeSummary(user.uid);
+      if (!HBIT.demoData?.isEnabled?.()) {
+        data.insights = await HBIT.insights?.loadLatest?.(user.uid).catch(() => []);
+      }
       renderFromDashboard(data);
     } catch {
       renderEmpty();
@@ -719,6 +783,7 @@
     document.body.dataset.homeInit = "1";
 
     window.addEventListener("hbit:streak-milestone", () => {});
+    window.addEventListener("hbit:demo-data-change", () => refreshDashboard());
 
     bindRefreshListeners();
     initLogout();

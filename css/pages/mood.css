@@ -53,7 +53,7 @@
 .md-hdr-left { display: flex; align-items: center; min-width: 0; padding-left: 8px; }
 .md-hdr-title {
   font-family: var(--font-display, var(--font-body));
-  font-size: 26px;
+  font-size: 24px;
   font-weight: var(--font-weight-extrabold, 800);
   letter-spacing: -0.4px;
   color: var(--hm-text);
@@ -76,6 +76,33 @@
   font-size: 16px;
 }
 .md-avatar:hover, .md-hdr-btn:hover { background: rgba(255, 255, 255, 0.1); }
+
+#moodPage .hbit-module-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  min-height: 69px;
+  padding-left: 56px;
+  background: color-mix(in srgb, var(--hm-bg, #07090e) 92%, transparent);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom-color: rgba(255, 255, 255, 0.07);
+}
+#moodPage .hbit-module-copy h1 {
+  color: var(--hm-text);
+}
+#moodPage .md-hdr-btn,
+#moodPage .md-avatar {
+  min-width: var(--tap-min, 44px);
+  width: 44px;
+  height: 44px;
+}
+#moodPage .md-wizard-close {
+  min-width: var(--tap-min, 44px);
+  width: 44px;
+  min-height: var(--tap-min, 44px);
+  height: 44px;
+}
 
 /* ── Main + page tint ───────────────────────────────────── */
 .md-main {
@@ -114,7 +141,7 @@
 .md-heatmap-kicker {
   margin: 0 0 6px;
   color: var(--md-color);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -165,7 +192,7 @@
 }
 .md-heatmap-month-label {
   color: var(--hm-text);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 900;
 }
 .md-heatmap-body {
@@ -178,7 +205,7 @@
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 8px;
   color: var(--hm-muted);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   text-align: center;
   letter-spacing: 0.04em;
@@ -232,7 +259,7 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
   gap: 7px;
   margin-top: 14px;
   color: var(--hm-muted);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
 }
 .md-legend-dot {
@@ -285,7 +312,7 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
 }
 .md-resource-type {
   color: var(--md-color);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -299,7 +326,7 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
 .md-resource-copy {
   margin: 6px 0 0;
   color: var(--hm-muted);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.4;
 }
 .md-resource-more {
@@ -620,7 +647,7 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
   border: 2px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.04);
   color: var(--hm-text);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   text-align: center;
@@ -659,7 +686,7 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
   min-width: 52px;
 }
 .md-subdim-val {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--hm-muted);
   text-align: right;
@@ -822,7 +849,7 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
   grid-template-columns: repeat(7, 1fr);
   gap: 4px;
   margin-bottom: 6px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -888,7 +915,7 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
 .md-entry-date { font-size: 12px; color: var(--hm-muted); font-weight: 600; }
 .md-entry-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .md-entry-chip {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   padding: 4px 10px;
   border-radius: 999px;
@@ -961,7 +988,14 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
   pointer-events: none;
   transition: opacity 0.22s ease;
 }
+.md-wizard-overlay[hidden] {
+  display: none !important;
+}
 .md-wizard-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.md-wizard-overlay.is-open {
   opacity: 1;
   pointer-events: auto;
 }
@@ -980,6 +1014,9 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
   transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .md-wizard-overlay.open .md-wizard-sheet {
+  transform: translateY(0) scale(1);
+}
+.md-wizard-overlay.is-open .md-wizard-sheet {
   transform: translateY(0) scale(1);
 }
 .md-wizard-head {
@@ -1027,7 +1064,7 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
   color: var(--hm-text);
   background: color-mix(in srgb, var(--md-color) 18%, transparent);
   border: 1px solid color-mix(in srgb, var(--md-color) 32%, transparent);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 900;
 }
 .md-wizard-hint {
@@ -1055,7 +1092,7 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
   justify-content: space-between;
   gap: 12px;
   color: var(--hm-muted);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -1229,7 +1266,7 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
     grid-template-columns: 1fr;
     gap: 8px;
   }
-  .md-heatmap-days { font-size: 10px; gap: 6px; }
+  .md-heatmap-days { font-size: 12px; gap: 6px; }
   .md-heatmap-grid {
     grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 6px;
@@ -1242,7 +1279,7 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
     min-height: 100dvh;
     border-radius: 0;
   }
-  .md-wizard-title { font-size: 26px; }
+  .md-wizard-title { font-size: 24px; }
   .md-wizard-body {
     display: block;
     max-height: calc(100dvh - 162px);

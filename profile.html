@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -13,6 +13,7 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" /></noscript>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="css/core/nav.css" />
+  <link rel="stylesheet" href="css/core/components.css" />
   <link rel="stylesheet" href="css/pages/home.css" />
   <link rel="stylesheet" href="css/pages/profile-settings.css" />
 
@@ -23,12 +24,14 @@
 
   <script defer src="js/core/utils.js"></script>
   <script defer src="js/core/toast.js"></script>
+  <script defer src="js/core/components.js"></script>
   <script defer src="js/core/storage.js"></script>
   <script defer src="js/core/theme.js"></script>
   <script defer src="js/core/i18n.js"></script>
   <script defer src="js/core/sidebar.js"></script>
   <script defer src="js/core/firebase-init.js"></script>
   <script defer src="js/core/db.js"></script>
+  <script defer src="js/core/demoData.js"></script>
   <script defer src="js/core/core.js"></script>
   <script defer src="js/core/nav.js"></script>
   <script defer src="js/pages/profile.js"></script>
@@ -188,6 +191,14 @@
         <span class="pf-account-val" id="pfProviderDisplay"> - </span>
       </div>
       <a class="pf-link" id="pfChangePwd" href="#" hidden data-i18n="profile.account.changePassword">Change password</a>
+      <a class="pf-btn-secondary pf-link-button" id="pfRerunOnboarding" href="welcome.html?force=1" data-i18n="profile.account.rerunOnboarding">Rebuild my setup</a>
+      <label class="pf-demo-toggle" for="pfDemoDataToggle">
+        <span>
+          <strong data-i18n="profile.demo.title">Demo data mode</strong>
+          <small data-i18n="profile.demo.sub">Show a 6-week investor walkthrough dataset on Overview.</small>
+        </span>
+        <input id="pfDemoDataToggle" type="checkbox" />
+      </label>
       <button type="button" class="pf-btn-secondary" id="pfExportData" data-i18n="profile.account.exportData">Export my data</button>
       <button type="button" class="pf-btn-danger-outline" id="pfDeleteAccount" data-i18n="profile.account.delete">Delete account</button>
       <button class="pf-logout-btn" id="pfLogoutBtn" type="button">

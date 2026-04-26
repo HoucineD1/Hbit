@@ -375,16 +375,13 @@
   // UI & RENDER
   // ======================================================================
   const ui = {
-    display: $("fcTimeDisplay"),
+    display: $("fcDisplay"),
     ring: $("fcRingFill"),
     chip: $("fcPhaseChip"),
     label: $("fcPhaseLabel"),
     sess: $("fcSessions"),
     goalTxt: $("fcDailyGoalText"),
     goalTgt: $("fcGoalTargetText"),
-    brDisp: $("fcBrDisplay"),
-    brLabel: $("fcBrPhaseLabel"),
-    brSecs: $("fcBrSecs"),
     brCircle: $("fcBrCircle"),
     startBtn: $("fcStartBtn"),
     playIcon: $("fcPlayIcon"),
@@ -412,7 +409,9 @@
     breathCircle: $("fcBreathCircle"),
     breathProgress: $("fcBreathProgressBar"),
     breathRemaining: $("fcBreathRemaining"),
-    focusPop: $("fcFocusPop"),
+    saveSheet: $("fcSaveSheet"),
+    saveMinutes: $("fcSaveMinutes"),
+    saveStreak: $("fcSaveStreak"),
   };
 
   function fmt(sec) {
@@ -421,8 +420,19 @@
     return `${m}:${s}`;
   }
 
+  function renderDisplayForPhase(phase) {
+    if (phase === "breathe") {
+      const current = brState.seq[brState.seqIdx] || { l: "Inhale" };
+      return `<div class="fc-display-breathe">
+        <div class="fc-br-phase-label">${escapeHtml(translateBreathPhase(current.l))}</div>
+        <div class="fc-br-secs">${Math.max(0, brState.phaseTick || 0)}</div>
+      </div>`;
+    }
+    return `<div class="fc-time-display">${fmt(timerState.timeLeft)}</div>`;
+  }
+
   function renderTimer() {
-    if (ui.display) ui.display.textContent = fmt(timerState.timeLeft);
+    if (ui.display) ui.display.innerHTML = renderDisplayForPhase(timerState.isWorking ? "work" : "breathe");
     if (ui.ring) {
       const pct = timerState.total > 0 ? timerState.timeLeft / timerState.total : 0;
       ui.ring.style.strokeDashoffset = String(RING_CIRC * (1 - Math.max(0, !!timerState.running ? pct : 1))); 
@@ -600,15 +610,23 @@
       ui.breathCircle.className = "fc-breath-circle";
       ui.breathCircle.classList.add(phase.l === "Exhale" ? "exhale" : phase.l === "Hold" ? "hold" : "inhale");
     }
+    if (fcBreathState.lastPhase !== phase.l) {
+      fcBreathState.lastPhase = phase.l;
+      navigator.vibrate?.([200]);
+    }
   }
 
-  function completeStandaloneBreath() {
+  function completeStandaloneBreath(endedEarly = false) {
     if (!fcBreathState) return;
-    const mins = fcBreathState.preset.minutes;
+    const elapsed = Math.max(0, Math.min(fcBreathState.elapsed, fcBreathState.total));
+    const mins = Math.max(1, Math.round(elapsed / 60));
+    const shouldRecord = !endedEarly || elapsed >= 60;
     closeStandaloneBreath();
-    recordSession("breathe", mins, Date.now() - mins * 60_000);
-    navigator.vibrate?.(20);
-    window.HBIT?.toast?.success?.(tr("focus.breathe.done", "Breathed {minutes} min today", { minutes: mins }));
+    if (shouldRecord) {
+      recordSession("breathe", mins, Date.now() - elapsed * 1000);
+      navigator.vibrate?.(20);
+      window.HBIT?.toast?.success?.(tr("focus.breathe.done", "Breathed {minutes} min today", { minutes: mins }));
+    }
   }
 
   function tickStandaloneBreath() {
@@ -623,10 +641,11 @@
 
   function openStandaloneBreath(name) {
     const preset = FC_BREATH_PRESETS[name] || FC_BREATH_PRESETS.box;
-    fcBreathState = { preset, elapsed: 0, total: preset.minutes * 60 };
+    fcBreathState = { preset, elapsed: 0, total: preset.minutes * 60, lastPhase: "" };
     clearInterval(fcBreathTimer);
     ui.breathOverlay?.classList.add("open");
     ui.breathOverlay?.setAttribute("aria-hidden", "false");
+    if (ui.breathOverlay) ui.breathOverlay.dataset.pattern = name || "box";
     document.body.style.overflow = "hidden";
     setStandaloneBreathPhase();
     fcBreathTimer = setInterval(tickStandaloneBreath, 1000);
@@ -641,24 +660,47 @@
     if (clearState) fcBreathState = null;
   }
 
-  function showFocusTransition(done) {
-    const pop = ui.focusPop;
-    if (!pop) {
+  function getTodayFocusMinutes() {
+    const today = getTodayStr();
+    return sessionHistory
+      .filter((s) => s.date === today && s.type === "work")
+      .reduce((n, s) => n + (Number(s.duration) || 0), 0);
+  }
+
+  function closeSaveSheet() {
+    clearTimeout(focusPopTimer);
+    focusPopTimer = null;
+    ui.saveSheet?.classList.remove("open");
+    ui.saveSheet?.setAttribute("aria-hidden", "true");
+  }
+
+  function showSessionSavedSheet(done) {
+    const sheet = ui.saveSheet;
+    if (!sheet) {
       done?.();
       return;
     }
+    ui.brCircle?.classList.add("soft-pulse");
+    setTimeout(() => ui.brCircle?.classList.remove("soft-pulse"), 700);
+    if (ui.saveMinutes) ui.saveMinutes.textContent = formatMinutesTotal(getTodayFocusMinutes());
+    if (ui.saveStreak) ui.saveStreak.textContent = String(calcStreak());
+    sheet.classList.add("open");
+    sheet.setAttribute("aria-hidden", "false");
     const finish = () => {
-      clearTimeout(focusPopTimer);
-      focusPopTimer = null;
-      pop.classList.remove("open");
-      pop.setAttribute("aria-hidden", "true");
+      closeSaveSheet();
       done?.();
     };
-    pop.classList.add("open");
-    pop.setAttribute("aria-hidden", "false");
-    HBIT.confetti?.burst?.({ count: 28, spread: 55 });
-    focusPopTimer = setTimeout(finish, 3000);
-    $("fcFocusPopSkip")?.addEventListener("click", finish, { once: true });
+    focusPopTimer = setTimeout(finish, 9000);
+    $("fcStartAnother")?.addEventListener("click", () => {
+      closeSaveSheet();
+      initPhase(true);
+    }, { once: true });
+    $("fcStartBreathAfter")?.addEventListener("click", () => {
+      closeSaveSheet();
+      setActiveTab("breathe");
+      initPhase(false);
+      openStandaloneBreath("coherent");
+    }, { once: true });
   }
 
   // ======================================================================
@@ -675,7 +717,6 @@
     if (ui.chip) ui.chip.textContent = tr(isWork ? "focus.phase.work" : "focus.phase.breathe", isWork ? "Work" : "Breathe");
     if (ui.label) ui.label.textContent = tr(isWork ? "focus.sub.focusTime" : "focus.sub.breakRecover", isWork ? "Focus Time" : "Break & Recover");
 
-    if (ui.brDisp) ui.brDisp.hidden = isWork;
     if (!isWork) setupBreathe();
 
     renderTimer();
@@ -694,8 +735,7 @@
   }
   function syncBreatheUI() {
     const lbl = brState.seq[brState.seqIdx].l;
-    ui.brLabel.textContent = translateBreathPhase(lbl);
-    ui.brSecs.textContent = String(brState.phaseTick);
+    renderTimer();
 
     // Haptics
     if (timerState.running && navigator.vibrate) {
@@ -719,7 +759,6 @@
     if (!timerState.isWorking) {
       brState.phaseTick--;
       if (brState.phaseTick <= 0) advanceBreathe();
-      else ui.brSecs.textContent = String(brState.phaseTick);
     }
 
     renderTimer();
@@ -735,7 +774,7 @@
         if (endedWork) {
           playWorkEndChime();
           incDaily();
-          showFocusTransition(() => {
+          showSessionSavedSheet(() => {
             window.HBIT?.toast?.success(tr("focus.toast.sessionGreat", "Great focus session! Let's breathe."));
             initPhase(false);
           });
@@ -816,15 +855,28 @@
     });
 
     // Settings Modal
+    const closeMod = () => {
+      if (!ui.modal) return;
+      if (HBIT.components?.closeSheet) HBIT.components.closeSheet(ui.modal);
+      else {
+        ui.modal.hidden = true;
+        ui.modal.setAttribute("aria-hidden", "true");
+      }
+    };
     const openMod = () => {
       markAudioUserReady();
       toggleRun(false);
-      ui.modal.hidden = false;
+      if (!ui.modal) return;
+      if (HBIT.components?.openSheet) HBIT.components.openSheet(ui.modal);
+      else {
+        ui.modal.hidden = false;
+        ui.modal.setAttribute("aria-hidden", "false");
+      }
     };
     $("fcConfigPill")?.addEventListener("click", openMod);
     $("fcSettingsBtn")?.addEventListener("click", openMod);
     
-    $("fcModalClose")?.addEventListener("click", () => { ui.modal.hidden = true; });
+    $("fcModalClose")?.addEventListener("click", closeMod);
     $("fcModalSave")?.addEventListener("click", () => {
       const w = parseInt($("fcSetWork").value, 10) || 25;
       const b = parseInt($("fcSetBreak").value, 10) || 5;
@@ -834,7 +886,7 @@
       settings.dailyGoal = Math.max(1, g);
       settings.brPattern = $("fcSetBrPattern").value || "box";
       saveSettings();
-      ui.modal.hidden = true;
+      closeMod();
       initPhase(true);
     });
 
@@ -861,7 +913,7 @@
       btn.addEventListener("click", () => openStandaloneBreath(btn.dataset.breathePreset));
     });
     $("fcBreathClose")?.addEventListener("click", () => closeStandaloneBreath());
-    $("fcBreathEnd")?.addEventListener("click", () => closeStandaloneBreath());
+    $("fcBreathEnd")?.addEventListener("click", () => completeStandaloneBreath(true));
     ui.breathOverlay?.addEventListener("click", (e) => {
       if (e.target === ui.breathOverlay) closeStandaloneBreath();
     });
@@ -871,15 +923,12 @@
       if (e.target && ["INPUT", "SELECT", "TEXTAREA"].includes(e.target.tagName)) return;
       if (e.key === "Escape") {
         if (ui.breathOverlay?.classList.contains("open")) closeStandaloneBreath();
-        if (ui.focusPop?.classList.contains("open")) {
-          ui.focusPop.classList.remove("open");
-          ui.focusPop.setAttribute("aria-hidden", "true");
-        }
+        if (ui.saveSheet?.classList.contains("open")) closeSaveSheet();
       }
       if (e.code === "Space") {
         e.preventDefault();
         markAudioUserReady();
-        (!ui.modal.hidden) ? ui.modal.hidden = true : toggleRun();
+        (!ui.modal.hidden) ? closeMod() : toggleRun();
       }
     });
   }
@@ -892,6 +941,7 @@
   function init() {
     if (document.body.id !== "focusPage") return;
     $("fcSettingsModal")?.setAttribute("hidden", "");
+    $("fcSettingsModal")?.setAttribute("aria-hidden", "true");
     $("fcHelpOverlay")?.classList.remove("open");
     $("fcHelpOverlay")?.setAttribute("aria-hidden", "true");
     loadSettings();

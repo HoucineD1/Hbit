@@ -71,11 +71,33 @@
 
   var TRIGGER_HTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="10" width="7" height="7" rx="1"/><rect x="3" y="13" width="7" height="4" rx="1"/></svg>';
 
+  var BOTTOM_TABS_HTML = `
+    <a class="hbit-bottom-tab" href="home.html" data-page="home.html" data-accent="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span data-i18n="nav.overview">Home</span>
+    </a>
+    <a class="hbit-bottom-tab" href="news.html" data-page="news.html" data-accent="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8z"/></svg>
+      <span data-i18n="nav.news">News</span>
+    </a>
+    <a class="hbit-bottom-tab" href="notifications.html" data-page="notifications.html" data-accent="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      <span data-i18n="nav.notifications">Inbox</span>
+    </a>
+    <a class="hbit-bottom-tab" href="profile.html" data-page="profile.html" data-accent="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span data-i18n="nav.profile">Profile</span>
+    </a>`;
+
   function markActiveNav() {
     var navEl = document.querySelector("nav.sb");
     if (!navEl) return;
     var path = location.pathname.split("/").pop() || "home.html";
     navEl.querySelectorAll(".sb-item[data-page]").forEach(function (el) {
+      if (el.dataset.page === path) el.setAttribute("aria-current", "page");
+      else el.removeAttribute("aria-current");
+    });
+    document.querySelectorAll(".hbit-bottom-tab[data-page]").forEach(function (el) {
       if (el.dataset.page === path) el.setAttribute("aria-current", "page");
       else el.removeAttribute("aria-current");
     });
@@ -112,10 +134,29 @@
       }
     }
 
+    if (!document.querySelector(".hbit-bottom-tabs")) {
+      var tabs = document.createElement("nav");
+      tabs.className = "hbit-bottom-tabs";
+      tabs.setAttribute("aria-label", "Primary navigation");
+      tabs.innerHTML = BOTTOM_TABS_HTML;
+      document.body.appendChild(tabs);
+    }
+
+    if (!document.querySelector(".hbit-mobile-settings")) {
+      var s = document.createElement("a");
+      s.className = "hbit-mobile-settings";
+      s.href = "profile.html#appearance";
+      s.setAttribute("aria-label", "Settings");
+      s.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 0-.38 1.05V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 0-1.05-.38H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6A1.65 1.65 0 0 0 10.4 3V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.39.37.73.68 1 .3.26.67.4 1.05.4H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51.6z"/></svg>';
+      document.body.appendChild(s);
+    }
+
     // Apply i18n if available
     nav = document.querySelector("nav.sb");
-    if (window.HBIT && HBIT.i18n && HBIT.i18n.applyLang && nav) {
-      HBIT.i18n.applyLang(nav);
+    if (window.HBIT && HBIT.i18n && HBIT.i18n.applyLang) {
+      if (nav) HBIT.i18n.applyLang(nav);
+      var bottomTabs = document.querySelector(".hbit-bottom-tabs");
+      if (bottomTabs) HBIT.i18n.applyLang(bottomTabs);
     }
 
     markActiveNav();
@@ -168,6 +209,7 @@
     }
 
     document.addEventListener('touchstart', function(e) {
+      if (window.matchMedia && window.matchMedia("(max-width: 767px)").matches) return;
       if (e.touches.length !== 1) return;
       var t = e.touches[0];
       // Pour ouvrir : commencer dans la zone bord gauche quand fermé
@@ -230,13 +272,46 @@
     }, { passive: true });
   }
 
+  function initSwipeBackGesture() {
+    var EDGE_ZONE = 24;
+    var MIN_DIST = 72;
+    var MAX_VERT = 70;
+    var startX = 0;
+    var startY = 0;
+    var tracking = false;
+
+    document.addEventListener("touchstart", function (e) {
+      if (!window.matchMedia || !window.matchMedia("(max-width: 767px)").matches) return;
+      if (e.touches.length !== 1) return;
+      var t = e.touches[0];
+      if (t.clientX > EDGE_ZONE) return;
+      if (document.body.classList.contains("nav-open")) return;
+      startX = t.clientX;
+      startY = t.clientY;
+      tracking = true;
+    }, { passive: true });
+
+    document.addEventListener("touchend", function (e) {
+      if (!tracking) return;
+      tracking = false;
+      var t = e.changedTouches[0];
+      var dx = t.clientX - startX;
+      var dy = Math.abs(t.clientY - startY);
+      if (dx > MIN_DIST && dy < MAX_VERT && history.length > 1) {
+        history.back();
+      }
+    }, { passive: true });
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
       inject();
       initSwipeGesture();
+      initSwipeBackGesture();
     });
   } else {
     inject();
     initSwipeGesture();
+    initSwipeBackGesture();
   }
 })();

@@ -25,6 +25,50 @@ window.HBIT.fbAuth      = firebase.auth();
 window.HBIT.fbDb        = firebase.database();
 window.HBIT.fbFirestore = firebase.firestore();
 
+// Phase 2.5 — IndexedDB persistence so reads survive transient network drops.
+// Tabs may share, so use synchronizeTabs:true. Failures (multi-tab/private mode)
+// are non-fatal: SDK still works against the network.
+try {
+  if (window.HBIT.fbFirestore.enablePersistence) {
+    window.HBIT.fbFirestore
+      .enablePersistence({ synchronizeTabs: true })
+      .catch((err) => {
+        if (err && err.code === "failed-precondition") {
+          console.warn("[Hbit] Firestore persistence disabled (multiple tabs).");
+        } else if (err && err.code === "unimplemented") {
+          console.warn("[Hbit] Firestore persistence unsupported on this browser.");
+        } else {
+          console.warn("[Hbit] Firestore persistence error:", err && err.code);
+        }
+      });
+  }
+} catch (err) {
+  console.warn("[Hbit] enablePersistence threw:", err);
+}
+
+// Phase 2.5 — surface "unavailable / offline" Firestore errors to the user
+// via a single throttled toast. Errors handlers in db.js call logAndThrow
+// which writes to console.error; we wrap that to also push a reconnect toast.
+(function wrapOfflineSurface() {
+  var lastShown = 0;
+  function isOfflineCode(code) {
+    return code === "unavailable" || code === "deadline-exceeded" ||
+           code === "cancelled"   || code === "internal";
+  }
+  window.HBIT.notifyFirestoreError = function (err) {
+    var code = err && err.code;
+    if (!isOfflineCode(code)) return;
+    var now = Date.now();
+    if (now - lastShown < 8000) return;
+    lastShown = now;
+    if (window.HBIT.toast && typeof window.HBIT.toast.warn === "function") {
+      var t = window.HBIT.i18n && window.HBIT.i18n.t;
+      var msg = (t && t("toast.reconnecting", "Reconnecting…")) || "Reconnecting…";
+      window.HBIT.toast.warn(msg);
+    }
+  };
+})();
+
 // Phase 1.7a — LOCAL persistence keeps the user signed in across tab
 // closes; falls back to SESSION only if the SDK lacks LOCAL on this
 // platform (very old browsers).

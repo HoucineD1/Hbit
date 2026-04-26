@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title data-i18n="notifications.documentTitle">Hbit — Inbox</title>
+  <meta name="description" content="Your weekly insights and updates from Hbit." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23E63946'/><text x='50%25' y='68%25' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='900' font-size='20' fill='white'>H</text></svg>">
+  <meta name="theme-color" content="#070B14" />
+  <meta name="color-scheme" content="dark light" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" media="print" onload="this.media='all'" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/core/nav.css" />
+  <link rel="stylesheet" href="css/core/components.css" />
+  <link rel="stylesheet" href="css/pages/home.css" />
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+  <script defer src="js/core/utils.js"></script>
+  <script defer src="js/core/storage.js"></script>
+  <script defer src="js/core/theme.js"></script>
+  <script defer src="js/core/i18n.js"></script>
+  <script defer src="js/core/sidebar.js"></script>
+  <script defer src="js/core/firebase-init.js"></script>
+  <script defer src="js/core/db.js"></script>
+  <script defer src="js/core/dashboardData.js"></script>
+  <script defer src="js/core/insights.js"></script>
+  <script defer src="js/pages/notifications.js"></script>
+</head>
+
+<body id="notificationsPage" class="has-sidebar">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div class="sb-overlay"></div>
+  <nav class="sb" aria-hidden="true" aria-label="Main navigation"></nav>
+
+  <header class="hbit-module-header" data-accent="brand">
+    <div class="hbit-module-mark" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+    </div>
+    <div class="hbit-module-copy">
+      <p data-i18n="notifications.kicker">Inbox</p>
+      <h1 data-i18n="notifications.title">What's new</h1>
+    </div>
+  </header>
+
+  <main class="hm-grid" id="main-content">
+    <section class="hc-insights hbit-card" id="homeInsights" aria-labelledby="notifInsightsTitle">
+      <div class="hc-insights-head">
+        <div>
+          <span class="hc-label hc-label--muted" data-i18n="insights.kicker">Weekly Insights</span>
+          <h2 id="notifInsightsTitle" data-i18n="insights.title">Connect the dots</h2>
+        </div>
+      </div>
+      <div class="hc-insights-list" id="homeInsightsList" aria-live="polite"></div>
+    </section>
+
+    <section class="hc-streaks hbit-card" id="notifEmpty" hidden aria-live="polite">
+      <p data-i18n="notifications.empty">No notifications yet. Keep logging — insights arrive every Monday.</p>
+    </section>
+  </main>
+</body>
+</html>

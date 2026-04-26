@@ -658,7 +658,7 @@
         if (empty) empty.style.display = "none";
         for (let i = 0; i < 3; i++) {
           const sk = document.createElement("div");
-          sk.className = "hb-card skeleton";
+          sk.className = "hbit-card hb-card skeleton";
           sk.setAttribute("aria-hidden", "true");
           sk.style.minHeight = "132px";
           list.appendChild(sk);
@@ -727,7 +727,7 @@
     }
 
     const card = document.createElement("div");
-    card.className = "hb-card" + (isPaused ? " hb-card--paused" : "");
+    card.className = "hbit-card hb-card" + (isPaused ? " hb-card--paused" : "");
     card.dataset.id = h.id;
     card.dataset.cat = h.category || "";
     card.setAttribute("role", "listitem");
@@ -898,7 +898,9 @@
     const el = $("hbMilestoneOverlay");
     if (!el) return;
     el.classList.remove("open");
+    el.classList.remove("is-open");
     el.setAttribute("aria-hidden", "true");
+    HBIT.components?.closeSheet?.(el);
     document.body.style.overflow = "";
   }
 
@@ -948,7 +950,9 @@
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!reduced) window.HBIT?.confetti?.burst?.({ duration: 1500, count: 60 });
 
+    HBIT.components?.openSheet?.(el);
     el.classList.add("open");
+    el.classList.add("is-open");
     el.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
     $("hbMsClose")?.focus();
@@ -968,7 +972,11 @@
     renderDetailContent(h);
 
     const modal = $("detailModal");
-    modal.setAttribute("aria-hidden", "false");
+    if (HBIT.components?.openSheet) HBIT.components.openSheet(modal);
+    else {
+      modal.hidden = false;
+      modal.setAttribute("aria-hidden", "false");
+    }
     document.body.style.overflow = "hidden";
   }
 
@@ -1105,7 +1113,13 @@
 
   function closeDetail() {
     const modal = $("detailModal");
-    if (modal) modal.setAttribute("aria-hidden", "true");
+    if (modal) {
+      if (HBIT.components?.closeSheet) HBIT.components.closeSheet(modal);
+      else {
+        modal.hidden = true;
+        modal.setAttribute("aria-hidden", "true");
+      }
+    }
     document.body.style.overflow = "";
     state.detailId = null;
   }
@@ -1137,13 +1151,23 @@
 
     buildWizardSlides();
     syncWizardUI();
-    $("wizardModal").setAttribute("aria-hidden", "false");
+    const modal = $("wizardModal");
+    if (HBIT.components?.openSheet) HBIT.components.openSheet(modal);
+    else {
+      modal.hidden = false;
+      modal.setAttribute("aria-hidden", "false");
+    }
     document.body.style.overflow = "hidden";
     autoFocusStep();
   }
 
   function closeWizard() {
-    $("wizardModal").setAttribute("aria-hidden", "true");
+    const modal = $("wizardModal");
+    if (HBIT.components?.closeSheet) HBIT.components.closeSheet(modal);
+    else {
+      modal.hidden = true;
+      modal.setAttribute("aria-hidden", "true");
+    }
     document.body.style.overflow = "";
   }
 
@@ -1700,12 +1724,24 @@
 
   async function deleteHabit(habitId) {
     if (!habitId) return;
-    if (!confirm(t("habits.det.confirmDelete", "Delete this habit permanently?"))) return;
+    const ok = HBIT.components?.confirm
+      ? await HBIT.components.confirm({
+          title: t("habits.det.confirmDelete", "Delete this habit permanently?"),
+          body: t("habits.confirm.deleteBody", "This removes the habit and its visible tracking history from this device."),
+          confirmText: t("common.delete", "Delete"),
+          cancelText: t("common.cancel", "Cancel"),
+          tone: "danger",
+        })
+      : window.confirm(t("habits.det.confirmDelete", "Delete this habit permanently?"));
+    if (!ok) return;
     try {
       await habitsCol().doc(habitId).delete();
       state.habits = state.habits.filter(x => x.id !== habitId);
       delete state.todayLogs[habitId];
-    } catch (err) { /* silent */ }
+    } catch (err) {
+      window.HBIT?.toast?.error?.(t("habits.error.delete", "Could not delete habit. Try again."));
+      return;
+    }
     closeDetail(); renderAll();
     window.dispatchEvent(new Event("hbit:data-changed"));
   }
@@ -1793,7 +1829,9 @@
       if (!h) return;
       h.paused ? resumeHabit(state.detailId) : pauseHabit(state.detailId);
     });
-    $("detailDelete")?.addEventListener("click", () => deleteHabit(state.detailId));
+      $("detailDelete")?.addEventListener("click", () => deleteHabit(state.detailId));
+      $("hbMsClose")?.addEventListener("click", closeMilestoneModal);
+      $("hbMilestoneBackdrop")?.addEventListener("click", closeMilestoneModal);
 
     /* Filter chips */
     qsa(".hb-chip").forEach(chip => {
@@ -1818,10 +1856,11 @@
 
     document.addEventListener("keydown", e => {
       if (e.key === "Escape") {
-        if ($("wizardModal")?.getAttribute("aria-hidden") === "false") closeWizard();
-        if ($("detailModal")?.getAttribute("aria-hidden") === "false") closeDetail();
-      }
-    });
+          if ($("wizardModal")?.getAttribute("aria-hidden") === "false") closeWizard();
+          if ($("detailModal")?.getAttribute("aria-hidden") === "false") closeDetail();
+          if ($("hbMilestoneOverlay")?.getAttribute("aria-hidden") === "false") closeMilestoneModal();
+        }
+      });
 
     window.addEventListener("hbit:lang-changed", () => {
       setHeaderDate();
@@ -1852,6 +1891,14 @@
       return;
     }
     setHeaderDate();
+    if (!_helpModalBound && window.HBIT?.utils?.initHelpModal) {
+      HBIT.utils.initHelpModal({
+        openBtn: "hbHelpBtn",
+        overlay: "hbHelpOverlay",
+        closeBtn: "hbHelpClose",
+      });
+      _helpModalBound = true;
+    }
     firebase.auth().onAuthStateChanged(function (user) {
       if (!user) { window.location.href = "login.html"; return; }
       state.uid = user.uid;

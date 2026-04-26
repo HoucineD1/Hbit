@@ -380,6 +380,19 @@
     });
   }
 
+  function bindDemoDataToggle() {
+    const input = $("pfDemoDataToggle");
+    if (!input || input.dataset.bound) return;
+    input.dataset.bound = "1";
+    input.checked = !!HBIT.demoData?.isEnabled?.();
+    input.addEventListener("change", () => {
+      HBIT.demoData?.setEnabled?.(input.checked);
+      showMsg(input.checked
+        ? (HBIT.i18n?.t?.("profile.demo.enabled", "Demo data is on for Overview.") || "Demo data on.")
+        : (HBIT.i18n?.t?.("profile.demo.disabled", "Demo data is off.") || "Demo data off."));
+    });
+  }
+
   function init() {
     if (document.body.id !== "profilePage") return;
     if (document.body.dataset.profileInit) return;
@@ -393,6 +406,7 @@
     bindPersonalToggle();
     bindExportData();
     bindDeleteModal();
+    bindDemoDataToggle();
 
     $("pfLogoutBtn")?.addEventListener("click", async () => {
       try {

@@ -93,6 +93,9 @@
   /** Logs the real error then re-throws it (no more silent failures). */
   function logAndThrow(context, err) {
     console.error(`[Hbit db] ${context} —`, err?.code || "", err?.message || err);
+    if (typeof HBIT.notifyFirestoreError === "function") {
+      try { HBIT.notifyFirestoreError(err); } catch (_) {}
+    }
     throw err;
   }
 

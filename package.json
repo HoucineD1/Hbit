@@ -1,6 +1,8 @@
 {
   "scripts": {
-    "check:phase1": "node scripts/phase1-static-check.js"
+    "check:phase1": "node scripts/phase1-static-check.js",
+    "check:phase3": "node scripts/phase3-static-check.js",
+    "check:all":    "node scripts/phase1-static-check.js && node scripts/phase3-static-check.js"
   },
   "dependencies": {
     "firebase": "^12.9.0",

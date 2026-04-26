@@ -1015,7 +1015,7 @@
       const sel = state.cycleSelection && state.cycleSelection.cycles === s.cycles;
       const note = !rec && isLateBedtime(s.hhmm) ? tsleep("sleep.tooLateForBest") : "";
       return `
-        <button type="button" class="sl-cycle-card${rec ? " recommended" : ""}${sel ? " selected" : ""}"
+        <button type="button" class="hbit-card sl-cycle-card${rec ? " recommended" : ""}${sel ? " selected" : ""}"
           data-cycles="${s.cycles}" data-bed="${s.hhmm}" data-wake="${wake}">
           ${rec ? `<span class="sl-cycle-badge">⭐ ${tsleep("sleep.recommended")}</span>` : "<span class=\"sl-cycle-badge\"></span>"}
           <div class="sl-cycle-meta-top">${s.cycles} cycles</div>
@@ -1180,8 +1180,12 @@
     if (input) input.value = wake;
     syncTimePicker("slWizardWake");
     renderSleepWizard();
+    if (HBIT.components?.openSheet) HBIT.components.openSheet(ov);
+    else {
+      ov.hidden = false;
+      ov.setAttribute("aria-hidden", "false");
+    }
     ov.classList.add("open");
-    ov.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
   }
 
@@ -1189,7 +1193,11 @@
     const ov = $("slWizardOverlay");
     if (!ov) return;
     ov.classList.remove("open");
-    ov.setAttribute("aria-hidden", "true");
+    if (HBIT.components?.closeSheet) HBIT.components.closeSheet(ov);
+    else {
+      ov.hidden = true;
+      ov.setAttribute("aria-hidden", "true");
+    }
     document.body.style.overflow = "";
   }
 
@@ -1456,6 +1464,14 @@
   }
 
   function showToast(msg, durationMs = 3000) {
+    if (HBIT.toast?.info) {
+      HBIT.toast.info(msg, { duration: durationMs });
+      return;
+    }
+    if (HBIT.toast?.show) {
+      HBIT.toast.show(msg, "info", { duration: durationMs });
+      return;
+    }
     const el = $("slToast");
     if (!el) return;
     el.textContent = msg;
@@ -1593,7 +1609,7 @@
     let html = "";
     const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     weekDays.forEach((d) => {
-      html += `<div class="sl-cal-day" style="cursor:default;opacity:.6;font-size:10px;">${d}</div>`;
+      html += `<div class="sl-cal-day" style="cursor:default;opacity:.6;font-size:12px;">${d}</div>`;
     });
     for (let i = 0; i < startPad; i++) {
       const prev = new Date(y, m - 1, -startPad + i + 1);
@@ -1678,7 +1694,11 @@
 
     const overlay = $("logOverlay");
     if (overlay) {
-      overlay.setAttribute("aria-hidden", "false");
+      if (HBIT.components?.openSheet) HBIT.components.openSheet(overlay);
+      else {
+        overlay.hidden = false;
+        overlay.setAttribute("aria-hidden", "false");
+      }
       overlay.classList.add("open");
     }
     document.body.style.overflow = "hidden";
@@ -1687,8 +1707,12 @@
   function closeLogSheet() {
     const overlay = $("logOverlay");
     if (overlay) {
-      overlay.setAttribute("aria-hidden", "true");
       overlay.classList.remove("open");
+      if (HBIT.components?.closeSheet) HBIT.components.closeSheet(overlay);
+      else {
+        overlay.hidden = true;
+        overlay.setAttribute("aria-hidden", "true");
+      }
     }
     document.body.style.overflow = "";
   }
@@ -1937,7 +1961,9 @@
   function openSleepHelp() {
     const ov = $("slHelpOverlay");
     if (!ov) return;
+    HBIT.components?.openSheet?.(ov);
     ov.classList.add("open");
+    ov.classList.add("is-open");
     ov.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
   }
@@ -1946,7 +1972,9 @@
     const ov = $("slHelpOverlay");
     if (!ov) return;
     ov.classList.remove("open");
+    ov.classList.remove("is-open");
     ov.setAttribute("aria-hidden", "true");
+    HBIT.components?.closeSheet?.(ov);
     document.body.style.overflow = "";
   }
 

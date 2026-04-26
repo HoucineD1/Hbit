@@ -43,30 +43,25 @@
   background: radial-gradient(ellipse, var(--fc-break-glow) 0%, transparent 65%);
 }
 
-.fc-header {
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px 0 56px;
-  border-bottom: 1px solid var(--fc-border);
+#focusPage .hbit-module-header {
+  padding-left: 56px;
+  border-bottom-color: var(--fc-border);
+  background: color-mix(in srgb, var(--fc-bg) 88%, transparent);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   position: relative;
   z-index: 10;
 }
 
-.fc-header-title { display: flex; flex-direction: column; }
-.fc-header-label { font-size: 18px; font-weight: 700; letter-spacing: -0.4px; }
-.fc-header-sub { font-size: 11px; font-weight: 600; color: var(--fc-accent); text-transform: uppercase; transition: color 0.5s; }
-#focusPage.is-break .fc-header-sub { color: var(--fc-break); }
+#focusPage .hbit-module-copy h1 {
+  color: var(--fc-accent);
+  text-transform: uppercase;
+  transition: color 0.5s;
+}
+#focusPage.is-break .hbit-module-copy h1 { color: var(--fc-break); }
 
 .fc-icon-btn {
-  width: 44px; height: 44px;
-  border: 1px solid var(--fc-border);
-  border-radius: 12px;
-  background: var(--fc-surface);
   color: var(--fc-text);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
   transition: background 0.2s;
 }
 .fc-icon-btn:hover { background: rgba(255,255,255,0.08); }
@@ -99,7 +94,7 @@
   border-radius: 999px;
   min-height: var(--tap-min, 44px);
   padding: 10px 16px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -185,7 +180,7 @@
   background: transparent;
   color: var(--fc-text);
   font: inherit;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
   outline: none;
   padding: 4px 0 9px;
@@ -242,7 +237,7 @@
   justify-content: space-between;
   gap: 12px;
   color: var(--fc-muted);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -277,7 +272,7 @@
   border-radius: 999px;
   background: var(--fc-surface);
   border: 1px solid var(--fc-border);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--fc-muted);
   cursor: pointer;
@@ -347,7 +342,7 @@
 }
 
 .fc-phase-chip {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -368,17 +363,17 @@
 
 /* Break breathing display replaces timer focus */
 #focusPage.is-break .fc-time-display {
-  transform: scale(0.6) translateY(-20px);
-  opacity: 0.6;
+  opacity: 0.75;
 }
 #focusPage.is-break .fc-ring-fill { stroke: var(--fc-break); filter: drop-shadow(0 0 10px var(--fc-break-glow)); }
 #focusPage.is-break .fc-phase-chip { background: rgba(56,189,248,0.15); color: var(--fc-break); }
 
+.fc-display-slot {
+  min-height: 84px;
+  display: grid;
+  place-items: center;
+}
 .fc-br-display {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -392,12 +387,17 @@
 /* Phase 1.1 — inactive Focus panels must not reserve vertical height; that
    was pushing the Breathe-tab cards below the fold. */
 .fc-panel[hidden]{ display:none !important; }
-.fc-br-phase-label { font-size: 26px; font-weight: 800; color: var(--fc-break); letter-spacing: -0.5px; }
+.fc-br-phase-label { font-size: 24px; font-weight: 800; color: var(--fc-break); letter-spacing: -0.5px; }
 .fc-br-secs { font-size: 16px; font-weight: 700; color: var(--fc-muted); }
+.fc-display-breathe {
+  display: grid;
+  gap: 4px;
+  place-items: center;
+}
 
 .fc-sessions-wrap {
   display: flex; align-items: center; gap: 5px;
-  color: var(--fc-muted); font-size: 13px; font-weight: 500;
+  color: var(--fc-muted); font-size: 14px; font-weight: 500;
   margin-top: 8px;
 }
 #fcSessions { font-weight: 700; color: var(--fc-text); }
@@ -422,37 +422,23 @@
 .fc-ctrl-main:hover { filter: brightness(1.1); }
 #focusPage.is-break .fc-ctrl-main { background: var(--fc-break); box-shadow: 0 4px 28px var(--fc-break-glow); }
 
-/* Settings Modal */
-.fc-modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  z-index: 1000;
-  display: grid; place-items: center;
-  padding: 20px;
-}
-.fc-modal-overlay[hidden] {
-  display: none !important;
+/* Settings Sheet */
+#focusPage .hbit-sheet-overlay {
+  z-index: 1800;
 }
 .fc-modal {
-  width: 100%; max-width: 440px;
+  width: min(440px, 100%);
   background: var(--fc-bg);
   border: 1px solid var(--fc-border);
-  border-radius: 24px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-  overflow: hidden;
-  animation: modalScale 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.fc-modal-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 20px 24px; border-bottom: 1px solid var(--fc-border);
-}
-.fc-modal-title { font-size: 18px; font-weight: 700; margin: 0; }
+.fc-modal-title { font-size: 20px; font-weight: 700; margin: 0; }
 .fc-modal-close {
-  background: transparent; border: none; color: var(--fc-muted);
-  cursor: pointer; padding: 4px; border-radius: 8px; transition: 0.2s;
+  color: var(--fc-muted);
+  transition: 0.2s;
 }
 .fc-modal-close:hover { color: var(--fc-text); background: var(--fc-surface); }
-.fc-modal-body { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+.fc-modal-body { display: flex; flex-direction: column; gap: 20px; }
 
 .fc-set-row { display: flex; align-items: center; justify-content: space-between; }
 .fc-set-col { display: flex; flex-direction: column; gap: 8px; }
@@ -466,7 +452,7 @@
 .fc-select {
   height: 48px; background: var(--fc-surface); border: 1px solid var(--fc-border);
   border-radius: 14px; color: var(--fc-text); padding: 0 14px;
-  font-size: 15px; font-weight: 600; outline: none;
+  font-size: 14px; font-weight: 600; outline: none;
 }
 .fc-select option { background: var(--fc-bg); }
 .fc-hint { font-size: 12px; color: var(--fc-muted); line-height: 1.4; margin: 0; }
@@ -492,7 +478,7 @@
   padding: 12px;
 }
 .fc-sess-stat-val {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 800;
   letter-spacing: -0.4px;
 }
@@ -537,7 +523,7 @@
   background: linear-gradient(90deg, #f97316, color-mix(in srgb, #f97316 62%, #fb923c));
   transition: width 400ms var(--ease-spring);
 }
-.fc-week-val { font-size: 11px; color: var(--fc-muted); min-width: 36px; text-align: right; }
+.fc-week-val { font-size: 12px; color: var(--fc-muted); min-width: 36px; text-align: right; }
 
 .fc-session-list { display: grid; gap: 8px; }
 .fc-session-row {
@@ -550,7 +536,7 @@
   padding: 9px 10px;
 }
 .fc-session-badge {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   border-radius: 999px;
   padding: 3px 8px;
@@ -571,7 +557,7 @@
   color: var(--fc-muted);
   padding: 24px 10px;
 }
-.fc-session-empty-icon { font-size: 28px; margin-bottom: 8px; }
+.fc-session-empty-icon { font-size: 32px; margin-bottom: 8px; }
 
 .fc-breathe-grid {
   width: 100%;
@@ -610,18 +596,18 @@
 }
 
 .fc-breathe-card strong {
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1.1;
 }
 
 .fc-breathe-card span:last-child {
   color: var(--fc-muted);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
 .fc-breath-overlay,
-.fc-focus-pop {
+.fc-save-sheet {
   position: fixed;
   inset: 0;
   z-index: 1200;
@@ -636,13 +622,13 @@
 }
 
 .fc-breath-overlay.open,
-.fc-focus-pop.open {
+.fc-save-sheet.open {
   opacity: 1;
   pointer-events: auto;
 }
 
 .fc-breath-inner,
-.fc-focus-pop-card {
+.fc-save-card {
   width: min(100%, 420px);
   border: 1px solid color-mix(in srgb, var(--focus) 30%, var(--border));
   border-radius: 20px;
@@ -674,7 +660,7 @@
 
 .fc-breath-close:focus-visible,
 .fc-breath-end:focus-visible,
-.fc-focus-pop-skip:focus-visible {
+.fc-save-actions button:focus-visible {
   outline: none;
   box-shadow: var(--input-focus-ring);
 }
@@ -700,16 +686,21 @@
   border-radius: 50%;
   background: radial-gradient(circle, color-mix(in srgb, var(--focus) 36%, white) 0%, var(--focus) 72%);
   box-shadow: 0 0 64px color-mix(in srgb, var(--focus) 28%, transparent);
-  transform: scale(1);
-  transition: transform 900ms ease-in-out;
+  opacity: 0.72;
+  transform: scale(0.84);
+  transition: transform 900ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 900ms ease, box-shadow 900ms ease;
 }
 
-.fc-breath-circle.inhale { transform: scale(1.28); }
-.fc-breath-circle.hold { transform: scale(1.28); }
-.fc-breath-circle.exhale { transform: scale(0.84); }
+.fc-breath-circle.inhale {
+  transform: scale(1.28);
+  opacity: 1;
+  box-shadow: 0 0 84px color-mix(in srgb, var(--focus) 38%, transparent);
+}
+.fc-breath-circle.hold { transform: scale(1.28); opacity: 0.86; }
+.fc-breath-circle.exhale { transform: scale(0.84); opacity: 0.58; }
 
 .fc-breath-label {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 900;
   line-height: 1;
 }
@@ -739,7 +730,7 @@
 }
 
 .fc-breath-end,
-.fc-focus-pop-skip {
+.fc-save-actions button {
   min-height: 44px;
   margin-top: 20px;
   padding: 0 18px;
@@ -752,14 +743,94 @@
   cursor: pointer;
 }
 
-.fc-focus-pop-card {
-  padding: 34px 24px;
+.fc-save-sheet {
+  align-items: end;
+  padding: 16px 16px max(16px, env(safe-area-inset-bottom));
 }
 
-.fc-focus-pop-card h2 {
+.fc-save-card {
+  padding: 24px;
+  transform: translateY(16px);
+  transition: transform 240ms var(--ease-smooth);
+}
+
+.fc-save-sheet.open .fc-save-card {
+  transform: translateY(0);
+}
+
+.fc-save-kicker {
+  margin: 0 0 6px;
+  color: var(--focus);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fc-save-card h2 {
   margin: 0;
-  font-size: clamp(32px, 8vw, 52px);
-  letter-spacing: 0;
+  font-size: 24px;
+  line-height: 1.08;
+}
+
+.fc-save-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.fc-save-stats span {
+  display: grid;
+  gap: 3px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--focus) 8%, transparent);
+  padding: 12px;
+}
+
+.fc-save-stats strong {
+  font-size: 32px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.fc-save-stats small {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.fc-save-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.fc-save-actions button {
+  flex: 1 1 160px;
+  margin-top: 0;
+  background: var(--focus);
+  border-color: var(--focus);
+  color: #111827;
+}
+
+.fc-save-actions button:first-child {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.fc-br-circle.soft-pulse,
+.fc-breath-circle.soft-pulse {
+  animation: fcSoftPulse 680ms var(--ease-smooth);
+}
+
+@keyframes fcSoftPulse {
+  0% { transform: scale(1); opacity: 0.65; }
+  45% { transform: scale(1.16); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.7; }
 }
 
 .fc-session-row {
@@ -786,6 +857,21 @@
   display: none;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  #focusPage *,
+  #focusPage *::before,
+  #focusPage *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+  .fc-br-circle,
+  .fc-breath-circle {
+    transform: none !important;
+  }
+}
+
 .fc-session-time {
   min-width: 0;
   display: grid;
@@ -794,7 +880,7 @@
 
 .fc-session-time strong {
   color: var(--fc-text);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.2;
 }
 
@@ -840,7 +926,7 @@ html[data-theme="light"] #focusPage.is-break::before {
 html[data-theme="light"] #focusPage.is-break {
   --fc-bg: color-mix(in srgb, var(--bg, #f8fafc) 96%, #60a5fa 4%);
 }
-html[data-theme="light"] .fc-header {
+html[data-theme="light"] #focusPage .hbit-module-header {
   background: rgba(248,249,252,0.92);
   border-bottom-color: rgba(0,0,0,0.07);
 }
@@ -900,7 +986,7 @@ html[data-theme="light"] .fc-ctrl-skip:hover {
   background: var(--panel2, #f1f5f9);
   color: var(--fc-text);
 }
-html[data-theme="light"] .fc-modal-overlay {
+html[data-theme="light"] #focusPage .hbit-sheet-overlay {
   background: rgba(15, 23, 42, 0.35);
 }
 html[data-theme="light"] .fc-modal {
@@ -969,18 +1055,18 @@ html[data-theme="light"] .fc-select option {
 }
 
 @media (max-width: 520px) {
-  #focusPage .fc-header {
+  #focusPage .hbit-module-header {
     padding-left: 56px;
     min-height: 64px;
   }
 
-  #focusPage .fc-header-label {
+  #focusPage .hbit-module-copy h1 {
     font-size: 16px;
   }
 
   #focusPage .fc-icon-btn {
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
   }
 
   #focusPage .fc-panel {
@@ -1000,7 +1086,7 @@ html[data-theme="light"] .fc-select option {
   }
 
   #focusPage .fc-time-display {
-    font-size: 48px;
+    font-size: 56px;
   }
 
   #focusPage .fc-ctrl-main {
@@ -1014,7 +1100,7 @@ html[data-theme="light"] .fc-select option {
     height: 48px;
   }
 
-  #focusPage .fc-header-right {
+  #focusPage .hbit-module-actions {
     gap: 5px;
   }
 }

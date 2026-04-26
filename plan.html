@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title data-i18n="plan.documentTitle">Hbit — Planner</title>
+  <title data-i18n="plan.documentTitle">Hbit - Planner</title>
   <meta name="description" content="Plan your days with a detailed chronological itinerary." />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23E63946'/><text x='50%25' y='68%25' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='900' font-size='20' fill='white'>H</text></svg>">
@@ -16,6 +16,7 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" /></noscript>
 <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="css/core/nav.css" />
+  <link rel="stylesheet" href="css/core/components.css" />
   <link rel="stylesheet" href="css/pages/plan.css" />
 
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -25,6 +26,7 @@
 
   <script defer src="js/core/utils.js"></script>
   <script defer src="js/core/toast.js"></script>
+  <script defer src="js/core/components.js"></script>
   <script defer src="js/core/storage.js"></script>
   <script defer src="js/core/theme.js"></script>
   <script defer src="js/core/i18n.js"></script>
@@ -50,16 +52,27 @@
   <div class="sb-overlay"></div>
   <nav class="sb" aria-hidden="true" aria-label="Main navigation"></nav>
 
-  <header class="pl-header">
-    <div class="pl-header-copy">
-      <!-- Date string driven entirely by the selected day -->
-      <h1 class="pl-title" id="plSelDateLabel" data-i18n="plan.title">Today</h1>
+  <header class="hbit-module-header" data-accent="plan">
+    <div class="hbit-module-mark" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
     </div>
-    <div class="pl-header-actions">
-      <button class="pl-icon-btn hdr-btn" id="langToggle" type="button" aria-label="Switch language">
+    <div class="hbit-module-copy">
+      <p data-i18n="nav.plan">Plan</p>
+      <!-- Date string driven entirely by the selected day -->
+      <h1 id="plSelDateLabel" data-i18n="plan.title">Today</h1>
+    </div>
+    <div class="hbit-module-actions">
+      <button class="hdr-btn" id="plHelpBtn" type="button" aria-label="Open help" data-i18n-aria-label="help.open">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 1 1 5.82 1c-.58 1.02-1.91 1.45-2.54 2.35-.25.36-.37.79-.37 1.25"/><path d="M12 17h.01"/>
+        </svg>
+      </button>
+      <button class="hdr-btn" id="langToggle" type="button" aria-label="Switch language">
         <span id="langLabel">FR</span>
       </button>
-      <button class="pl-icon-btn hdr-btn" id="themeToggle" type="button" aria-label="Toggle theme">
+      <button class="hdr-btn" id="themeToggle" type="button" aria-label="Toggle theme">
         <svg class="hm-theme-dark" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
         </svg>
@@ -71,27 +84,39 @@
           <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
         </svg>
       </button>
-      <a class="pl-avatar hdr-avatar" id="planAvatar" href="profile.html" aria-label="Profile">H</a>
+      <a class="hdr-avatar" id="planAvatar" href="profile.html" aria-label="Profile">H</a>
     </div>
   </header>
 
   <!-- Calendar Strip -->
   <div class="pl-cal-strip">
+    <div class="pl-view-switch" role="tablist" aria-label="Planner view" data-i18n-aria-label="plan.view.aria">
+      <button class="pl-view-btn active" id="plViewToday" type="button" role="tab" aria-selected="true" data-view-mode="today" data-i18n="plan.view.today">Today</button>
+      <button class="pl-view-btn" id="plViewWeek" type="button" role="tab" aria-selected="false" data-view-mode="week" data-i18n="plan.view.week">Week</button>
+      <button class="pl-view-btn" id="plViewList" type="button" role="tab" aria-selected="false" data-view-mode="list" data-i18n="plan.view.list">List</button>
+    </div>
     <div class="pl-cal-head">
-      <button class="pl-cal-nav" id="plWeekPrev" type="button" aria-label="Previous week">‹</button>
+      <button class="pl-cal-nav" id="plWeekPrev" type="button" aria-label="Previous week">&lsaquo;</button>
       <div class="pl-cal-month" id="plCalMonthLabel">April 2026</div>
-      <button class="pl-cal-nav" id="plWeekNext" type="button" aria-label="Next week">›</button>
+      <button class="pl-cal-nav" id="plWeekNext" type="button" aria-label="Next week">&rsaquo;</button>
     </div>
     <div class="pl-cal-track" id="plCalTrack"></div>
   </div>
 
   <main class="pl-main" id="main-content">
+    <form class="pl-quick-add" id="plQuickAdd" autocomplete="off">
+      <label class="sr-only" for="plQuickInput" data-i18n="plan.quick.label">Quick add task</label>
+      <input class="pl-quick-input" id="plQuickInput" type="text" data-i18n-placeholder="plan.quick.placeholder" placeholder="Workout 7am 45m high #fitness" />
+      <button class="pl-quick-btn" type="submit" data-i18n="plan.quick.add">Add</button>
+      <div class="pl-quick-preview" id="plQuickPreview" hidden></div>
+    </form>
+
     <div class="pl-carry-over" id="plCarryOver" hidden>
       <div class="pl-carry-info" data-i18n="plan.carry.text">You have unfinished tasks from previous days.</div>
       <button class="pl-carry-btn" id="plCarryBtn" type="button" data-i18n="plan.carry.btn">Bring to today</button>
     </div>
 
-    <section class="pl-day-summary" aria-label="Day plan summary" data-i18n-aria-label="plan.aria.daySummary">
+    <section class="pl-day-summary hbit-card" aria-label="Day plan summary" data-i18n-aria-label="plan.aria.daySummary">
       <div>
         <span class="pl-summary-kicker" data-i18n="plan.summary.kicker">Today’s plan</span>
         <strong id="plSummaryMain">0 tasks</strong>
@@ -101,25 +126,22 @@
     </section>
 
     <section class="pl-overview" aria-label="Planner overview" data-i18n-aria-label="plan.aria.overview">
-      <article class="pl-overview-card pl-overview-card--date">
+      <article class="pl-overview-card pl-overview-card--date hbit-stat">
         <span class="pl-overview-kicker" data-i18n="plan.overview.date">Selected date</span>
         <strong id="plOverviewDate">Today</strong>
         <span id="plOverviewDateMeta">0 tasks</span>
       </article>
-      <article class="pl-overview-card pl-overview-card--next">
+      <article class="pl-overview-card pl-overview-card--next hbit-stat">
         <span class="pl-overview-kicker" data-i18n="plan.overview.next">Next up</span>
         <strong id="plOverviewNext">No upcoming task</strong>
         <span id="plOverviewNextMeta">Add a task to start planning.</span>
       </article>
-      <article class="pl-overview-card pl-overview-card--legend">
-        <!-- Phase 1.3 — kicker label was 'Colors' but the items below are
-             priorities. Renamed for clarity; falls back to 'Priority' when
-             the i18n key is absent. -->
+      <article class="pl-overview-card pl-overview-card--mix hbit-stat">
         <span class="pl-overview-kicker" data-i18n="plan.overview.priority">Priority</span>
-        <div class="pl-color-legend" aria-hidden="true">
-          <span><i class="high"></i><span data-i18n="plan.priority.high">High</span></span>
-          <span><i class="medium"></i><span data-i18n="plan.priority.medium">Medium</span></span>
-          <span><i class="low"></i><span data-i18n="plan.priority.low">Low</span></span>
+        <div class="pl-priority-mix" id="plPriorityMix" aria-hidden="true">
+          <span class="pl-mix-row"><i class="pl-priority-dot high"></i><span class="pl-mix-label" data-i18n="plan.priority.high">High</span><strong class="pl-mix-count tabular-nums" id="plMixHigh">0</strong></span>
+          <span class="pl-mix-row"><i class="pl-priority-dot medium"></i><span class="pl-mix-label" data-i18n="plan.priority.medium">Medium</span><strong class="pl-mix-count tabular-nums" id="plMixMedium">0</strong></span>
+          <span class="pl-mix-row"><i class="pl-priority-dot low"></i><span class="pl-mix-label" data-i18n="plan.priority.low">Low</span><strong class="pl-mix-count tabular-nums" id="plMixLow">0</strong></span>
         </div>
       </article>
     </section>
@@ -132,16 +154,16 @@
     </section>
 
     <div class="pl-priority-filter" role="radiogroup" aria-label="Filter by priority">
-      <button class="pl-filter-chip active" type="button" data-priority-filter="all" aria-checked="true" data-i18n="plan.filter.all">All</button>
-      <button class="pl-filter-chip" type="button" data-priority-filter="high" aria-checked="false"><span class="pl-priority-dot high"></span><span data-i18n="plan.priority.high">High</span></button>
-      <button class="pl-filter-chip" type="button" data-priority-filter="medium" aria-checked="false"><span class="pl-priority-dot medium"></span><span data-i18n="plan.priority.medium">Medium</span></button>
-      <button class="pl-filter-chip" type="button" data-priority-filter="low" aria-checked="false"><span class="pl-priority-dot low"></span><span data-i18n="plan.priority.low">Low</span></button>
+      <button class="pl-filter-chip hbit-pill active" type="button" data-dot="false" data-priority-filter="all" aria-checked="true" data-i18n="plan.filter.all">All</button>
+      <button class="pl-filter-chip hbit-pill" type="button" data-dot="false" data-priority-filter="high" aria-checked="false"><span class="pl-priority-dot high"></span><span data-i18n="plan.priority.high">High</span></button>
+      <button class="pl-filter-chip hbit-pill" type="button" data-dot="false" data-priority-filter="medium" aria-checked="false"><span class="pl-priority-dot medium"></span><span data-i18n="plan.priority.medium">Medium</span></button>
+      <button class="pl-filter-chip hbit-pill" type="button" data-dot="false" data-priority-filter="low" aria-checked="false"><span class="pl-priority-dot low"></span><span data-i18n="plan.priority.low">Low</span></button>
     </div>
 
     <!-- Calendar + todo list -->
     <section class="pl-list-wrap" aria-live="polite">
-      <div class="pl-empty" id="planEmpty" hidden>
-        <div class="pl-empty-hero" aria-hidden="true">
+      <div class="pl-empty hbit-empty-state" id="planEmpty" hidden>
+        <div class="pl-empty-hero hbit-empty-icon" aria-hidden="true">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
         </div>
         <div class="pl-empty-title" data-i18n="plan.empty.premium.title">Plan your perfect day</div>
@@ -167,38 +189,108 @@
   </button>
 
   <!-- Add task bottom sheet -->
-  <div class="pl-modal-overlay modal-overlay" id="plModal" hidden>
-    <div class="pl-modal modal-panel">
-      <div class="pl-modal-header modal-header">
-        <h2 class="pl-modal-title" data-i18n="plan.modal.title">Add Task</h2>
-        <button class="pl-modal-close" id="plModalClose" aria-label="Close">
+  <div class="hbit-sheet-overlay" id="plModal" hidden aria-hidden="true" data-hbit-sheet>
+    <div class="hbit-sheet" role="dialog" aria-modal="true" aria-labelledby="plModalTitle">
+      <div class="hbit-sheet-head">
+        <h2 class="hbit-sheet-title pl-modal-title" id="plModalTitle" data-i18n="plan.modal.title">Add Task</h2>
+        <button class="hbit-sheet-close" id="plModalClose" type="button" aria-label="Close" data-hbit-sheet-close>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
-      
-      <form class="pl-modal-body modal-body" id="planForm">
+
+      <form class="pl-modal-body hbit-sheet-body" id="planForm">
         <input type="hidden" id="plEditingId" value="" />
+        <input type="hidden" id="plInputKind" value="task" />
+
+        <div class="pl-input-group">
+          <div class="pl-segment pl-kind-segment" role="radiogroup" aria-label="Type" data-i18n-aria-label="plan.kind.aria">
+            <button type="button" data-kind-value="task" class="active" aria-checked="true" data-i18n="plan.kind.task">Task</button>
+            <button type="button" data-kind-value="event" aria-checked="false" data-i18n="plan.kind.event">Event</button>
+          </div>
+        </div>
+
         <div class="pl-input-group">
           <input class="pl-input-title" id="plInputTitle" type="text" data-i18n-placeholder="plan.placeholder.title" placeholder="What are you doing?" required />
         </div>
-        
-        <div class="pl-time-row">
+
+        <div class="pl-time-row pl-time-row--event" id="plEventTimeRow" hidden>
           <div class="pl-input-group">
-            <label data-i18n="plan.label.startTime">Start Time</label>
-            <input type="time" class="pl-input-num" id="plInputTime" />
+            <label data-i18n="plan.label.startTime">Start time</label>
+            <select class="pl-input-num pl-hour-select" id="plInputTime" aria-label="Start time" data-i18n-aria-label="plan.label.startTime"></select>
             <p class="pl-conflict-msg" id="plConflictMsg" hidden></p>
           </div>
           <div class="pl-input-group">
-            <label data-i18n="plan.label.duration">Duration (mins)</label>
-            <input type="number" class="pl-input-num" id="plInputDur" value="60" min="1" step="5" required />
+            <label data-i18n="plan.label.endTime">End time</label>
+            <select class="pl-input-num pl-hour-select" id="plInputEnd" aria-label="End time" data-i18n-aria-label="plan.label.endTime"></select>
+            <input type="hidden" id="plInputDur" value="60" />
           </div>
-          <div class="pl-input-group">
-            <label data-i18n="plan.label.priority">Priority</label>
-            <select class="pl-input-num" id="plInputPty">
-              <option value="low" data-i18n="plan.priority.low">Low</option>
-              <option value="medium" data-i18n="plan.priority.medium">Medium</option>
-              <option value="high" data-i18n="plan.priority.high">High</option>
-            </select>
+        </div>
+
+        <div class="pl-input-group">
+          <label data-i18n="plan.label.priority">Priority</label>
+          <input type="hidden" id="plInputPty" value="medium" />
+          <div class="pl-segment pl-priority-segment" role="radiogroup" aria-label="Priority">
+            <button type="button" data-priority-value="low" aria-checked="false"><span class="pl-priority-dot low"></span><span data-i18n="plan.priority.low">Low</span></button>
+            <button type="button" data-priority-value="medium" aria-checked="true" class="active"><span class="pl-priority-dot medium"></span><span data-i18n="plan.priority.medium">Medium</span></button>
+            <button type="button" data-priority-value="high" aria-checked="false"><span class="pl-priority-dot high"></span><span data-i18n="plan.priority.high">High</span></button>
+          </div>
+        </div>
+
+        <div class="pl-input-group">
+          <label for="plInputLocation" data-i18n="plan.label.location">Location</label>
+          <input class="pl-input-num" id="plInputLocation" type="text" placeholder="Optional — e.g. Gym, Home" data-i18n-placeholder="plan.placeholder.location" />
+        </div>
+
+        <div class="pl-input-group">
+          <label data-i18n="plan.label.recurrence">Recurrence</label>
+          <input type="hidden" id="plInputRecurrence" value="once" />
+          <div class="pl-segment pl-recur-segment" role="radiogroup" aria-label="Recurrence">
+            <button type="button" data-recurrence-value="once" class="active" aria-checked="true" data-i18n="plan.recur.once">Once</button>
+            <button type="button" data-recurrence-value="daily" aria-checked="false" data-i18n="plan.recur.daily">Daily</button>
+            <button type="button" data-recurrence-value="weekdays" aria-checked="false" data-i18n="plan.recur.weekdays">Weekdays</button>
+            <button type="button" data-recurrence-value="weekly" aria-checked="false" data-i18n="plan.recur.weekly">Weekly</button>
+            <button type="button" data-recurrence-value="custom" aria-checked="false" data-i18n="plan.recur.custom">Custom</button>
+          </div>
+          <div class="pl-custom-days" id="plCustomDays" hidden>
+            <button type="button" data-custom-day="sun">S</button>
+            <button type="button" data-custom-day="mon">M</button>
+            <button type="button" data-custom-day="tue">T</button>
+            <button type="button" data-custom-day="wed">W</button>
+            <button type="button" data-custom-day="thu">T</button>
+            <button type="button" data-custom-day="fri">F</button>
+            <button type="button" data-custom-day="sat">S</button>
+          </div>
+        </div>
+
+        <div class="pl-input-group">
+          <label for="plInputHabit" data-i18n="plan.label.linkedHabit">Linked habit</label>
+          <button type="button" class="pl-input-num pl-habit-trigger" id="plHabitTrigger" aria-expanded="false">
+            <span id="plHabitTriggerText" data-i18n="plan.habit.none">No linked habit</span>
+          </button>
+          <input type="hidden" id="plInputHabit" value="" />
+          <div class="pl-habit-menu" id="plHabitMenu" hidden></div>
+        </div>
+
+        <div class="pl-input-group">
+          <label data-i18n="plan.label.subtasks">Subtasks</label>
+          <div class="pl-subtasks" id="plSubtasks"></div>
+          <button type="button" class="pl-secondary-btn" id="plAddSubtask" data-i18n="plan.subtask.add">Add subtask</button>
+        </div>
+
+        <div class="pl-input-group">
+          <label for="plInputTags" data-i18n="plan.label.tags">Tags</label>
+          <input class="pl-input-num" id="plInputTags" type="text" placeholder="fitness, work" data-i18n-placeholder="plan.placeholder.tags" />
+        </div>
+
+        <div class="pl-input-group">
+          <label data-i18n="plan.label.reminder">Reminder</label>
+          <input type="hidden" id="plInputReminder" value="" />
+          <div class="pl-segment pl-reminder-segment" role="radiogroup" aria-label="Reminder">
+            <button type="button" data-reminder-value="" class="active" aria-checked="true" data-i18n="plan.reminder.none">None</button>
+            <button type="button" data-reminder-value="5" aria-checked="false">5m</button>
+            <button type="button" data-reminder-value="15" aria-checked="false">15m</button>
+            <button type="button" data-reminder-value="30" aria-checked="false">30m</button>
+            <button type="button" data-reminder-value="60" aria-checked="false">1h</button>
           </div>
         </div>
 
@@ -211,7 +303,25 @@
     </div>
   </div>
 
-  <div class="hbit-help-overlay" id="plHelpOverlay" aria-hidden="true">
+  <div class="hbit-sheet-overlay" id="plMorningReview" hidden aria-hidden="true" data-hbit-sheet>
+    <section class="hbit-sheet" role="dialog" aria-modal="true" aria-labelledby="plReviewTitle">
+      <div class="hbit-sheet-head pl-review-head">
+        <div>
+          <p class="pl-review-kicker" data-i18n="plan.review.kicker">Morning review</p>
+          <h2 class="hbit-sheet-title" id="plReviewTitle" data-i18n="plan.review.title">Clean up unfinished tasks</h2>
+        </div>
+        <button class="hbit-sheet-close" id="plReviewClose" type="button" aria-label="Close" data-hbit-sheet-close>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="hbit-sheet-body">
+        <div class="pl-review-list" id="plReviewList"></div>
+        <button class="pl-review-dismiss" id="plReviewDismiss" type="button" data-i18n="plan.review.dismiss">Done for today</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="hbit-help-overlay" id="plHelpOverlay" hidden aria-hidden="true">
     <div class="hbit-help-card" role="dialog" aria-modal="true" aria-labelledby="plHelpTitle">
       <button class="hbit-help-close" id="plHelpClose" type="button" data-i18n-aria-label="help.close">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

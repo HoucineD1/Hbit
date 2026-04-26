@@ -3,6 +3,13 @@
 
   const HBIT = (window.HBIT = window.HBIT || {});
   const $ = (id) => document.getElementById(id);
+  const VIEW_MODE_KEY = "hbit:plan:viewMode";
+  const HOUR_START = 6;
+  const HOUR_END = 23;
+  const ROW_H = 56;
+  const SNAP_MIN = 15;
+  const DEFAULT_VIEW = window.matchMedia?.("(max-width: 720px)")?.matches ? "today" : "today";
+  const WHEN_TIMES = { morning: "08:00", afternoon: "13:00", evening: "19:00", flexible: "" };
 
   let state = {
     user: null,
@@ -15,11 +22,16 @@
     weekOffset: 0,
     taskMapByDate: {},
     dateMetaByDate: {},
+    allOpenTasks: [],
     habits: [],
     habitLogs: {},
     priorityFilter: "all",
     editingTaskId: null,
     pendingTaskIds: new Set(),
+    viewMode: getStoredViewMode(),
+    nowTimer: null,
+    quickDraft: null,
+    dragState: null,
   };
 
   // ======================================================================
@@ -33,6 +45,28 @@
       s = s.replace(/\{(\w+)\}/g, (_, k) => params[k] !== undefined ? String(params[k]) : `{${k}}`);
     }
     return s;
+  }
+
+  function getStoredViewMode() {
+    try {
+      const value = localStorage.getItem(VIEW_MODE_KEY);
+      return ["today", "week", "list"].includes(value) ? value : DEFAULT_VIEW;
+    } catch {
+      return DEFAULT_VIEW;
+    }
+  }
+
+  function setViewMode(mode) {
+    if (!["today", "week", "list"].includes(mode)) return;
+    state.viewMode = mode;
+    try { localStorage.setItem(VIEW_MODE_KEY, mode); } catch {}
+    document.querySelectorAll("[data-view-mode]").forEach((btn) => {
+      const active = btn.dataset.viewMode === mode;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-selected", active ? "true" : "false");
+    });
+    renderList();
+    manageNowTimer();
   }
 
   function getTodayStr() {
@@ -64,6 +98,28 @@
     d.setHours(h || 0, m || 0, 0, 0);
     const loc = getLang() === "fr" ? "fr-CA" : "en-CA";
     return new Intl.DateTimeFormat(loc, { hour: "numeric", minute: "2-digit" }).format(d);
+  }
+
+  function minutesToTime(mins) {
+    const normalized = Math.max(0, Math.min(23 * 60 + 59, Math.round(mins)));
+    const h = Math.floor(normalized / 60);
+    const m = normalized % 60;
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  }
+
+  function timeToMinutes(timeStr, fallback = HOUR_START * 60) {
+    if (!timeStr) return fallback;
+    const [h, m] = String(timeStr).split(":").map(Number);
+    if (!Number.isFinite(h)) return fallback;
+    return (h || 0) * 60 + (m || 0);
+  }
+
+  function snapMinutes(mins) {
+    return Math.max(HOUR_START * 60, Math.min(HOUR_END * 60 + 45, Math.round(mins / SNAP_MIN) * SNAP_MIN));
+  }
+
+  function taskDuration(task) {
+    return Math.max(15, Number(task?.duration) || 60);
   }
 
   function priorityRank(priority) {
@@ -154,10 +210,12 @@
       state.habits = habits;
       state.habitLogs = logs;
       renderHabits();
+      if (state.viewMode !== "list") renderList();
     } catch (_) {
       state.habits = [];
       state.habitLogs = {};
       renderHabits();
+      if (state.viewMode !== "list") renderList();
     }
   }
 
@@ -178,9 +236,11 @@
       HBIT.db.tasks.listAll().then(allTasks => {
         const today = getTodayStr();
         const mapped = (allTasks || []).filter(t => t.done === false);
+        state.allOpenTasks = mapped;
         state.allPastUndone = mapped.filter(t => t.date < today);
         buildCalendarMeta(mapped);
-        if ($("plCarryOver")) $("plCarryOver").hidden = state.allPastUndone.length === 0 || state.selectedDate !== today;
+        if ($("plCarryOver")) $("plCarryOver").hidden = true;
+        maybeShowMorningReview();
         renderCalendar();
       }).catch((err) => {
         showPlanError(err, () => loadTasks());
@@ -194,8 +254,10 @@
       state.tasks = allTasks.filter(t => t.date === state.selectedDate);
       const today = getTodayStr();
       state.allPastUndone = allTasks.filter(t => t.done === false && t.date < today);
+      state.allOpenTasks = allTasks.filter(t => t.done === false);
       buildCalendarMeta(allTasks);
-      if ($("plCarryOver")) $("plCarryOver").hidden = state.allPastUndone.length === 0 || state.selectedDate !== today;
+      if ($("plCarryOver")) $("plCarryOver").hidden = true;
+      maybeShowMorningReview();
       state.tasksSnapReady = true;
       loadTodaysHabits();
       sortRender();
@@ -216,7 +278,7 @@
   }
 
   async function addTask(data) {
-    const t = { ...data, done: false, date: state.selectedDate, createdAt: Date.now() };
+    const t = { ...normalizeTaskPayload(data), done: false, date: data.date || state.selectedDate, createdAt: Date.now() };
     try {
       if (isFs()) { await HBIT.db.tasks.add(t); }
       else {
@@ -235,10 +297,15 @@
 
   async function updateTask(id, data) {
     try {
-      if (isFs()) { await HBIT.db.tasks.update(id, { ...data, updatedAt: Date.now() }); }
+      const current = state.tasks.find((task) => task.id === id)
+        || state.allOpenTasks.find((task) => task.id === id)
+        || state.allPastUndone.find((task) => task.id === id)
+        || {};
+      const normalized = normalizeTaskPayload({ ...current, ...data });
+      if (isFs()) { await HBIT.db.tasks.update(id, { ...normalized, updatedAt: Date.now() }); }
       else {
         let all = JSON.parse(localStorage.getItem("hbit:plan:tasks") || "[]");
-        all = all.map(t => t.id === id ? { ...t, ...data, updatedAt: Date.now() } : t);
+        all = all.map(t => t.id === id ? { ...t, ...normalized, updatedAt: Date.now() } : t);
         localStorage.setItem("hbit:plan:tasks", JSON.stringify(all));
         loadTasks();
       }
@@ -247,6 +314,26 @@
       showPlanError(err, () => updateTask(id, data));
       throw err;
     }
+  }
+
+  function normalizeTaskPayload(data = {}) {
+    return {
+      ...data,
+      title: String(data.title || data.text || "").trim(),
+      time: normalizeTimeInput(data.time || ""),
+      duration: Math.max(1, Number(data.duration) || 60),
+      priority: ["low", "medium", "high"].includes(data.priority) ? data.priority : "medium",
+      recurrence: data.recurrence || "once",
+      habitId: data.habitId || "",
+      subtasks: Array.isArray(data.subtasks) ? data.subtasks.slice(0, 5).map((item) => ({
+        text: String(item.text || "").trim(),
+        done: !!item.done,
+      })).filter((item) => item.text) : [],
+      tags: Array.isArray(data.tags) ? data.tags.map((tag) => String(tag).trim().replace(/^#/, "")).filter(Boolean) : [],
+      reminderOffsetMin: data.reminderOffsetMin === "" || data.reminderOffsetMin == null ? "" : Number(data.reminderOffsetMin),
+      customDays: Array.isArray(data.customDays) ? data.customDays : [],
+      notes: String(data.notes || "").trim(),
+    };
   }
 
   async function toggleTask(id, currentDone) {
@@ -308,6 +395,41 @@
     }
   }
 
+  function reviewKey() {
+    return `hbit:plan:morningReview:${getTodayStr()}`;
+  }
+
+  function dismissMorningReview() {
+    try { localStorage.setItem(reviewKey(), "done"); } catch {}
+    const overlay = $("plMorningReview");
+    if (overlay) HBIT.components?.closeSheet ? HBIT.components.closeSheet(overlay) : (overlay.hidden = true);
+  }
+
+  function maybeShowMorningReview() {
+    const overlay = $("plMorningReview");
+    const list = $("plReviewList");
+    if (!overlay || !list || state.selectedDate !== getTodayStr() || !state.allPastUndone.length) return;
+    try {
+      if (localStorage.getItem(reviewKey()) === "done") return;
+    } catch {}
+    list.innerHTML = state.allPastUndone.map((task) => `<article class="pl-review-row" data-review-id="${escapeHtml(task.id)}">
+      <div>
+        <strong>${escapeHtml(task.title || task.text || tr("plan.task.untitled", "Untitled task"))}</strong>
+        <span>${escapeHtml(task.date || "")} · ${escapeHtml(formatTimeDisp(task.time))}</span>
+      </div>
+      <div class="pl-review-actions">
+        <button type="button" data-review-action="forward">${escapeHtml(tr("plan.review.forward", "Bring forward"))}</button>
+        <button type="button" data-review-action="reschedule">${escapeHtml(tr("plan.review.reschedule", "Reschedule..."))}</button>
+        <button type="button" data-review-action="drop">${escapeHtml(tr("plan.review.drop", "Drop"))}</button>
+      </div>
+      <div class="pl-review-reschedule" hidden>
+        <input type="date" value="${escapeHtml(getTodayStr())}" aria-label="${escapeHtml(tr("plan.review.pickDate", "Move to date"))}">
+        <button type="button" data-review-action="apply-date">${escapeHtml(tr("common.apply", "Apply"))}</button>
+      </div>
+    </article>`).join("");
+    HBIT.components?.openSheet ? HBIT.components.openSheet(overlay) : (overlay.hidden = false);
+  }
+
   // ======================================================================
   // RENDER
   // ======================================================================
@@ -361,14 +483,189 @@
   }
 
   function renderList() {
+    renderDaySummary();
+    renderOverview();
+    renderViewSwitch();
+    renderHabitMenu();
+    if (state.viewMode === "week") renderWeekGrid();
+    else if (state.viewMode === "list") renderAgendaList();
+    else renderDayGrid();
+  }
+
+  function renderViewSwitch() {
+    document.querySelectorAll("[data-view-mode]").forEach((btn) => {
+      const active = btn.dataset.viewMode === state.viewMode;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-selected", active ? "true" : "false");
+    });
+  }
+
+  function scheduledTasks() {
+    return state.tasks.filter((task) => task.time && (state.priorityFilter === "all" || (task.priority || "low") === state.priorityFilter));
+  }
+
+  function timelineHabitBlocks() {
+    if (state.selectedDate !== getTodayStr()) return [];
+    return (state.habits || []).map((habit) => {
+      const time = habit.time || habit.startTime || WHEN_TIMES[habit.when || "flexible"] || "";
+      if (!time) return null;
+      return {
+        id: `habit:${habit.id}`,
+        habitId: habit.id,
+        title: habit.name || habit.title || tr("plan.habit.untitled", "Habit"),
+        time,
+        duration: Number(habit.duration) || 30,
+        priority: "habit",
+        isHabit: true,
+        done: state.habitLogs[habit.id]?.status === "done",
+      };
+    }).filter(Boolean);
+  }
+
+  function blockStyle(item, dense = false) {
+    const start = Math.max(HOUR_START * 60, timeToMinutes(item.time));
+    const endCap = (HOUR_END + 1) * 60;
+    const top = ((start - HOUR_START * 60) / 60) * (dense ? 42 : ROW_H);
+    const height = Math.max(dense ? 24 : 38, (Math.min(taskDuration(item), endCap - start) / 60) * (dense ? 42 : ROW_H));
+    return `top:${top}px;height:${height}px;`;
+  }
+
+  function renderDayGrid() {
     const list = $("planList");
     const empty = $("planEmpty");
     if (!list || !empty) return;
+    const isEmpty = state.tasks.length === 0 && state.habits.length === 0;
+    empty.hidden = !isEmpty;
+    const summary = document.querySelector(".pl-day-summary");
+    const overview = document.querySelector(".pl-overview");
+    const filter = document.querySelector(".pl-priority-filter");
+    if (summary) summary.hidden = isEmpty;
+    if (overview) overview.hidden = isEmpty;
+    if (filter) filter.hidden = isEmpty;
+    const fab = document.getElementById("plFabBtn");
+    if (fab) fab.hidden = isEmpty;
+    if (isEmpty) { list.innerHTML = ""; list.className = "pl-timeline"; return; }
+    const hours = [];
+    for (let h = HOUR_START; h <= HOUR_END; h += 1) hours.push(h);
+    const blocks = [...scheduledTasks(), ...timelineHabitBlocks()].sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+    const nowLine = renderNowLine();
+    list.className = "pl-timeline pl-timeline--grid";
+    list.innerHTML = `
+      <div class="pl-day-grid" style="--row-h:${ROW_H}px">
+        <div class="pl-hour-rail" aria-hidden="true">
+          ${hours.map((h) => `<div class="pl-hour-label">${String(h).padStart(2, "0")}:00</div>`).join("")}
+        </div>
+        <div class="pl-hour-canvas">
+          ${hours.map((h) => `<button class="pl-hour-row" type="button" data-slot-time="${minutesToTime(h * 60)}" aria-label="${escapeHtml(tr("plan.grid.addAt", "Add task at {time}", { time: minutesToTime(h * 60) }))}"></button>`).join("")}
+          ${nowLine}
+          ${blocks.map((item) => renderTimelineBlock(item)).join("")}
+        </div>
+      </div>
+      ${renderAnytimeLane()}
+    `;
+  }
+
+  function renderTimelineBlock(item) {
+    const priority = item.isHabit ? "habit" : (item.priority || "low");
+    const conflict = item.isHabit ? null : findConflict(item);
+    const tags = (item.tags || []).slice(0, 2).map((tag) => `<span class="pl-block-tag hbit-pill" data-dot="false">#${escapeHtml(tag)}</span>`).join("");
+    return `<article class="pl-grid-block ${item.done ? "is-done" : ""} ${item.isHabit ? "is-habit" : ""} priority-${escapeHtml(priority)}"
+        style="${blockStyle(item)}" data-id="${escapeHtml(item.id)}" data-block-kind="${item.isHabit ? "habit" : "task"}">
+      <div class="pl-grid-block-main">
+        <span class="pl-block-time">${formatTimeDisp(item.time)} &middot; ${taskDuration(item)}m</span>
+        <strong>${escapeHtml(item.title || item.text || tr("plan.task.untitled", "Untitled task"))}</strong>
+        <span class="pl-block-meta">${item.isHabit ? escapeHtml(tr("plan.block.habit", "Habit")) : escapeHtml(tr(`plan.priority.${item.priority || "low"}`, item.priority || "low"))}${tags}</span>
+      </div>
+      ${item.isHabit ? `<button class="pl-block-check" type="button" data-action="habit-toggle">${item.done ? "OK" : "Done"}</button>` : `
+        <div class="pl-block-nudge" aria-label="${escapeHtml(tr("plan.grid.nudge", "Move task"))}">
+          <button type="button" data-action="move-earlier" aria-label="${escapeHtml(tr("plan.grid.moveEarlier", "Move 15 minutes earlier"))}">-15</button>
+          <button type="button" data-action="move-later" aria-label="${escapeHtml(tr("plan.grid.moveLater", "Move 15 minutes later"))}">+15</button>
+        </div>
+        <button class="pl-block-check" type="button" data-action="toggle">${item.done ? "Open" : "Done"}</button>
+        <span class="pl-resize-handle" data-resize-handle aria-hidden="true"></span>
+      `}
+      ${conflict ? `<div class="pl-conflict-actions">
+        <span>${escapeHtml(tr("plan.conflict.with", "Conflicts with {title}", { title: conflict.title || conflict.text || "task" }))}</span>
+        <button type="button" data-action="conflict-later">${escapeHtml(tr("plan.conflict.moveLater", "Move 30m later"))}</button>
+        <button type="button" data-action="conflict-free">${escapeHtml(tr("plan.conflict.nextFree", "Next free"))}</button>
+      </div>` : ""}
+    </article>`;
+  }
+
+  function renderAnytimeLane() {
+    const anytime = state.tasks.filter((item) => !item.time && (state.priorityFilter === "all" || (item.priority || "low") === state.priorityFilter));
+    if (!anytime.length) return "";
+    return `<section class="pl-anytime-lane">
+      <h2 class="pl-list-section-title">${escapeHtml(tr("plan.section.anytime", "Anytime"))}</h2>
+      ${anytime.map((item) => `<button class="pl-anytime-pill ${item.done ? "is-done" : ""}" type="button" data-id="${escapeHtml(item.id)}" data-action="edit">
+        <span>${escapeHtml(item.title || item.text || tr("plan.task.untitled", "Untitled task"))}</span>
+        <small>${escapeHtml(tr(`plan.priority.${item.priority || "low"}`, item.priority || "low"))}</small>
+      </button>`).join("")}
+    </section>`;
+  }
+
+  function renderNowLine() {
+    if (state.selectedDate !== getTodayStr()) return "";
+    const now = new Date();
+    const mins = now.getHours() * 60 + now.getMinutes();
+    if (mins < HOUR_START * 60 || mins > (HOUR_END + 1) * 60) return "";
+    const top = ((mins - HOUR_START * 60) / 60) * ROW_H;
+    return `<div class="pl-now-line" style="top:${top}px"><span>${escapeHtml(tr("plan.grid.now", "Now"))}</span></div>`;
+  }
+
+  function renderWeekGrid() {
+    const list = $("planList");
+    const empty = $("planEmpty");
+    if (!list || !empty) return;
+    empty.hidden = true;
+    const summary = document.querySelector(".pl-day-summary");
+    const overview = document.querySelector(".pl-overview");
+    const filter = document.querySelector(".pl-priority-filter");
+    if (summary) summary.hidden = false;
+    if (overview) overview.hidden = false;
+    if (filter) filter.hidden = false;
+    const fab = document.getElementById("plFabBtn");
+    if (fab) fab.hidden = false;
+    const base = strToDate(state.selectedDate);
+    const start = new Date(base);
+    start.setDate(base.getDate() - base.getDay());
+    const days = Array.from({ length: 7 }, (_, index) => {
+      const d = new Date(start);
+      d.setDate(start.getDate() + index);
+      return d;
+    });
+    const loc = getLang() === "fr" ? "fr-CA" : "en-CA";
+    list.className = "pl-timeline pl-timeline--week";
+    list.innerHTML = `<div class="pl-week-grid">
+      ${days.map((day) => {
+        const dateKey = dateToStr(day);
+        const dayTasks = (dateKey === state.selectedDate ? state.tasks : state.allOpenTasks.filter((task) => task.date === dateKey)).filter((task) => task.time);
+        return `<section class="pl-week-col ${dateKey === state.selectedDate ? "active" : ""}" data-week-date="${dateKey}">
+          <button class="pl-week-head" type="button" data-week-pick="${dateKey}">
+            <span>${new Intl.DateTimeFormat(loc, { weekday: "short" }).format(day)}</span>
+            <strong>${new Intl.DateTimeFormat(loc, { day: "numeric" }).format(day)}</strong>
+          </button>
+          <div class="pl-week-stack">
+            ${(dateKey === state.selectedDate ? [...scheduledTasks(), ...timelineHabitBlocks()] : dayTasks).map((task) => `<button class="pl-week-task priority-${escapeHtml(task.isHabit ? "habit" : task.priority || "low")}" type="button" data-id="${escapeHtml(task.id)}" data-week-task-date="${escapeHtml(dateKey)}" data-block-kind="${task.isHabit ? "habit" : "task"}">
+              <span>${escapeHtml(formatTimeDisp(task.time))}</span>
+              <strong>${escapeHtml(task.title || task.text || "")}</strong>
+            </button>`).join("") || `<p>${escapeHtml(tr("plan.week.empty", "No timed plans"))}</p>`}
+          </div>
+        </section>`;
+      }).join("")}
+    </div>`;
+  }
+
+  function renderAgendaList() {
+    const list = $("planList");
+    const empty = $("planEmpty");
+    if (!list || !empty) return;
+    list.className = "pl-timeline";
 
     if (state.user && window.firebase && firebase.firestore && !state.tasksSnapReady) {
       empty.hidden = true;
       list.innerHTML = [1, 2, 3].map(() =>
-        `<article class="pl-item skeleton" aria-hidden="true"><div class="pl-card" style="min-height:72px"></div></article>`
+        `<article class="pl-item skeleton" aria-hidden="true"><div class="pl-card hbit-card" style="min-height:72px"></div></article>`
       ).join("");
       return;
     }
@@ -378,10 +675,17 @@
       return (task.priority || "low") === state.priorityFilter;
     });
 
-    renderDaySummary();
-    renderOverview();
-    empty.hidden = state.tasks.length > 0;
-    
+    const isEmpty = state.tasks.length === 0;
+    empty.hidden = !isEmpty;
+    const summary = document.querySelector(".pl-day-summary");
+    const overview = document.querySelector(".pl-overview");
+    const filter = document.querySelector(".pl-priority-filter");
+    if (summary) summary.hidden = isEmpty;
+    if (overview) overview.hidden = isEmpty;
+    if (filter) filter.hidden = isEmpty;
+    const fab = document.getElementById("plFabBtn");
+    if (fab) fab.hidden = isEmpty;
+
     const now = new Date();
     const today = getTodayStr();
     let currentMarked = false;
@@ -423,11 +727,11 @@
             <span class="pl-time-display">${formatTimeDisp(item.time)}</span>
             ${item.duration ? `<span class="pl-dur-display">${item.duration}m</span>` : ''}
           </div>
-          <div class="pl-card" tabindex="0" aria-busy="${pending ? "true" : "false"}">
+          <div class="pl-card hbit-card" tabindex="0" aria-busy="${pending ? "true" : "false"}">
             <div class="pl-card-meta">
-              <span class="pl-status-pill is-${statusKey}">${statusIcon(statusKey)} ${escapeHtml(taskStatusLabel(statusKey))}</span>
-              <span class="pl-priority-pill ${escapeHtml(priority)}">${priorityIcon(priority)} ${escapeHtml(tr(`plan.priority.${priority}`, priority))}</span>
-              ${conflict ? `<span class="pl-status-pill is-overdue">${escapeHtml(tr("plan.status.conflict", "Conflict"))}</span>` : ""}
+              <span class="pl-status-pill hbit-pill is-${statusKey}" data-dot="false">${statusIcon(statusKey)} ${escapeHtml(taskStatusLabel(statusKey))}</span>
+              <span class="pl-priority-pill hbit-pill ${escapeHtml(priority)}" data-dot="false">${priorityIcon(priority)} ${escapeHtml(tr(`plan.priority.${priority}`, priority))}</span>
+              ${conflict ? `<span class="pl-status-pill hbit-pill is-overdue" data-dot="false">${escapeHtml(tr("plan.status.conflict", "Conflict"))}</span>` : ""}
             </div>
             <div class="pl-card-top">
               <h3 class="pl-item-title"><span class="pl-task-name">${escapeHtml(item.title || item.text)}</span></h3>
@@ -489,6 +793,16 @@
 
     nextEl.textContent = upcoming.title || upcoming.text || tr("plan.task.untitled", "Untitled task");
     nextMetaEl.textContent = `${formatTimeDisp(upcoming.time)} • ${upcoming.duration || 0}m • ${tr(`plan.priority.${upcoming.priority || "low"}`, upcoming.priority || "low")}`;
+
+    const counts = { high: 0, medium: 0, low: 0 };
+    state.tasks.forEach((t) => {
+      const p = (t.priority || "low").toLowerCase();
+      if (counts[p] !== undefined) counts[p] += 1;
+    });
+    const setMix = (id, n) => { const el = document.getElementById(id); if (el) el.textContent = String(n); };
+    setMix("plMixHigh", counts.high);
+    setMix("plMixMedium", counts.medium);
+    setMix("plMixLow", counts.low);
   }
 
   function taskStatusLabel(status) {
@@ -517,25 +831,49 @@
   }
 
   function hasConflict(item) {
-    if (!item?.time || item.done) return false;
+    return !!findConflict(item);
+  }
+
+  function findConflict(item) {
+    if (!item?.time || item.done) return null;
     const dur = Math.max(1, parseInt(item.duration, 10) || 1);
     const [sh, sm] = String(item.time).split(":").map(Number);
     const start = (sh || 0) * 60 + (sm || 0);
     const end = start + dur;
-    return state.tasks.some((t) => {
+    return state.tasks.find((t) => {
       if (t === item || t.id === item.id || !t.time || t.done) return false;
       const [th, tm] = String(t.time).split(":").map(Number);
       const ts = (th || 0) * 60 + (tm || 0);
       const te = ts + Math.max(1, parseInt(t.duration, 10) || 1);
       return start < te && end > ts;
-    });
+    }) || null;
+  }
+
+  function nextFreeSlot(task, afterMinutes = null) {
+    const duration = taskDuration(task);
+    const busy = state.tasks
+      .filter((item) => item.id !== task.id && item.time && !item.done)
+      .map((item) => {
+        const start = timeToMinutes(item.time);
+        return { start, end: start + taskDuration(item) };
+      })
+      .sort((a, b) => a.start - b.start);
+    let cursor = snapMinutes(afterMinutes == null ? timeToMinutes(task.time) : afterMinutes);
+    const latest = (HOUR_END + 1) * 60 - duration;
+    while (cursor <= latest) {
+      const end = cursor + duration;
+      const clash = busy.find((slot) => cursor < slot.end && end > slot.start);
+      if (!clash) return minutesToTime(cursor);
+      cursor = snapMinutes(clash.end);
+    }
+    return minutesToTime(latest);
   }
 
   function renderHabits() {
     const section = $("plHabitsSection");
     const list = $("plHabitList");
     if (!section || !list) return;
-    section.hidden = !state.habits.length || state.selectedDate !== getTodayStr();
+    section.hidden = true;
     if (section.hidden) {
       list.innerHTML = "";
       return;
@@ -549,31 +887,258 @@
     }).join("");
   }
 
+  function renderHabitMenu() {
+    const menu = $("plHabitMenu");
+    if (!menu) return;
+    const options = [`<button type="button" data-habit-option="">${escapeHtml(tr("plan.habit.none", "No linked habit"))}</button>`]
+      .concat((state.habits || []).map((habit) => `<button type="button" data-habit-option="${escapeHtml(habit.id)}">${escapeHtml(habit.name || habit.title || tr("plan.habit.untitled", "Habit"))}</button>`));
+    menu.innerHTML = options.join("");
+  }
+
+  function manageNowTimer() {
+    if (state.nowTimer) {
+      clearInterval(state.nowTimer);
+      state.nowTimer = null;
+    }
+    if (state.viewMode === "today" && state.selectedDate === getTodayStr()) {
+      state.nowTimer = setInterval(() => renderDayGrid(), 60000);
+    }
+  }
+
+  function normalizeTimeInput(value) {
+    const raw = String(value || "").trim().toLowerCase();
+    if (!raw) return "";
+    const ampm = raw.match(/^(\d{1,2})(?::?([0-5]\d))?\s*(am|pm)$/);
+    if (ampm) {
+      let h = Number(ampm[1]);
+      const m = Number(ampm[2] || 0);
+      if (ampm[3] === "pm" && h < 12) h += 12;
+      if (ampm[3] === "am" && h === 12) h = 0;
+      return minutesToTime(h * 60 + m);
+    }
+    const plain = raw.match(/^(\d{1,2})(?::|\.)([0-5]\d)$/) || raw.match(/^(\d{1,2})$/);
+    if (plain) {
+      const h = Number(plain[1]);
+      const m = Number(plain[2] || 0);
+      if (h >= 0 && h <= 23) return minutesToTime(h * 60 + m);
+    }
+    return "";
+  }
+
+  function parseQuickAdd(text) {
+    let rest = String(text || "").trim();
+    const tags = [...rest.matchAll(/#([\w-]+)/g)].map((m) => m[1]);
+    rest = rest.replace(/#[\w-]+/g, " ");
+    const priorityMatch = rest.match(/\b(low|medium|high)\b/i);
+    const priority = priorityMatch ? priorityMatch[1].toLowerCase() : "low";
+    if (priorityMatch) rest = rest.replace(priorityMatch[0], " ");
+    const durationMatch = rest.match(/\b(\d{1,3})\s*(m|min)\b/i);
+    const duration = durationMatch ? Number(durationMatch[1]) : 60;
+    if (durationMatch) rest = rest.replace(durationMatch[0], " ");
+    const timeMatch = rest.match(/\b(?:[01]?\d|2[0-3])(?:[:.][0-5]\d)?\s?(?:am|pm)?\b/i);
+    const time = timeMatch ? normalizeTimeInput(timeMatch[0]) : "";
+    if (timeMatch) rest = rest.replace(timeMatch[0], " ");
+    const title = rest.replace(/\s+/g, " ").trim() || text.trim();
+    return { title, time, duration, priority, tags };
+  }
+
+  function renderQuickPreview() {
+    const preview = $("plQuickPreview");
+    const input = $("plQuickInput");
+    if (!preview || !input) return;
+    const value = input.value.trim();
+    if (!value) {
+      state.quickDraft = null;
+      preview.hidden = true;
+      preview.innerHTML = "";
+      return;
+    }
+    const parsed = parseQuickAdd(value);
+    state.quickDraft = parsed;
+    preview.hidden = false;
+    preview.innerHTML = [
+      parsed.time ? formatTimeDisp(parsed.time) : tr("plan.time.anytime", "Anytime"),
+      `${parsed.duration}m`,
+      tr(`plan.priority.${parsed.priority}`, parsed.priority),
+      ...parsed.tags.map((tag) => `#${escapeHtml(tag)}`),
+    ].map((chip) => `<span class="hbit-pill" data-dot="false">${escapeHtml(chip)}</span>`).join("");
+  }
+
+  function beginGridPointer(e) {
+    const block = e.target.closest(".pl-grid-block[data-block-kind='task']");
+    if (!block || e.target.closest("button")) return;
+    const task = state.tasks.find((item) => item.id === block.dataset.id);
+    const canvas = block.closest(".pl-hour-canvas");
+    if (!task || !canvas) return;
+    e.preventDefault();
+    block.setPointerCapture?.(e.pointerId);
+    const rect = canvas.getBoundingClientRect();
+    const startY = e.clientY;
+    const startMinutes = timeToMinutes(task.time);
+    const startDuration = taskDuration(task);
+    const resizing = !!e.target.closest("[data-resize-handle]");
+    state.dragState = { id: task.id, rect, startY, startMinutes, startDuration, resizing };
+    block.classList.add("is-dragging");
+
+    const move = (ev) => {
+      if (!state.dragState) return;
+      const deltaMin = ((ev.clientY - state.dragState.startY) / ROW_H) * 60;
+      if (state.dragState.resizing) {
+        const duration = Math.max(15, Math.round((state.dragState.startDuration + deltaMin) / SNAP_MIN) * SNAP_MIN);
+        block.style.height = `${Math.max(38, (duration / 60) * ROW_H)}px`;
+        block.dataset.previewDuration = String(duration);
+      } else {
+        const next = snapMinutes(state.dragState.startMinutes + deltaMin);
+        block.style.top = `${((next - HOUR_START * 60) / 60) * ROW_H}px`;
+        block.dataset.previewTime = minutesToTime(next);
+      }
+    };
+
+    const up = async () => {
+      document.removeEventListener("pointermove", move);
+      document.removeEventListener("pointerup", up);
+      const previewTime = block.dataset.previewTime;
+      const previewDuration = block.dataset.previewDuration;
+      block.classList.remove("is-dragging");
+      delete block.dataset.previewTime;
+      delete block.dataset.previewDuration;
+      const payload = {};
+      if (previewTime) payload.time = previewTime;
+      if (previewDuration) payload.duration = Number(previewDuration);
+      state.dragState = null;
+      if (Object.keys(payload).length) await updateTask(task.id, payload);
+      else renderList();
+    };
+
+    document.addEventListener("pointermove", move);
+    document.addEventListener("pointerup", up, { once: true });
+  }
+
   // ======================================================================
   // UI LOGIC
   // ======================================================================
   function bindUi() {
     const modal = $("plModal");
     const form = $("planForm");
-    function openTaskSheet(task) {
+    function setSegmentValue(inputId, selector, value) {
+      const input = $(inputId);
+      if (input) input.value = value == null ? "" : String(value);
+      document.querySelectorAll(selector).forEach((btn) => {
+        const key = btn.dataset.priorityValue ?? btn.dataset.recurrenceValue ?? btn.dataset.reminderValue ?? "";
+        const active = String(key) === String(value == null ? "" : value);
+        btn.classList.toggle("active", active);
+        btn.setAttribute("aria-checked", active ? "true" : "false");
+      });
+    }
+
+    function getCustomDays() {
+      return Array.from(document.querySelectorAll("[data-custom-day].active")).map((btn) => btn.dataset.customDay);
+    }
+
+    function setCustomDays(days = []) {
+      document.querySelectorAll("[data-custom-day]").forEach((btn) => {
+        btn.classList.toggle("active", days.includes(btn.dataset.customDay));
+      });
+    }
+
+    function setHabitValue(id) {
+      const input = $("plInputHabit");
+      const label = $("plHabitTriggerText");
+      const habit = state.habits.find((item) => item.id === id);
+      if (input) input.value = id || "";
+      if (label) label.textContent = habit ? (habit.name || habit.title || tr("plan.habit.untitled", "Habit")) : tr("plan.habit.none", "No linked habit");
+      if (habit && $("plInputDur")) $("plInputDur").value = Number(habit.duration) || $("plInputDur").value || 30;
+    }
+
+    function renderSubtaskInputs(items = []) {
+      const wrap = $("plSubtasks");
+      if (!wrap) return;
+      const normalized = items.slice(0, 5);
+      wrap.innerHTML = normalized.map((item, index) => `<label class="pl-subtask-row">
+        <input type="checkbox" ${item.done ? "checked" : ""} />
+        <input type="text" value="${escapeHtml(item.text || "")}" data-subtask-index="${index}" placeholder="${escapeHtml(tr("plan.subtask.placeholder", "Subtask"))}" />
+        <button type="button" data-subtask-remove="${index}" aria-label="${escapeHtml(tr("common.delete", "Delete"))}">x</button>
+      </label>`).join("");
+    }
+
+    function readSubtasks() {
+      return Array.from(document.querySelectorAll(".pl-subtask-row")).map((row) => ({
+        done: !!row.querySelector('input[type="checkbox"]')?.checked,
+        text: row.querySelector('input[type="text"]')?.value.trim() || "",
+      })).filter((item) => item.text).slice(0, 5);
+    }
+
+    function populateHourSelect(sel, withNone) {
+      if (!sel || sel.options.length) return;
+      if (withNone) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = tr("plan.time.none", "—");
+        sel.appendChild(opt);
+      }
+      for (let h = HOUR_START; h <= HOUR_END; h += 1) {
+        for (const m of [0, 30]) {
+          const v = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+          const o = document.createElement("option");
+          o.value = v;
+          o.textContent = formatTimeDisp(v);
+          sel.appendChild(o);
+        }
+      }
+    }
+
+    function setKind(kind) {
+      const k = kind === "event" ? "event" : "task";
+      const hidden = $("plInputKind");
+      if (hidden) hidden.value = k;
+      document.querySelectorAll("[data-kind-value]").forEach((btn) => {
+        const active = btn.dataset.kindValue === k;
+        btn.classList.toggle("active", active);
+        btn.setAttribute("aria-checked", active ? "true" : "false");
+      });
+      const row = document.getElementById("plEventTimeRow");
+      if (row) row.hidden = k !== "event";
+    }
+
+    function openTaskSheet(task, preset = {}) {
+      const data = { ...(task || {}), ...(preset || {}) };
       state.editingTaskId = task?.id || null;
       if ($("plEditingId")) $("plEditingId").value = state.editingTaskId || "";
-      if ($("plInputTitle")) $("plInputTitle").value = task?.title || task?.text || "";
-      if ($("plInputTime")) $("plInputTime").value = task?.time || "";
-      if ($("plInputDur")) $("plInputDur").value = task?.duration || 60;
-      if ($("plInputPty")) $("plInputPty").value = task?.priority || "low";
-      if ($("plInputNotes")) $("plInputNotes").value = task?.notes || "";
+      if ($("plInputTitle")) $("plInputTitle").value = data.title || data.text || "";
+      populateHourSelect($("plInputTime"), true);
+      populateHourSelect($("plInputEnd"), false);
+      const kind = data.kind || (data.time ? "event" : "task");
+      setKind(kind);
+      if ($("plInputTime")) $("plInputTime").value = data.time || "";
+      if ($("plInputDur")) $("plInputDur").value = data.duration || 60;
+      if ($("plInputEnd")) {
+        if (data.time) {
+          const endMin = timeToMinutes(data.time) + (Number(data.duration) || 60);
+          $("plInputEnd").value = minutesToTime(Math.min(endMin, (HOUR_END + 1) * 60 - 30));
+        } else {
+          $("plInputEnd").value = "";
+        }
+      }
+      if ($("plInputLocation")) $("plInputLocation").value = data.location || "";
+      setSegmentValue("plInputPty", "[data-priority-value]", data.priority || "medium");
+      setSegmentValue("plInputRecurrence", "[data-recurrence-value]", data.recurrence || "once");
+      setSegmentValue("plInputReminder", "[data-reminder-value]", data.reminderOffsetMin ?? "");
+      setCustomDays(data.customDays || []);
+      $("plCustomDays")?.toggleAttribute("hidden", (data.recurrence || "once") !== "custom");
+      setHabitValue(data.habitId || "");
+      renderSubtaskInputs(data.subtasks || []);
+      if ($("plInputTags")) $("plInputTags").value = (data.tags || []).join(", ");
+      if ($("plInputNotes")) $("plInputNotes").value = data.notes || "";
       const title = document.querySelector(".pl-modal-title");
       if (title) title.textContent = state.editingTaskId ? tr("plan.modal.editTitle", "Edit Task") : tr("plan.modal.title", "Add Task");
       const save = $("plModalSave");
       if (save) save.textContent = state.editingTaskId ? tr("plan.btn.saveTask", "Save task") : tr("plan.btn.addItinerary", "Add task");
-      if (modal) modal.hidden = false;
-      $("plInputTitle")?.focus();
+      if (modal) { HBIT.components?.openSheet(modal); $("plInputTitle")?.focus(); }
       checkConflict();
     }
 
     function closeTaskSheet() {
-      if (modal) modal.hidden = true;
+      if (modal) HBIT.components?.closeSheet(modal);
       state.editingTaskId = null;
       if (form) form.reset();
       if ($("plEditingId")) $("plEditingId").value = "";
@@ -591,25 +1156,82 @@
         renderHeader();
         loadTasks();
         loadTodaysHabits();
+        manageNowTimer();
       }
     });
     $("plWeekPrev")?.addEventListener("click", () => {
       state.weekOffset -= 1;
+      if (state.viewMode === "week") {
+        const d = strToDate(state.selectedDate);
+        d.setDate(d.getDate() - 7);
+        state.selectedDate = dateToStr(d);
+        renderHeader();
+        loadTasks();
+      }
       renderCalendar();
     });
     $("plWeekNext")?.addEventListener("click", () => {
       state.weekOffset += 1;
+      if (state.viewMode === "week") {
+        const d = strToDate(state.selectedDate);
+        d.setDate(d.getDate() + 7);
+        state.selectedDate = dateToStr(d);
+        renderHeader();
+        loadTasks();
+      }
       renderCalendar();
     });
 
+    document.querySelector(".pl-view-switch")?.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-view-mode]");
+      if (!btn) return;
+      setViewMode(btn.dataset.viewMode);
+    });
+
     $("planList")?.addEventListener("click", (e) => {
+      const slot = e.target.closest("[data-slot-time]");
+      if (slot) {
+        openTaskSheet(null, { time: slot.dataset.slotTime, duration: 60, priority: "medium" });
+        return;
+      }
+      const weekPick = e.target.closest("[data-week-pick]");
+      if (weekPick) {
+        state.selectedDate = weekPick.dataset.weekPick;
+        setViewMode("today");
+        renderHeader();
+        loadTasks();
+        manageNowTimer();
+        return;
+      }
       const actionEl = e.target.closest("[data-action]");
-      const item = e.target.closest(".pl-item");
-      if (!actionEl || !item) return;
+      const item = e.target.closest(".pl-item, .pl-grid-block, .pl-anytime-pill, .pl-week-task");
+      if (!item) return;
       
       const id = item.getAttribute("data-id");
-      const action = actionEl.getAttribute("data-action");
-      const task = state.tasks.find((t) => t.id === id);
+      const action = actionEl?.getAttribute("data-action");
+      const task = state.tasks.find((t) => t.id === id) || state.allOpenTasks.find((t) => t.id === id);
+      if (!actionEl && item.classList.contains("pl-week-task")) {
+        const pickedDate = item.dataset.weekTaskDate;
+        if (pickedDate) {
+          state.selectedDate = pickedDate;
+          setViewMode("today");
+          renderHeader();
+          loadTasks();
+          manageNowTimer();
+        }
+        return;
+      }
+      if (!actionEl) return;
+      if (item.dataset.blockKind === "habit" || id?.startsWith("habit:")) {
+        const habitId = item.getAttribute("data-id")?.replace("habit:", "");
+        if (action === "habit-toggle" && habitId) {
+          HBIT.db?.habitLogs?.set?.(habitId, state.selectedDate, "done").then(() => {
+            state.habitLogs[habitId] = { status: "done" };
+            renderList();
+          }).catch((err) => showPlanError(err));
+        }
+        return;
+      }
       if (action === "edit" && task) {
         state.planDeleteConfirmId = null;
         openTaskSheet(task);
@@ -630,7 +1252,21 @@
         state.planDeleteConfirmId = null;
         renderList();
       }
+      if (action === "conflict-later" && task) {
+        updateTask(id, { time: minutesToTime(timeToMinutes(task.time) + 30), duration: taskDuration(task) });
+      }
+      if (action === "conflict-free" && task) {
+        updateTask(id, { time: nextFreeSlot(task, timeToMinutes(task.time) + SNAP_MIN), duration: taskDuration(task) });
+      }
+      if (action === "move-earlier" && task) {
+        updateTask(id, { time: minutesToTime(Math.max(HOUR_START * 60, timeToMinutes(task.time) - SNAP_MIN)), duration: taskDuration(task) });
+      }
+      if (action === "move-later" && task) {
+        updateTask(id, { time: minutesToTime(Math.min(HOUR_END * 60, timeToMinutes(task.time) + SNAP_MIN)), duration: taskDuration(task) });
+      }
     });
+
+    $("planList")?.addEventListener("pointerdown", beginGridPointer);
 
     document.querySelector(".pl-priority-filter")?.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-priority-filter]");
@@ -659,6 +1295,94 @@
 
     $("plCarryBtn")?.addEventListener("click", carryOver);
     $("plEmptyCta")?.addEventListener("click", () => $("plFabBtn")?.click());
+    $("plQuickInput")?.addEventListener("input", renderQuickPreview);
+    $("plQuickAdd")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const input = $("plQuickInput");
+      const parsed = state.quickDraft || parseQuickAdd(input?.value || "");
+      if (!parsed.title) return;
+      await addTask(parsed);
+      if (input) input.value = "";
+      renderQuickPreview();
+    });
+
+    document.querySelectorAll("[data-time-preset]").forEach((btn) => btn.addEventListener("click", () => {
+      if ($("plInputTime")) $("plInputTime").value = btn.dataset.timePreset || "";
+      checkConflict();
+    }));
+    document.querySelectorAll("[data-duration-preset]").forEach((btn) => btn.addEventListener("click", () => {
+      if ($("plInputDur")) $("plInputDur").value = btn.dataset.durationPreset || "60";
+      checkConflict();
+    }));
+    document.querySelectorAll("[data-duration-step]").forEach((btn) => btn.addEventListener("click", () => {
+      const current = Number($("plInputDur")?.value) || 60;
+      if ($("plInputDur")) $("plInputDur").value = Math.max(1, current + Number(btn.dataset.durationStep || 0));
+      checkConflict();
+    }));
+    document.querySelectorAll("[data-priority-value]").forEach((btn) => btn.addEventListener("click", () => setSegmentValue("plInputPty", "[data-priority-value]", btn.dataset.priorityValue)));
+    document.querySelectorAll("[data-recurrence-value]").forEach((btn) => btn.addEventListener("click", () => {
+      setSegmentValue("plInputRecurrence", "[data-recurrence-value]", btn.dataset.recurrenceValue);
+      $("plCustomDays")?.toggleAttribute("hidden", btn.dataset.recurrenceValue !== "custom");
+    }));
+    document.querySelectorAll("[data-reminder-value]").forEach((btn) => btn.addEventListener("click", () => setSegmentValue("plInputReminder", "[data-reminder-value]", btn.dataset.reminderValue ?? "")));
+    document.querySelectorAll("[data-custom-day]").forEach((btn) => btn.addEventListener("click", () => btn.classList.toggle("active")));
+    $("plHabitTrigger")?.addEventListener("click", () => {
+      const menu = $("plHabitMenu");
+      const trigger = $("plHabitTrigger");
+      if (!menu) return;
+      const open = menu.hidden;
+      menu.hidden = !open;
+      trigger?.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    $("plHabitMenu")?.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-habit-option]");
+      if (!btn) return;
+      setHabitValue(btn.dataset.habitOption || "");
+      $("plHabitMenu").hidden = true;
+      $("plHabitTrigger")?.setAttribute("aria-expanded", "false");
+    });
+    $("plAddSubtask")?.addEventListener("click", () => {
+      const items = readSubtasks();
+      if (items.length >= 5) return;
+      renderSubtaskInputs([...items, { text: "", done: false }]);
+      document.querySelector(".pl-subtask-row:last-child input[type='text']")?.focus();
+    });
+    $("plSubtasks")?.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-subtask-remove]");
+      if (!btn) return;
+      const index = Number(btn.dataset.subtaskRemove);
+      renderSubtaskInputs(readSubtasks().filter((_, i) => i !== index));
+    });
+    $("plReviewClose")?.addEventListener("click", dismissMorningReview);
+    $("plReviewDismiss")?.addEventListener("click", dismissMorningReview);
+    $("plReviewList")?.addEventListener("click", async (e) => {
+      const btn = e.target.closest("[data-review-action]");
+      const row = e.target.closest("[data-review-id]");
+      if (!btn || !row) return;
+      const id = row.dataset.reviewId;
+      const task = state.allPastUndone.find((item) => item.id === id);
+      if (!task) return;
+      try {
+        if (btn.dataset.reviewAction === "forward") {
+          await updateTask(id, { date: getTodayStr(), time: task.time || "", duration: taskDuration(task) });
+        } else if (btn.dataset.reviewAction === "drop") {
+          await updateTask(id, { done: true });
+        } else if (btn.dataset.reviewAction === "reschedule") {
+          const picker = row.querySelector(".pl-review-reschedule");
+          if (picker) picker.hidden = !picker.hidden;
+          return;
+        } else if (btn.dataset.reviewAction === "apply-date") {
+          const picked = row.querySelector(".pl-review-reschedule input")?.value;
+          if (!picked || !/^\d{4}-\d{2}-\d{2}$/.test(picked)) return;
+          await updateTask(id, { date: picked, duration: taskDuration(task) });
+        }
+        row.remove();
+        state.allPastUndone = state.allPastUndone.filter((item) => item.id !== id);
+        if (!state.allPastUndone.length) dismissMorningReview();
+      } catch (err) {
+        showPlanError(err);
+      }
+    });
 
     function checkConflict() {
       const msg = $("plConflictMsg");
@@ -697,16 +1421,41 @@
     
     $("plModalClose")?.addEventListener("click", closeTaskSheet);
     
+    document.querySelectorAll("[data-kind-value]").forEach((btn) => {
+      btn.addEventListener("click", () => setKind(btn.dataset.kindValue));
+    });
+
     $("planForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const title = $("plInputTitle").value.trim();
       if (!title) return;
 
+      const kind = $("plInputKind")?.value || "task";
+      let time = "";
+      let duration = 60;
+      if (kind === "event") {
+        time = $("plInputTime")?.value || "";
+        const endVal = $("plInputEnd")?.value || "";
+        if (time && endVal) {
+          duration = Math.max(15, timeToMinutes(endVal) - timeToMinutes(time));
+        } else {
+          duration = Number($("plInputDur")?.value) || 60;
+        }
+      }
+
       const payload = {
         title,
-        time: $("plInputTime").value,
-        duration: $("plInputDur").value,
+        kind,
+        time,
+        duration,
+        location: ($("plInputLocation")?.value || "").trim(),
         priority: $("plInputPty").value,
+        recurrence: $("plInputRecurrence")?.value || "once",
+        customDays: getCustomDays(),
+        habitId: $("plInputHabit")?.value || "",
+        subtasks: readSubtasks(),
+        tags: ($("plInputTags")?.value || "").split(",").map((tag) => tag.trim()).filter(Boolean),
+        reminderOffsetMin: $("plInputReminder")?.value || "",
         notes: $("plInputNotes").value.trim()
       };
 
@@ -736,6 +1485,7 @@
     $("plHelpOverlay")?.setAttribute("aria-hidden", "true");
     renderHeader(); renderCalendar(); bindUi();
     renderList();
+    manageNowTimer();
 
     if (!$("plHelpBtn")?.hidden && !planHelpModalBound && HBIT.utils?.initHelpModal) {
       HBIT.utils.initHelpModal({

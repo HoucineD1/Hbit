@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -17,6 +17,7 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" /></noscript>
 <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="css/core/nav.css" />
+  <link rel="stylesheet" href="css/core/components.css" />
   <link rel="stylesheet" href="css/pages/home.css" />
 
   <!-- Firebase compat SDK (sync) -->
@@ -28,13 +29,16 @@
   <!-- Core -->
   <script defer src="js/core/utils.js"></script>
   <script defer src="js/core/toast.js"></script>
+  <script defer src="js/core/components.js"></script>
   <script defer src="js/core/storage.js"></script>
   <script defer src="js/core/theme.js"></script>
   <script defer src="js/core/i18n.js"></script>
   <script defer src="js/core/sidebar.js"></script>
   <script defer src="js/core/firebase-init.js"></script>
   <script defer src="js/core/db.js"></script>
+  <script defer src="js/core/demoData.js"></script>
   <script defer src="js/core/dashboardData.js"></script>
+  <script defer src="js/core/insights.js"></script>
   <script defer src="js/core/core.js"></script>
   <script defer src="js/core/nav.js"></script>
 
@@ -97,9 +101,7 @@
       <span class="hm-greeting-text">
         <span id="greetingLabel">Hello</span><span class="hm-comma">,&thinsp;</span><span class="hm-greeting-name" id="greetingName"> - </span>
       </span>
-      <span class="hm-hero-summary" id="homeHeroSummary" aria-live="polite">Habits 0/0   Slept --   Mood --   Budget --   Focus 0   Planned 0</span>
     </div>
-    <span class="hm-greeting-date" id="greetingDate"> - </span>
   </div>
 
   <!-- == Dashboard cards (scrollable) =================== -->

@@ -47,7 +47,7 @@
   border-radius: 9px;
   background: var(--brand);
   color: #fff;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
   display: flex;
   align-items: center;
@@ -57,7 +57,7 @@
 }
 
 .wlc-brand-name {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
 }
 
@@ -230,7 +230,7 @@
 
 .wlc-desc {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 14px;
   color: var(--muted);
   line-height: 1.65;
   max-width: 380px;
@@ -291,7 +291,7 @@
    ══════════════════════════════════════════════════ */
 .wlc-footer {
   text-align: center;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   opacity: 0.4;
   padding: 14px 0 20px;
@@ -308,7 +308,7 @@
   gap: 6px;
   padding: 4px 11px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   border: 1.5px solid currentColor;
   opacity: 0.75;
@@ -325,7 +325,7 @@
   .wlc-main        { max-width: 540px; }
   .wlc-illo-card   { height: 320px; border-radius: 26px; }
   .wlc-rings       { width: 185px; height: 185px; }
-  .wlc-headline    { font-size: 26px; }
+  .wlc-headline    { font-size: 24px; }
   /* Side-by-side buttons */
   .wlc-actions     { flex-direction: row; gap: 10px; }
   .wlc-btn         { flex: 1; }
@@ -335,7 +335,7 @@
   .wlc-main        { max-width: 560px; }
   .wlc-illo-card   { height: 340px; border-radius: 28px; }
   .wlc-rings       { width: 200px; height: 200px; }
-  .wlc-headline    { font-size: 28px; }
+  .wlc-headline    { font-size: 32px; }
   .wlc-desc        { font-size: 14px; }
 }
 
@@ -345,10 +345,10 @@
 @media (max-width: 360px) {
   .wlc-illo-card   { height: 260px; width: calc(100% - 24px); margin: 6px 12px 0; border-radius: 20px; }
   .wlc-rings       { width: 148px; height: 148px; }
-  .wlc-headline    { font-size: 21px; }
+  .wlc-headline    { font-size: 20px; }
   .wlc-content     { padding: 16px 18px 0; }
   .wlc-actions     { padding: 10px 18px 0; }
-  .wlc-btn         { font-size: 13px; padding: 11px 14px; }
+  .wlc-btn         { font-size: 14px; padding: 11px 14px; }
 }
 
 /* Landscape phones */

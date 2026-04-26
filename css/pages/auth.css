@@ -259,7 +259,7 @@ a.au-logo { cursor: pointer; }
 }
 
 .au-sub {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.65;
   color: var(--au-muted);
   max-width: 40ch;
@@ -416,7 +416,7 @@ a.au-logo { cursor: pointer; }
   background: rgba(255, 255, 255, 0.025);
 }
 .auth-forgot-panel-desc,
-.auth-reset-success { font-size: 13px; line-height: 1.6; }
+.auth-reset-success { font-size: 14px; line-height: 1.6; }
 .auth-reset-success  { color: var(--au-success); }
 
 /* Error alert */
@@ -426,7 +426,7 @@ a.au-logo { cursor: pointer; }
   border: 1px solid rgba(255, 132, 132, 0.18);
   background: rgba(192, 41, 42, 0.12);
   color: #ffb3b4;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.55;
 }
 
@@ -440,7 +440,7 @@ a.au-logo { cursor: pointer; }
   border: 1px solid var(--au-border);
   background: rgba(255, 255, 255, 0.025);
   color: var(--au-muted);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.7;
 }
 .auth-terms input[type="checkbox"] {
@@ -541,7 +541,7 @@ a.au-logo { cursor: pointer; }
   align-items: center;
   gap: 12px;
   color: var(--au-subtle);
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
 }
@@ -585,7 +585,7 @@ a.au-logo { cursor: pointer; }
   border-radius: 999px;
   border: 1px solid var(--au-border);
   background: var(--au-surface);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--au-subtle);
@@ -741,7 +741,7 @@ a.au-logo { cursor: pointer; }
 
   .auth-social-btn {
     height: 52px;
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .auth-reset-btn {
@@ -751,7 +751,7 @@ a.au-logo { cursor: pointer; }
 
 @media (max-width: 360px) {
   .au-title {
-    font-size: 1.35rem;
+    font-size: 20px;
   }
 }
 
@@ -885,7 +885,7 @@ a.au-logo { cursor: pointer; }
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  font-size: 13.5px;
+  font-size: 14px;
   color: rgba(255, 255, 255, 0.58);
   line-height: 1.45;
 }
@@ -913,7 +913,7 @@ a.au-logo { cursor: pointer; }
 }
 
 .auth-panel-quote p {
-  font-size: 13px;
+  font-size: 14px;
   font-style: italic;
   color: rgba(255, 255, 255, 0.22);
   line-height: 1.7;
@@ -997,7 +997,7 @@ a.au-logo { cursor: pointer; }
 }
 
 .auth-mobile-showcase-desc {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.55;
   color: rgba(255, 255, 255, 0.45);
   max-width: 30ch;
@@ -1085,7 +1085,7 @@ a.au-logo { cursor: pointer; }
   gap: 5px;
   padding: 4px 11px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -1126,7 +1126,7 @@ a.au-logo { cursor: pointer; }
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 13px;
+  font-size: 14px;
   color: rgba(255, 255, 255, 0.52);
 }
 
@@ -1219,7 +1219,7 @@ a.au-logo { cursor: pointer; }
     background: linear-gradient(145deg, #d13a3c, #971718);
     color: #fff;
     font-family: "Bricolage Grotesque", sans-serif;
-    font-size: 19px;
+    font-size: 20px;
     font-weight: 800;
     display: flex;
     align-items: center;
@@ -1230,7 +1230,7 @@ a.au-logo { cursor: pointer; }
   }
 
   .auth-panel-brand-name {
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 700;
     letter-spacing: -0.2px;
     color: rgba(255, 255, 255, 0.90);
@@ -1245,7 +1245,7 @@ a.au-logo { cursor: pointer; }
 
   .auth-panel-eyebrow {
     margin: 0;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.13em;
     text-transform: uppercase;
@@ -1255,7 +1255,7 @@ a.au-logo { cursor: pointer; }
   .auth-panel-title {
     margin: 0;
     font-family: "Bricolage Grotesque", sans-serif;
-    font-size: 36px;
+    font-size: 32px;
     font-weight: 700;
     letter-spacing: -0.03em;
     line-height: 1.10;
@@ -1328,7 +1328,7 @@ a.au-logo { cursor: pointer; }
 
   .auth-panel-card-title {
     margin: 0;
-    font-size: 12.5px;
+    font-size: 14px;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.82);
     letter-spacing: -0.01em;
@@ -1336,7 +1336,7 @@ a.au-logo { cursor: pointer; }
 
   .auth-panel-card-desc {
     margin: 0;
-    font-size: 11px;
+    font-size: 12px;
     color: rgba(255, 255, 255, 0.30);
     line-height: 1.5;
   }

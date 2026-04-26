@@ -17,6 +17,7 @@
   --sb-accent-active: rgba(232, 51, 74, 0.14);
   --sb-accent-active-border: rgba(232, 51, 74, 0.28);
   --sb-ring: rgba(232, 51, 74, 0.5);
+  --mobile-tab-h: 72px;
 }
 
 /* Obsidian */
@@ -81,7 +82,7 @@ body {
   background: var(--sb-bg);
   border-right: 1px solid var(--sb-border);
   transform: translateX(-100%);
-  transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform var(--motion-normal);
   will-change: transform;
   overflow: hidden;
   font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
@@ -148,7 +149,7 @@ body.sb-dragging .sb-overlay {
   background: transparent;
   color: var(--sb-text-muted);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--motion-fast), color var(--motion-fast);
   flex-shrink: 0;
 }
 .sb-close:hover,
@@ -225,7 +226,7 @@ body.sb-dragging .sb-overlay {
   font: inherit;
   font-size: 13.5px;
   font-weight: 500;
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  transition: background var(--motion-fast), color var(--motion-fast), border-color var(--motion-fast);
   outline: none;
 }
 .sb-item:hover {
@@ -246,7 +247,7 @@ body.sb-dragging .sb-overlay {
   align-items: center;
   justify-content: center;
   color: var(--sb-text-muted);
-  transition: color 0.12s;
+  transition: color var(--motion-fast);
 }
 .sb-item-icon svg {
   width: 18px; height: 18px;
@@ -314,7 +315,7 @@ html[data-theme="light"] .sb-item--logout:hover {
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s, visibility 0.2s;
+  transition: opacity var(--motion-fast), visibility var(--motion-fast);
 }
 body.nav-open .sb-overlay {
   visibility: visible;
@@ -342,7 +343,7 @@ html[data-theme="light"] .sb-overlay {
   background: transparent;
   color: var(--sb-text);
   cursor: pointer;
-  transition: background 0.12s, color 0.12s, opacity 0.15s, left 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: background var(--motion-fast), color var(--motion-fast), opacity var(--motion-fast), left var(--motion-fast);
   flex-shrink: 0;
   padding: 0;
 }
@@ -377,8 +378,7 @@ body.nav-open .sb-trigger { opacity: 0; pointer-events: none; }
     width: var(--sb-w);
     transform: translateX(0);
     box-shadow: none;
-    transition: transform 0.2s cubic-bezier(0.32, 0.72, 0, 1),
-                width 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+    transition: transform var(--motion-fast), width var(--motion-fast);
   }
 
   body.has-sidebar {
@@ -432,7 +432,7 @@ body.nav-open .sb-trigger { opacity: 0; pointer-events: none; }
   body.sb-collapsed .pl-header,
   body.sb-collapsed .au-topbar {
     padding-left: 58px !important;
-    transition: padding-left 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+    transition: padding-left var(--motion-fast);
   }
 }
 
@@ -440,9 +440,21 @@ body.nav-open .sb-trigger { opacity: 0; pointer-events: none; }
    HEADER PADDING — room for trigger button
    ════════════════════════════════════════════════════════════ */
 @media (max-width: 767px) {
+  body.has-sidebar {
+    padding-left: 0;
+    padding-bottom: calc(var(--mobile-tab-h) + 20px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .sb,
+  .sb-overlay,
+  .sb-trigger,
+  body.has-sidebar::before {
+    display: none !important;
+  }
+
   .hm-header, .hb-header, .hb-today-strip, .hb-chips, .bg-header, .sl-header,
   .md-header, .fc-header, .topbar, .pl-header, .au-topbar {
-    padding-left: 56px !important;
+    padding-left: var(--space-4) !important;
   }
 }
 @media (min-width: 768px) {
@@ -483,5 +495,123 @@ body.nav-open .sb-trigger { opacity: 0; pointer-events: none; }
   body.nav-open.has-sidebar::before,
   body.sb-dragging.has-sidebar::before {
     opacity: 0;
+  }
+}
+
+/* Phase 3.3 — mobile bottom tab bar */
+.hbit-bottom-tabs {
+  position: fixed;
+  left: max(10px, env(safe-area-inset-left, 0px));
+  right: max(10px, env(safe-area-inset-right, 0px));
+  bottom: max(10px, env(safe-area-inset-bottom, 0px));
+  z-index: 490;
+  display: none;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  min-height: 62px;
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.44);
+  backdrop-filter: blur(18px) saturate(1.2);
+}
+
+.hbit-bottom-tab {
+  min-width: 0;
+  min-height: 46px;
+  display: grid;
+  place-items: center;
+  gap: 3px;
+  border-radius: 16px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  transition: background var(--motion-fast), color var(--motion-fast), transform var(--motion-instant);
+}
+
+.hbit-bottom-tab svg {
+  width: 20px;
+  height: 20px;
+}
+
+.hbit-bottom-tab:active {
+  transform: scale(0.96);
+}
+
+.hbit-bottom-tab[aria-current="page"] {
+  color: var(--text);
+  background: color-mix(in srgb, var(--brand) 14%, transparent);
+}
+
+.hbit-bottom-tab[data-accent="habit"][aria-current="page"] { background: color-mix(in srgb, var(--habit) 16%, transparent); color: var(--habit); }
+.hbit-bottom-tab[data-accent="plan"][aria-current="page"] { background: color-mix(in srgb, var(--plan) 16%, transparent); color: var(--plan); }
+.hbit-bottom-tab[data-accent="focus"][aria-current="page"] { background: color-mix(in srgb, var(--focus) 16%, transparent); color: var(--focus); }
+
+@media (max-width: 767px) {
+  .hbit-bottom-tabs {
+    display: grid;
+  }
+
+  .bg-fab-wrap,
+  .bg-fab,
+  #bg-fab-portal,
+  .pl-fab,
+  .hb-fab,
+  .md-fab,
+  .md-log-fab,
+  .sl-fab,
+  .sl-plan-fab,
+  .fc-fab,
+  [class*="-fab"]:not(.bg-fab-sub):not(.bg-fab-icon):not(.hbit-bottom-tab) {
+    bottom: calc(var(--mobile-tab-h) + 18px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* Phase 3 — Mobile-only Settings shortcut (top-left) */
+.hbit-mobile-settings {
+  display: none;
+  position: fixed;
+  top: max(12px, calc(env(safe-area-inset-top, 0px) + 8px));
+  left: max(10px, env(safe-area-inset-left, 0px));
+  z-index: 200;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--panel) 85%, transparent);
+  color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  text-decoration: none;
+  backdrop-filter: blur(12px);
+}
+.hbit-mobile-settings svg { width: 18px; height: 18px; }
+.hbit-mobile-settings:active { transform: scale(0.92); }
+
+@media (max-width: 767px) {
+  .hbit-mobile-settings { display: flex; }
+}
+
+/* Phase 3 — hide bottom tabs and FABs when a fullscreen overlay is active */
+body:has(.bg-wizard-overlay:not([hidden])) .hbit-bottom-tabs,
+body:has(.hbit-sheet-overlay:not([hidden])) .hbit-bottom-tabs,
+body:has(.wz-overlay:not([hidden])) .hbit-bottom-tabs,
+body:has(.bg-wizard-overlay:not([hidden])) [class*="-fab"]:not(.hbit-bottom-tab):not(.bg-fab-sub):not(.bg-fab-icon),
+body:has(.hbit-sheet-overlay:not([hidden])) [class*="-fab"]:not(.hbit-bottom-tab):not(.bg-fab-sub):not(.bg-fab-icon),
+body:has(.wz-overlay:not([hidden])) [class*="-fab"]:not(.hbit-bottom-tab):not(.bg-fab-sub):not(.bg-fab-icon) {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hbit-bottom-tab,
+  .hbit-bottom-tabs,
+  .sb,
+  .sb-overlay,
+  .sb-trigger {
+    transition-duration: 0.01ms !important;
   }
 }
