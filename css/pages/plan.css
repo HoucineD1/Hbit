@@ -103,85 +103,273 @@ html[data-theme="light"] .pl-card {
    now handled by .hbit-module-copy h1 / .hbit-module-actions / .hdr-btn / .hdr-avatar
    in css/core/components.css (loaded via styles.css) */
 
+/* ============================================================
+   Calendar — Apple-style collapsible month/week strip
+   ============================================================ */
 .pl-cal-strip {
-  position: sticky; top: 64px; z-index: 25;
-  background: color-mix(in srgb, var(--pl-bg) 90%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--pl-border);
-  padding: 12px 0;
+  position: sticky;
+  top: 64px;
+  z-index: 25;
+  background: color-mix(in srgb, var(--pl-bg) 92%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--pl-border);
+  padding: 8px 0 0;
 }
-.pl-view-switch {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-  width: min(420px, calc(100% - 40px));
-  margin: 0 auto 12px;
-  padding: 4px;
-  border: 1px solid var(--pl-border);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--pl-surface) 88%, transparent);
-}
-.pl-view-btn {
-  min-height: var(--tap-min, 44px);
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--pl-muted);
-  font-size: 14px;
-  font-weight: 900;
-  cursor: pointer;
-}
-.pl-view-btn.active {
-  background: var(--pl-accent);
-  color: var(--bg);
-  box-shadow: 0 10px 22px var(--pl-accent-glow);
-}
-html[data-theme="light"] .pl-cal-strip { background: color-mix(in srgb, var(--pl-bg) 90%, transparent); }
+
 .pl-cal-head {
   display: grid;
-  grid-template-columns: 36px 1fr 36px;
+  grid-template-columns: 40px 1fr 40px;
   align-items: center;
   gap: 8px;
-  padding: 0 20px 10px;
+  padding: 0 12px 8px;
 }
+
 .pl-cal-month {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
   text-align: center;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--pl-muted);
-}
-.pl-cal-nav {
-  min-width: var(--tap-min, 44px);
-  min-height: var(--tap-min, 44px);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--pl-text);
+  text-transform: capitalize;
+  padding: 8px 12px;
   border-radius: 10px;
-  border: 1px solid var(--pl-border);
-  background: var(--pl-surface);
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+}
+.pl-cal-month::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  margin-top: -3px;
+  opacity: 0.6;
+  transition: transform 240ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.pl-cal-strip[data-collapsed="true"] .pl-cal-month::after {
+  transform: rotate(-45deg);
+  margin-top: 3px;
+}
+.pl-cal-month:hover { background: color-mix(in srgb, var(--pl-accent) 8%, transparent); color: var(--pl-accent); }
+
+.pl-cal-nav {
+  width: 36px;
+  height: 36px;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--pl-border) 70%, transparent);
+  background: color-mix(in srgb, var(--pl-surface) 70%, transparent);
   color: var(--pl-text);
   cursor: pointer;
-  font-size: 20px;
+  font-size: 18px;
+  font-weight: 700;
   line-height: 1;
+  display: inline-grid;
+  place-items: center;
+  transition: background 160ms ease, transform 120ms ease;
 }
+.pl-cal-nav:hover { background: var(--pl-surface); }
+.pl-cal-nav:active { transform: scale(0.94); }
+
+/* Grid container — animated collapse */
+.pl-cal-grid-wrap {
+  overflow: hidden;
+  transition: max-height 360ms cubic-bezier(0.32, 0.72, 0, 1);
+  max-height: 380px;
+  will-change: max-height;
+}
+.pl-cal-strip[data-collapsed="true"] .pl-cal-grid-wrap {
+  max-height: 84px;
+}
+
 .pl-cal-track {
-  display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 20px;
-  scrollbar-width: none;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  padding: 0 10px 8px;
+  background: transparent;
+  border: 0;
 }
-.pl-cal-track::-webkit-scrollbar { display: none; }
+.pl-cal-week-label {
+  color: var(--pl-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0 0 4px;
+}
+
+/* Day cells — Apple-style: number-first, dot below */
 .pl-cal-day {
-  scroll-snap-align: center; flex: 0 0 calc(100% / 7 - 8px); max-width: 65px; min-width: 50px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-  padding: 10px 4px; border-radius: 14px; border: 1px solid var(--pl-border); background: var(--pl-surface);
+  position: relative;
+  min-width: 0;
+  height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0;
+  border-radius: 10px;
+  border: 0;
+  background: transparent;
+  color: var(--pl-text);
   cursor: pointer;
+  transition: background 200ms ease, transform 120ms ease;
 }
-.pl-cal-day.active { background: color-mix(in srgb, var(--pl-accent) 24%, transparent); border-color: var(--pl-accent); }
-.pl-cal-day.today { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pl-accent) 65%, transparent); }
-.pl-cal-weekday { font-size: 12px; font-weight: 600; color: var(--pl-muted); text-transform: uppercase; }
-.pl-cal-date { font-size: 16px; font-weight: 800; }
-.pl-cal-day.active .pl-cal-weekday, .pl-cal-day.active .pl-cal-date { color: var(--pl-accent); }
-.pl-cal-dot { width: 6px; height: 6px; border-radius: 50%; opacity: 0; background: var(--pl-muted); }
+.pl-cal-day:hover { background: color-mix(in srgb, var(--pl-accent) 10%, transparent); }
+.pl-cal-day:active { transform: scale(0.92); }
+
+.pl-cal-day.outside { opacity: 0.32; }
+
+.pl-cal-day.today .pl-cal-date {
+  color: var(--pl-accent);
+  font-weight: 900;
+}
+
+.pl-cal-day.active {
+  background: var(--pl-accent);
+}
+.pl-cal-day.active .pl-cal-date,
+.pl-cal-day.active .pl-cal-count,
+.pl-cal-day.active .pl-cal-dot {
+  color: var(--bg);
+}
+.pl-cal-day.active.today .pl-cal-date { color: var(--bg); }
+.pl-cal-day.active .pl-cal-dot { background: var(--bg); }
+.pl-cal-day.active .pl-cal-count { background: var(--bg); color: var(--pl-accent); }
+
+.pl-cal-date {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.pl-cal-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--pl-muted);
+  opacity: 0;
+}
 .pl-cal-day.has-tasks .pl-cal-dot { opacity: 1; }
 .pl-cal-day.has-tasks.priority-high .pl-cal-dot { background: var(--pl-high); }
 .pl-cal-day.has-tasks.priority-medium .pl-cal-dot { background: var(--pl-medium); }
 .pl-cal-day.has-tasks.priority-low .pl-cal-dot { background: var(--pl-low); }
-.pl-cal-day.active.has-tasks .pl-cal-dot { background: currentColor; }
-.pl-cal-day.today .pl-cal-dot { opacity: 1; background: color-mix(in srgb, var(--pl-accent) 75%, var(--text)); }
+
+.pl-cal-count {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 4px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--pl-accent);
+  color: var(--bg);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* Collapsed: hide all rows except active week.
+   Each row contains 7 cells; using nth-child to selectively hide. */
+.pl-cal-strip[data-collapsed="true"] .pl-cal-day:not(.in-active-week) {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.85);
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+.pl-cal-strip[data-collapsed="true"] .pl-cal-week-label {
+  font-size: 10px;
+  padding-bottom: 2px;
+}
+
+/* Toggle handle (grip pill below grid) */
+.pl-cal-handle {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  width: 100%;
+  height: 22px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  margin: 0;
+}
+.pl-cal-handle-grip {
+  width: 36px;
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--pl-border) 80%, transparent);
+  transition: background 200ms ease, width 200ms ease;
+}
+.pl-cal-handle:hover .pl-cal-handle-grip { background: var(--pl-accent); width: 48px; }
+
+/* View switch — compact */
+.pl-view-switch {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  width: min(360px, calc(100% - 24px));
+  margin: 4px auto 10px;
+  padding: 3px;
+  border: 1px solid color-mix(in srgb, var(--pl-border) 70%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--pl-surface) 60%, transparent);
+}
+.pl-view-btn {
+  min-height: 36px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--pl-muted);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, transform 120ms ease;
+}
+.pl-view-btn:hover { color: var(--pl-text); }
+.pl-view-btn.active {
+  background: var(--pl-accent);
+  color: var(--bg);
+  box-shadow: 0 6px 14px var(--pl-accent-glow);
+}
+
+html[data-theme="light"] .pl-cal-strip {
+  background: color-mix(in srgb, var(--pl-bg) 88%, transparent);
+}
+
+@media (max-width: 480px) {
+  .pl-cal-head {
+    padding: 0 8px 6px;
+    grid-template-columns: 36px 1fr 36px;
+    gap: 4px;
+  }
+  .pl-cal-month { font-size: 16px; padding: 6px 10px; }
+  .pl-cal-track { padding: 0 6px 6px; gap: 2px; }
+  .pl-cal-day { height: 40px; }
+  .pl-cal-date { font-size: 14px; }
+  .pl-cal-strip[data-collapsed="true"] .pl-cal-grid-wrap { max-height: 76px; }
+  .pl-view-switch { margin: 2px auto 8px; }
+}
 
 /* Main Itinerary */
 .pl-main {
@@ -683,6 +871,7 @@ html[data-theme="light"] .pl-cal-strip { background: color-mix(in srgb, var(--pl
 .pl-hour-canvas {
   position: relative;
   min-height: calc((18 * var(--row-h, var(--pl-row-h))));
+  touch-action: pan-y;
 }
 .pl-hour-row {
   display: block;
@@ -692,6 +881,7 @@ html[data-theme="light"] .pl-cal-strip { background: color-mix(in srgb, var(--pl
   border-bottom: 1px solid color-mix(in srgb, var(--pl-border) 70%, transparent);
   background: transparent;
   cursor: pointer;
+  touch-action: pan-y;
 }
 .pl-hour-row:hover {
   background: color-mix(in srgb, var(--pl-accent) 7%, transparent);
@@ -733,7 +923,7 @@ html[data-theme="light"] .pl-cal-strip { background: color-mix(in srgb, var(--pl
   color: var(--pl-text);
   padding: 8px 10px;
   overflow: hidden;
-  touch-action: none;
+  touch-action: pan-y;
   box-shadow: 0 12px 30px rgba(var(--shadow-rgb, 0, 0, 0), 0.22);
 }
 .pl-grid-block.priority-high { border-left-color: var(--pl-high); }
@@ -745,6 +935,7 @@ html[data-theme="light"] .pl-cal-strip { background: color-mix(in srgb, var(--pl
   z-index: 20;
   opacity: 0.88;
   transform: scale(1.01);
+  touch-action: none;
 }
 .pl-grid-block-main {
   min-width: 0;
@@ -1135,8 +1326,31 @@ html[data-theme="light"] .pl-notes-area { background: color-mix(in srgb, var(--t
 
 .pl-modal-save {
   height: 52px; border-radius: 16px; border: none; background: var(--pl-accent); color: var(--bg);
-  font-size: 16px; font-weight: 800; cursor: pointer; margin-top: 8px;
+  font-size: 16px; font-weight: 800; cursor: pointer;
 }
+
+.pl-modal-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+.pl-modal-actions:has(.pl-modal-delete:not([hidden])) {
+  grid-template-columns: minmax(120px, 1fr) 2fr;
+}
+.pl-modal-delete {
+  height: 52px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--danger) 40%, var(--pl-border));
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  color: var(--danger);
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 160ms ease, transform 120ms ease;
+}
+.pl-modal-delete:hover { background: color-mix(in srgb, var(--danger) 18%, transparent); }
+.pl-modal-delete:active { transform: scale(0.97); }
 
 /* .pl-review-overlay / .pl-review-sheet removed — now .hbit-sheet-overlay / .hbit-sheet */
 .pl-review-head {
@@ -1290,4 +1504,318 @@ html[data-theme="light"] .pl-notes-area { background: color-mix(in srgb, var(--t
   height: 1.5px;
   background: var(--muted);
   animation: strike 0.3s ease-out forwards;
+}
+
+/* Full UI upgrade B-D — palette-aware planner foundation */
+html[data-palette="sage"] #planPage,
+html[data-palette="arctic"] #planPage {
+  --pl-bg: var(--bg);
+  --pl-surface: color-mix(in srgb, var(--panel) 94%, transparent);
+  --pl-surface-hov: var(--panel);
+  --pl-border: var(--border);
+  --pl-text: var(--text);
+  --pl-muted: var(--text-secondary);
+  --pl-accent-glow: color-mix(in srgb, var(--plan) 18%, transparent);
+}
+
+html[data-palette="sage"] #planPage .hbit-module-header,
+html[data-palette="arctic"] #planPage .hbit-module-header,
+html[data-palette="sage"] #planPage .pl-cal-strip,
+html[data-palette="arctic"] #planPage .pl-cal-strip {
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  border-bottom-color: var(--border);
+}
+
+html[data-palette="sage"] #planPage .pl-day-summary,
+html[data-palette="sage"] #planPage .pl-overview-card,
+html[data-palette="sage"] #planPage .pl-carry-over,
+html[data-palette="sage"] #planPage .pl-empty,
+html[data-palette="sage"] #planPage .pl-card,
+html[data-palette="arctic"] #planPage .pl-day-summary,
+html[data-palette="arctic"] #planPage .pl-overview-card,
+html[data-palette="arctic"] #planPage .pl-carry-over,
+html[data-palette="arctic"] #planPage .pl-empty,
+html[data-palette="arctic"] #planPage .pl-card {
+  background: var(--panel);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+#planPage .hbit-module-copy h1 {
+  font-size: var(--fs-20);
+}
+
+#planPage .pl-filter-chip,
+#planPage .pl-priority-pill,
+#planPage .pl-status-pill {
+  min-height: 36px;
+}
+
+#planPage .pl-time-picker,
+#planPage .pl-time-row {
+  min-width: 0;
+}
+
+@media (max-width: 420px) {
+  #planPage .pl-main {
+    padding-inline: 12px;
+  }
+
+  #planPage .pl-time-picker {
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   Day timeline — clear add affordance + drag polish
+   ============================================================ */
+.pl-hour-row {
+  position: relative;
+  transition: background 160ms ease;
+}
+.pl-hour-row::after {
+  content: "+";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--pl-accent);
+  opacity: 0;
+  transition: opacity 160ms ease, transform 160ms ease;
+  pointer-events: none;
+}
+.pl-hour-row:hover::after,
+.pl-hour-row:focus-visible::after {
+  opacity: 0.7;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.pl-grid-block {
+  cursor: grab;
+}
+.pl-grid-block:active {
+  cursor: grabbing;
+}
+.pl-grid-block.is-dragging {
+  cursor: grabbing;
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.35), 0 0 0 2px var(--pl-accent);
+}
+
+/* ============================================================
+   Mobile compaction — make timeline visible without scroll
+   ============================================================ */
+@media (max-width: 767px) {
+  #planPage .hbit-module-header {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+  #planPage .pl-cal-strip {
+    top: 56px;
+    padding-top: 6px;
+  }
+  .pl-main {
+    padding: 14px 14px 96px;
+  }
+  .pl-quick-add {
+    margin-bottom: 10px;
+    padding: 6px;
+    border-radius: 14px;
+  }
+  .pl-quick-input {
+    min-height: 40px;
+    font-size: 14px;
+  }
+  .pl-quick-btn {
+    min-height: 40px;
+    padding: 0 12px;
+  }
+  .pl-day-summary {
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    border-radius: 14px;
+  }
+  #plSummaryMain { font-size: 16px; }
+  .pl-summary-meter { height: 6px; }
+  .pl-summary-meta { font-size: 12px; }
+
+  /* Hide the static overview block on mobile — calendar + timeline tell the story */
+  .pl-overview {
+    display: none;
+  }
+
+  .pl-priority-filter {
+    padding-bottom: 10px;
+  }
+  .pl-filter-chip {
+    min-height: 36px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  /* Compact timeline rows so more of the day fits */
+  .pl-day-grid {
+    --row-h: 48px;
+    grid-template-columns: 44px minmax(0, 1fr);
+    border-radius: 16px;
+  }
+  .pl-hour-label {
+    font-size: 11px;
+    padding-top: 6px;
+  }
+  .pl-grid-block {
+    left: 6px;
+    right: 6px;
+    padding: 6px 8px;
+    border-radius: 12px;
+  }
+  .pl-grid-block strong { font-size: 13px; }
+  .pl-block-time, .pl-block-meta { font-size: 11px; }
+  .pl-block-check {
+    min-height: 36px;
+    min-width: 40px;
+    font-size: 11px;
+  }
+  .pl-block-nudge button {
+    min-width: 36px;
+    min-height: 28px;
+    font-size: 11px;
+  }
+
+  /* FAB always visible, slightly larger for thumb reach */
+  .pl-fab {
+    bottom: max(16px, env(safe-area-inset-bottom));
+    right: 16px;
+  }
+}
+
+@media (max-width: 380px) {
+  .pl-day-grid {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+  .pl-cal-month { font-size: 15px; }
+}
+
+/* Mobile planner refinement: less clutter, tighter calendar, premium cards */
+@media (max-width: 767px) {
+  .pl-quick-add {
+    display: none;
+  }
+
+  .pl-carry-over {
+    margin-bottom: 10px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--pl-accent) 8%, transparent);
+    border-color: color-mix(in srgb, var(--pl-accent) 24%, var(--pl-border));
+  }
+  .pl-carry-info {
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .pl-carry-btn {
+    min-height: 34px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+
+  .pl-cal-head,
+  .pl-cal-grid-wrap,
+  .pl-view-switch {
+    width: min(344px, calc(100% - 20px));
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .pl-cal-grid-wrap {
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--pl-surface) 46%, transparent);
+    border: 1px solid color-mix(in srgb, var(--pl-border) 62%, transparent);
+  }
+  .pl-cal-track {
+    padding: 2px 4px 5px;
+    gap: 2px;
+  }
+  .pl-cal-day {
+    height: 34px;
+    border-radius: 8px;
+  }
+  .pl-cal-date {
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .pl-cal-count {
+    top: 1px;
+    right: 2px;
+    min-width: 12px;
+    height: 12px;
+    font-size: 9px;
+  }
+  .pl-cal-handle {
+    height: 16px;
+  }
+  .pl-cal-handle-grip {
+    width: 28px;
+    height: 3px;
+  }
+
+  .pl-day-summary {
+    margin-bottom: 8px;
+    border-radius: 12px;
+  }
+  .pl-summary-kicker {
+    font-size: 11px;
+  }
+  #plSummaryMain {
+    font-size: 15px;
+  }
+
+  .pl-grid-block {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 93%, transparent), color-mix(in srgb, var(--panel2, var(--panel)) 92%, transparent));
+    border: 1px solid color-mix(in srgb, var(--pl-border) 86%, transparent);
+    border-left-width: 1px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+  }
+  .pl-grid-block.priority-high { box-shadow: inset 0 2px 0 0 var(--pl-high), 0 8px 20px rgba(0, 0, 0, 0.22); }
+  .pl-grid-block.priority-medium { box-shadow: inset 0 2px 0 0 var(--pl-medium), 0 8px 20px rgba(0, 0, 0, 0.22); }
+  .pl-grid-block.priority-low { box-shadow: inset 0 2px 0 0 var(--pl-low), 0 8px 20px rgba(0, 0, 0, 0.22); }
+  .pl-grid-block.is-habit { box-shadow: inset 0 2px 0 0 var(--habit), 0 8px 20px rgba(0, 0, 0, 0.22); }
+}
+
+/* Planner form polish: closer to Hbit premium surfaces */
+#planPage .pl-modal-body {
+  gap: 14px;
+}
+#planPage .pl-input-group {
+  display: grid;
+  gap: 8px;
+}
+#planPage .pl-input-group label {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--pl-muted);
+}
+#planPage .pl-input-title,
+#planPage .pl-input-num,
+#planPage .pl-input-notes {
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--pl-border) 86%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--pl-surface) 92%, transparent), color-mix(in srgb, var(--panel) 96%, transparent));
+}
+#planPage .pl-input-title,
+#planPage .pl-input-num {
+  min-height: 44px;
+  padding: 0 12px;
+}
+#planPage .pl-segment {
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--pl-border) 80%, transparent);
+  background: color-mix(in srgb, var(--pl-surface) 78%, transparent);
+  padding: 4px;
+}
+#planPage .pl-segment button {
+  min-height: 36px;
+  border-radius: 10px;
 }

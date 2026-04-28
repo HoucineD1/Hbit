@@ -24,120 +24,43 @@
     slide.tabIndex = -1;
     slide.setAttribute("role", "group");
 
-    const WIZ_TOTAL = 7; // slides 0–6
+    const WIZ_TOTAL = 4;
 
     if (n === 0) {
-      // Welcome — no answer required
       slide.innerHTML = `
-        <div class="bg-wiz-welcome-icon" aria-hidden="true">
-          ${svgIconLucide(`<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>`, 48)}
-        </div>
-        <h2 class="bg-wiz-title">${escHtml(t("budget.wizard.welcome.title") || "Let's personalize your budget")}</h2>
-        <p class="bg-wiz-sub">${escHtml(t("budget.wizard.welcome.sub") || "Answer 6 quick questions to build a dashboard that fits how you manage money.")}</p>`;
-
+        <h2 class="bg-wiz-title">${escHtml(t("budget.wizard.income.title", "What comes in each month?"))}</h2>
+        <p class="bg-wiz-sub">${escHtml(t("budget.wizard.income.sub", "Start with your usual monthly income. You can refine it later."))}</p>
+        <label class="bg-wiz-money-field">
+          <span>${escHtml(t("budget.wizard.income.label", "Monthly income"))}</span>
+          <input class="bg-input bg-wiz-money-input" id="bgWizIncome" type="number" inputmode="decimal" min="0" step="0.01" placeholder="3200" value="${escHtml(wizardAnswers.monthlyIncome)}" />
+        </label>`;
     } else if (n === 1) {
-      // Primary goal
-      const GOAL_ICONS = {
-        spend_track: `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`,
-        save:        `<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>`,
-        debt:        `<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>`,
-        optimize:    `<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>`,
-        insight:     `<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>`,
-      };
-      const goalDescs = {
-        spend_track: "I want clear visibility every week",
-        save:        "I end the month with little left",
-        debt:        "Cards or loans are hard to control",
-        optimize:    "I want to cut unnecessary spending",
-        insight:     "I track already, but want smarter guidance",
-      };
-      const opts = ["spend_track", "save", "debt", "optimize", "insight"];
-      slide.innerHTML = `<h2 class="bg-wiz-title">${escHtml(t("budget.wizard.step.goal") || "What's your biggest money priority right now?")}</h2>
-        ${opts.map((id, i) => `
-          <button type="button" class="bg-wiz-option${wizardAnswers.goal === id ? " selected" : ""}" data-wiz-goal="${id}" style="--i:${i}">
-            <svg class="bg-wiz-check-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>
-            <span class="bg-wiz-option-lead">${svgIconLucide(GOAL_ICONS[id] || GOAL_ICONS.insight, 22)}</span>
-            <span><span class="bg-wiz-option-label">${escHtml(t("budget.wizard.goal." + id) || id)}</span><span class="bg-wiz-option-desc">${escHtml(goalDescs[id] || "")}</span></span>
-          </button>`).join("")}`;
-
+      slide.innerHTML = `
+        <h2 class="bg-wiz-title">${escHtml(t("budget.wizard.fixed.title", "What is already spoken for?"))}</h2>
+        <p class="bg-wiz-sub">${escHtml(t("budget.wizard.fixed.sub", "Add rent, subscriptions, debt payments, and other fixed expenses as one monthly total."))}</p>
+        <label class="bg-wiz-money-field">
+          <span>${escHtml(t("budget.wizard.fixed.label", "Fixed expenses"))}</span>
+          <input class="bg-input bg-wiz-money-input" id="bgWizFixed" type="number" inputmode="decimal" min="0" step="0.01" placeholder="1450" value="${escHtml(wizardAnswers.fixedExpenses)}" />
+        </label>`;
     } else if (n === 2) {
-      // Budgeting approach
-      slide.innerHTML = `<h2 class="bg-wiz-title">${escHtml(t("budget.wizard.step.mode") || "How do you prefer to manage your money?")}</h2>
-        <div class="bg-wiz-mode-row">
-          <button type="button" class="bg-wiz-mode-card${wizardAnswers.mode === "plan" ? " selected" : ""}" data-mode="plan">
-            <span class="bg-wiz-mode-ico">${svgIconLucide(WIZ_MODE_INNER.plan, 26)}</span>
-            <span class="bg-wiz-option-label">${escHtml(t("budget.wizard.planAhead", "Plan ahead"))}</span>
-            <span class="bg-wiz-option-desc">${escHtml(t("budget.wizard.planAheadDesc", "Set budgets upfront, then track against them."))}</span>
-          </button>
-          <button type="button" class="bg-wiz-mode-card${wizardAnswers.mode === "track" ? " selected" : ""}" data-mode="track">
-            <span class="bg-wiz-mode-ico">${svgIconLucide(WIZ_MODE_INNER.track, 26)}</span>
-            <span class="bg-wiz-option-label">${escHtml(t("budget.wizard.trackFirst", "Track first"))}</span>
-            <span class="bg-wiz-option-desc">${escHtml(t("budget.wizard.trackFirstDesc", "See what I spend, then decide where to adjust."))}</span>
-          </button>
-        </div>`;
-
-    } else if (n === 3) {
-      // Income frequency
-      const payLabels = {
-        weekly:    "Weekly",
-        biweekly:  "Bi-weekly",
-        monthly:   "Monthly",
-        irregular: t("budget.wizard.irregular") || "Variable income",
-      };
-      slide.innerHTML = `<h2 class="bg-wiz-title">${escHtml(t("budget.wizard.step.pay") || "How often do you get paid?")}</h2>
-        <div class="bg-wiz-pay-row">
-          ${["weekly", "biweekly", "monthly", "irregular"].map((id, i) => `
-            <button type="button" class="bg-wiz-pay-chip${wizardAnswers.payFrequency === id ? " selected" : ""}" data-payf="${id}" style="--i:${i}">${escHtml(payLabels[id])}</button>`).join("")}
-        </div>`;
-
-    } else if (n === 4) {
-      // Experience level
-      const lv = [
-        { id: "beginner",     t: "Beginner",     d: "Just getting started with budgeting" },
-        { id: "intermediate", t: "Intermediate",  d: "I track sometimes, want better insights" },
-        { id: "advanced",     t: "Advanced",      d: "Experienced, managing multiple accounts" },
-      ];
-      slide.innerHTML = `<h2 class="bg-wiz-title">${escHtml(t("budget.wizard.step.level") || "What's your comfort level with finances?")}</h2>
-        <div class="bg-wiz-level-row">
-          ${lv.map((o, i) => `
-            <button type="button" class="bg-wiz-level-card${wizardAnswers.level === o.id ? " selected" : ""}" data-level="${o.id}" style="--i:${i}">
-              <span class="bg-wiz-level-ico">${svgIconLucide(WIZ_LEVEL_INNER[o.id] || WIZ_LEVEL_INNER.beginner, 22)}</span>
-              <span class="bg-wiz-option-label">${escHtml(o.t)}</span>
-              <span class="bg-wiz-option-desc">${escHtml(o.d)}</span>
+      slide.innerHTML = `
+        <h2 class="bg-wiz-title">${escHtml(t("budget.wizard.savings.title", "What do you want to save?"))}</h2>
+        <p class="bg-wiz-sub">${escHtml(t("budget.wizard.savings.sub", "Set a monthly savings goal. Use 0 if this month is only about stability."))}</p>
+        <label class="bg-wiz-money-field">
+          <span>${escHtml(t("budget.wizard.savings.label", "Monthly savings goal"))}</span>
+          <input class="bg-input bg-wiz-money-input" id="bgWizSavings" type="number" inputmode="decimal" min="0" step="0.01" placeholder="400" value="${escHtml(wizardAnswers.savingsGoal)}" />
+        </label>`;
+    } else {
+      const selected = Array.isArray(wizardAnswers.categories) ? wizardAnswers.categories : [];
+      slide.innerHTML = `<h2 class="bg-wiz-title">${escHtml(t("budget.wizard.categories.title", "Which categories matter most?"))}</h2>
+        <p class="bg-wiz-sub">${escHtml(t("budget.wizard.categories.sub", "Pick the budget rows you want front and center. You can add more later."))}</p>
+        <div class="bg-wiz-goals-grid">
+          ${CATEGORIES.filter(c => c.id !== "other").map((cat, i) => `
+            <button type="button" class="bg-wiz-goal-chip${selected.includes(cat.id) ? " selected" : ""}" data-wiz-category="${cat.id}" style="--i:${i};--c:${cat.color}">
+              ${catIconSvg(cat.id, 16)}
+              <span>${escHtml(t("budget.category." + cat.id, cat.label))}</span>
             </button>`).join("")}
         </div>`;
-
-    } else if (n === 5) {
-      // Challenges — multi-select optional
-      const challenges = [
-        { id: "overspend",           t: t("budget.wizard.challenge.overspend")           || "I overspend in certain categories" },
-        { id: "invisible_spending",  t: t("budget.wizard.challenge.invisible")            || "Spending happens without my awareness" },
-        { id: "irregular_bills",     t: t("budget.wizard.challenge.irregular_bills")      || "Surprise bills stress me" },
-        { id: "savings_discipline",  t: t("budget.wizard.challenge.savings_discipline")   || "Can't stick to savings goals" },
-        { id: "multiple_accounts",   t: t("budget.wizard.challenge.multiple_accounts")    || "Money scattered across accounts" },
-      ];
-      slide.innerHTML = `<h2 class="bg-wiz-title">${escHtml(t("budget.wizard.step.challenges") || "Any challenges you face? (optional, pick up to 3)")}</h2>
-        <div class="bg-wiz-goals-grid">
-          ${challenges.map((o, i) => `
-            <button type="button" class="bg-wiz-goal-chip${wizardAnswers.challenges.includes(o.id) ? " selected" : ""}" data-challenge="${o.id}" style="--i:${i}">${svgIconLucide(WIZ_GOAL_INNER, 16)}<span>${escHtml(o.t)}</span></button>`).join("")}
-        </div>`;
-
-    } else {
-      // Commitment (slide 6)
-      const cm = [
-        { id: "all_in",   t: t("budget.wizard.commitment.all_in") || "Send me insights, tips, and alerts",    ico: WIZ_COMMIT_INNER.allin  },
-        { id: "moderate", t: t("budget.wizard.commitment.mod")     || "Weekly summaries and key alerts",       ico: WIZ_COMMIT_INNER.mod    },
-        { id: "light",    t: t("budget.wizard.commitment.light")   || "Alerts only if something's wrong",      ico: WIZ_COMMIT_INNER.casual },
-        { id: "minimal",  t: t("budget.wizard.commitment.min")     || "No notifications, I'll check the app",  ico: WIZ_COMMIT_INNER.casual },
-      ];
-      slide.innerHTML = `<h2 class="bg-wiz-title">${escHtml(t("budget.wizard.step.commitment") || "How much guidance would you like?")}</h2>
-        ${cm.map((o, i) => `
-          <button type="button" class="bg-wiz-commit-card${wizardAnswers.commitment === o.id ? " selected" : ""}" data-commit="${o.id}" style="--i:${i}">
-            <span class="bg-wiz-commit-ico">${svgIconLucide(o.ico, 22)}</span>
-            <span class="bg-wiz-commit-text">
-              <span class="bg-wiz-option-label">${escHtml(o.t)}</span>
-            </span>
-          </button>`).join("")}`;
     }
 
     stage.innerHTML = "";
@@ -164,7 +87,9 @@
     const back = $("bgWizBack");
     if (back) back.style.visibility = n === 0 ? "hidden" : "visible";
     const next = $("bgWizNext");
-    if (next) next.textContent = n === WIZ_TOTAL - 1 ? "Let's go \u2713" : "Next \u2192";
+    if (next) next.textContent = n === WIZ_TOTAL - 1
+      ? t("budget.wizard.finish", "Build my budget")
+      : t("budget.flow.continue", "Continue");
   }
 
   function transitionWizardSlide(fromN, toN, dir, done) {
@@ -188,9 +113,21 @@
     const ov = $("bg-wizard-overlay");
     if (!ov) return;
     Object.assign(wizardAnswers, {
-      goal: null, mode: null, payFrequency: null, level: null, challenges: [], commitment: null,
+      monthlyIncome: "",
+      fixedExpenses: "",
+      savingsGoal: "",
+      categories: ["housing", "food", "transport", "savings"],
+      goal: "spend_track",
+      mode: "plan",
+      payFrequency: "monthly",
+      level: "beginner",
+      challenges: [],
+      commitment: "moderate",
     });
     ov.style.display = "flex";
+    ov.hidden = false;
+    ov.removeAttribute("hidden");
+    ov.classList.remove("bg-wizard-fade-out");
     ov.setAttribute("aria-hidden", "false");
     wizardSlideIndex = 0;
     renderWizardSlideContent(0);
@@ -224,9 +161,10 @@
     }
     if (!ov) return;
     ov.style.display = "none";
+    ov.hidden = true;
+    ov.setAttribute("hidden", "");
     ov.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
-    ov.remove();
   }
 
   function fadeOutWizardThen(cb) {
@@ -239,7 +177,11 @@
       if (ov && ov.parentNode) {
         if (wizardTrapHandler) document.removeEventListener("keydown", wizardTrapHandler);
         wizardTrapHandler = null;
-        ov.remove();
+        ov.style.display = "none";
+        ov.hidden = true;
+        ov.setAttribute("hidden", "");
+        ov.setAttribute("aria-hidden", "true");
+        ov.classList.remove("bg-wizard-fade-out");
         document.body.style.overflow = "";
       }
     }, 400);
@@ -266,6 +208,7 @@
 
   async function finishWizard() {
     const card = $("bgWizardCard");
+    syncWizardInputs();
     try {
       await saveWizardDoc({
         completed:    true,
@@ -278,6 +221,10 @@
         level:        wizardAnswers.level,
         challenges:   wizardAnswers.challenges,
         commitment:   wizardAnswers.commitment,
+        monthlyIncome: Number(wizardAnswers.monthlyIncome) || 0,
+        fixedExpenses: Number(wizardAnswers.fixedExpenses) || 0,
+        savingsGoal:   Number(wizardAnswers.savingsGoal) || 0,
+        categories:    Array.isArray(wizardAnswers.categories) ? wizardAnswers.categories.slice() : [],
       }, true);
     } catch (err) {
       showToast(t("budget.toast.saveError", "Could not save: {error}", { error: err?.code || err?.message || "error" }));
@@ -294,6 +241,10 @@
       level:        wizardAnswers.level,
       challenges:   wizardAnswers.challenges,
       commitment:   wizardAnswers.commitment,
+      monthlyIncome: Number(wizardAnswers.monthlyIncome) || 0,
+      fixedExpenses: Number(wizardAnswers.fixedExpenses) || 0,
+      savingsGoal:   Number(wizardAnswers.savingsGoal) || 0,
+      categories:    Array.isArray(wizardAnswers.categories) ? wizardAnswers.categories.slice() : [],
     };
     initPlannerModeFromMeta();
     fadeOutWizardThen(() => {
@@ -302,14 +253,21 @@
     });
   }
 
+  function syncWizardInputs() {
+    const income = $("bgWizIncome");
+    const fixed = $("bgWizFixed");
+    const savings = $("bgWizSavings");
+    if (income) wizardAnswers.monthlyIncome = income.value;
+    if (fixed) wizardAnswers.fixedExpenses = fixed.value;
+    if (savings) wizardAnswers.savingsGoal = savings.value;
+  }
+
   function wizardValidate(n) {
-    // slide 0 = welcome (no answer), 5 & 6 = optional
-    if (n === 1 && !wizardAnswers.goal) return false;
-    if (n === 2 && !wizardAnswers.mode) return false;
-    if (n === 3 && !wizardAnswers.payFrequency) return false;
-    if (n === 4 && !wizardAnswers.level) return false;
-    // n === 5 challenges: optional — always valid
-    // n === 6 commitment: optional — always valid
+    syncWizardInputs();
+    if (n === 0 && !(Number(wizardAnswers.monthlyIncome) > 0)) return false;
+    if (n === 1 && !(Number(wizardAnswers.fixedExpenses) >= 0)) return false;
+    if (n === 2 && !(Number(wizardAnswers.savingsGoal) >= 0)) return false;
+    if (n === 3 && (!Array.isArray(wizardAnswers.categories) || wizardAnswers.categories.length === 0)) return false;
     return true;
   }
 
@@ -323,7 +281,7 @@
       showToast(t("budget.wizard.chooseOption"));
       return;
     }
-    if (wizardSlideIndex >= 6) {
+    if (wizardSlideIndex >= 3) {
       finishWizard().catch(() => { /* silent */ });
       return;
     }
@@ -336,54 +294,31 @@
   }
 
   function onWizardStageClick(e) {
-    // Step 1 — primary goal
-    const wg = e.target.closest("[data-wiz-goal]");
-    if (wg) {
-      wizardAnswers.goal = wg.dataset.wizGoal;
+    const cat = e.target.closest("[data-wiz-category]");
+    if (cat) {
+      const id = cat.dataset.wizCategory;
+      if (!Array.isArray(wizardAnswers.categories)) wizardAnswers.categories = [];
+      const i = wizardAnswers.categories.indexOf(id);
+      if (i >= 0) {
+        wizardAnswers.categories.splice(i, 1);
+      } else {
+        wizardAnswers.categories.push(id);
+      }
+      wizardAnswers.goal = wizardAnswers.categories.includes("savings") ? "save" : "spend_track";
+      wizardAnswers.level = wizardAnswers.categories.length > 5 ? "intermediate" : "beginner";
       renderWizardSlideContent(wizardSlideIndex);
       return;
     }
-    // Step 2 — mode
-    const md = e.target.closest("[data-mode]");
-    if (md) {
-      wizardAnswers.mode = md.dataset.mode;
-      renderWizardSlideContent(wizardSlideIndex);
-      return;
-    }
-    // Step 3 — pay frequency
-    const pf = e.target.closest("[data-payf]");
-    if (pf) {
-      wizardAnswers.payFrequency = pf.dataset.payf;
-      renderWizardSlideContent(wizardSlideIndex);
-      return;
-    }
-    // Step 4 — experience level
-    const lv = e.target.closest("[data-level]");
-    if (lv) {
-      wizardAnswers.level = lv.dataset.level;
-      renderWizardSlideContent(wizardSlideIndex);
-      return;
-    }
-    // Step 5 — challenges (multi-select, optional, max 3)
-    const ch = e.target.closest("[data-challenge]");
-    if (ch) {
-      const id = ch.dataset.challenge;
+
+    const legacyChallenge = e.target.closest("[data-challenge]");
+    if (legacyChallenge) {
+      const id = legacyChallenge.dataset.challenge;
       const i = wizardAnswers.challenges.indexOf(id);
       if (i >= 0) {
         wizardAnswers.challenges.splice(i, 1);
-      } else if (wizardAnswers.challenges.length < 3) {
-        wizardAnswers.challenges.push(id);
       } else {
-        const grid = ch.closest(".bg-wiz-goals-grid");
-        if (grid) { grid.classList.add("bg-shake"); setTimeout(() => grid.classList.remove("bg-shake"), 400); }
+        wizardAnswers.challenges.push(id);
       }
-      renderWizardSlideContent(wizardSlideIndex);
-      return;
-    }
-    // Step 6 — commitment
-    const cm = e.target.closest("[data-commit]");
-    if (cm) {
-      wizardAnswers.commitment = cm.dataset.commit;
       renderWizardSlideContent(wizardSlideIndex);
       return;
     }
@@ -705,4 +640,4 @@
       fbErrRetry(err, deleteGoal);
     }
   }
-
+

@@ -896,11 +896,14 @@
           wakeDisp: formatDisplayTime12(plan.wakeTimePlanned),
           badge: `${formatDurHuman(durationHours(plan.bedTimePlanned, plan.wakeTimePlanned))} · ${Math.max(1, Math.round((durationHours(plan.bedTimePlanned, plan.wakeTimePlanned) * 60) / CYCLE_MIN))} cycles`,
         }
-      : defaultPlanDisplay();
+      : { bed: null, bedDisp: "—", wake: null, wakeDisp: "—", badge: "Set a plan to see tonight's schedule" };
 
-    if (bedLarge) bedLarge.textContent = disp.bedDisp || formatDisplayTime12(disp.bed);
-    if (wakeEl) wakeEl.textContent = disp.wakeDisp || formatDisplayTime12(disp.wake);
+    if (bedLarge) bedLarge.textContent = disp.bedDisp || (disp.bed ? formatDisplayTime12(disp.bed) : "—");
+    if (wakeEl) wakeEl.textContent = disp.wakeDisp || (disp.wake ? formatDisplayTime12(disp.wake) : "—");
     if (badgeEl) badgeEl.textContent = disp.badge || "—";
+
+    const planBlock = $("slHeroPlanBlock");
+    if (planBlock) planBlock.classList.toggle("sl-hero-plan--empty", !plan);
 
     if (countEl) {
       if (plan) {
@@ -1290,6 +1293,12 @@
   function renderWindDown() {
     const list = $("slWindDownList");
     if (!list) return;
+    if (!isReadyToSleepToday()) {
+      list.innerHTML = "";
+      setWindDownVisibility(false);
+      return;
+    }
+    setWindDownVisibility(true);
     const checked = new Set(loadWindDownState());
     list.innerHTML = WIND_ITEMS.map((item) => {
       const title = tsleep(item.titleKey);
@@ -1338,6 +1347,25 @@
     });
   }
 
+  function isReadyToSleepToday() {
+    try {
+      return sessionStorage.getItem(`sl-ready-${todayKey()}`) === "1";
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function setWindDownVisibility(isReady) {
+    const section = $("slWindDown");
+    const list = $("slWindDownList");
+    const progress = $("slWindDownProgressWrap");
+    const doneMsg = $("slWindDownDoneMsg");
+    if (section) section.classList.toggle("sl-winddown--ready", !!isReady);
+    if (list) list.hidden = !isReady;
+    if (progress) progress.hidden = !isReady;
+    if (doneMsg && !isReady) doneMsg.hidden = true;
+  }
+
   function showLinkTooltip(anchor, text) {
     const row = anchor.closest(".sl-winddown-item");
     const tip = row?.querySelector(".sl-winddown-tooltip");
@@ -1348,6 +1376,10 @@
   }
 
   function loadWindDownStateIntoUI() {
+    if (!isReadyToSleepToday()) {
+      setWindDownVisibility(false);
+      return;
+    }
     const done = getWindDownDoneCount();
     const total = WIND_ITEMS.length;
     const wrap = $("slWindDownProgressWrap");
@@ -1443,15 +1475,15 @@
       sessionStorage.setItem(`sl-ready-${todayKey()}`, "1");
     } catch (_) { /* ignore */ }
     updateReadyButtonUI();
+    renderWindDown();
+    $("slWindDownList")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function updateReadyButtonUI() {
     const btn = $("slReadyBtn");
     if (!btn) return;
-    let done = false;
-    try {
-      done = sessionStorage.getItem(`sl-ready-${todayKey()}`) === "1";
-    } catch (_) { /* ignore */ }
+    const done = isReadyToSleepToday();
+    setWindDownVisibility(done);
     if (done) {
       btn.disabled = true;
       btn.classList.add("done");
@@ -2031,7 +2063,7 @@
         const profile = await HBIT.getCurrentUserProfile?.();
         const name = profile?.fullName || user.displayName || user.email || "U";
         const av = $("slAvatar");
-        if (av) av.textContent = name.charAt(0).toUpperCase();
+        if (av && !av.classList.contains("hbit-settings-btn")) av.textContent = name.charAt(0).toUpperCase();
       } catch (_) { /* ignore */ }
 
       const settings = await loadSettings();

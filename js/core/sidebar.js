@@ -18,36 +18,43 @@
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><polyline points="15 9 12 12 15 15"/></svg>
       </button>
     </div>
+    <a class="sb-profile-card" href="profile.html" data-page="profile.html" aria-label="Open profile">
+      <span class="sb-avatar" aria-hidden="true">H</span>
+      <span class="sb-profile-copy">
+        <strong data-i18n="profile.title">Profile</strong>
+        <small data-i18n="nav.profileSub">Personal growth cockpit</small>
+      </span>
+    </a>
     <div class="sb-sep"></div>
     <div class="sb-content">
       <div class="sb-group">
         <div class="sb-group-label" data-i18n="nav.menuLabel">Menu</div>
         <ul class="sb-menu">
-          <li><a class="sb-item" href="home.html" data-page="home.html">
+          <li><a class="sb-item" href="home.html" data-page="home.html" data-accent="brand">
             <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
             <span class="sb-item-label" data-i18n="nav.overview">Overview</span>
           </a></li>
-          <li><a class="sb-item" href="habits.html" data-page="habits.html">
+          <li><a class="sb-item" href="habits.html" data-page="habits.html" data-accent="habit">
             <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
             <span class="sb-item-label" data-i18n="nav.habits">Habits</span>
           </a></li>
-          <li><a class="sb-item" href="budget.html" data-page="budget.html">
+          <li><a class="sb-item" href="budget.html" data-page="budget.html" data-accent="budget">
             <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
             <span class="sb-item-label" data-i18n="nav.budget">Budget</span>
           </a></li>
-          <li><a class="sb-item" href="sleep.html" data-page="sleep.html">
+          <li><a class="sb-item" href="sleep.html" data-page="sleep.html" data-accent="sleep">
             <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
             <span class="sb-item-label" data-i18n="nav.sleep">Sleep</span>
           </a></li>
-          <li><a class="sb-item" href="mood.html" data-page="mood.html">
+          <li><a class="sb-item" href="mood.html" data-page="mood.html" data-accent="mood">
             <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></span>
             <span class="sb-item-label" data-i18n="nav.mood">State of Mind</span>
           </a></li>
-          <li><a class="sb-item" href="focus.html" data-page="focus.html">
+          <li><a class="sb-item" href="focus.html" data-page="focus.html" data-accent="focus">
             <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
             <span class="sb-item-label" data-i18n="nav.focus">Focus</span>
           </a></li>
-          <li><a class="sb-item" href="plan.html" data-page="plan.html">
+          <li><a class="sb-item" href="plan.html" data-page="plan.html" data-accent="plan">
             <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
             <span class="sb-item-label" data-i18n="nav.plan">Planner</span>
           </a></li>
@@ -67,6 +74,7 @@
         <span class="sb-item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
         <span class="sb-item-label" data-i18n="nav.logout">Sign out</span>
       </button>
+      <div class="sb-copy">Hbit v0.4</div>
     </div>`;
 
   var TRIGGER_HTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="10" width="7" height="7" rx="1"/><rect x="3" y="13" width="7" height="4" rx="1"/></svg>';
@@ -140,15 +148,6 @@
       tabs.setAttribute("aria-label", "Primary navigation");
       tabs.innerHTML = BOTTOM_TABS_HTML;
       document.body.appendChild(tabs);
-    }
-
-    if (!document.querySelector(".hbit-mobile-settings")) {
-      var s = document.createElement("a");
-      s.className = "hbit-mobile-settings";
-      s.href = "profile.html#appearance";
-      s.setAttribute("aria-label", "Settings");
-      s.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 0-.38 1.05V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 0-1.05-.38H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6A1.65 1.65 0 0 0 10.4 3V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.39.37.73.68 1 .3.26.67.4 1.05.4H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51.6z"/></svg>';
-      document.body.appendChild(s);
     }
 
     // Apply i18n if available

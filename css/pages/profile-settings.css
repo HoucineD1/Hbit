@@ -121,6 +121,16 @@
   margin-bottom: var(--space-5);
 }
 
+/* Streaks in profile — profile panel is narrow, 3 cols max */
+#profilePage .hc-streaks-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+@media (max-width: 520px) {
+  #profilePage .hc-streaks-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .pf-stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -567,5 +577,67 @@
   }
   .pf-row-2 {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Full UI upgrade B-D — profile layout and palette resilience */
+html[data-palette="sage"] #profilePage .pf-panel,
+html[data-palette="sage"] #profilePage .pf-hero,
+html[data-palette="arctic"] #profilePage .pf-panel,
+html[data-palette="arctic"] #profilePage .pf-hero {
+  background: color-mix(in srgb, var(--panel) 96%, transparent);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+#profilePage .pf-hero-name,
+#profilePage .pf-stat-value {
+  font-size: var(--fs-24);
+}
+
+#profilePage .pf-hero-kicker,
+#profilePage .pf-stat-label,
+#profilePage .pf-account-key,
+#profilePage .pf-account-val {
+  font-size: var(--fs-12);
+}
+
+#profilePage .pf-panel-body {
+  color: var(--muted);
+}
+
+#profilePage .pf-account-row {
+  gap: var(--space-3);
+}
+
+@media (min-width: 521px) {
+  #profilePage .pf-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  #profilePage .pf-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #profilePage .pf-stat-card {
+    min-height: 104px;
+    padding: var(--space-3);
+  }
+
+  #profilePage .hc-streaks-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 360px) {
+  #profilePage .pf-main {
+    padding-inline: 12px;
+  }
+
+  #profilePage .pf-stats-grid,
+  #profilePage .hc-streaks-list {
+    gap: 10px;
   }
 }

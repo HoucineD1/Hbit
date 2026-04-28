@@ -216,12 +216,16 @@
   const overlayTrapHandlers = new WeakMap();
   let trendTooltipBoundSvg = null;
   const wizardAnswers = {
-    goal:         null,   // step 1: spend_track | save | debt | optimize | insight
-    mode:         null,   // step 2: plan | track
-    payFrequency: null,   // step 3: weekly | biweekly | monthly | irregular
-    level:        null,   // step 4: beginner | intermediate | advanced
-    challenges:   [],     // step 5: multi-select optional
-    commitment:   null,   // step 6: all_in | moderate | light | minimal
+    monthlyIncome: "",
+    fixedExpenses: "",
+    savingsGoal: "",
+    categories: ["housing", "food", "transport", "savings"],
+    goal: "spend_track",
+    mode: "plan",
+    payFrequency: "monthly",
+    level: "beginner",
+    challenges: [],
+    commitment: "moderate",
   };
   let wizardTrapHandler = null;
 
@@ -840,6 +844,16 @@
   function computeHealthScore() {
     const income = computeIncome();
     const spent = computeExpenses();
+    const hasAccountData = state.accounts.some(a => Math.abs(Number(a.balance) || 0) > 0);
+    const hasBudgetData =
+      income > 0 ||
+      spent > 0 ||
+      hasAccountData ||
+      Object.values(state.plan).some(v => Number(v) > 0) ||
+      state.bills.length > 0 ||
+      state.savingsGoals.length > 0;
+    if (!hasBudgetData) return null;
+
     const saveRate = income > 0 ? ((Math.max(0, income - spent) / income) * 100) : 0;
     const savingsPts = saveRate >= 20 ? 25 : saveRate >= 10 ? 15 : saveRate > 0 ? 5 : 0;
 
@@ -849,12 +863,12 @@
     const adherencePts = planCats.length ? Math.round((okCats / planCats.length) * 25) : 0;
 
     const paidBills = state.bills.filter(b => Array.isArray(b.paidMonths) && b.paidMonths.includes(state.month)).length;
-    const billsPts = state.bills.length ? Math.round((paidBills / state.bills.length) * 20) : 10;
+    const billsPts = state.bills.length ? Math.round((paidBills / state.bills.length) * 20) : 0;
 
     const goalPts = state.savingsGoals.length ? 10 : 0;
     const debt = computeDebt();
     const debtRatio = income > 0 ? debt / income : (debt > 0 ? Infinity : 0);
-    const debtPts = debtRatio === 0 ? 20 : debtRatio <= 0.3 ? 15 : debtRatio <= 0.75 ? 8 : 0;
+    const debtPts = income > 0 ? (debtRatio === 0 ? 20 : debtRatio <= 0.3 ? 15 : debtRatio <= 0.75 ? 8 : 0) : 0;
 
     return Math.max(0, Math.min(100, Math.round(savingsPts + adherencePts + billsPts + goalPts + debtPts)));
   }
@@ -1714,7 +1728,10 @@
   const BUDGET_OVERLAY_IDS = ["acctOverlay", "expOverlay", "billOverlay", "limitOverlay", "goalOverlay", "goalDetailOverlay", "helpOverlay", "autofillOverlay"];
 
   function clearBodyScrollUnlessOverlayOpen() {
-    const anyOpen = BUDGET_OVERLAY_IDS.some(oid => $(oid)?.classList.contains("open"));
+    const anyOpen = BUDGET_OVERLAY_IDS.some((oid) => {
+      const overlay = $(oid);
+      return !!overlay && (overlay.classList.contains("open") || overlay.classList.contains("is-open"));
+    });
     if (!anyOpen) document.body.style.overflow = "";
   }
 
@@ -1762,30 +1779,41 @@
     });
     const el = $(id);
     if (!el) return;
+    el.hidden = false;
+    el.removeAttribute("hidden");
+    el.style.display = "flex";
+    el.style.visibility = "visible";
+    el.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
     if (HBIT.components?.openSheet) {
       HBIT.components.openSheet(el);
     } else {
-      el.removeAttribute("hidden");
-      el.style.removeProperty("visibility");
-      el.setAttribute("aria-hidden", "false");
       el.classList.add("open", "is-open");
-      document.body.style.overflow = "hidden";
     }
+    el.classList.add("open", "is-open");
+    void el.offsetWidth;
     requestAnimationFrame(() => trapFocus(el));
   }
 
   function closeOverlay(id) {
     const el = $(id);
     if (!el) return;
+    el.classList.remove("open", "is-open");
+    el.setAttribute("aria-hidden", "true");
     if (HBIT.components?.closeSheet) {
       HBIT.components.closeSheet(el);
     } else {
-      el.classList.remove("open", "is-open");
-      el.setAttribute("aria-hidden", "true");
       el.setAttribute("hidden", "");
-      el.style.removeProperty("visibility");
     }
-    clearBodyScrollUnlessOverlayOpen();
+    const finish = () => {
+      if (el.classList.contains("open") || el.classList.contains("is-open")) return;
+      el.hidden = true;
+      el.setAttribute("hidden", "");
+      el.style.display = "none";
+      el.style.removeProperty("visibility");
+      clearBodyScrollUnlessOverlayOpen();
+    };
+    window.setTimeout(finish, 220);
   }
 
   function smokeTestBudgetOverlaysHidden() {
@@ -1795,7 +1823,9 @@
         if (shown && !overlay.classList.contains("open")) {
           console.warn("[Hbit Budget] Overlay visible at rest:", overlay.id || overlay);
           overlay.setAttribute("aria-hidden", "true");
-          overlay.classList.remove("open");
+          overlay.classList.remove("open", "is-open");
+          overlay.hidden = true;
+          overlay.style.display = "none";
         }
       });
     });
@@ -2570,7 +2600,7 @@
           const profile = await HBIT.getCurrentUserProfile?.();
           const name = profile?.fullName || user.displayName || user.email || "U";
           const av   = $("bgAvatar");
-          if (av) av.textContent = name.charAt(0).toUpperCase();
+          if (av && !av.classList.contains("hbit-settings-btn")) av.textContent = name.charAt(0).toUpperCase();
         } catch {}
 
         await loadBudgetMeta();

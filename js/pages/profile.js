@@ -139,7 +139,8 @@
       : (user?.email?.[0] || "?").toUpperCase();
 
     if ($("pfAvatar")) $("pfAvatar").textContent = initials;
-    if ($("profileBtn")) $("profileBtn").textContent = initials[0] || "H";
+    const headerProfileBtn = $("profileBtn");
+    if (headerProfileBtn && !headerProfileBtn.classList.contains("hbit-settings-btn")) headerProfileBtn.textContent = initials[0] || "H";
     if ($("pfHeroName")) $("pfHeroName").textContent = name || user?.email || "—";
 
     const username = profile?.username ? `@${profile.username}` : "";
@@ -222,7 +223,7 @@
       if ($("pfHeroMeta") && username) $("pfHeroMeta").textContent = `@${username}`;
 
       const homeAvatar = document.getElementById("profileBtn");
-      if (homeAvatar) homeAvatar.textContent = initials[0];
+      if (homeAvatar && !homeAvatar.classList.contains("hbit-settings-btn")) homeAvatar.textContent = initials[0];
 
       showMsg(HBIT.i18n?.t?.("profile.saved", "Profile saved ✓") || "Saved");
     } catch (err) {
@@ -393,6 +394,72 @@
     });
   }
 
+  function localDateKey(d) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  }
+
+  async function loadStreaks(uid) {
+    try {
+      const db = firebase.firestore();
+      const ref = db.collection("users").doc(uid);
+      const today = localDateKey(new Date());
+      const startD = new Date(); startD.setDate(startD.getDate() - 34);
+      const start = localDateKey(startD);
+
+      const [habLogs, bdgEntries, focSess, moodSnap, sleepSnap] = await Promise.all([
+        ref.collection("habitLogs").where("dateKey",">=",start).where("dateKey","<=",today).get().catch(()=>({docs:[]})),
+        ref.collection("budgetEntries").where("dateKey",">=",start).where("dateKey","<=",today).get().catch(()=>({docs:[]})),
+        ref.collection("focus_sessions").where("dateKey",">=",start).where("dateKey","<=",today).get().catch(()=>({docs:[]})),
+        ref.collection("moodLogs").orderBy("date","desc").limit(40).get().catch(()=>({docs:[]})),
+        ref.collection("sleepLogs").orderBy("date","desc").limit(40).get().catch(()=>({docs:[]})),
+      ]);
+
+      function streak(set) {
+        let n = 0;
+        const d = new Date();
+        while (n < 35) {
+          if (!set.has(localDateKey(d))) break;
+          n++;
+          d.setDate(d.getDate() - 1);
+        }
+        return n;
+      }
+
+      const habitDays = new Set(habLogs.docs.filter(d=>d.data().status==="done").map(d=>d.data().dateKey));
+      const budgetDays = new Set(bdgEntries.docs.map(d=>d.data().dateKey));
+      const focusDays  = new Set(focSess.docs.map(d=>d.data().dateKey));
+      const moodDays   = new Set(moodSnap.docs.map(d=>d.data().dateKey || d.id));
+      const sleepDays  = new Set(sleepSnap.docs.map(d=>d.data().dateKey || d.id));
+
+      return { habits: streak(habitDays), sleep: streak(sleepDays), mood: streak(moodDays), budget: streak(budgetDays), focus: streak(focusDays), plan: 0 };
+    } catch (_) {
+      return { habits: 0, sleep: 0, mood: 0, budget: 0, focus: 0, plan: 0 };
+    }
+  }
+
+  function renderProfileStreaks(streaks) {
+    const host = $("pfStreaksList");
+    if (!host) return;
+    const items = [
+      { key: "habits", label: "Habits", href: "habits.html" },
+      { key: "sleep",  label: "Sleep",  href: "sleep.html"  },
+      { key: "mood",   label: "Mood",   href: "mood.html"   },
+      { key: "budget", label: "Budget", href: "budget.html" },
+      { key: "focus",  label: "Focus",  href: "focus.html"  },
+      { key: "plan",   label: "Plan",   href: "plan.html"   },
+    ];
+    const max = Math.max(1, ...items.map(i => Number(streaks[i.key]) || 0));
+    host.innerHTML = items.map(item => {
+      const val = Number(streaks[item.key]) || 0;
+      const pct = Math.max(0.08, Math.min(1, val / max));
+      const lbl = val === 1 ? "day" : "days";
+      return `<a class="hc-streak-pill" href="${item.href}" data-module="${item.key}" style="--streak-pct:${pct}">
+        <span class="hc-streak-ring" aria-hidden="true"></span>
+        <span class="hc-streak-copy"><strong>${val}</strong><span>${item.label} ${lbl}</span></span>
+      </a>`;
+    }).join("");
+  }
+
   function init() {
     if (document.body.id !== "profilePage") return;
     if (document.body.dataset.profileInit) return;
@@ -434,6 +501,7 @@
 
       const ach = await loadAchievementStats(user.uid);
       await populate(profile, user, ach);
+      loadStreaks(user.uid).then(renderProfileStreaks);
       HBIT.i18n?.apply?.(document);
       HBIT.i18n?.updateToggle?.();
     });

@@ -258,6 +258,31 @@
     const labelEl = $("bgHealthScoreLabel");
     const fillEl = $("bgHsgFill");
     const bdEl = $("bgHealthScoreBreakdown");
+    if (score == null) {
+      if (scoreEl) {
+        scoreEl.dataset.value = "0";
+        scoreEl.textContent = budgetCopy("budget.health.setupValue", "--");
+      }
+      if (labelEl) labelEl.textContent = budgetCopy("budget.health.setupLabel", "Not enough data");
+      if (fillEl) {
+        const arcLen = 226;
+        fillEl.classList.remove("poor", "fair", "good", "excellent");
+        fillEl.style.strokeDasharray = `0 ${arcLen}`;
+      }
+      if (bdEl) {
+        const rows = [
+          budgetCopy("budget.health.setupIncome", "Add income or an account"),
+          budgetCopy("budget.health.setupExpense", "Log one expense"),
+          budgetCopy("budget.health.setupPlan", "Set a monthly plan"),
+        ];
+        bdEl.innerHTML = rows.map(row => `
+          <div class="bg-health-row bg-health-row--setup">
+            <span class="bg-health-row-left"><span>•</span><span>${escHtml(row)}</span></span>
+            <span class="bg-health-row-pts">${budgetCopy("budget.health.setupTodo", "Setup")}</span>
+          </div>`).join("");
+      }
+      return;
+    }
     if (scoreEl) {
       const prev = Number(scoreEl.dataset.value || 0);
       scoreEl.dataset.value = String(score);
@@ -288,7 +313,7 @@
       const rows = [
         { label: `${budgetCopy("budget.health.savingsRate", "Savings rate")} ${saveRate}%`, pts: saveRate >= 20 ? 25 : saveRate >= 10 ? 15 : saveRate > 0 ? 5 : 0 },
         { label: budgetCopy("budget.health.adherence", "Budget adherence"), pts: planCats.length ? Math.round((okCats / planCats.length) * 25) : 0 },
-        { label: `${t("budget.bills.title", "Bills")} ${paidBills}/${state.bills.length} ${t("budget.bills.paid", "paid")}`, pts: state.bills.length ? Math.round((paidBills / state.bills.length) * 20) : 10 },
+        { label: `${t("budget.bills.title", "Bills")} ${paidBills}/${state.bills.length} ${t("budget.bills.paid", "paid")}`, pts: state.bills.length ? Math.round((paidBills / state.bills.length) * 20) : 0 },
         { label: budgetCopy("budget.health.goalSet", "Savings goal set"), pts: state.savingsGoals.length ? 10 : 0 },
       ];
       bdEl.innerHTML = rows.map(row => `

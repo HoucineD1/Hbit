@@ -1201,7 +1201,7 @@
   async function start(user) {
     state.uid = user.uid;
     const avatar = $("moodProfileBtn");
-    if (avatar) {
+    if (avatar && !avatar.classList.contains("hbit-settings-btn")) {
       let name = user.displayName || "";
       try {
         const profile = await HBIT.getCurrentUserProfile?.();

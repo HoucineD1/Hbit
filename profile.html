@@ -42,7 +42,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 </head>
 
-<body id="profilePage">
+<body id="profilePage" class="has-sidebar">
 
   <a href="#main-content" class="skip-link" data-i18n="a11y.skipToContent">Skip to main content</a>
 
@@ -79,7 +79,9 @@
           </div>
         </div>
       </details>
-      <a class="hm-avatar" id="profileBtn" href="profile.html" data-i18n-aria-label="a11y.profileLink" aria-label="Profile">H</a>
+      <a class="hm-avatar hdr-btn hbit-settings-btn" id="profileBtn" href="profile.html#appearance" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 0-.38 1.05V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 0-1.05-.38H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6A1.65 1.65 0 0 0 10.4 3V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.39.37.73.68 1 .3.26.67.4 1.05.4H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51.6z"/></svg>
+      </a>
     </div>
   </header>
 
@@ -132,6 +134,11 @@
           <span class="pf-stat-label" data-i18n="profile.stat.focusSessions">Focus sessions</span>
         </article>
       </div>
+    </section>
+
+    <section class="pf-panel pf-account-block hbitFadeUp" aria-labelledby="pfStreaksHeading">
+      <h2 class="pf-section-title" id="pfStreaksHeading" data-i18n="profile.section.streaks">Activity Streaks</h2>
+      <div class="hc-streaks-list" id="pfStreaksList" aria-label="Current streaks by module"></div>
     </section>
 
     <section class="pf-panel hbitFadeUp">

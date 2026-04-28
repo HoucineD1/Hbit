@@ -29,6 +29,7 @@
     editingTaskId: null,
     pendingTaskIds: new Set(),
     viewMode: getStoredViewMode(),
+    calendarMonth: getTodayStr().slice(0, 7),
     nowTimer: null,
     quickDraft: null,
     dragState: null,
@@ -57,14 +58,9 @@
   }
 
   function setViewMode(mode) {
-    if (!["today", "week", "list"].includes(mode)) return;
-    state.viewMode = mode;
-    try { localStorage.setItem(VIEW_MODE_KEY, mode); } catch {}
-    document.querySelectorAll("[data-view-mode]").forEach((btn) => {
-      const active = btn.dataset.viewMode === mode;
-      btn.classList.toggle("active", active);
-      btn.setAttribute("aria-selected", active ? "true" : "false");
-    });
+    // Planner now runs in single mobile-friendly day mode.
+    state.viewMode = "today";
+    try { localStorage.setItem(VIEW_MODE_KEY, "today"); } catch {}
     renderList();
     manageNowTimer();
   }
@@ -90,6 +86,25 @@
       days.push(d);
     }
     return days;
+  }
+  function getCalendarMonthDate() {
+    const [y, m] = String(state.calendarMonth || state.selectedDate.slice(0, 7)).split("-").map(Number);
+    return new Date(y, (m || 1) - 1, 1);
+  }
+  function shiftCalendarMonth(delta) {
+    const d = getCalendarMonthDate();
+    d.setMonth(d.getMonth() + delta);
+    state.calendarMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  }
+  function getMonthGridDays() {
+    const first = getCalendarMonthDate();
+    const start = new Date(first);
+    start.setDate(first.getDate() - first.getDay());
+    return Array.from({ length: 42 }, (_, i) => {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      return d;
+    });
   }
   function formatTimeDisp(timeStr) {
     if (!timeStr) return tr("plan.time.anytime", "Anytime");
@@ -239,8 +254,7 @@
         state.allOpenTasks = mapped;
         state.allPastUndone = mapped.filter(t => t.date < today);
         buildCalendarMeta(mapped);
-        if ($("plCarryOver")) $("plCarryOver").hidden = true;
-        maybeShowMorningReview();
+        if ($("plCarryOver")) $("plCarryOver").hidden = !(state.selectedDate === today && state.allPastUndone.length);
         renderCalendar();
       }).catch((err) => {
         showPlanError(err, () => loadTasks());
@@ -256,8 +270,7 @@
       state.allPastUndone = allTasks.filter(t => t.done === false && t.date < today);
       state.allOpenTasks = allTasks.filter(t => t.done === false);
       buildCalendarMeta(allTasks);
-      if ($("plCarryOver")) $("plCarryOver").hidden = true;
-      maybeShowMorningReview();
+      if ($("plCarryOver")) $("plCarryOver").hidden = !(state.selectedDate === today && state.allPastUndone.length);
       state.tasksSnapReady = true;
       loadTodaysHabits();
       sortRender();
@@ -448,38 +461,98 @@
   function renderCalendar() {
     const track = $("plCalTrack");
     if (!track) return;
-    const days = getWeekDays();
+    if (!state.calendarMonth) state.calendarMonth = state.selectedDate.slice(0, 7);
+    const days = getMonthGridDays();
     const loc = getLang() === "fr" ? "fr-CA" : "en-CA";
     const formatterDay = new Intl.DateTimeFormat(loc, { weekday: "short" });
     const formatterNum = new Intl.DateTimeFormat(loc, { day: "numeric" });
     const formatterLong = new Intl.DateTimeFormat(loc, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
     const monthLabel = $("plCalMonthLabel");
-    if (monthLabel) {
-      monthLabel.textContent = new Intl.DateTimeFormat(loc, { month: "long", year: "numeric" }).format(days[3]);
-    }
+    if (monthLabel) monthLabel.textContent = new Intl.DateTimeFormat(loc, { month: "long", year: "numeric" }).format(getCalendarMonthDate());
     const today = getTodayStr();
+    const currentMonth = state.calendarMonth;
 
-    track.setAttribute("role", "group");
-    track.setAttribute("aria-label", tr("plan.calendar.stripLabel", "Week view — pick a day"));
+    track.setAttribute("role", "grid");
+    track.setAttribute("aria-label", tr("plan.calendar.monthLabel", "Month calendar - pick a day"));
 
-    track.innerHTML = days.map(d => {
+    const weekdayLabels = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(2026, 3, 26 + i);
+      return `<span class="pl-cal-week-label" role="columnheader">${formatterDay.format(d)}</span>`;
+    }).join("");
+
+    const activeWeekIndex = days.findIndex((d) => dateToStr(d) === state.selectedDate);
+    const activeWeekRow = activeWeekIndex >= 0 ? Math.floor(activeWeekIndex / 7) : 0;
+
+    const dayButtons = days.map((d, i) => {
       const dStr = dateToStr(d);
       const isActive = dStr === state.selectedDate;
-      const hasTasks = (state.taskMapByDate[dStr] || 0) > 0;
+      const count = state.taskMapByDate[dStr] || 0;
+      const hasTasks = count > 0;
       const tone = hasTasks ? priorityTone(state.dateMetaByDate[dStr]?.priority) : "";
       const isToday = dStr === today;
+      const isOutside = dStr.slice(0, 7) !== currentMonth;
+      const weekRow = Math.floor(i / 7);
+      const inActiveWeek = weekRow === activeWeekRow;
       const label = formatterLong.format(d);
       return `
-        <button class="pl-cal-day ${isActive ? "active" : ""} ${hasTasks ? "has-tasks" : ""} ${tone} ${isToday ? "today" : ""}" data-date="${dStr}" type="button"
-                aria-label="${escapeHtml(label)}" aria-pressed="${isActive ? "true" : "false"}">
-          <span class="pl-cal-weekday">${formatterDay.format(d)}</span>
+        <button class="pl-cal-day ${isActive ? "active" : ""} ${hasTasks ? "has-tasks" : ""} ${tone} ${isToday ? "today" : ""} ${isOutside ? "outside" : ""} ${inActiveWeek ? "in-active-week" : ""}" data-date="${dStr}" data-week-row="${weekRow}" type="button"
+                role="gridcell" aria-label="${escapeHtml(label)}${count ? ", " + count + " tasks" : ""}" aria-pressed="${isActive ? "true" : "false"}">
           <span class="pl-cal-date">${formatterNum.format(d)}</span>
-          <span class="pl-cal-dot"></span>
+          ${count > 1 ? `<span class="pl-cal-count">${count}</span>` : `<span class="pl-cal-dot"></span>`}
         </button>
       `;
     }).join("");
-    
-    setTimeout(() => { track.querySelector(".active, .today")?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); }, 50);
+
+    track.innerHTML = weekdayLabels + dayButtons;
+  }
+
+  // ======================================================================
+  // CALENDAR COLLAPSE BEHAVIOR
+  // ======================================================================
+  function setCalendarCollapsed(collapsed) {
+    const strip = $("plCalStrip");
+    if (!strip) return;
+    const next = collapsed ? "true" : "false";
+    if (strip.dataset.collapsed === next) return;
+    strip.dataset.collapsed = next;
+    const monthBtn = $("plCalMonthLabel");
+    if (monthBtn) monthBtn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    const handle = $("plCalHandle");
+    if (handle) handle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+  }
+  function toggleCalendarCollapsed() {
+    const strip = $("plCalStrip");
+    if (!strip) return;
+    setCalendarCollapsed(strip.dataset.collapsed !== "true");
+  }
+  function bindCalendarCollapse() {
+    const monthBtn = $("plCalMonthLabel");
+    if (monthBtn && !monthBtn.dataset.collapseBound) {
+      monthBtn.addEventListener("click", toggleCalendarCollapsed);
+      monthBtn.dataset.collapseBound = "1";
+    }
+    const handle = $("plCalHandle");
+    if (handle && !handle.dataset.collapseBound) {
+      handle.addEventListener("click", toggleCalendarCollapsed);
+      handle.dataset.collapseBound = "1";
+    }
+    if (!bindCalendarCollapse._scrollBound) {
+      let lastY = window.scrollY;
+      let ticking = false;
+      window.addEventListener("scroll", () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          const y = window.scrollY;
+          const goingDown = y > lastY;
+          if (goingDown && y > 80) setCalendarCollapsed(true);
+          else if (y < 24) setCalendarCollapsed(false);
+          lastY = y;
+          ticking = false;
+        });
+      }, { passive: true });
+      bindCalendarCollapse._scrollBound = true;
+    }
   }
 
   function renderList() {
@@ -487,17 +560,11 @@
     renderOverview();
     renderViewSwitch();
     renderHabitMenu();
-    if (state.viewMode === "week") renderWeekGrid();
-    else if (state.viewMode === "list") renderAgendaList();
-    else renderDayGrid();
+    renderDayGrid();
   }
 
   function renderViewSwitch() {
-    document.querySelectorAll("[data-view-mode]").forEach((btn) => {
-      const active = btn.dataset.viewMode === state.viewMode;
-      btn.classList.toggle("active", active);
-      btn.setAttribute("aria-selected", active ? "true" : "false");
-    });
+    // Removed: Today / Week / List segmented control.
   }
 
   function scheduledTasks() {
@@ -535,16 +602,16 @@
     const empty = $("planEmpty");
     if (!list || !empty) return;
     const isEmpty = state.tasks.length === 0 && state.habits.length === 0;
-    empty.hidden = !isEmpty;
+    // Keep timeline visible even with zero tasks to avoid "blank day" confusion.
+    empty.hidden = true;
     const summary = document.querySelector(".pl-day-summary");
     const overview = document.querySelector(".pl-overview");
     const filter = document.querySelector(".pl-priority-filter");
-    if (summary) summary.hidden = isEmpty;
+    if (summary) summary.hidden = false;
     if (overview) overview.hidden = isEmpty;
     if (filter) filter.hidden = isEmpty;
     const fab = document.getElementById("plFabBtn");
-    if (fab) fab.hidden = isEmpty;
-    if (isEmpty) { list.innerHTML = ""; list.className = "pl-timeline"; return; }
+    if (fab) fab.hidden = false;
     const hours = [];
     for (let h = HOUR_START; h <= HOUR_END; h += 1) hours.push(h);
     const blocks = [...scheduledTasks(), ...timelineHabitBlocks()].sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
@@ -684,7 +751,7 @@
     if (overview) overview.hidden = isEmpty;
     if (filter) filter.hidden = isEmpty;
     const fab = document.getElementById("plFabBtn");
-    if (fab) fab.hidden = isEmpty;
+    if (fab) fab.hidden = false;
 
     const now = new Date();
     const today = getTodayStr();
@@ -970,19 +1037,24 @@
     const task = state.tasks.find((item) => item.id === block.dataset.id);
     const canvas = block.closest(".pl-hour-canvas");
     if (!task || !canvas) return;
-    e.preventDefault();
-    block.setPointerCapture?.(e.pointerId);
     const rect = canvas.getBoundingClientRect();
     const startY = e.clientY;
     const startMinutes = timeToMinutes(task.time);
     const startDuration = taskDuration(task);
     const resizing = !!e.target.closest("[data-resize-handle]");
-    state.dragState = { id: task.id, rect, startY, startMinutes, startDuration, resizing };
-    block.classList.add("is-dragging");
+    const DRAG_THRESHOLD = resizing ? 2 : 6;
+    state.dragState = { id: task.id, rect, startY, startMinutes, startDuration, resizing, started: false };
 
     const move = (ev) => {
       if (!state.dragState) return;
-      const deltaMin = ((ev.clientY - state.dragState.startY) / ROW_H) * 60;
+      const dy = ev.clientY - state.dragState.startY;
+      if (!state.dragState.started) {
+        if (Math.abs(dy) < DRAG_THRESHOLD) return;
+        state.dragState.started = true;
+        block.classList.add("is-dragging");
+        block.setPointerCapture?.(e.pointerId);
+      }
+      const deltaMin = (dy / ROW_H) * 60;
       if (state.dragState.resizing) {
         const duration = Math.max(15, Math.round((state.dragState.startDuration + deltaMin) / SNAP_MIN) * SNAP_MIN);
         block.style.height = `${Math.max(38, (duration / 60) * ROW_H)}px`;
@@ -997,15 +1069,18 @@
     const up = async () => {
       document.removeEventListener("pointermove", move);
       document.removeEventListener("pointerup", up);
+      const dragState = state.dragState;
+      const wasDragging = !!dragState?.started;
       const previewTime = block.dataset.previewTime;
       const previewDuration = block.dataset.previewDuration;
       block.classList.remove("is-dragging");
       delete block.dataset.previewTime;
       delete block.dataset.previewDuration;
+      state.dragState = null;
+      if (!wasDragging) return;
       const payload = {};
       if (previewTime) payload.time = previewTime;
       if (previewDuration) payload.duration = Number(previewDuration);
-      state.dragState = null;
       if (Object.keys(payload).length) await updateTask(task.id, payload);
       else renderList();
     };
@@ -1133,6 +1208,8 @@
       if (title) title.textContent = state.editingTaskId ? tr("plan.modal.editTitle", "Edit Task") : tr("plan.modal.title", "Add Task");
       const save = $("plModalSave");
       if (save) save.textContent = state.editingTaskId ? tr("plan.btn.saveTask", "Save task") : tr("plan.btn.addItinerary", "Add task");
+      const delBtn = $("plModalDelete");
+      if (delBtn) delBtn.hidden = !state.editingTaskId;
       if (modal) { HBIT.components?.openSheet(modal); $("plInputTitle")?.focus(); }
       checkConflict();
     }
@@ -1146,39 +1223,35 @@
       if (msg) { msg.hidden = true; msg.textContent = ""; }
     }
 
+    $("plModalDelete")?.addEventListener("click", async () => {
+      if (!state.editingTaskId) return;
+      const id = state.editingTaskId;
+      try {
+        await deleteTask(id);
+        closeTaskSheet();
+      } catch (_) {}
+    });
+
     $("plCalTrack")?.addEventListener("click", (e) => {
       const btn = e.target.closest(".pl-cal-day");
       if (!btn) return;
       const dStr = btn.getAttribute("data-date");
-      if (dStr !== state.selectedDate) {
-        state.planDeleteConfirmId = null;
-        state.selectedDate = dStr;
-        renderHeader();
-        loadTasks();
-        loadTodaysHabits();
-        manageNowTimer();
-      }
+      if (dStr === state.selectedDate) return;
+      state.planDeleteConfirmId = null;
+      state.selectedDate = dStr;
+      state.calendarMonth = dStr.slice(0, 7);
+      renderHeader();
+      loadTasks();
+      loadTodaysHabits();
+      manageNowTimer();
+      setCalendarCollapsed(true);
     });
     $("plWeekPrev")?.addEventListener("click", () => {
-      state.weekOffset -= 1;
-      if (state.viewMode === "week") {
-        const d = strToDate(state.selectedDate);
-        d.setDate(d.getDate() - 7);
-        state.selectedDate = dateToStr(d);
-        renderHeader();
-        loadTasks();
-      }
+      shiftCalendarMonth(-1);
       renderCalendar();
     });
     $("plWeekNext")?.addEventListener("click", () => {
-      state.weekOffset += 1;
-      if (state.viewMode === "week") {
-        const d = strToDate(state.selectedDate);
-        d.setDate(d.getDate() + 7);
-        state.selectedDate = dateToStr(d);
-        renderHeader();
-        loadTasks();
-      }
+      shiftCalendarMonth(1);
       renderCalendar();
     });
 
@@ -1218,6 +1291,13 @@
           renderHeader();
           loadTasks();
           manageNowTimer();
+        }
+        return;
+      }
+      if (!actionEl && item.classList.contains("pl-grid-block") && task) {
+        if (item.dataset.blockKind === "task") {
+          state.planDeleteConfirmId = null;
+          openTaskSheet(task);
         }
         return;
       }
@@ -1484,6 +1564,8 @@
     $("plHelpOverlay")?.classList.remove("open");
     $("plHelpOverlay")?.setAttribute("aria-hidden", "true");
     renderHeader(); renderCalendar(); bindUi();
+    bindCalendarCollapse();
+    setCalendarCollapsed(window.matchMedia?.("(max-width: 767px)")?.matches);
     renderList();
     manageNowTimer();
 
@@ -1503,7 +1585,8 @@
     firebase.auth().onAuthStateChanged(u => {
       if (u) {
         state.user = u; loadTasks();
-        if ($("planAvatar")) $("planAvatar").textContent = (u.displayName || "H").charAt(0).toUpperCase();
+        const planAvatar = $("planAvatar");
+        if (planAvatar && !planAvatar.classList.contains("hbit-settings-btn")) planAvatar.textContent = (u.displayName || "H").charAt(0).toUpperCase();
       } else {
         state.user = null;
         window.location.replace("login.html");

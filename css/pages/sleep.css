@@ -262,9 +262,9 @@ html[data-theme="light"] #sleepPage .sl-hdr-btn .hm-theme-light { display: block
 /* ── Hero v2 ────────────────────────────────────────────────────── */
 #sleepPage .sl-hero-v2 {
   border-radius: 22px;
-  padding: 22px 20px;
-  background: linear-gradient(145deg, #1e1b4b 0%, #312e81 100%);
-  border: 1px solid color-mix(in srgb, var(--sl-accent) 35%, transparent);
+  padding: 18px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--sl-panel) 94%, #111827), color-mix(in srgb, var(--sl-panel2) 88%, #1e1b4b));
+  border: 1px solid color-mix(in srgb, var(--sl-accent) 24%, var(--sl-border));
   box-shadow:
     0 4px 32px rgba(0, 0, 0, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
@@ -275,9 +275,8 @@ html[data-theme="light"] #sleepPage .sl-hero-v2 {
   box-shadow: 0 4px 24px rgba(99, 102, 241, 0.12);
 }
 #sleepPage .sl-hero-v2-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
+  display: grid;
+  gap: 14px;
 }
 #sleepPage .sl-hero-plan {
   display: flex;
@@ -296,12 +295,25 @@ html[data-theme="light"] #sleepPage .sl-hero-v2 {
 }
 #sleepPage .sl-hero-bedtime-row,
 #sleepPage .sl-hero-wake-row {
-  display: flex;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  align-items: center;
   gap: 10px;
+  padding: 12px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--sl-panel) 56%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sl-border) 55%, transparent);
 }
 #sleepPage .sl-hero-bedtime-ico,
 #sleepPage .sl-hero-wake-ico { font-size: 20px; line-height: 1; }
+/* Dim the em-dash placeholder when no plan is set */
+#sleepPage .sl-hero-plan--empty .sl-hero-bedtime,
+#sleepPage .sl-hero-plan--empty .sl-hero-wake-time {
+  opacity: 0.75;
+  font-weight: 800;
+  font-size: 24px;
+  letter-spacing: 0;
+}
 #sleepPage .sl-hero-bedtime {
   font-size: clamp(28px, 8vw, 40px);
   font-weight: 800;
@@ -317,8 +329,8 @@ html[data-theme="light"] #sleepPage .sl-hero-v2 {
 }
 #sleepPage .sl-hero-sublbl {
   font-size: 12px;
-  font-weight: 600;
-  color: var(--sl-muted);
+  font-weight: 800;
+  color: color-mix(in srgb, var(--sl-muted) 72%, var(--sl-text));
   margin-top: 4px;
 }
 #sleepPage .sl-hero-badge-row {
@@ -336,7 +348,7 @@ html[data-theme="light"] #sleepPage .sl-hero-v2 {
   font-weight: 700;
   background: var(--sl-accent-soft);
   border: 1px solid color-mix(in srgb, var(--sl-accent) 35%, transparent);
-  color: var(--sl-text);
+  color: color-mix(in srgb, var(--sl-text) 92%, var(--sl-accent));
 }
 #sleepPage .sl-hero-countdown {
   display: inline-flex;
@@ -800,6 +812,16 @@ html[data-theme="light"] #sleepPage .sl-hero-v2 {
   background: color-mix(in srgb, var(--sl-panel) 92%, transparent);
   border: 1px solid color-mix(in srgb, var(--sl-border) 55%, transparent);
   transition: box-shadow 0.35s, border-color 0.35s;
+}
+#sleepPage .sl-winddown:not(.sl-winddown--ready) {
+  display: grid;
+  gap: 12px;
+}
+#sleepPage .sl-winddown:not(.sl-winddown--ready) .sl-winddown-head {
+  opacity: 0.86;
+}
+#sleepPage .sl-winddown-list[hidden] {
+  display: none !important;
 }
 #sleepPage .sl-winddown.active {
   border-color: color-mix(in srgb, var(--sl-accent) 45%, transparent);
@@ -2038,4 +2060,82 @@ html[data-theme="light"] #sleepPage .sl-help-steps span {
 .sl-ready-btn:active {
   transform: scale(0.97);
   transition: transform 0.1s ease;
+}
+
+/* Full UI upgrade B-D — palette-aware sleep foundation */
+html[data-palette="sage"] #sleepPage,
+html[data-palette="arctic"] #sleepPage {
+  --sl-accent: var(--sleep);
+  --sl-accent2: var(--sleep);
+  --sl-soft: color-mix(in srgb, var(--sleep) 12%, transparent);
+  --sl-soft2: color-mix(in srgb, var(--sleep) 7%, transparent);
+  --sl-bg: var(--bg);
+  --sl-panel: var(--panel);
+  --sl-panel2: var(--panel2);
+  --sl-text: var(--text);
+  --sl-muted: var(--text-secondary);
+  --sl-border: var(--border);
+}
+
+html[data-palette="sage"] #sleepPage .hbit-module-header,
+html[data-palette="arctic"] #sleepPage .hbit-module-header,
+html[data-palette="sage"] #sleepPage .sl-header,
+html[data-palette="arctic"] #sleepPage .sl-header {
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  border-bottom-color: var(--border);
+}
+
+html[data-palette="sage"] #sleepPage .sl-card,
+html[data-palette="sage"] #sleepPage .sl-panel,
+html[data-palette="sage"] #sleepPage .sl-week-row,
+html[data-palette="sage"] #sleepPage .sl-cal-day,
+html[data-palette="arctic"] #sleepPage .sl-card,
+html[data-palette="arctic"] #sleepPage .sl-panel,
+html[data-palette="arctic"] #sleepPage .sl-week-row,
+html[data-palette="arctic"] #sleepPage .sl-cal-day {
+  background: var(--panel);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+#sleepPage .sl-hdr-title,
+#sleepPage .hbit-module-copy h1 {
+  font-size: var(--fs-20);
+}
+
+#sleepPage .sl-hdr-date,
+#sleepPage .sl-cycle-note,
+#sleepPage .sl-cycle-meta {
+  font-size: var(--fs-12);
+}
+
+#sleepPage .sl-tonight-layout {
+  align-items: stretch;
+}
+
+#sleepPage .sl-card,
+#sleepPage .sl-panel,
+#sleepPage .sl-cycle-card {
+  box-shadow: 0 10px 28px rgba(var(--shadow-rgb, 0, 0, 0), 0.12);
+}
+
+#sleepPage .sl-cycle-scroll {
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+#sleepPage .sl-cycle-card {
+  scroll-snap-align: start;
+}
+
+@media (max-width: 420px) {
+  #sleepPage .sl-main {
+    padding-inline: 12px;
+  }
+
+  #sleepPage .sl-cycle-card {
+    min-width: min(82vw, 280px);
+  }
 }

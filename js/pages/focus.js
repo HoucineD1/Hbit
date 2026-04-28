@@ -138,6 +138,7 @@
     breakDuration: 5,
     dailyGoal: 4,
     brPattern: "box",
+    autoStartBreak: false,
   };
   let currentIntent = "";
 
@@ -412,6 +413,10 @@
     saveSheet: $("fcSaveSheet"),
     saveMinutes: $("fcSaveMinutes"),
     saveStreak: $("fcSaveStreak"),
+    sessionMode: $("fcSessionMode"),
+    sessionPlan: $("fcSessionPlan"),
+    sessionCount: $("fcSessionCount"),
+    dotBurst: $("fcDotBurst"),
   };
 
   function fmt(sec) {
@@ -473,6 +478,8 @@
     if (ui.progressMeta) ui.progressMeta.textContent = `${timerState.sessions} / ${settings.dailyGoal}`;
     if (ui.goalProgress) ui.goalProgress.style.width = `${pct}%`;
     if (ui.focusMinutes) ui.focusMinutes.textContent = formatMinutesTotal(workTodayMins);
+    if (ui.sessionCount) ui.sessionCount.textContent = `${timerState.sessions} / ${settings.dailyGoal}`;
+    if (ui.sessionPlan) ui.sessionPlan.textContent = `${settings.workDuration} / ${settings.breakDuration}`;
   }
 
   function setActiveTab(tab) {
@@ -676,6 +683,7 @@
 
   function showSessionSavedSheet(done) {
     const sheet = ui.saveSheet;
+    triggerCompletionBurst();
     if (!sheet) {
       done?.();
       return;
@@ -690,7 +698,7 @@
       closeSaveSheet();
       done?.();
     };
-    focusPopTimer = setTimeout(finish, 9000);
+    focusPopTimer = setTimeout(finish, settings.autoStartBreak ? 2000 : 9000);
     $("fcStartAnother")?.addEventListener("click", () => {
       closeSaveSheet();
       initPhase(true);
@@ -715,11 +723,26 @@
 
     body?.classList.toggle("is-break", !isWork);
     if (ui.chip) ui.chip.textContent = tr(isWork ? "focus.phase.work" : "focus.phase.breathe", isWork ? "Work" : "Breathe");
+    if (ui.sessionMode) {
+      ui.sessionMode.textContent = tr(isWork ? "focus.phase.work" : "focus.phase.breathe", isWork ? "Work" : "Breathe");
+      ui.sessionMode.classList.toggle("is-break", !isWork);
+    }
     if (ui.label) ui.label.textContent = tr(isWork ? "focus.sub.focusTime" : "focus.sub.breakRecover", isWork ? "Focus Time" : "Break & Recover");
 
     if (!isWork) setupBreathe();
 
     renderTimer();
+  }
+
+  function triggerCompletionBurst() {
+    ui.dotBurst?.classList.remove("is-active");
+    void ui.dotBurst?.offsetWidth;
+    ui.dotBurst?.classList.add("is-active");
+    body?.classList.add("fc-complete-pulse");
+    window.setTimeout(() => {
+      ui.dotBurst?.classList.remove("is-active");
+      body?.classList.remove("fc-complete-pulse");
+    }, 900);
   }
 
   // Breathing Logic (Executes alongside break countdown)
@@ -777,6 +800,7 @@
           showSessionSavedSheet(() => {
             window.HBIT?.toast?.success(tr("focus.toast.sessionGreat", "Great focus session! Let's breathe."));
             initPhase(false);
+            if (settings.autoStartBreak) toggleRun(true);
           });
         } else {
           playBreakEndChime();
@@ -867,6 +891,12 @@
       markAudioUserReady();
       toggleRun(false);
       if (!ui.modal) return;
+      if ($("fcSetWork")) $("fcSetWork").value = settings.workDuration;
+      if ($("fcSetBreak")) $("fcSetBreak").value = settings.breakDuration;
+      if ($("fcSetGoal")) $("fcSetGoal").value = settings.dailyGoal;
+      if ($("fcSetBrPattern")) $("fcSetBrPattern").value = settings.brPattern;
+      if ($("fcSetAutoBreak")) $("fcSetAutoBreak").checked = settings.autoStartBreak === true;
+      if ($("fcSetSound")) $("fcSetSound").checked = soundEnabled();
       if (HBIT.components?.openSheet) HBIT.components.openSheet(ui.modal);
       else {
         ui.modal.hidden = false;
@@ -885,6 +915,8 @@
       settings.breakDuration = Math.max(1, b);
       settings.dailyGoal = Math.max(1, g);
       settings.brPattern = $("fcSetBrPattern").value || "box";
+      settings.autoStartBreak = $("fcSetAutoBreak")?.checked === true;
+      setSoundPref($("fcSetSound")?.checked !== false);
       saveSettings();
       closeMod();
       initPhase(true);
@@ -953,6 +985,8 @@
     if ($("fcSetBreak")) $("fcSetBreak").value = settings.breakDuration;
     if ($("fcSetGoal")) $("fcSetGoal").value = settings.dailyGoal;
     if ($("fcSetBrPattern")) $("fcSetBrPattern").value = settings.brPattern;
+    if ($("fcSetAutoBreak")) $("fcSetAutoBreak").checked = settings.autoStartBreak === true;
+    if ($("fcSetSound")) $("fcSetSound").checked = soundEnabled();
     if (ui.intentInput) ui.intentInput.value = currentIntent;
 
     renderSettingsState();

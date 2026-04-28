@@ -445,6 +445,11 @@ html[data-theme="light"] .hdr-btn .hm-theme-light { display: block; }
   box-shadow: var(--input-focus-ring);
 }
 
+.hbit-settings-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
 /* ══ Shared help modal (Sleep-style, all app pages) ═══════════════════ */
 .hbit-help-overlay {
   position: fixed;
@@ -608,17 +613,9 @@ html[data-theme="light"] .hbit-help-card {
 
 /* Phase 3 — sidebar trigger replaced with settings button on mobile; reserve 52px on the left */
 @media (max-width: 767px) {
-  #habitsPage .hbit-module-header,
-  #budgetPage .hbit-module-header,
-  #sleepPage .hbit-module-header,
-  #moodPage .hbit-module-header,
-  #focusPage .hbit-module-header,
-  #planPage .hbit-module-header,
-  #notificationsPage .hbit-module-header,
-  #newsPage .hbit-module-header {
-    padding-left: 52px !important;
+  .hbit-module-header {
+    padding-inline: max(var(--space-3), env(safe-area-inset-left, 0px)) max(var(--space-3), env(safe-area-inset-right, 0px));
   }
-  #homePage .hm-header { padding-left: 52px !important; }
 }
 
 .hbit-stat {
@@ -1003,6 +1000,90 @@ html[data-theme="light"] .hbit-help-card {
   background: var(--brand);
   border-color: var(--brand);
   color: #fff;
+}
+
+/* Full UI upgrade foundation — shared app primitives */
+.hbit-card,
+.hbit-stat,
+.hc-card,
+.pf-panel,
+.card {
+  border-color: var(--card-border, color-mix(in srgb, var(--text) 7%, transparent));
+  box-shadow: var(--card-shadow, var(--shadow-md));
+  transition:
+    transform var(--motion-fast),
+    box-shadow var(--motion-fast),
+    border-color var(--motion-fast),
+    background var(--motion-fast);
+}
+
+html[data-palette="sage"] .hbit-card,
+html[data-palette="sage"] .hbit-stat,
+html[data-palette="sage"] .hc-card,
+html[data-palette="sage"] .pf-panel,
+html[data-palette="arctic"] .hbit-card,
+html[data-palette="arctic"] .hbit-stat,
+html[data-palette="arctic"] .hc-card,
+html[data-palette="arctic"] .pf-panel,
+html[data-theme="light"] .hbit-card,
+html[data-theme="light"] .hbit-stat,
+html[data-theme="light"] .hc-card,
+html[data-theme="light"] .pf-panel {
+  border-color: var(--card-border-light, color-mix(in srgb, var(--text) 8%, transparent));
+}
+
+@media (hover: hover) {
+  .hbit-card:hover,
+  .hbit-stat:hover,
+  .hc-card:hover,
+  .pf-panel:hover,
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow-hover, var(--shadow-lg));
+  }
+}
+
+.hbit-card:active,
+.hbit-stat:active,
+.hc-card:active,
+.btn:active,
+button:active {
+  transform: scale(0.97);
+  transition-duration: var(--motion-duration-instant, 80ms);
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: none;
+  box-shadow: var(--input-focus-ring);
+}
+
+.hbit-empty-state {
+  text-align: center;
+  color: var(--muted);
+}
+
+.hbit-empty-state h2,
+.hbit-empty-state .bg-empty-title,
+.hbit-empty-state .hb-empty-title,
+.hbit-empty-state .pl-empty-title {
+  color: var(--text);
+  font-size: var(--fs-20);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.hbit-empty-state p,
+.hbit-empty-state .bg-empty-sub,
+.hbit-empty-state .hb-empty-sub,
+.hbit-empty-state .pl-empty-sub {
+  color: var(--muted);
+  font-size: var(--fs-14);
+  line-height: 1.5;
 }
 
 @media (min-width: 720px) {

@@ -50,6 +50,7 @@
   --radius-1: 10px;
   --radius-2: 16px;
   --radius-3: 24px;
+  --radius-4: 32px;
 
   --card-radius: var(--radius-2);
   --card-padding: var(--space-4);
@@ -77,15 +78,19 @@
   --space-5: 20px;
   --space-6: 24px;
   --space-7: 32px;
-  --space-8: 48px;
-  --space-9: 64px;
+  --space-8: 32px;
+  --space-9: 48px;
+  --space-10: 64px;
 
   /* Easing */
   --motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --motion-fast: 200ms var(--motion-ease);
-  --motion-normal: 320ms var(--motion-ease);
+  --motion-fast: 160ms var(--motion-ease);
+  --motion-normal: 240ms var(--motion-ease);
   --motion-deliberate: 480ms var(--motion-ease);
   --motion-instant: 80ms var(--motion-ease);
+  --motion-duration-instant: 80ms;
+  --motion-duration-fast: 160ms;
+  --motion-duration-normal: 240ms;
   --ease-spring:  var(--motion-ease);
   --ease-smooth:  var(--motion-ease);
   --ease-snappy:  var(--motion-ease);
@@ -112,6 +117,17 @@
   --shadow-accent: 0 0 16px rgba(232,51,74,.18);
   --palette-name: "Midnight";
   --shadow: var(--shadow-xl);
+  --hm-bg: var(--bg);
+  --hm-surface: var(--surface);
+  --hm-panel: var(--panel);
+  --hm-panel2: var(--panel2);
+  --hm-text: var(--text);
+  --hm-muted: color-mix(in srgb, var(--text) 52%, transparent);
+  --hm-border: var(--border);
+  --card-border: color-mix(in srgb, var(--text) 7%, transparent);
+  --card-border-light: color-mix(in srgb, var(--text) 8%, transparent);
+  --card-shadow: 0 1px 3px rgba(var(--shadow-rgb), 0.12), 0 4px 12px rgba(var(--shadow-rgb), 0.08);
+  --card-shadow-hover: 0 4px 16px rgba(var(--shadow-rgb), 0.16), 0 12px 32px rgba(var(--shadow-rgb), 0.12);
 
   /* CANONICAL MODULE COLORS - single source of truth */
   --habit-original: #34D399;

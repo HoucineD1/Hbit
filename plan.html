@@ -44,7 +44,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 </head>
 
-<body id="planPage">
+<body id="planPage" class="has-sidebar">
 
   <a href="#main-content" class="skip-link" data-i18n="a11y.skipToContent">Skip to main content</a>
 
@@ -84,23 +84,25 @@
           <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
         </svg>
       </button>
-      <a class="hdr-avatar" id="planAvatar" href="profile.html" aria-label="Profile">H</a>
+      <a class="hdr-btn hbit-settings-btn" id="planAvatar" href="profile.html#appearance" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 0-.38 1.05V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 0-1.05-.38H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6A1.65 1.65 0 0 0 10.4 3V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.39.37.73.68 1 .3.26.67.4 1.05.4H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51.6z"/></svg>
+      </a>
     </div>
   </header>
 
   <!-- Calendar Strip -->
-  <div class="pl-cal-strip">
-    <div class="pl-view-switch" role="tablist" aria-label="Planner view" data-i18n-aria-label="plan.view.aria">
-      <button class="pl-view-btn active" id="plViewToday" type="button" role="tab" aria-selected="true" data-view-mode="today" data-i18n="plan.view.today">Today</button>
-      <button class="pl-view-btn" id="plViewWeek" type="button" role="tab" aria-selected="false" data-view-mode="week" data-i18n="plan.view.week">Week</button>
-      <button class="pl-view-btn" id="plViewList" type="button" role="tab" aria-selected="false" data-view-mode="list" data-i18n="plan.view.list">List</button>
-    </div>
+  <div class="pl-cal-strip" id="plCalStrip" data-collapsed="false">
     <div class="pl-cal-head">
-      <button class="pl-cal-nav" id="plWeekPrev" type="button" aria-label="Previous week">&lsaquo;</button>
-      <div class="pl-cal-month" id="plCalMonthLabel">April 2026</div>
-      <button class="pl-cal-nav" id="plWeekNext" type="button" aria-label="Next week">&rsaquo;</button>
+      <button class="pl-cal-nav" id="plWeekPrev" type="button" aria-label="Previous month">&lsaquo;</button>
+      <button class="pl-cal-month" id="plCalMonthLabel" type="button" aria-expanded="true" aria-controls="plCalGridWrap">April 2026</button>
+      <button class="pl-cal-nav" id="plWeekNext" type="button" aria-label="Next month">&rsaquo;</button>
     </div>
-    <div class="pl-cal-track" id="plCalTrack"></div>
+    <div class="pl-cal-grid-wrap" id="plCalGridWrap">
+      <div class="pl-cal-track" id="plCalTrack"></div>
+    </div>
+    <button class="pl-cal-handle" id="plCalHandle" type="button" aria-controls="plCalGridWrap" aria-expanded="true" aria-label="Toggle calendar">
+      <span class="pl-cal-handle-grip" aria-hidden="true"></span>
+    </button>
   </div>
 
   <main class="pl-main" id="main-content">
@@ -298,7 +300,10 @@
           <label data-i18n="plan.label.notes">Notes & Links</label>
           <textarea class="pl-input-notes" id="plInputNotes" data-i18n-placeholder="plan.placeholder.notes" placeholder="Add detailed notes here..."></textarea>
         </div>
-        <button type="submit" class="pl-modal-save" id="plModalSave" data-i18n="plan.btn.addItinerary">Add task</button>
+        <div class="pl-modal-actions">
+          <button type="button" class="pl-modal-delete" id="plModalDelete" hidden data-i18n="plan.btn.deleteTask">Delete</button>
+          <button type="submit" class="pl-modal-save" id="plModalSave" data-i18n="plan.btn.addItinerary">Add task</button>
+        </div>
       </form>
     </div>
   </div>

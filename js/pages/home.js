@@ -452,7 +452,8 @@
     if ($("greetingDate")) $("greetingDate").textContent = shortDate(now);
     if ($("greetingLabel")) $("greetingLabel").textContent = getGreeting();
     if ($("greetingName")) $("greetingName").textContent = name;
-    if ($("profileBtn")) $("profileBtn").textContent = (name.charAt(0) || "H").toUpperCase();
+    const profileBtn = $("profileBtn");
+    if (profileBtn && !profileBtn.classList.contains("hbit-settings-btn")) profileBtn.textContent = (name.charAt(0) || "H").toUpperCase();
   }
 
   function renderEmpty() {

@@ -1254,6 +1254,8 @@ html[data-theme="dark"] #moodPage .md-heatmap-cell:not([data-band]) {
 @media (max-width: 639px) {
   .md-header { padding-left: 54px; }
   .md-main { padding-inline: 14px; }
+  /* FAB sits at the bottom-right — give resources section breathing room */
+  .md-resources { padding-right: 76px; }
   .md-heatmap-stage {
     min-height: auto;
     margin-top: 4px;
@@ -1388,4 +1390,70 @@ html[data-theme="light"] #moodPage .hm-theme-light { display: block; }
 .md-btn-primary:active {
   transform: scale(0.97);
   transition: transform 0.1s ease;
+}
+
+/* Full UI upgrade B-D — palette-aware mood foundation */
+html[data-palette="sage"] #moodPage,
+html[data-palette="arctic"] #moodPage {
+  --hm-bg: var(--bg);
+  --hm-text: var(--text);
+  --hm-muted: var(--text-secondary);
+}
+
+html[data-palette="sage"] #moodPage .hbit-module-header,
+html[data-palette="arctic"] #moodPage .hbit-module-header,
+html[data-palette="sage"] #moodPage .md-header,
+html[data-palette="arctic"] #moodPage .md-header {
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  border-bottom-color: var(--border);
+}
+
+html[data-palette="sage"] #moodPage .md-card,
+html[data-palette="sage"] #moodPage .md-heatmap-shell,
+html[data-palette="sage"] #moodPage .md-depth-inner,
+html[data-palette="arctic"] #moodPage .md-card,
+html[data-palette="arctic"] #moodPage .md-heatmap-shell,
+html[data-palette="arctic"] #moodPage .md-depth-inner {
+  background: color-mix(in srgb, var(--panel) 94%, transparent);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+#moodPage .md-hdr-title,
+#moodPage .hbit-module-copy h1 {
+  font-size: var(--fs-24);
+}
+
+#moodPage .md-leadin,
+#moodPage .md-heatmap-title {
+  font-size: clamp(var(--fs-24), 4vw, var(--fs-40));
+}
+
+#moodPage .md-depth {
+  max-width: 100%;
+}
+
+#moodPage .md-depth:not(.open) {
+  max-height: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 420px) {
+  #moodPage .md-main {
+    padding-inline: 12px;
+  }
+
+  #moodPage .md-depth-inner {
+    max-height: min(78dvh, 620px);
+    overflow-y: auto;
+  }
+
+  #moodPage .md-depth-bands {
+    grid-template-columns: repeat(5, minmax(42px, 1fr));
+    gap: 6px;
+  }
+
+  #moodPage .md-depth-band {
+    min-width: 0;
+  }
 }

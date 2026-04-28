@@ -746,9 +746,12 @@
                     stroke-dasharray="${RING_CIRC.toFixed(2)}"
                     stroke-dashoffset="${offset}"
                     transform="rotate(-90 34 34)"/>
-            <text class="hb-ring-pct" x="34" y="32">${pctRound}%</text>
-            <text class="hb-ring-sub" x="34" y="42">${doneDays}/${goalDays}d</text>
+            <text class="hb-ring-pct" x="34" y="38">${pctRound}%</text>
           </svg>
+        </div>
+        <div class="hb-card-progress">
+          <span>${doneDays} of ${goalDays} days</span>
+          <strong>${pctRound}%</strong>
         </div>
         <div class="hb-card-streak">
           <span class="hb-streak-flame">\u{1F525}</span>
@@ -1905,8 +1908,8 @@
       db = firebase.firestore();
 
       const av = $("hbAvatar");
-      if (av && user.displayName) av.textContent = user.displayName.charAt(0).toUpperCase();
-      else if (av && user.email) av.textContent = user.email.charAt(0).toUpperCase();
+      if (av && !av.classList.contains("hbit-settings-btn") && user.displayName) av.textContent = user.displayName.charAt(0).toUpperCase();
+      else if (av && !av.classList.contains("hbit-settings-btn") && user.email) av.textContent = user.email.charAt(0).toUpperCase();
 
       loadData();
       if (!_eventsBound) { bindEvents(); _eventsBound = true; }
